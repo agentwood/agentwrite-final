@@ -1,6 +1,9 @@
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { BrainstormRequest, BrainstormResponse, StorySegment, StoryOption } from "../types";
 
+// Explicitly declare process to avoid build errors
+declare var process: any;
+
 const getClient = () => {
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
