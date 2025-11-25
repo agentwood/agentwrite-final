@@ -1,11 +1,10 @@
-
-import { GoogleGenAI, Type, Schema, Modality } from "@google/genai";
+import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { BrainstormRequest, BrainstormResponse, StorySegment, StoryOption } from "../types";
 
 const getClient = () => {
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
-    throw new Error("API Key not found. Please set process.env.API_KEY.");
+    throw new Error("API Key not found. Please set API_KEY in environment variables.");
   }
   return new GoogleGenAI({ apiKey });
 };
@@ -31,7 +30,8 @@ export const generateBrainstormIdeas = async (
     Please provide 5 to 10 distinct, creative, and high-quality options.
   `;
 
-  const responseSchema: Schema = {
+  // Define schema manually to avoid import issues
+  const responseSchema = {
     type: Type.OBJECT,
     properties: {
       ideas: {
@@ -311,7 +311,7 @@ export const generateStorySegment = async (
       Return JSON format.
     `;
 
-    const responseSchema: Schema = {
+    const responseSchema = {
         type: Type.OBJECT,
         properties: {
             content: { type: Type.STRING, description: "The story prose." },
