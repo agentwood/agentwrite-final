@@ -1,18 +1,29 @@
-
 import { createClient } from '@supabase/supabase-js';
 
-// Try to get keys from various process.env formats (Vite or standard Node)
-const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+// Robustly check for environment variables in Vite (import.meta.env) and Node (process.env)
+const getEnvVar = (key: string, viteKey: string): string => {
+  // Check Vite's import.meta.env first (standard for Vite apps)
+  // Casting to any to avoid TypeScript errors if types are not configured
+  if (import.meta && (import.meta as any).env && (import.meta as any).env[viteKey]) {
+    return (import.meta as any).env[viteKey];
+  }
+  // Fallback to process.env (handled by vite.config.ts define)
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env[viteKey] || process.env[key] || '';
+  }
+  return '';
+};
 
-// Only create the client if keys are present to avoid runtime crashes in demo mode
+const supabaseUrl = getEnvVar('SUPABASE_URL', 'VITE_SUPABASE_URL');
+const supabaseAnonKey = getEnvVar('SUPABASE_ANON_KEY', 'VITE_SUPABASE_ANON_KEY');
+
+// Only create the client if keys are present
 export const supabase = (supabaseUrl && supabaseAnonKey) 
   ? createClient(supabaseUrl, supabaseAnonKey) 
   : null;
 
 /**
  * Helper to check if Supabase is configured.
- * Useful for showing UI warnings if keys are missing.
  */
 export const isSupabaseConfigured = (): boolean => {
   return !!supabase;

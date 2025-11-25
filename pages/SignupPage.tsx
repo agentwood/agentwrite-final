@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Loader2, Feather, CheckCircle2, Wrench, AlertCircle } from 'lucide-react';
+import { Loader2, Feather, CheckCircle2, Wrench, AlertCircle, Wifi, WifiOff, Info, Copy } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 import Navigation from '../components/Navigation';
 
@@ -19,6 +20,10 @@ const SignupPage = () => {
   // Simulation / Dev Mode
   const [simulatedMode, setSimulatedMode] = useState(false);
   const [showSimulatedPopup, setShowSimulatedPopup] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
+  
+  // Status check
+  const isConnected = isSupabaseConfigured();
 
   useEffect(() => {
     // Check if we navigated here with an intent to login
@@ -30,7 +35,7 @@ const SignupPage = () => {
   useEffect(() => {
     let authListener: { subscription: { unsubscribe: () => void } } | null = null;
 
-    if (isSupabaseConfigured() && supabase) {
+    if (isConnected && supabase) {
       // Listen for Auth Changes
       const { data } = supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN' && session) {
@@ -43,7 +48,7 @@ const SignupPage = () => {
     return () => {
       if (authListener) authListener.subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, isConnected]);
 
   const enterSimulation = () => {
       const mockUser = { 
@@ -67,38 +72,33 @@ const SignupPage = () => {
 
   const mockGooglePopup = () => {
       setShowSimulatedPopup(true);
-      // Simulate user clicking "Confirm" in Google window after 2 seconds
+      // Simulate user clicking "Confirm" in Google window
       setTimeout(() => {
           setSimulatedMode(true);
           enterSimulation();
-      }, 2500);
+      }, 1500);
   };
 
   const handleGoogleAuth = async (forceSimulate = false) => {
-    const isForceSimulate = typeof forceSimulate === 'boolean' && forceSimulate;
-    
     setIsLoading(true);
     setErrorMsg(null);
 
-    // 1. CHECK FOR PREVIEW/LOCALHOST ENVIRONMENTS
-    // If we are in a preview environment without specific env vars, we MUST simulate
-    // because standard OAuth redirects won't work without registering the specific preview domain.
-    const isPreviewEnv = window.location.hostname.includes('webcontainer') || 
-                         window.location.hostname.includes('localhost') || 
-                         window.location.hostname.includes('netlify.app');
+    // INTELLIGENT SIMULATION DETECTION
+    const shouldSimulate = !isConnected || 
+                           !supabase || 
+                           simulatedMode || 
+                           forceSimulate;
 
-    // SIMULATION TRIGGER
-    if (!isSupabaseConfigured() || !supabase || simulatedMode || isForceSimulate || (isPreviewEnv && !process.env.VITE_SUPABASE_URL)) {
-      console.log("Using Simulated Google Login (Preview Mode)");
+    if (shouldSimulate) {
+      console.log("Using Simulated Login (Supabase not connected or Demo Mode active).");
       mockGooglePopup();
       return;
     }
 
     // REAL SUPABASE GOOGLE AUTH
     try {
-      // Use origin only to avoid "Redirect URL not allowed" errors with hashes.
-      // The onAuthStateChange listener or Supabase default handling will manage the session.
       const redirectUrl = window.location.origin;
+      console.log("Attempting Google Auth with Redirect URL:", redirectUrl);
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -112,12 +112,18 @@ const SignupPage = () => {
       });
       if (error) throw error;
     } catch (error: any) {
-      console.warn("Google Auth Failed (Switching to Demo):", error);
+      console.warn("Google Auth Failed:", error);
       
-      // AUTO-FALLBACK
-      // If the real auth fails (e.g. invalid keys), immediately switch to simulation
-      // to provide a smooth demo experience without confusing error messages.
-      mockGooglePopup();
+      // Check for common configuration errors
+      if (error.message?.includes('redirect_uri') || error.message?.includes('callback URL')) {
+          setErrorMsg("Configuration Error: The Redirect URL in Supabase does not match this site.");
+          setShowDebug(true); // Auto-show debug info
+          setIsLoading(false);
+      } else {
+          // Fallback to simulation for other errors so user isn't stuck
+          console.log("Switching to Demo Mode due to auth failure.");
+          mockGooglePopup();
+      }
     }
   };
 
@@ -126,8 +132,9 @@ const SignupPage = () => {
     setIsLoading(true);
     setErrorMsg(null);
     
-    // SIMULATION MODE
-    if (!isSupabaseConfigured() || !supabase || simulatedMode) {
+    const shouldSimulate = !isConnected || !supabase || simulatedMode;
+
+    if (shouldSimulate) {
       setTimeout(enterSimulation, 1000);
       return;
     }
@@ -135,7 +142,6 @@ const SignupPage = () => {
     // REAL SUPABASE EMAIL AUTH
     try {
       if (isLogin) {
-          // LOG IN
           const { data, error } = await supabase.auth.signInWithPassword({
               email,
               password,
@@ -143,7 +149,6 @@ const SignupPage = () => {
           if (error) throw error;
           if (data.user) navigate('/onboarding');
       } else {
-          // SIGN UP
           const { data, error } = await supabase.auth.signUp({
             email,
             password,
@@ -159,9 +164,9 @@ const SignupPage = () => {
     } catch (error: any) {
       console.error("Auth Error:", error);
       
-      // Fallback for demo convenience if config is missing/broken
+      // Fallback for demo convenience
       if (error.message?.includes('configure') || error.message?.includes('provider') || error.message?.includes('API key')) {
-           console.log("Backend not configured. Starting Demo Mode...");
+           console.log("Backend issue detected. Starting Demo Mode...");
            setTimeout(() => {
                setSimulatedMode(true);
                enterSimulation();
@@ -171,6 +176,11 @@ const SignupPage = () => {
           setIsLoading(false);
       }
     }
+  };
+
+  const copyRedirectUrl = () => {
+    navigator.clipboard.writeText(window.location.origin);
+    alert("URL copied! Paste this into Supabase > Auth > URL Configuration.");
   };
 
   return (
@@ -195,18 +205,10 @@ const SignupPage = () => {
                                <div className="text-xs text-gray-500">demo@gmail.com</div>
                            </div>
                        </div>
-                       <div className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-md cursor-pointer border border-transparent hover:border-gray-200 transition">
-                            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-                                <Feather size={14} />
-                            </div>
-                           <div className="flex-1">
-                               <div className="text-sm font-medium text-gray-700">Use another account</div>
-                           </div>
-                       </div>
                    </div>
                </div>
                <div className="bg-gray-50 px-8 py-4 text-xs text-gray-500 text-center border-t border-gray-100">
-                   To continue, Google will share your name, email address, and profile picture with AgentWrite.
+                   This is a simulation because the backend is not fully configured yet.
                </div>
            </div>
         </div>
@@ -253,8 +255,9 @@ const SignupPage = () => {
                 )}
 
                 {errorMsg && (
-                    <div className="bg-blue-50 border border-blue-100 p-3 rounded text-xs text-blue-700 text-center flex flex-col items-center gap-2 animate-fade-in">
-                        <div className="flex items-center gap-2 font-bold"><AlertCircle size={14}/> {errorMsg}</div>
+                    <div className="bg-rose-50 border border-rose-100 p-3 rounded text-xs text-rose-700 flex flex-col items-start gap-1 animate-fade-in">
+                        <div className="flex items-center gap-2 font-bold"><AlertCircle size={14}/> Error</div>
+                        <p>{errorMsg}</p>
                     </div>
                 )}
                 
@@ -316,14 +319,36 @@ const SignupPage = () => {
 
             <div className="mt-8 pt-6 border-t border-stone-100 text-center">
                 <button 
-                    type="button"
-                    onClick={enterSimulation}
-                    className="w-full bg-amber-50 text-amber-900 p-3 rounded-lg border border-amber-100 hover:bg-amber-100 transition flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider group"
+                   onClick={() => setShowDebug(!showDebug)}
+                   className={`flex items-center justify-center gap-2 text-[10px] p-2 rounded border w-full transition-colors ${isConnected ? 'text-green-600 bg-green-50 border-green-100' : 'text-slate-400 bg-slate-50 border-slate-100 hover:bg-slate-100'}`}
                 >
-                    <Wrench size={14} className="group-hover:rotate-12 transition-transform" /> 
-                    Developer Mode: Instant Access
+                    {isConnected ? <Wifi size={12} /> : <WifiOff size={12} />} 
+                    {isConnected ? "Supabase Connected" : "Backend Not Connected"}
+                    <Info size={12} className="ml-1 opacity-50" />
                 </button>
-                <p className="text-[10px] text-slate-400 mt-2">Skip configuration and test the app immediately.</p>
+                
+                {showDebug && (
+                    <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200 text-left animate-fade-in">
+                        <h4 className="text-xs font-bold text-slate-900 mb-2 uppercase tracking-wider flex items-center gap-2">
+                             <Wrench size={12} /> Configuration Helper
+                        </h4>
+                        <p className="text-[11px] text-slate-500 mb-3 leading-relaxed">
+                            For Google Login to work, this exact URL must be in your Supabase Redirect list.
+                        </p>
+                        
+                        <div className="flex gap-2">
+                            <code className="flex-1 bg-white border border-stone-200 p-2 rounded text-[10px] text-slate-600 font-mono break-all">
+                                {window.location.origin}
+                            </code>
+                            <button onClick={copyRedirectUrl} className="p-2 bg-white border border-stone-200 rounded hover:bg-slate-100 text-slate-500">
+                                <Copy size={14} />
+                            </button>
+                        </div>
+                        <div className="mt-3 text-[10px] text-slate-400">
+                            Go to: Supabase Dashboard > Authentication > URL Configuration > Redirect URLs
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
       </div>

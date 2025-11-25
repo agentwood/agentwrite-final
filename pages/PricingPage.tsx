@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, X, ArrowLeft } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import Navigation from '../components/Navigation';
 
 const PricingPage = () => {
@@ -70,7 +69,6 @@ const PricingPage = () => {
             Choose the plan that fits your writing goals. Upgrade or downgrade anytime.
           </p>
           
-          {/* Toggle */}
           <div className="inline-flex bg-white p-1 rounded-full border border-stone-200 shadow-sm">
             <button 
               onClick={() => setBillingCycle('monthly')}
@@ -142,9 +140,10 @@ const PricingPage = () => {
         <div className="mt-20 text-center">
            <p className="text-slate-400 text-sm mb-4">Trusted by 50,000+ writers worldwide.</p>
            <div className="flex justify-center gap-8 opacity-30 grayscale">
-               <span className="font-serif font-bold text-xl">Stripe</span>
-               <span className="font-serif font-bold text-xl">PayPal</span>
-               <span className="font-serif font-bold text-xl">Visa</span>
+               <span className="text-2xl font-serif font-bold text-slate-900">WIRED</span>
+               <span className="text-2xl font-serif font-bold text-slate-900">TheVerge</span>
+               <span className="text-2xl font-serif font-bold text-slate-900">TechCrunch</span>
+               <span className="text-2xl font-serif font-bold text-slate-900">Medium</span>
            </div>
         </div>
       </main>

@@ -10,6 +10,7 @@ const getClient = () => {
   return new GoogleGenAI({ apiKey });
 };
 
+// --- BRAINSTORMING ---
 export const generateBrainstormIdeas = async (
   request: BrainstormRequest
 ): Promise<BrainstormResponse> => {
@@ -72,6 +73,7 @@ export const generateBrainstormIdeas = async (
   }
 };
 
+// --- TEXT EDITOR ASSISTANCE ---
 export const continueStory = async (currentText: string, projectTitle: string): Promise<string> => {
   const ai = getClient();
   // Take the last 4000 chars to keep context relevant but fits in context window easily
@@ -103,6 +105,7 @@ export const continueStory = async (currentText: string, projectTitle: string): 
   }
 };
 
+// --- AUDIO LECTURE SUMMARIZATION ---
 export const summarizeLecture = async (
   audioBase64: string, 
   mimeType: string,
@@ -149,7 +152,6 @@ export const summarizeLecture = async (
 };
 
 // --- IMAGE GENERATION ---
-
 export const generateImage = async (prompt: string): Promise<string> => {
   const ai = getClient();
   try {
@@ -225,7 +227,7 @@ export const optimizePromptForVideo = async (text: string): Promise<string> => {
 export const generateVideo = async (
     prompt: string, 
     aspectRatio: '16:9' | '9:16',
-    resolution: '720p' | '1080p' = '1080p'
+    resolution: '720p' | '1080p' = '720p'
 ): Promise<string> => {
   const ai = getClient();
   
@@ -350,6 +352,7 @@ export const generateStorySegment = async (
     };
 };
 
+// --- TTS (TEXT TO SPEECH) ---
 export const generateSpeech = async (text: string): Promise<string> => {
     const ai = getClient();
     try {

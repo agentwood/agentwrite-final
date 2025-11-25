@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Flame, Trophy, Zap, Lock, CheckCircle2, ShoppingBag, Shield, Palette, Feather, Award, BarChart2, Calendar, Target } from 'lucide-react';
