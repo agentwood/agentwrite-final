@@ -1,5 +1,5 @@
 {
-  "name": "UpdatedAgentwriteAI",
+  "name": "UpdatedAgentWriteAI",
   "description": "The gamified creative writing partner. Beat writer's block and level up your storytelling.",
   "requestFramePermissions": [
     "microphone"

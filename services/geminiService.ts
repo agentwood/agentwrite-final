@@ -1,10 +1,10 @@
+
 import { GoogleGenAI, Type, Schema, Modality } from "@google/genai";
 import { BrainstormRequest, BrainstormResponse, StorySegment, StoryOption } from "../types";
 
 const getClient = () => {
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
-    // Return a dummy client or throw specific error handled by UI
     throw new Error("API Key not found. Please set process.env.API_KEY.");
   }
   return new GoogleGenAI({ apiKey });
