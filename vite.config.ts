@@ -12,8 +12,9 @@ export default defineConfig(({ mode }) => {
     define: {
       // Manually expose the API_KEY on import.meta.env so we don't have to prefix it with VITE_
       'import.meta.env.API_KEY': JSON.stringify(env.API_KEY),
-      // process.env polyfill for any libraries that might rely on it
-      'process.env': JSON.stringify(env)
+      // process.env polyfill for any libraries that might rely on it. 
+      // We merge 'mode' to ensure NODE_ENV is present.
+      'process.env': JSON.stringify({ ...env, NODE_ENV: mode })
     }
   };
 });
