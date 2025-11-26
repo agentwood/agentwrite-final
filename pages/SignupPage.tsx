@@ -345,7 +345,7 @@ const SignupPage = () => {
                             </button>
                         </div>
                         <div className="mt-3 text-[10px] text-slate-400">
-                            Go to: Supabase Dashboard > Authentication > URL Configuration > Redirect URLs
+                            {"Go to: Supabase Dashboard > Authentication > URL Configuration > Redirect URLs"}
                         </div>
                     </div>
                 )}
