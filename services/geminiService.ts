@@ -2,8 +2,10 @@ import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { BrainstormRequest, BrainstormResponse, StorySegment, StoryOption } from "../types";
 
 const getClient = () => {
-  // Cast process.env to any to avoid TypeScript errors with custom env vars
-  const apiKey = (process.env as any).API_KEY;
+  // Use process.env which is polyfilled in vite.config.ts
+  // @ts-ignore
+  const apiKey = process.env.API_KEY;
+  
   if (!apiKey) {
     throw new Error("API Key not found. Please set API_KEY in environment variables.");
   }
@@ -265,7 +267,8 @@ export const generateVideo = async (
       if (!videoUri) throw new Error("Video generation failed: No URI returned. Check your API key permissions.");
 
       // Fetch the actual video bytes using the API key
-      const apiKey = (process.env as any).API_KEY;
+      // @ts-ignore
+      const apiKey = process.env.API_KEY;
       const response = await fetch(`${videoUri}&key=${apiKey}`);
       
       if (!response.ok) {
