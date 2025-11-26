@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Loader2, Feather, CheckCircle2, Wrench, AlertCircle, Wifi, WifiOff, Info, Copy } from 'lucide-react';
+import { Loader2, Feather, CheckCircle2, Wrench, AlertCircle, Wifi, WifiOff, Info, Copy, AlertTriangle } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 import Navigation from '../components/Navigation';
 
@@ -16,6 +16,7 @@ const SignupPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isConfigError, setIsConfigError] = useState(false);
   
   // Simulation / Dev Mode
   const [simulatedMode, setSimulatedMode] = useState(false);
@@ -82,6 +83,7 @@ const SignupPage = () => {
   const handleGoogleAuth = async (forceSimulate = false) => {
     setIsLoading(true);
     setErrorMsg(null);
+    setIsConfigError(false);
 
     // INTELLIGENT SIMULATION DETECTION
     const shouldSimulate = !isConnected || 
@@ -117,6 +119,7 @@ const SignupPage = () => {
       // Check for common configuration errors
       if (error.message?.includes('redirect_uri') || error.message?.includes('callback URL')) {
           setErrorMsg("Configuration Error: The Redirect URL in Supabase does not match this site.");
+          setIsConfigError(true);
           setShowDebug(true); // Auto-show debug info
           setIsLoading(false);
       } else {
@@ -131,6 +134,7 @@ const SignupPage = () => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMsg(null);
+    setIsConfigError(false);
     
     const shouldSimulate = !isConnected || !supabase || simulatedMode;
 
@@ -255,8 +259,11 @@ const SignupPage = () => {
                 )}
 
                 {errorMsg && (
-                    <div className="bg-rose-50 border border-rose-100 p-3 rounded text-xs text-rose-700 flex flex-col items-start gap-1 animate-fade-in">
-                        <div className="flex items-center gap-2 font-bold"><AlertCircle size={14}/> Error</div>
+                    <div className={`p-3 rounded-lg text-xs flex flex-col items-start gap-1 animate-fade-in ${isConfigError ? 'bg-amber-50 border border-amber-100 text-amber-800' : 'bg-rose-50 border border-rose-100 text-rose-700'}`}>
+                        <div className="flex items-center gap-2 font-bold">
+                             {isConfigError ? <AlertTriangle size={14}/> : <AlertCircle size={14}/>} 
+                             {isConfigError ? 'Setup Required' : 'Error'}
+                        </div>
                         <p>{errorMsg}</p>
                     </div>
                 )}
@@ -320,18 +327,21 @@ const SignupPage = () => {
             <div className="mt-8 pt-6 border-t border-stone-100 text-center">
                 <button 
                    onClick={() => setShowDebug(!showDebug)}
-                   className={`flex items-center justify-center gap-2 text-[10px] p-2 rounded border w-full transition-colors ${isConnected ? 'text-green-600 bg-green-50 border-green-100' : 'text-slate-400 bg-slate-50 border-slate-100 hover:bg-slate-100'}`}
+                   className={`flex items-center justify-center gap-2 text-[10px] p-2.5 rounded-lg border w-full transition-all duration-300 font-medium ${isConnected ? 'text-green-700 bg-green-50 border-green-200 hover:bg-green-100' : 'text-slate-500 bg-slate-50 border-slate-200 hover:bg-slate-100'}`}
                 >
-                    {isConnected ? <Wifi size={12} /> : <WifiOff size={12} />} 
-                    {isConnected ? "Supabase Connected" : "Backend Not Connected"}
-                    <Info size={12} className="ml-1 opacity-50" />
+                    {isConnected ? <Wifi size={14} className="text-green-600" /> : <WifiOff size={14} className="text-slate-400" />} 
+                    {isConnected ? "System Online & Connected" : "Running in Simulation Mode"}
+                    <Info size={14} className={`ml-auto ${isConnected ? 'text-green-400' : 'text-slate-300'}`} />
                 </button>
                 
                 {showDebug && (
-                    <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200 text-left animate-fade-in">
-                        <h4 className="text-xs font-bold text-slate-900 mb-2 uppercase tracking-wider flex items-center gap-2">
-                             <Wrench size={12} /> Configuration Helper
-                        </h4>
+                    <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200 text-left animate-fade-in shadow-inner">
+                        <div className="flex items-center justify-between mb-2">
+                             <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                                  <Wrench size={12} /> Configuration Helper
+                             </h4>
+                             <button onClick={() => setShowDebug(false)} className="text-slate-400 hover:text-slate-600 text-[10px] font-bold">CLOSE</button>
+                        </div>
                         <p className="text-[11px] text-slate-500 mb-3 leading-relaxed">
                             For Google Login to work, this exact URL must be in your Supabase Redirect list.
                         </p>
@@ -340,7 +350,7 @@ const SignupPage = () => {
                             <code className="flex-1 bg-white border border-stone-200 p-2 rounded text-[10px] text-slate-600 font-mono break-all">
                                 {window.location.origin}
                             </code>
-                            <button onClick={copyRedirectUrl} className="p-2 bg-white border border-stone-200 rounded hover:bg-slate-100 text-slate-500">
+                            <button onClick={copyRedirectUrl} className="p-2 bg-white border border-stone-200 rounded hover:bg-slate-100 text-slate-500" title="Copy URL">
                                 <Copy size={14} />
                             </button>
                         </div>

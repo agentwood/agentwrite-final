@@ -6,6 +6,10 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL;
 // @ts-ignore
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 
+// Debugging for deployment
+console.log("[Supabase Config] URL Present:", !!supabaseUrl);
+console.log("[Supabase Config] Key Present:", !!supabaseAnonKey);
+
 // Only create the client if keys are present
 export const supabase = (supabaseUrl && supabaseAnonKey) 
   ? createClient(supabaseUrl, supabaseAnonKey) 
