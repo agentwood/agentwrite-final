@@ -18,6 +18,9 @@ import SettingsPage from './pages/SettingsPage';
 import StripeSuccessPage from './pages/StripeSuccessPage';
 import AICreatePage from './pages/AICreatePage';
 import ProtectedRoute from './components/ProtectedRoute';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsPage from './pages/TermsPage';
+import CancelPage from './pages/CancelPage';
 
 const App: React.FC = () => {
   return (
@@ -40,6 +43,13 @@ const App: React.FC = () => {
         <Route path="/creators" element={<PersonaPage type="creators" />} />
 
         <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/cancel" element={
+          <ProtectedRoute>
+            <CancelPage />
+          </ProtectedRoute>
+        } />
         <Route path="/profile" element={
           <ProtectedRoute>
             <ProfilePage />

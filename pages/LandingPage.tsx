@@ -134,17 +134,22 @@ const LandingPage = () => {
             </main>
 
             <footer className="bg-white border-t border-stone-200 py-12">
-                <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div className="flex items-center gap-2 opacity-50">
-                        <span className="font-serif font-bold text-lg">AgentWrite</span>
-                        <span className="text-xs text-slate-400">© 2024</span>
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-4">
+                        <div className="flex items-center gap-2 opacity-50">
+                            <span className="font-serif font-bold text-lg">AgentWrite</span>
+                            <span className="text-xs text-slate-400">© 2024</span>
+                        </div>
+                        <div className="flex gap-8 text-sm text-slate-500">
+                            <a href="https://docs.agentwood.xyz" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition">Docs</a>
+                            <a href="/#/privacy" className="hover:text-slate-900 transition">Privacy Policy</a>
+                            <a href="/#/terms" className="hover:text-slate-900 transition">Terms</a>
+                            <a href="https://x.com/agentwoodstudio" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition">X (Twitter)</a>
+                            <a href="https://discord.com/invite/agentwood" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition">Discord</a>
+                        </div>
                     </div>
-                    <div className="flex gap-8 text-sm text-slate-500">
-                        <a href="https://docs.agentwood.xyz" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition">Docs</a>
-                        <a href="#" className="hover:text-slate-900 transition">Privacy Policy</a>
-                        <a href="#" className="hover:text-slate-900 transition">Terms</a>
-                        <a href="https://x.com/agentwoodstudio" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition">X (Twitter)</a>
-                        <a href="https://discord.com/invite/agentwood" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition">Discord</a>
+                    <div className="text-center">
+                        <p className="text-xs text-slate-400">AgentWrite is a subsidiary of Agentwood</p>
                     </div>
                 </div>
             </footer>
