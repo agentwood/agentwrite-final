@@ -17,6 +17,7 @@ import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import StripeSuccessPage from './pages/StripeSuccessPage';
 import AICreatePage from './pages/AICreatePage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App: React.FC = () => {
   return (
