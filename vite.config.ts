@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
     VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL,
     VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY
   };
-  
+
   return {
     plugins: [react()],
     define: {
@@ -24,6 +24,19 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.API_KEY': JSON.stringify(finalEnv.API_KEY),
       // Polyfill process.env with the explicitly merged variables
       'process.env': JSON.stringify(finalEnv)
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom'],
+            ui: ['lucide-react', 'react-quill'],
+            supabase: ['@supabase/supabase-js'],
+            ai: ['@google/genai']
+          }
+        }
+      },
+      chunkSizeWarningLimit: 1000
     }
   };
 });
