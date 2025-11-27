@@ -24,29 +24,52 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/login" element={<SignupPage />} /> {/* Added /login route */}
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/onboarding" element={<OnboardingPage />} />
-        
+
+        {/* Protected Routes */}
+        <Route path="/onboarding" element={
+          <ProtectedRoute>
+            <OnboardingPage />
+          </ProtectedRoute>
+        } />
+
         {/* Persona Pages from Menu */}
         <Route path="/students" element={<PersonaPage type="students" />} />
         <Route path="/creators" element={<PersonaPage type="creators" />} />
-        
+
         <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        } />
         <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/success" element={<StripeSuccessPage />} />
-        
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/stripe-success" element={
+          <ProtectedRoute>
+            <StripeSuccessPage />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        } />
         <Route path="/create" element={<AICreatePage />} />
         <Route path="/stats" element={<StatsPage />} />
-        <Route path="/project/:id" element={<EditorPage />} />
-        
+        <Route path="/project/:projectId" element={
+          <ProtectedRoute>
+            <EditorPage />
+          </ProtectedRoute>
+        } />
+
         {/* Brainstorming Flow */}
         <Route path="/brainstorm" element={<BrainstormSelection />} />
         <Route path="/brainstorm/:id" element={<BrainstormInput />} />
         <Route path="/results" element={<BrainstormResults />} />
-      </Routes>
-    </Router>
+      </Routes >
+    </Router >
   );
 };
 
