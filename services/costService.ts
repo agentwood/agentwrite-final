@@ -5,17 +5,17 @@ import { CostConfig } from '../types';
 // We'll use similar ratios: text is cheap, media is expensive
 
 export const COST_CONFIG: CostConfig = {
-    textGeneration: 10,        // 10 credits per 100 words (~10k words per 1M credits baseline)
-    outlineGeneration: 100,    // 100 credits per outline
-    audioGeneration: 5000,     // 5000 credits per minute (significantly higher)
-    videoGeneration: 15000,    // 15000 credits per video (very high)
-    imageGeneration: 2500,     // 2500 credits per image (high)
+    textGeneration: 1,         // 1 credit per 100 words
+    outlineGeneration: 10,     // 10 credits per outline
+    audioGeneration: 500,      // 500 credits per minute
+    videoGeneration: 1500,     // 1500 credits per video
+    imageGeneration: 250,      // 250 credits per image
 };
 
 export const PLAN_CREDITS = {
-    hobby: 225000,       // $19/month (or $10/month annually)
-    professional: 1000000, // $29/month (or $22/month annually)
-    max: 2000000,        // $59/month (or $44/month annually)
+    hobby: 15000,        // $14/month (or $7/month annually)
+    professional: 75000, // $24/month (or $15/month annually)
+    max: Infinity,       // $44/month (or $29/month annually) - Unlimited
 };
 
 /**

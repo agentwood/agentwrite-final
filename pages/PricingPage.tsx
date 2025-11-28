@@ -2,11 +2,46 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, X, Clock, Sparkles } from 'lucide-react';
 import Navigation from '../components/Navigation';
+import { stripeService } from '../services/stripeService';
+import { supabase } from '../services/supabaseClient';
 
 const PricingPage = () => {
   const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [loading, setLoading] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsAuthenticated(!!user);
+    });
+  }, []);
+
+  const handleCheckout = async (planName: string, isLTD: boolean = false) => {
+    setLoading(planName);
+
+    try {
+      // Check if user is authenticated
+      if (!isAuthenticated) {
+        navigate('/signup');
+        return;
+      }
+
+      const priceId = stripeService.getPriceId(planName, billingCycle);
+      await stripeService.createCheckoutSession({
+        priceId,
+        planName,
+        isLTD,
+      });
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('Failed to start checkout. Please try again.');
+    } finally {
+      setLoading(null);
+    }
+  };
 
   // Countdown timer for LTD offer (30 days from deploy date)
   useEffect(() => {
@@ -36,7 +71,7 @@ const PricingPage = () => {
     {
       name: 'Starter',
       price: billingCycle === 'monthly' ? 14 : 7,
-      credits: '150,000',
+      credits: '15,000',
       features: [
         'Unlimited projects',
         'Basic AI models (Gemini Flash)',
@@ -53,12 +88,12 @@ const PricingPage = () => {
     {
       name: 'Pro',
       price: billingCycle === 'monthly' ? 24 : 15,
-      credits: '750,000',
+      credits: '75,000',
       isPopular: true,
       features: [
         'Everything in Starter',
         'Advanced AI models (Gemini Pro)',
-        'Veo Video Studio (10k credits/video)',
+        'Veo Video Studio (1k credits/video)',
         'Audiobook Exports',
         'Collaboration Tools',
         'Priority Support'
@@ -72,7 +107,7 @@ const PricingPage = () => {
     {
       name: 'Unlimited',
       price: billingCycle === 'monthly' ? 44 : 29,
-      credits: '2,500,000',
+      credits: 'Unlimited',
       features: [
         'Everything in Pro',
         'Unlimited Video Generation',
@@ -92,9 +127,9 @@ const PricingPage = () => {
   const ltdOffer = {
     name: 'Lifetime Deal',
     originalPrice: 348,
-    price: 40,
-    savings: 88,
-    credits: '2,500,000',
+    price: 60,
+    savings: 83,
+    credits: 'Unlimited',
     features: [
       'All Unlimited features for 12 months',
       'Lifetime priority support badge',
@@ -184,10 +219,11 @@ const PricingPage = () => {
               </div>
 
               <button
-                onClick={() => navigate('/profile')}
-                className={`w-full py-4 rounded-xl font-bold text-sm transition shadow-lg ${plan.buttonColor}`}
+                onClick={() => handleCheckout(plan.name.toLowerCase(), false)}
+                disabled={loading === plan.name.toLowerCase()}
+                className={`w-full py-4 rounded-xl font-bold text-sm transition shadow-lg ${plan.buttonColor} disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                {idx === 0 ? 'Start Free Trial' : 'Subscribe Now'}
+                {loading === plan.name.toLowerCase() ? 'Processing...' : (idx === 0 ? 'Start Free Trial' : 'Subscribe Now')}
               </button>
             </div>
           ))}
@@ -213,7 +249,7 @@ const PricingPage = () => {
                 </div>
               </div>
               <div className="inline-block bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-bold">
-                Save {ltdOffer.savings}% • Just $3.33/month 🤯
+                Save {ltdOffer.savings}% • Just $5.00/month 🤯
               </div>
             </div>
 
@@ -252,10 +288,11 @@ const PricingPage = () => {
             </div>
 
             <button
-              onClick={() => navigate('/profile')}
-              className={`w-full py-5 rounded-xl font-bold text-lg transition shadow-2xl transform hover:scale-105 ${ltdOffer.buttonColor}`}
+              onClick={() => handleCheckout('ltd', true)}
+              disabled={loading === 'ltd'}
+              className={`w-full py-5 rounded-xl font-bold text-lg transition shadow-2xl transform hover:scale-105 ${ltdOffer.buttonColor} disabled:opacity-50 disabled:cursor-not-allowed`}
             >
-              Claim Lifetime Deal Now →
+              {loading === 'ltd' ? 'Processing...' : 'Claim Lifetime Deal Now →'}
             </button>
 
             <p className="text-center text-white/70 text-xs mt-4">

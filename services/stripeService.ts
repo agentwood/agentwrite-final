@@ -1,68 +1,76 @@
-
 import { supabase } from './supabaseClient';
 
-// Simulation of Server-Side Stripe interaction
-// In a real app, this would be a Netlify Function or Node.js backend
-
-export interface StripeSession {
-  id: string;
-  url: string;
+interface CheckoutSessionParams {
+  priceId: string;
+  planName: string;
+  isLTD?: boolean;
 }
 
-export const createCheckoutSession = async (priceId: string, userEmail: string): Promise<StripeSession> => {
-  console.log(`Simulating Stripe Checkout for ${userEmail} with plan ${priceId}`);
-  
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Mock session ID
-  const sessionId = `cs_test_${Math.random().toString(36).substring(2, 15)}`;
-  
-  // In a real app, this URL would come from Stripe API
-  // Here we redirect to our own Success page with the session_id param
-  const successUrl = `${window.location.origin}/#/success?session_id=${sessionId}&plan=${priceId}`;
-  
-  return {
-    id: sessionId,
-    url: successUrl
-  };
-};
+export const stripeService = {
+  async createCheckoutSession({ priceId, planName, isLTD = false }: CheckoutSessionParams) {
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
 
-export const createCustomerPortal = async (): Promise<string> => {
-    console.log("Simulating Customer Portal");
-    await new Promise(resolve => setTimeout(resolve, 800));
-    // In real life, redirects to billing.stripe.com
-    // Here we just reload the profile page for demo
-    return `${window.location.origin}/#/profile`;
-};
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
 
-export const verifySessionAndUpgrade = async (sessionId: string, planId: string) => {
-    console.log(`Verifying session ${sessionId}`);
-    await new Promise(resolve => setTimeout(resolve, 1500));
+      const returnUrl = window.location.origin;
 
-    // 1. Determine Credits based on Plan
-    let credits = 225000; // Hobby
-    let planName = 'Hobby';
-    
-    if (planId.includes('professional') || planId === 'price_pro') {
-        credits = 1000000;
-        planName = 'Professional';
-    } else if (planId.includes('max') || planId === 'price_max') {
-        credits = 2000000;
-        planName = 'Max';
+      // Call Netlify function to create checkout session
+      const response = await fetch('/.netlify/functions/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          priceId,
+          userId: user.id,
+          userEmail: user.email,
+          returnUrl,
+          mode: isLTD ? 'payment' : 'subscription',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+
+      // Redirect to Stripe Checkout
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (error) {
+      console.error('Stripe checkout error:', error);
+      throw error;
     }
+  },
 
-    // 2. Update Local Storage (Simulation of DB update)
-    const savedPrefs = localStorage.getItem('agentwrite_user_prefs');
-    let prefs = savedPrefs ? JSON.parse(savedPrefs) : {};
-    
-    prefs.plan = planName;
-    prefs.credits = credits;
-    prefs.maxCredits = credits; // Reset monthly limit
-    prefs.subscriptionStatus = 'active';
-    prefs.nextBillingDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString();
-    
-    localStorage.setItem('agentwrite_user_prefs', JSON.stringify(prefs));
-    
-    return { success: true, plan: planName, credits };
+  // Price ID mapping - these should match your Stripe dashboard
+  // Replace with actual price IDs from your Stripe account
+  getPriceId(planName: string, billingCycle: 'monthly' | 'yearly' = 'yearly'): string {
+    const priceIds: Record<string, Record<string, string>> = {
+      starter: {
+        monthly: import.meta.env.VITE_STRIPE_PRICE_STARTER_MONTHLY || 'price_starter_monthly',
+        yearly: import.meta.env.VITE_STRIPE_PRICE_STARTER_YEARLY || 'price_starter_yearly',
+      },
+      pro: {
+        monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY || 'price_pro_monthly',
+        yearly: import.meta.env.VITE_STRIPE_PRICE_PRO_YEARLY || 'price_pro_yearly',
+      },
+      unlimited: {
+        monthly: import.meta.env.VITE_STRIPE_PRICE_UNLIMITED_MONTHLY || 'price_unlimited_monthly',
+        yearly: import.meta.env.VITE_STRIPE_PRICE_UNLIMITED_YEARLY || 'price_unlimited_yearly',
+      },
+      ltd: {
+        yearly: import.meta.env.VITE_STRIPE_PRICE_LTD || 'price_ltd',
+        monthly: import.meta.env.VITE_STRIPE_PRICE_LTD || 'price_ltd', // LTD is always yearly
+      },
+    };
+
+    return priceIds[planName]?.[billingCycle] || '';
+  },
 };
