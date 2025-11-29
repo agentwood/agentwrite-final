@@ -2,9 +2,7 @@ import Stripe from 'stripe';
 import { Handler } from '@netlify/functions';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-    apiVersion: '2023-10-16',
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || ''; // Should ideally be SERVICE_ROLE_KEY for backend updates
@@ -39,17 +37,25 @@ export const handler: Handler = async (event) => {
             let planName = 'free';
 
             // Example mapping - REPLACE WITH REAL PRICE IDs
-            if (priceId === process.env.STRIPE_PRICE_STARTER) {
-                creditsToAdd = 150000;
+            const starterMonthly = process.env.VITE_STRIPE_PRICE_STARTER_MONTHLY;
+            const starterYearly = process.env.VITE_STRIPE_PRICE_STARTER_YEARLY;
+            const proMonthly = process.env.VITE_STRIPE_PRICE_PRO_MONTHLY;
+            const proYearly = process.env.VITE_STRIPE_PRICE_PRO_YEARLY;
+            const unlimitedMonthly = process.env.VITE_STRIPE_PRICE_UNLIMITED_MONTHLY;
+            const unlimitedYearly = process.env.VITE_STRIPE_PRICE_UNLIMITED_YEARLY;
+            const ltdPrice = process.env.VITE_STRIPE_PRICE_LTD;
+
+            if (priceId === starterMonthly || priceId === starterYearly) {
+                creditsToAdd = 15000;
                 planName = 'starter';
-            } else if (priceId === process.env.STRIPE_PRICE_PRO) {
-                creditsToAdd = 750000;
+            } else if (priceId === proMonthly || priceId === proYearly) {
+                creditsToAdd = 75000;
                 planName = 'pro';
-            } else if (priceId === process.env.STRIPE_PRICE_UNLIMITED) {
-                creditsToAdd = 2500000;
+            } else if (priceId === unlimitedMonthly || priceId === unlimitedYearly) {
+                creditsToAdd = 999999999; // Unlimited
                 planName = 'unlimited';
-            } else if (priceId === process.env.STRIPE_PRICE_LTD) {
-                creditsToAdd = 2500000; // Monthly equivalent or unlimited logic
+            } else if (priceId === ltdPrice) {
+                creditsToAdd = 999999999; // Unlimited
                 planName = 'lifetime';
             }
 
