@@ -47,9 +47,9 @@ const CancelPage: React.FC = () => {
         switch (selectedReason) {
             case 'expensive':
                 return {
-                    title: '💰 We hear you! Let's find a solution',
-          description: 'Money shouldn't stop you from creating amazing content.',
-          options: [
+                    title: '💰 We hear you! Let\'s find a solution',
+                    description: 'Money shouldn\'t stop you from creating amazing content.',
+                    options: [
                         {
                             icon: <Pause className="text-blue-600" size={24} />,
                             title: 'Pause for 3 Months',
@@ -65,13 +65,13 @@ const CancelPage: React.FC = () => {
                             buttonText: 'See Starter Plan'
                         }
                     ]
-        };
+                };
 
             case 'not-using':
                 return {
                     title: '⏱️ Life gets busy, we get it',
-                    description: 'Let's help you stay on track without losing your subscription.',
-          options: [
+                    description: 'Let\'s help you stay on track without losing your subscription.',
+                    options: [
                         {
                             icon: <Pause className="text-blue-600" size={24} />,
                             title: 'Pause for 3 Months',
@@ -90,13 +90,13 @@ const CancelPage: React.FC = () => {
                             buttonText: 'Keep My Account Active'
                         }
                     ]
-        };
+                };
 
             case 'missing-features':
                 return {
                     title: '🔧 We want to build what you need!',
-                    description: 'Your feedback shapes our roadmap. Let's make this work for you.',
-          options: [
+                    description: 'Your feedback shapes our roadmap. Let\'s make this work for you.',
+                    options: [
                         {
                             icon: <Zap className="text-amber-600" size={24} />,
                             title: 'Free 1-Month Extension',
@@ -115,12 +115,12 @@ const CancelPage: React.FC = () => {
                             buttonText: 'Join Early Access'
                         }
                     ]
-        };
+                };
 
             case 'alternative':
                 return {
-                    title: '🤔 What did they have that we don't?',
-          description: 'We\'d love to hear what made you switch.',
+                    title: '🤔 What did they have that we don\'t?',
+                    description: 'We\'d love to hear what made you switch.',
                     options: [
                         {
                             icon: <DollarSign className="text-green-600" size={24} />,
