@@ -10,7 +10,7 @@ const PricingPage = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [loading, setLoading] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Check authentication status
   useEffect(() => {
@@ -21,6 +21,7 @@ const PricingPage = () => {
 
   const handleCheckout = async (planName: string, isLTD: boolean = false) => {
     setLoading(planName);
+    setError(null);
 
     try {
       // Check if user is authenticated
@@ -30,14 +31,18 @@ const PricingPage = () => {
       }
 
       const priceId = stripeService.getPriceId(planName, billingCycle);
+      if (!priceId) {
+        throw new Error('Price ID not found for this plan. Please contact support.');
+      }
+
       await stripeService.createCheckoutSession({
         priceId,
         planName,
         isLTD,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Checkout error:', error);
-      alert('Failed to start checkout. Please try again.');
+      setError(error.message || 'Failed to start checkout. Please try again.');
     } finally {
       setLoading(null);
     }
@@ -153,6 +158,13 @@ const PricingPage = () => {
           <p className="text-xl text-slate-500 mb-10 font-light">
             Choose the plan that fits your writing goals. 40% cheaper than competitors.
           </p>
+
+          {error && (
+            <div className="max-w-md mx-auto mb-8 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg flex items-center gap-2">
+              <X size={18} />
+              <span className="text-sm font-medium">{error}</span>
+            </div>
+          )}
 
           <div className="inline-flex bg-white p-1 rounded-full border border-stone-200 shadow-sm">
             <button
