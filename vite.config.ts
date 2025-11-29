@@ -4,17 +4,18 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
-  const env = loadEnv(mode, process.cwd(), '');
+  // Load env file based on `mode` in the current working directory.
+  // Set the third parameter to 'VITE_' to only load VITE_ prefixed variables.
+  const env = loadEnv(mode, process.cwd(), 'VITE_');
 
   // CRITICAL FIX FOR NETLIFY: 
-  // Netlify injects variables into the system process, not necessarily the .env file.
-  // We must explicitly grab them from process.env if they exist there.
+  // Netlify injects variables into the system process.
+  // We explicitly grab API_KEY and VITE_ variables.
   const finalEnv = {
     ...env,
     NODE_ENV: mode,
-    API_KEY: process.env.API_KEY || env.API_KEY,
-    VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL,
-    VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY
+    API_KEY: process.env.API_KEY || env.API_KEY, // Explicitly allow API_KEY
+    // Do NOT include STRIPE_SECRET_KEY or STRIPE_WEBHOOK_SECRET here
   };
 
   return {
