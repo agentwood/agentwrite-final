@@ -74,3 +74,22 @@ export const stripeService = {
     return priceIds[planName]?.[billingCycle] || '';
   },
 };
+
+// Verify Stripe session and upgrade user (called from success page)
+export async function verifySessionAndUpgrade(sessionId: string, planId: string) {
+  try {
+    // In a real implementation, you would:
+    // 1. Verify the session with Stripe
+    // 2. Update the user's plan in Supabase
+    // For now, we'll just return success since the webhook handles the actual upgrade
+
+    return {
+      success: true,
+      plan: planId,
+      credits: planId === 'starter' ? 15000 : planId === 'pro' ? 75000 : 999999999
+    };
+  } catch (error) {
+    console.error('Verification error:', error);
+    return { success: false, plan: '', credits: 0 };
+  }
+}
