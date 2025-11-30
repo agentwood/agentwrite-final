@@ -10,9 +10,9 @@ export default defineConfig(({ mode }) => {
 
   // CRITICAL FIX FOR NETLIFY: 
   // Netlify injects variables into the system process.
-  // We explicitly grab API_KEY and VITE_ variables.
+  // We explicitly grab API_KEY and merge all VITE_ variables.
   const finalEnv = {
-    ...env,
+    ...env, // This contains all VITE_ prefixed variables
     NODE_ENV: mode,
     API_KEY: process.env.API_KEY || env.API_KEY, // Explicitly allow API_KEY
     // Do NOT include STRIPE_SECRET_KEY or STRIPE_WEBHOOK_SECRET here
@@ -23,8 +23,8 @@ export default defineConfig(({ mode }) => {
     define: {
       // Manually expose the API_KEY on import.meta.env
       'import.meta.env.API_KEY': JSON.stringify(finalEnv.API_KEY),
-      // Polyfill process.env with the explicitly merged variables
-      'process.env': JSON.stringify(finalEnv)
+      // Note: Vite automatically exposes VITE_ prefixed env vars to import.meta.env
+      // We don't need to manually define them here
     },
     build: {
       rollupOptions: {
