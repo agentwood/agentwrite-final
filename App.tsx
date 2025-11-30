@@ -22,65 +22,69 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsPage from './pages/TermsPage';
 import CancelPage from './pages/CancelPage';
 
+import { AuthProvider } from './contexts/AuthContext';
+
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/login" element={<SignupPage />} /> {/* Added /login route */}
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/login" element={<SignupPage />} /> {/* Added /login route */}
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-        {/* Protected Routes */}
-        <Route path="/onboarding" element={
-          <ProtectedRoute>
-            <OnboardingPage />
-          </ProtectedRoute>
-        } />
+          {/* Protected Routes */}
+          <Route path="/onboarding" element={
+            <ProtectedRoute>
+              <OnboardingPage />
+            </ProtectedRoute>
+          } />
 
-        {/* Persona Pages from Menu */}
-        <Route path="/students" element={<PersonaPage type="students" />} />
-        <Route path="/creators" element={<PersonaPage type="creators" />} />
+          {/* Persona Pages from Menu */}
+          <Route path="/students" element={<PersonaPage type="students" />} />
+          <Route path="/creators" element={<PersonaPage type="creators" />} />
 
-        <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/privacy" element={<PrivacyPolicyPage />} />
-        <Route path="/terms" element={<TermsPage />} />
-        <Route path="/cancel" element={
-          <ProtectedRoute>
-            <CancelPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        } />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/stripe-success" element={
-          <ProtectedRoute>
-            <StripeSuccessPage />
-          </ProtectedRoute>
-        } />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/cancel" element={
+            <ProtectedRoute>
+              <CancelPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/stripe-success" element={
+            <ProtectedRoute>
+              <StripeSuccessPage />
+            </ProtectedRoute>
+          } />
 
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/create" element={<AICreatePage />} />
-        <Route path="/stats" element={<StatsPage />} />
-        <Route path="/project/:projectId" element={
-          <ProtectedRoute>
-            <EditorPage />
-          </ProtectedRoute>
-        } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/create" element={<AICreatePage />} />
+          <Route path="/stats" element={<StatsPage />} />
+          <Route path="/project/:projectId" element={
+            <ProtectedRoute>
+              <EditorPage />
+            </ProtectedRoute>
+          } />
 
-        {/* Brainstorming Flow */}
-        <Route path="/brainstorm" element={<BrainstormSelection />} />
-        <Route path="/brainstorm/:id" element={<BrainstormInput />} />
-        <Route path="/results" element={<BrainstormResults />} />
-      </Routes >
-    </Router >
+          {/* Brainstorming Flow */}
+          <Route path="/brainstorm" element={<BrainstormSelection />} />
+          <Route path="/brainstorm/:id" element={<BrainstormInput />} />
+          <Route path="/results" element={<BrainstormResults />} />
+        </Routes >
+      </Router >
+    </AuthProvider>
   );
 };
 

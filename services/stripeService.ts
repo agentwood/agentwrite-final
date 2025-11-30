@@ -55,24 +55,40 @@ export const stripeService = {
   getPriceId(planName: string, billingCycle: 'monthly' | 'yearly' = 'yearly'): string {
     const priceIds: Record<string, Record<string, string>> = {
       starter: {
-        monthly: import.meta.env.VITE_STRIPE_PRICE_STARTER_MONTHLY || 'price_starter_monthly',
-        yearly: import.meta.env.VITE_STRIPE_PRICE_STARTER_YEARLY || 'price_starter_yearly',
+        monthly: import.meta.env.VITE_STRIPE_PRICE_STARTER_MONTHLY || '',
+        yearly: import.meta.env.VITE_STRIPE_PRICE_STARTER_YEARLY || '',
       },
       pro: {
-        monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY || 'price_pro_monthly',
-        yearly: import.meta.env.VITE_STRIPE_PRICE_PRO_YEARLY || 'price_pro_yearly',
+        monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY || '',
+        yearly: import.meta.env.VITE_STRIPE_PRICE_PRO_YEARLY || '',
       },
       unlimited: {
-        monthly: import.meta.env.VITE_STRIPE_PRICE_UNLIMITED_MONTHLY || 'price_unlimited_monthly',
-        yearly: import.meta.env.VITE_STRIPE_PRICE_UNLIMITED_YEARLY || 'price_unlimited_yearly',
+        monthly: import.meta.env.VITE_STRIPE_PRICE_UNLIMITED_MONTHLY || '',
+        yearly: import.meta.env.VITE_STRIPE_PRICE_UNLIMITED_YEARLY || '',
       },
       ltd: {
-        yearly: import.meta.env.VITE_STRIPE_PRICE_LTD || 'price_ltd',
-        monthly: import.meta.env.VITE_STRIPE_PRICE_LTD || 'price_ltd', // LTD is always yearly
+        yearly: import.meta.env.VITE_STRIPE_PRICE_LTD || '',
+        monthly: import.meta.env.VITE_STRIPE_PRICE_LTD || '', // LTD is always yearly
       },
     };
 
-    return priceIds[planName]?.[billingCycle] || '';
+    const priceId = priceIds[planName]?.[billingCycle] || '';
+
+    // Log for debugging
+    if (!priceId) {
+      console.error(`Missing Stripe Price ID for plan: ${planName}, cycle: ${billingCycle}`);
+      console.log('Available env vars:', {
+        VITE_STRIPE_PRICE_STARTER_MONTHLY: import.meta.env.VITE_STRIPE_PRICE_STARTER_MONTHLY,
+        VITE_STRIPE_PRICE_STARTER_YEARLY: import.meta.env.VITE_STRIPE_PRICE_STARTER_YEARLY,
+        VITE_STRIPE_PRICE_PRO_MONTHLY: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY,
+        VITE_STRIPE_PRICE_PRO_YEARLY: import.meta.env.VITE_STRIPE_PRICE_PRO_YEARLY,
+        VITE_STRIPE_PRICE_UNLIMITED_MONTHLY: import.meta.env.VITE_STRIPE_PRICE_UNLIMITED_MONTHLY,
+        VITE_STRIPE_PRICE_UNLIMITED_YEARLY: import.meta.env.VITE_STRIPE_PRICE_UNLIMITED_YEARLY,
+        VITE_STRIPE_PRICE_LTD: import.meta.env.VITE_STRIPE_PRICE_LTD,
+      });
+    }
+
+    return priceId;
   },
 };
 
