@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || ''; // Should ideally be SERVICE_ROLE_KEY for backend updates
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const handler: Handler = async (event) => {
@@ -32,9 +32,8 @@ export const handler: Handler = async (event) => {
 
         if (userId) {
             // Determine plan and credits based on priceId
-            // This mapping should ideally be in a config or database
             let creditsToAdd = 0;
-            let planName = 'free';
+            let planName = 'starter';
 
             // Example mapping - REPLACE WITH REAL PRICE IDs
             const starterMonthly = process.env.VITE_STRIPE_PRICE_STARTER_MONTHLY;
@@ -59,18 +58,23 @@ export const handler: Handler = async (event) => {
                 planName = 'lifetime';
             }
 
-            // Update user in Supabase
-            // Note: This requires a table structure that supports credits/plans
-            // Assuming 'profiles' or 'users' table or similar logic
-
-            // For now, we'll just log it as we might need to adjust the Supabase logic
             console.log(`Processing payment for user ${userId}: Plan ${planName}, Credits ${creditsToAdd}`);
 
-            // TODO: Implement actual Supabase update
-            // const { error } = await supabase
-            //   .from('profiles')
-            //   .update({ plan: planName, credits: creditsToAdd })
-            //   .eq('id', userId);
+            // Update user_credits table
+            // We use upsert to handle cases where the user might not have a record yet (though they should from signup)
+            const { error } = await supabase
+                .from('user_credits')
+                .upsert({
+                    user_id: userId,
+                    plan: planName,
+                    credits: creditsToAdd,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id' });
+
+            if (error) {
+                console.error('Supabase update error:', error);
+                return { statusCode: 500, body: `Supabase error: ${error.message}` };
+            }
         }
     }
 
