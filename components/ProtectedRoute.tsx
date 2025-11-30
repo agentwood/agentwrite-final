@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
+import { useAuth } from '../contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
@@ -8,45 +8,8 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-    const [loading, setLoading] = useState(true);
-    const [authenticated, setAuthenticated] = useState(false);
+    const { user, loading } = useAuth();
     const location = useLocation();
-
-    useEffect(() => {
-        const checkAuth = async () => {
-            // 1. Check if Supabase is configured
-            if (!isSupabaseConfigured() || !supabase) {
-                // Fallback to local storage for demo mode
-                const localUser = localStorage.getItem('agentwrite_user_prefs');
-                setAuthenticated(!!localUser);
-                setLoading(false);
-                return;
-            }
-
-            // 2. Check real Supabase session
-            const { data: { session } } = await supabase.auth.getSession();
-
-            if (session) {
-                setAuthenticated(true);
-            } else {
-                // Double check local storage just in case (hybrid mode)
-                const localUser = localStorage.getItem('agentwrite_user_prefs');
-                setAuthenticated(!!localUser);
-            }
-
-            setLoading(false);
-        };
-
-        checkAuth();
-
-        // Listen for auth changes
-        const { data: { subscription } } = supabase?.auth.onAuthStateChange((_event, session) => {
-            setAuthenticated(!!session);
-            setLoading(false);
-        }) || { data: { subscription: { unsubscribe: () => { } } } };
-
-        return () => subscription.unsubscribe();
-    }, []);
 
     if (loading) {
         return (
@@ -56,7 +19,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         );
     }
 
-    if (!authenticated) {
+    if (!user) {
         // Redirect to login, but save the location they were trying to go to
         return <Navigate to="/signup" state={{ from: location, mode: 'login' }} replace />;
     }
