@@ -3,22 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { Check, X, Clock, Sparkles } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import { stripeService } from '../services/stripeService';
-import { supabase } from '../services/supabaseClient';
+import { useAuth } from '../contexts/AuthContext';
 
 const PricingPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  // Check authentication status
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setIsAuthenticated(!!user);
-    });
-  }, []);
 
   const handleCheckout = async (planName: string, isLTD: boolean = false) => {
     setLoading(planName);
@@ -26,7 +19,7 @@ const PricingPage = () => {
 
     try {
       // Check if user is authenticated
-      if (!isAuthenticated) {
+      if (!user) {
         navigate('/signup');
         return;
       }
