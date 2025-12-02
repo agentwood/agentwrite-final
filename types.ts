@@ -129,3 +129,16 @@ export interface UserCredits {
   credits: number;
   plan: 'hobby' | 'professional' | 'max';
 }
+
+export interface AudioCharacter {
+  name: string;
+  gender: 'male' | 'female' | 'neutral';
+  voiceId?: string;
+}
+
+export interface AudioConfig {
+  mode: 'single' | 'multi';
+  characters: AudioCharacter[];
+  mood: 'warm' | 'dark' | 'exciting' | 'calm';
+  pacing: 'slow' | 'natural' | 'fast';
+}

@@ -14,28 +14,35 @@ const PricingPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleCheckout = async (planName: string, isLTD: boolean = false) => {
+    console.log('🔵 handleCheckout called with:', { planName, isLTD, user: !!user, billingCycle });
     setLoading(planName);
     setError(null);
 
     try {
       // Check if user is authenticated
       if (!user) {
+        console.log('❌ No user, redirecting to signup');
         navigate('/signup');
         return;
       }
 
+      console.log('✅ User authenticated:', user.email);
       const priceId = stripeService.getPriceId(planName, billingCycle);
+      console.log('💰 Price ID:', priceId);
+
       if (!priceId) {
         throw new Error('Price ID not found for this plan. Please contact support.');
       }
 
+      console.log('🚀 Calling createCheckoutSession...');
       await stripeService.createCheckoutSession({
         priceId,
         planName,
         isLTD,
       });
+      console.log('✅ createCheckoutSession completed');
     } catch (error: any) {
-      console.error('Checkout error:', error);
+      console.error('❌ Checkout error:', error);
       setError(error.message || 'Failed to start checkout. Please try again.');
     } finally {
       setLoading(null);
