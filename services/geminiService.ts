@@ -2,9 +2,9 @@ import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { BrainstormRequest, BrainstormResponse, StorySegment, StoryOption } from "../types";
 
 const getClient = () => {
-  // Use process.env which is polyfilled in vite.config.ts
+  // Use import.meta.env which is defined in vite.config.ts
   // @ts-ignore
-  const apiKey = process.env.API_KEY;
+  const apiKey = import.meta.env.API_KEY || import.meta.env.VITE_API_KEY;
 
   if (!apiKey) {
     throw new Error("API Key not found. Please set API_KEY in environment variables.");
