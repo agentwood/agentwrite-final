@@ -1,14 +1,46 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-    ArrowLeft, Sparkles, Play, Volume2, Video, BookOpen,
-    Loader2, Save, Share2, Mic, RefreshCw, ChevronRight,
-    Ghost, Heart, Rocket, Search, Sword, Theater, PenTool, Image as ImageIcon, Pause, Square
+import { 
+    ArrowLeft, Sparkles, Volume2, Volume1, VolumeX,
+    ChevronRight, BookOpen, Crown, Zap, Ghost,
+    Sun, Layout, Plus, PenTool, Loader2,
+    Play, Pause, X, Download, Headphones,
+    Coffee, Map, Backpack, Wand2, Settings2, Heart, Star, Compass
 } from 'lucide-react';
-import { generateStorySegment, generateSpeech, generateVideo, generateImage } from '../services/geminiService';
-import { StorySegment, StoryOption } from '../types';
-import Navigation from '../components/Navigation';
+import { generateStorySegment, generateMultiSpeakerAudio, generateImage, generateCharacter, detectStoryCharacters } from '../services/geminiService';
+import { StorySegment, StoryOption, AudioConfig, AudioCharacter } from '../types';
+
+// --- VISUAL EFFECTS ---
+const ParticleField = () => {
+    const particles = useRef([...Array(30)].map(() => ({
+        top: Math.random() * 100,
+        left: Math.random() * 100,
+        size: Math.random() * 3 + 1,
+        duration: Math.random() * 5 + 5,
+        delay: Math.random() * 2,
+        opacity: Math.random() * 0.5 + 0.1
+    }))).current;
+
+    return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
+            {particles.map((p, i) => (
+                <div 
+                    key={i}
+                    className="absolute rounded-full bg-amber-200 animate-pulse"
+                    style={{
+                        top: `${p.top}%`,
+                        left: `${p.left}%`,
+                        width: `${p.size}px`,
+                        height: `${p.size}px`,
+                        opacity: p.opacity,
+                        animationDuration: `${p.duration}s`,
+                        animationDelay: `${p.delay}s`
+                    }}
+                />
+            ))}
+        </div>
+    );
+};
 
 // --- AUDIO DECODING HELPERS ---
 function decodeBase64(base64: string) {
@@ -27,584 +59,745 @@ async function decodePCM(
     sampleRate: number = 24000
 ): Promise<AudioBuffer> {
     const dataInt16 = new Int16Array(data.buffer);
-    // Gemini TTS returns mono (1 channel) by default
     const numChannels = 1;
     const frameCount = dataInt16.length / numChannels;
-
+    
     const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
 
     for (let channel = 0; channel < numChannels; channel++) {
         const channelData = buffer.getChannelData(channel);
         for (let i = 0; i < frameCount; i++) {
-            // Convert Int16 to Float32 [-1.0, 1.0]
             channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
         }
     }
     return buffer;
 }
 
-const AICreatePage = () => {
-    const navigate = useNavigate();
+// --- TYPEWRITER COMPONENT ---
+const TypewriterText = ({ text, onComplete, speed = 20 }: { text: string, onComplete?: () => void, speed?: number }) => {
+    const [displayedText, setDisplayedText] = useState('');
+    useEffect(() => {
+        setDisplayedText('');
+        let i = 0;
+        const timer = setInterval(() => {
+            if (i < text.length) {
+                setDisplayedText(prev => prev + text.charAt(i));
+                i++;
+            } else {
+                clearInterval(timer);
+                if (onComplete) onComplete();
+            }
+        }, speed);
+        return () => clearInterval(timer);
+    }, [text]);
+    return <>{displayedText}</>;
+};
 
-    // Wizard State
-    const [wizardStep, setWizardStep] = useState(1); // 1: Genre, 2: Tone, 3: Premise, 4: Active
-    const [genre, setGenre] = useState('');
-    const [tone, setTone] = useState('');
-    const [premise, setPremise] = useState('');
+// --- AUDIO STUDIO MODAL ---
+const AudioStudio = ({ storyText, onClose }: { storyText: string, onClose: () => void }) => {
+    const [step, setStep] = useState<'analyzing' | 'setup' | 'generating' | 'player'>('analyzing');
+    
+    // Simplified Controls
+    const [pacing, setPacing] = useState(50); // 0-100
+    const [smoothness, setSmoothness] = useState(80); // 0-100
+    const [style, setStyle] = useState<'Cinematic' | 'Audiobook' | 'Radio'>('Cinematic');
+    
+    // Internal Config
+    const [config, setConfig] = useState<AudioConfig>({
+        mode: 'multi',
+        characters: [],
+        mood: 'warm',
+        pacing: 'natural'
+    });
 
-    // Story State
-    const [segments, setSegments] = useState<StorySegment[]>([]);
-    const [historyText, setHistoryText] = useState('');
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [isGeneratingMedia, setIsGeneratingMedia] = useState(false);
-
-    // Media State for Active Segment
-    const [activeMedia, setActiveMedia] = useState<{ audio?: string, video?: string, image?: string }>({});
-    const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
+    const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    
+    // Playback State
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(1.0);
 
     // Audio Context Refs
     const audioContextRef = useRef<AudioContext | null>(null);
-    const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
+    const sourceRef = useRef<AudioBufferSourceNode | null>(null);
+    const gainNodeRef = useRef<GainNode | null>(null);
+    const startTimeRef = useRef(0);
+    const pauseTimeRef = useRef(0);
+    const animationFrameRef = useRef<number | null>(null);
 
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+    // Initial Load - AI Director Analysis
+    useEffect(() => {
+        const analyze = async () => {
+            if (storyText) {
+                try {
+                    // 1. Detect Characters
+                    const { characters } = await detectStoryCharacters(storyText);
+                    
+                    // 2. Simple Mood Heuristic
+                    const lowerText = storyText.toLowerCase();
+                    let detectedMood: any = 'warm';
+                    if (lowerText.includes('dark') || lowerText.includes('shadow') || lowerText.includes('fear') || lowerText.includes('blood')) detectedMood = 'dark';
+                    else if (lowerText.includes('fight') || lowerText.includes('run') || lowerText.includes('fast')) detectedMood = 'exciting';
+                    else if (lowerText.includes('sleep') || lowerText.includes('calm') || lowerText.includes('quiet') || lowerText.includes('peace')) detectedMood = 'calm';
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+                    // 3. Auto-Cast Voices
+                    const mapped: AudioCharacter[] = characters.map((c, i) => ({
+                        name: c.name,
+                        gender: (c.gender as 'male' | 'female' | 'neutral'),
+                        voiceId: c.gender === 'female' ? (i % 2 === 0 ? 'Kore' : 'Aoede') : (i % 2 === 0 ? 'Fenrir' : 'Charon')
+                    }));
+
+                    setConfig({
+                        mode: characters.length > 0 ? 'multi' : 'single',
+                        characters: mapped,
+                        mood: detectedMood,
+                        pacing: 'natural'
+                    });
+                    
+                    // Artificial delay for "AI Thinking" UX
+                    setTimeout(() => setStep('setup'), 1200);
+
+                } catch (e) {
+                    console.error("Analysis failed", e);
+                    setStep('setup');
+                }
+            }
+        };
+        analyze();
+    }, [storyText]);
+
+    const handleGenerate = async () => {
+        setStep('generating');
+        try {
+            // Map pacing slider to config
+            let pacingConfig: 'slow' | 'natural' | 'fast' = 'natural';
+            if (pacing < 30) pacingConfig = 'slow';
+            if (pacing > 70) pacingConfig = 'fast';
+            
+            const finalConfig = config.mode === 'single' 
+                ? { ...config, pacing: pacingConfig, characters: [{ name: 'Narrator', voiceId: config.characters[0]?.voiceId || 'Kore' }] }
+                : { ...config, pacing: pacingConfig };
+
+            const pcmBase64 = await generateMultiSpeakerAudio(storyText, finalConfig as any);
+            setAudioUrl(pcmBase64); 
+            setStep('player');
+        } catch (e) {
+            console.error(e);
+            setStep('setup');
+            alert("Audio generation failed. Please try again.");
+        }
+    };
+
+    // Update Progress Loop
+    const updateProgress = () => {
+        if (audioContextRef.current && isPlaying) {
+            const now = audioContextRef.current.currentTime;
+            const elapsed = now - startTimeRef.current;
+            if (elapsed <= duration) {
+                setCurrentTime(elapsed);
+                animationFrameRef.current = requestAnimationFrame(updateProgress);
+            } else {
+                setIsPlaying(false);
+                setCurrentTime(duration);
+            }
+        }
     };
 
     useEffect(() => {
-        scrollToBottom();
-    }, [segments]);
+        if (isPlaying) {
+            animationFrameRef.current = requestAnimationFrame(updateProgress);
+        } else {
+            if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        }
+        return () => {
+            if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        };
+    }, [isPlaying, duration]);
 
-    // Cleanup audio on unmount
+    // Handle Volume Change
     useEffect(() => {
-        return () => stopAudio();
+        if (gainNodeRef.current) {
+            gainNodeRef.current.gain.value = volume;
+        }
+    }, [volume]);
+
+    // Audio Player Logic
+    const togglePlay = async () => {
+        if (isPlaying) {
+            if (sourceRef.current) {
+                sourceRef.current.stop();
+                sourceRef.current = null;
+                pauseTimeRef.current = audioContextRef.current ? audioContextRef.current.currentTime - startTimeRef.current : 0;
+            }
+            setIsPlaying(false);
+        } else {
+            if (!audioUrl) return;
+            
+            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+            let ctx = audioContextRef.current;
+            if(!ctx || ctx.state === 'closed') {
+                 ctx = new AudioContextClass({ sampleRate: 24000 });
+                 audioContextRef.current = ctx;
+            }
+
+            let buffer = audioBuffer;
+            if (!buffer) {
+                const bytes = decodeBase64(audioUrl);
+                buffer = await decodePCM(bytes, ctx);
+                setAudioBuffer(buffer);
+            }
+
+            if (buffer) {
+                setDuration(buffer.duration);
+                const source = ctx.createBufferSource();
+                source.buffer = buffer;
+                const gainNode = ctx.createGain();
+                gainNode.gain.value = volume;
+                gainNodeRef.current = gainNode;
+                source.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                if (currentTime >= buffer.duration) {
+                     pauseTimeRef.current = 0;
+                     setCurrentTime(0);
+                }
+
+                const offset = pauseTimeRef.current % buffer.duration;
+                source.start(0, offset);
+                startTimeRef.current = ctx.currentTime - offset;
+                
+                sourceRef.current = source;
+                setIsPlaying(true);
+            }
+        }
+    };
+
+    const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const time = parseFloat(e.target.value);
+        setCurrentTime(time);
+        pauseTimeRef.current = time;
+        if (isPlaying) {
+            if (sourceRef.current) sourceRef.current.stop();
+            togglePlay(); 
+             setIsPlaying(true); 
+        }
+    };
+
+    const formatTime = (t: number) => {
+        const mins = Math.floor(t / 60);
+        const secs = Math.floor(t % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    useEffect(() => {
+        return () => {
+            if (sourceRef.current) {
+                try { sourceRef.current.stop(); } catch(e) {}
+            }
+            if (audioContextRef.current) {
+                audioContextRef.current.close();
+            }
+        };
     }, []);
 
-    // --- AUDIO PLAYER CONTROL ---
-    const stopAudio = () => {
-        if (audioSourceRef.current) {
-            try { audioSourceRef.current.stop(); } catch (e) { }
-            audioSourceRef.current = null;
-        }
-        if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-            audioContextRef.current.close();
-            audioContextRef.current = null;
-        }
-        setIsPlayingAudio(false);
-    };
-
-    const playAudio = async (base64PCM: string) => {
-        stopAudio(); // Stop any existing
-        setIsPlayingAudio(true);
-
-        try {
-            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-            const ctx = new AudioContextClass({ sampleRate: 24000 });
-            audioContextRef.current = ctx;
-
-            const bytes = decodeBase64(base64PCM);
-            const buffer = await decodePCM(bytes, ctx);
-
-            const source = ctx.createBufferSource();
-            source.buffer = buffer;
-            source.connect(ctx.destination);
-
-            source.onended = () => setIsPlayingAudio(false);
-
-            source.start(0);
-            audioSourceRef.current = source;
-        } catch (e) {
-            console.error("Failed to play PCM audio", e);
-            setIsPlayingAudio(false);
-            alert("Audio playback failed.");
-        }
-    };
-
-    // --- WIZARD DATA ---
-    const GENRES = [
-        { id: 'mystery', label: 'Mystery Thriller', icon: Search, color: 'bg-indigo-50 text-indigo-600', desc: 'Suspense, clues, and twists.' },
-        { id: 'fantasy', label: 'High Fantasy', icon: Sword, color: 'bg-amber-50 text-amber-600', desc: 'Magic, dragons, and quests.' },
-        { id: 'romance', label: 'Modern Romance', icon: Heart, color: 'bg-rose-50 text-rose-600', desc: 'Love, heartbreak, and passion.' },
-        { id: 'scifi', label: 'Hard Sci-Fi', icon: Rocket, color: 'bg-cyan-50 text-cyan-600', desc: 'Space, tech, and the future.' },
-        { id: 'horror', label: 'Cosmic Horror', icon: Ghost, color: 'bg-slate-800 text-slate-200', desc: 'Fear, shadows, and the unknown.' },
-        { id: 'drama', label: 'Period Drama', icon: Theater, color: 'bg-purple-50 text-purple-600', desc: 'History, society, and intrigue.' },
-        { id: 'custom', label: 'Start from Scratch', icon: PenTool, color: 'bg-stone-100 text-stone-600', desc: 'No presets. You define the rules.' },
-    ];
-
-    const TONES = [
-        { id: 'dark', label: 'Dark & Gritty', desc: 'Serious, visceral, realistic.' },
-        { id: 'witty', label: 'Witty & Sarcastic', desc: 'Humorous, sharp, banter-heavy.' },
-        { id: 'wholesome', label: 'Wholesome', desc: 'Cozy, optimistic, lighthearted.' },
-        { id: 'epic', label: 'Epic & Grand', desc: 'Cinematic, sweeping, intense.' },
-        { id: 'surreal', label: 'Surreal', desc: 'Dreamlike, weird, abstract.' },
-    ];
-
-    const triggerAutoImage = async (segment: StorySegment) => {
-        setIsGeneratingMedia(true);
-        try {
-            const imageUrl = await generateImage(segment.visualPrompt);
-            setSegments(prev => prev.map(s => s.id === segment.id ? { ...s, imageUrl } : s));
-
-            // If this is the active segment, update activeMedia too
-            setActiveMedia(prev => {
-                // Only update if we aren't showing something else (like video)
-                if (!prev.video) {
-                    return { ...prev, image: imageUrl };
-                }
-                return prev;
-            });
-        } catch (e) {
-            console.error("Auto image generation failed", e);
-        } finally {
-            setIsGeneratingMedia(false);
-        }
-    };
-
-    const handleStartStory = async () => {
-        if (!premise.trim()) return;
-        setWizardStep(4);
-        setIsGenerating(true);
-
-        try {
-            // Combine Genre and Tone for the AI
-            const stylePrompt = `${genre} (Tone: ${tone})`;
-            const firstSegment = await generateStorySegment("", `Start a story based on this premise: ${premise}`, stylePrompt);
-            setSegments([firstSegment]);
-            setHistoryText(firstSegment.content);
-
-            // Auto-generate image for the first segment
-            triggerAutoImage(firstSegment);
-        } catch (e) {
-            alert("Failed to start story engine. Please try again.");
-            setWizardStep(3); // Go back
-        } finally {
-            setIsGenerating(false);
-        }
-    };
-
-    const handleChoice = async (choice: StoryOption) => {
-        setIsGenerating(true);
-        setActiveMedia({});
-        stopAudio();
-
-        try {
-            const stylePrompt = `${genre} (Tone: ${tone})`;
-            const nextSegment = await generateStorySegment(historyText, choice.text, stylePrompt);
-            setSegments(prev => [...prev, nextSegment]);
-            setHistoryText(prev => prev + "\n\n" + nextSegment.content);
-
-            // Auto-generate image for the new segment
-            triggerAutoImage(nextSegment);
-        } catch (e) {
-            alert("Failed to generate next segment.");
-        } finally {
-            setIsGenerating(false);
-        }
-    };
-
-    const handleGenerateAudio = async (segment: StorySegment) => {
-        // If audio already exists, just play it
-        if (segment.audioUrl) {
-            setActiveMedia(prev => ({ ...prev, audio: segment.audioUrl }));
-            playAudio(segment.audioUrl);
-            return;
-        }
-
-        setIsGeneratingMedia(true);
-        try {
-            // Returns raw base64 PCM
-            const audioPCM = await generateSpeech(segment.content);
-            const updated = segments.map(s => s.id === segment.id ? { ...s, audioUrl: audioPCM } : s);
-            setSegments(updated);
-
-            setActiveMedia(prev => ({ ...prev, audio: audioPCM }));
-            playAudio(audioPCM);
-        } catch (e) {
-            alert("Failed to generate audio.");
-        } finally {
-            setIsGeneratingMedia(false);
-        }
-    };
-
-    const handleGenerateImage = async (segment: StorySegment) => {
-        setIsGeneratingMedia(true);
-        try {
-            const imageUrl = await generateImage(segment.visualPrompt);
-            const updated = segments.map(s => s.id === segment.id ? { ...s, imageUrl } : s);
-            setSegments(updated);
-            setActiveMedia(prev => ({ ...prev, image: imageUrl, video: undefined })); // Clear video if showing image
-        } catch (e) {
-            console.error(e);
-            alert("Image generation failed.");
-        } finally {
-            setIsGeneratingMedia(false);
-        }
-    };
-
-    const handleGenerateVideo = async (segment: StorySegment) => {
-        setIsGeneratingMedia(true);
-        stopAudio();
-        try {
-            if ((window as any).aistudio) {
-                const hasKey = await (window as any).aistudio.hasSelectedApiKey();
-                if (!hasKey) await (window as any).aistudio.openSelectKey();
-            }
-
-            const videoUrl = await generateVideo(segment.visualPrompt, '16:9', '720p');
-            const updated = segments.map(s => s.id === segment.id ? { ...s, videoUrl } : s);
-            setSegments(updated);
-            setActiveMedia(prev => ({ ...prev, video: videoUrl, image: undefined }));
-
-        } catch (e) {
-            console.error(e);
-            alert("Video generation failed. Check API key.");
-        } finally {
-            setIsGeneratingMedia(false);
-        }
-    };
-
-    // --------------------------------------------------------------------------
-    // RENDER: ONBOARDING WIZARD (Step 1-3)
-    // --------------------------------------------------------------------------
-    if (wizardStep < 4) {
-        import Navigation from '../components/Navigation';
-
-        // ... imports
-
-        const AICreatePage = () => {
-            // ... existing code
-
-            // --------------------------------------------------------------------------
-            // RENDER: ONBOARDING WIZARD (Step 1-3)
-            // --------------------------------------------------------------------------
-            if (wizardStep < 4) {
-                return (
-                    <div className="min-h-screen bg-slate-50 font-sans flex flex-col">
-                        <Navigation />
-                        {/* Nav */}
-                        <div className="p-6 flex justify-between items-center pt-24">
-                            <button onClick={() => navigate('/dashboard')} className="text-slate-500 hover:text-slate-900 flex items-center gap-2 text-sm font-medium transition">
-                                <ArrowLeft size={18} /> <span className="hidden md:inline">Back to Dashboard</span>
-                            </button>
-                            <div className="flex gap-2">
-                                {[1, 2, 3].map(step => (
-                                    <div key={step} className={`h-1.5 w-8 rounded-full transition-colors ${wizardStep >= step ? 'bg-slate-900' : 'bg-stone-200'}`}></div>
-                                ))}
-                            </div>
-                            <div className="w-4 md:w-20"></div> {/* Spacer */}
-                        </div>
-
-                        <div className="flex-1 flex items-center justify-center p-4">
-                            <div className="max-w-4xl w-full animate-fade-in-up">
-
-                                {/* STEP 1: GENRE */}
-                                {wizardStep === 1 && (
-                                    <div className="text-center">
-                                        <h1 className="font-serif text-3xl md:text-5xl text-slate-900 mb-4">Pick a Genre</h1>
-                                        <p className="text-slate-500 text-base md:text-lg mb-8 md:mb-12">What kind of world are we building today?</p>
-
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 max-w-3xl mx-auto">
-                                            {GENRES.map((g) => (
-                                                <button
-                                                    key={g.id}
-                                                    onClick={() => { setGenre(g.label); setWizardStep(2); }}
-                                                    className="bg-white p-6 rounded-2xl border-2 border-stone-100 hover:border-slate-900 hover:shadow-xl transition-all group text-left relative overflow-hidden"
-                                                >
-                                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors ${g.color}`}>
-                                                        <g.icon size={24} />
-                                                    </div>
-                                                    <h3 className="font-bold text-slate-900 text-lg mb-1 group-hover:translate-x-1 transition-transform">{g.label}</h3>
-                                                    <p className="text-xs text-slate-400 font-medium">{g.desc}</p>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* STEP 2: TONE */}
-                                {wizardStep === 2 && (
-                                    <div className="text-center">
-                                        <h1 className="font-serif text-3xl md:text-5xl text-slate-900 mb-4">Set the Tone</h1>
-                                        <p className="text-slate-500 text-base md:text-lg mb-8 md:mb-12">How should the narration feel?</p>
-
-                                        <div className="flex flex-wrap justify-center gap-3 md:gap-4 max-w-2xl mx-auto">
-                                            {TONES.map((t) => (
-                                                <button
-                                                    key={t.id}
-                                                    onClick={() => { setTone(t.label); setWizardStep(3); }}
-                                                    className="px-6 py-3 md:px-8 md:py-4 bg-white rounded-full border-2 border-stone-100 hover:border-slate-900 hover:bg-slate-900 hover:text-white hover:shadow-lg transition-all text-slate-600 font-medium text-sm md:text-lg"
-                                                >
-                                                    {t.label}
-                                                </button>
-                                            ))}
-                                        </div>
-                                        <button onClick={() => setWizardStep(1)} className="mt-12 text-slate-400 hover:text-slate-600 text-sm font-medium">Back to Genre</button>
-                                    </div>
-                                )}
-
-                                {/* STEP 3: PREMISE */}
-                                {wizardStep === 3 && (
-                                    <div className="text-center max-w-xl mx-auto">
-                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider mb-6">
-                                            {genre} • {tone}
-                                        </div>
-                                        <h1 className="font-serif text-3xl md:text-5xl text-slate-900 mb-4">The Hook</h1>
-                                        <p className="text-slate-500 text-base md:text-lg mb-8 md:mb-10">Describe the starting situation or main character.</p>
-
-                                        <div className="relative mb-8">
-                                            <textarea
-                                                value={premise}
-                                                onChange={(e) => setPremise(e.target.value)}
-                                                placeholder="e.g., A retired detective finds a mysterious key in his mailbox that opens a door to 1955."
-                                                className="w-full bg-white border-2 border-stone-200 rounded-2xl p-6 text-lg md:text-xl text-slate-800 outline-none focus:border-slate-900 transition-all h-48 resize-none placeholder-slate-300 shadow-sm"
-                                                autoFocus
-                                            />
-                                        </div>
-
-                                        <button
-                                            onClick={handleStartStory}
-                                            disabled={!premise.trim() || isGenerating}
-                                            className="w-full bg-slate-900 hover:bg-slate-800 text-white py-4 md:py-5 rounded-xl font-bold text-lg md:text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
-                                        >
-                                            {isGenerating ? <Loader2 className="animate-spin" /> : <>Start Adventure <Rocket size={20} /></>}
-                                        </button>
-                                        <button onClick={() => setWizardStep(2)} className="mt-6 text-slate-400 hover:text-slate-600 text-sm font-medium">Back to Tone</button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+    return (
+        <div className="fixed inset-0 z-[60] bg-black/95 text-white flex flex-col animate-fade-in font-sans backdrop-blur-xl">
+            {/* Header */}
+            <div className="px-8 py-6 flex justify-between items-center border-b border-white/10 bg-black/40">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500">
+                        <Sparkles size={16} />
                     </div>
-                );
-            }
-
-            // --------------------------------------------------------------------------
-            // RENDER: ACTIVE STORY ENGINE (Step 4)
-            // --------------------------------------------------------------------------
-            const activeSegment = segments[segments.length - 1];
-
-            // Logic to determine what visual to show in the preview window
-            const visualToDisplay = activeMedia.video || activeMedia.image || activeSegment?.videoUrl || activeSegment?.imageUrl;
-            const isVideo = (activeMedia.video || activeSegment?.videoUrl) && !activeMedia.image && !(activeSegment?.imageUrl && activeMedia.image === activeSegment.imageUrl);
-
-            return (
-                <div className="h-screen bg-stone-50 flex flex-col font-sans overflow-hidden">
-                    {/* Header */}
-                    <header className="h-14 md:h-16 bg-white border-b border-stone-200 flex items-center justify-between px-4 md:px-6 flex-shrink-0 z-20">
-                        <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
-                            <button onClick={() => navigate('/dashboard')} className="p-2 hover:bg-stone-100 rounded-lg text-slate-500 transition">
-                                <ArrowLeft size={18} />
-                            </button>
-                            <h1 className="font-serif font-bold text-slate-900 truncate max-w-[150px] md:max-w-xs text-sm md:text-base">{premise}</h1>
-                            <span className="px-2 py-1 bg-stone-100 text-slate-500 text-xs rounded border border-stone-200 hidden md:inline-block whitespace-nowrap">{genre}</span>
-                        </div>
-                        <div className="flex items-center gap-2 ml-2">
-                            <span className="text-xs text-slate-400 uppercase tracking-wider font-bold mr-2 hidden md:inline-block">
-                                {segments.length} Scenes
-                            </span>
-                            <button className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 text-white rounded text-xs md:text-sm font-medium hover:bg-slate-800 transition whitespace-nowrap">
-                                <Save size={14} /> <span className="hidden sm:inline">Save</span>
-                            </button>
-                        </div>
-                    </header>
-
-                    <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-
-                        {/* Left: Story Stream (Top on mobile) */}
-                        <div className="flex-1 overflow-y-auto p-6 md:p-12 bg-white max-w-3xl mx-auto w-full shadow-sm scroll-smooth order-1 lg:order-1">
-                            <div className="space-y-12 pb-32">
-                                {segments.map((seg, idx) => (
-                                    <div key={seg.id} className={`transition-opacity duration-500 ${idx === segments.length - 1 ? 'opacity-100' : 'opacity-80 hover:opacity-100'}`}>
-                                        <div className="flex justify-between items-start mb-4">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">SCENE {idx + 1}</span>
-
-                                            {/* Media Indicators for past segments */}
-                                            <div className="flex gap-2">
-                                                {seg.audioUrl && (
-                                                    <button
-                                                        onClick={() => { setActiveMedia({ audio: seg.audioUrl }); playAudio(seg.audioUrl!); }}
-                                                        className="p-1.5 bg-purple-50 text-purple-600 rounded-md hover:bg-purple-100 transition" title="Play Audio"
-                                                    >
-                                                        <Volume2 size={14} />
-                                                    </button>
-                                                )}
-                                                {seg.videoUrl && (
-                                                    <button
-                                                        onClick={() => setActiveMedia({ video: seg.videoUrl, image: undefined })}
-                                                        className="p-1.5 bg-rose-50 text-rose-600 rounded-md hover:bg-rose-100 transition" title="Play Video"
-                                                    >
-                                                        <Video size={14} />
-                                                    </button>
-                                                )}
-                                                {seg.imageUrl && (
-                                                    <button
-                                                        onClick={() => setActiveMedia({ image: seg.imageUrl, video: undefined })}
-                                                        className="p-1.5 bg-emerald-50 text-emerald-600 rounded-md hover:bg-emerald-100 transition" title="View Image"
-                                                    >
-                                                        <ImageIcon size={14} />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <p className="font-serif text-base md:text-xl leading-relaxed md:leading-loose text-slate-800 whitespace-pre-line">
-                                            {seg.content}
-                                        </p>
-                                    </div>
-                                ))}
-
-                                {isGenerating && (
-                                    <div className="flex flex-col items-center py-12 animate-pulse">
-                                        <Sparkles className="text-indigo-400 mb-4 animate-bounce" size={24} />
-                                        <div className="h-2 bg-indigo-50 rounded w-3/4 mb-3"></div>
-                                        <div className="h-2 bg-indigo-50 rounded w-5/6 mb-3"></div>
-                                        <div className="h-2 bg-indigo-50 rounded w-2/3"></div>
-                                        <span className="text-xs text-indigo-400 mt-4 uppercase tracking-widest font-bold">Weaving Narrative...</span>
-                                    </div>
-                                )}
-
-                                <div ref={messagesEndRef} />
-                            </div>
-                        </div>
-
-                        {/* Right: Active Director Panel (Bottom on mobile) */}
-                        <div className="w-full lg:w-96 bg-stone-50 border-t lg:border-t-0 lg:border-l flex-col flex-shrink-0 z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] lg:shadow-xl order-2 lg:order-2 flex max-h-[50vh] lg:max-h-none">
-
-                            {/* Media Preview Area */}
-                            <div className="h-40 md:h-56 bg-slate-900 relative flex items-center justify-center overflow-hidden group flex-shrink-0">
-                                {visualToDisplay ? (
-                                    isVideo && activeMedia.video !== undefined ? (
-                                        <video
-                                            src={activeMedia.video || activeSegment?.videoUrl}
-                                            controls
-                                            className="w-full h-full object-cover"
-                                            autoPlay
-                                        />
-                                    ) : (
-                                        <img
-                                            src={activeMedia.image || activeSegment?.imageUrl}
-                                            className="w-full h-full object-cover animate-fade-in"
-                                            alt="Scene illustration"
-                                        />
-                                    )
-                                ) : (
-                                    <div className="text-center p-6 w-full h-full flex flex-col items-center justify-center bg-slate-900/50">
-                                        {isGeneratingMedia ? (
-                                            <div className="flex flex-col items-center gap-3 animate-pulse">
-                                                <Loader2 className="animate-spin text-white" size={24} />
-                                                <span className="text-xs text-slate-300 font-medium">Visualizing Scene...</span>
-                                            </div>
-                                        ) : (
-                                            activeSegment?.visualPrompt ? (
-                                                <div className="max-w-[80%]">
-                                                    <div className="flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-wider text-indigo-400 mb-2">
-                                                        <Sparkles size={10} /> Visual Context
-                                                    </div>
-                                                    <p className="text-slate-400 text-xs italic leading-relaxed text-center line-clamp-3 md:line-clamp-none">"{activeSegment.visualPrompt}"</p>
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    <div className="w-12 h-12 bg-slate-800 text-slate-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                                                        <Video size={20} />
-                                                    </div>
-                                                    <p className="text-slate-500 text-xs font-medium">No visual generated.</p>
-                                                </>
-                                            )
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Audio Player Overlay */}
-                                {isPlayingAudio && (
-                                    <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-sm p-3 rounded-lg shadow-lg flex items-center gap-3 animate-fade-in-up z-20">
-                                        <button
-                                            onClick={stopAudio}
-                                            className="w-8 h-8 bg-slate-900 text-white rounded-full flex items-center justify-center flex-shrink-0 hover:bg-slate-800 transition"
-                                        >
-                                            <Pause size={12} fill="currentColor" />
-                                        </button>
-                                        <div className="flex-1 overflow-hidden">
-                                            <div className="text-[10px] font-bold text-slate-900 truncate">Narrating Scene...</div>
-                                            <div className="w-full bg-stone-200 h-1 rounded-full mt-1">
-                                                <div className="w-full bg-indigo-600 h-full rounded-full animate-pulse origin-left"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Controls */}
-                            <div className="flex-1 p-4 md:p-6 overflow-y-auto">
-
-                                <div className="mb-6 md:mb-8">
-                                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 md:mb-4 flex items-center gap-2">
-                                        Media Lab
-                                    </h3>
-                                    <div className="grid grid-cols-3 gap-2 md:gap-3">
-                                        <button
-                                            onClick={() => handleGenerateAudio(activeSegment)}
-                                            disabled={isGeneratingMedia || isPlayingAudio}
-                                            className={`flex flex-col items-center justify-center p-3 md:p-4 bg-white border rounded-xl hover:shadow-md transition disabled:opacity-50 group ${activeSegment?.audioUrl ? 'border-purple-200 bg-purple-50' : 'border-stone-200'}`}
-                                        >
-                                            <Volume2 size={18} className={`mb-1 md:mb-2 transition-colors ${activeSegment?.audioUrl ? 'text-purple-600' : 'text-slate-400 group-hover:text-indigo-600'}`} />
-                                            <span className={`text-[10px] font-bold uppercase tracking-wider ${activeSegment?.audioUrl ? 'text-purple-700' : 'text-slate-700'}`}>
-                                                {activeSegment?.audioUrl ? 'Replay' : 'Narrate'}
-                                            </span>
-                                        </button>
-                                        <button
-                                            onClick={() => handleGenerateImage(activeSegment)}
-                                            disabled={isGeneratingMedia || !!activeSegment?.imageUrl}
-                                            className={`flex flex-col items-center justify-center p-3 md:p-4 bg-white border rounded-xl hover:shadow-md transition disabled:opacity-50 group ${activeSegment?.imageUrl ? 'border-emerald-200 bg-emerald-50' : 'border-stone-200'}`}
-                                        >
-                                            <ImageIcon size={18} className={`mb-1 md:mb-2 transition-colors ${activeSegment?.imageUrl ? 'text-emerald-600' : 'text-slate-400 group-hover:text-emerald-600'}`} />
-                                            <span className={`text-[10px] font-bold uppercase tracking-wider ${activeSegment?.imageUrl ? 'text-emerald-700' : 'text-slate-700'}`}>
-                                                {activeSegment?.imageUrl ? 'Done' : 'Illustrate'}
-                                            </span>
-                                        </button>
-                                        <button
-                                            onClick={() => handleGenerateVideo(activeSegment)}
-                                            disabled={isGeneratingMedia || !!activeSegment?.videoUrl}
-                                            className={`flex flex-col items-center justify-center p-3 md:p-4 bg-white border rounded-xl hover:shadow-md transition disabled:opacity-50 group ${activeSegment?.videoUrl ? 'border-rose-200 bg-rose-50' : 'border-stone-200'}`}
-                                        >
-                                            {isGeneratingMedia ? <Loader2 size={18} className="animate-spin text-rose-600 mb-1 md:mb-2" /> : <Video size={18} className={`mb-1 md:mb-2 transition-colors ${activeSegment?.videoUrl ? 'text-rose-600' : 'text-slate-400 group-hover:text-rose-600'}`} />}
-                                            <span className={`text-[10px] font-bold uppercase tracking-wider ${activeSegment?.videoUrl ? 'text-rose-700' : 'text-slate-700'}`}>
-                                                {activeSegment?.videoUrl ? 'Done' : 'Motion'}
-                                            </span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="border-t border-stone-200 pt-4 md:pt-6">
-                                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 md:mb-4">
-                                        What happens next?
-                                    </h3>
-
-                                    <div className="space-y-2 md:space-y-3">
-                                        {activeSegment?.choices.map((choice, i) => (
-                                            <button
-                                                key={i}
-                                                onClick={() => handleChoice(choice)}
-                                                disabled={isGenerating}
-                                                className="w-full text-left p-3 md:p-4 bg-white border border-stone-200 rounded-xl hover:border-slate-900 hover:bg-slate-50 hover:shadow-md transition group relative overflow-hidden"
-                                            >
-                                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-hover:bg-slate-900 transition-colors"></div>
-                                                <div className="flex justify-between items-center mb-1 pl-2">
-                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">{choice.label}</span>
-                                                </div>
-                                                <div className="text-sm font-medium text-slate-800 leading-snug pl-2">
-                                                    {choice.text}
-                                                </div>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
+                    <div>
+                        <h2 className="font-serif text-xl tracking-wide">AI Director</h2>
+                        <p className="text-[10px] text-white/40 uppercase tracking-widest">Neural Audio Engine</p>
                     </div>
                 </div>
-            );
-        };
+                <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition text-white/50 hover:text-white"><X size={20} /></button>
+            </div>
 
-        export default AICreatePage;
+            <div className="flex-1 overflow-y-auto p-6 flex items-center justify-center">
+                <div className="max-w-xl w-full">
+                    
+                    {step === 'analyzing' && (
+                        <div className="flex flex-col items-center justify-center space-y-6 text-center">
+                            <div className="relative">
+                                <div className="w-24 h-24 rounded-full border-2 border-amber-500/10 border-t-amber-500 animate-spin"></div>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <Wand2 size={24} className="text-amber-500 animate-pulse" />
+                                </div>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-serif text-white mb-2">Analyzing Scene...</h3>
+                                <p className="text-white/40 text-sm">Identifying speakers and emotional context.</p>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {step === 'setup' && (
+                        <div className="animate-fade-in-up space-y-8">
+                            
+                            {/* AI PROPOSAL */}
+                            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-24 bg-amber-500/5 rounded-full blur-3xl -mr-12 -mt-12 pointer-events-none group-hover:bg-amber-500/10 transition-colors"></div>
+                                <h3 className="text-sm font-bold uppercase tracking-widest text-white/50 mb-4 flex items-center gap-2">
+                                    <Sparkles size={12} className="text-amber-500" /> Proposed Cast
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {config.characters.length > 0 ? config.characters.map((c, i) => (
+                                        <div key={i} className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 text-xs">
+                                            <span className="w-2 h-2 rounded-full bg-indigo-400"></span>
+                                            <span className="font-bold text-white">{c.name}</span>
+                                        </div>
+                                    )) : (
+                                        <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 text-xs">
+                                            <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                                            <span className="font-bold text-white">Narrator</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* CONTROLS */}
+                            <div className="space-y-6">
+                                {/* Style Selector */}
+                                <div className="grid grid-cols-3 gap-3 p-1 bg-white/5 rounded-xl border border-white/5">
+                                    {['Cinematic', 'Audiobook', 'Radio'].map((s) => (
+                                        <button 
+                                            key={s}
+                                            onClick={() => setStyle(s as any)}
+                                            className={`py-2.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${style === s ? 'bg-amber-500 text-black shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                        >
+                                            {s}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Sliders */}
+                                <div className="space-y-6 bg-white/5 rounded-2xl p-6 border border-white/5">
+                                    <div>
+                                        <div className="flex justify-between mb-3">
+                                            <label className="text-xs font-bold uppercase tracking-widest text-white/50">Pacing</label>
+                                            <span className="text-xs text-white/40 font-mono">{pacing}%</span>
+                                        </div>
+                                        <input 
+                                            type="range" min="0" max="100" value={pacing} onChange={(e) => setPacing(Number(e.target.value))}
+                                            className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-amber-500 [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(245,158,11,0.5)]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between mb-3">
+                                            <label className="text-xs font-bold uppercase tracking-widest text-white/50">Stability & Smoothness</label>
+                                            <span className="text-xs text-white/40 font-mono">{smoothness}%</span>
+                                        </div>
+                                        <input 
+                                            type="range" min="0" max="100" value={smoothness} onChange={(e) => setSmoothness(Number(e.target.value))}
+                                            className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-indigo-500 [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button 
+                                onClick={handleGenerate}
+                                className="w-full bg-white text-black font-bold py-4 rounded-xl text-lg hover:bg-amber-50 transition transform hover:-translate-y-1 shadow-[0_0_30px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3"
+                            >
+                                <Play size={20} fill="black" /> Generate Audio
+                            </button>
+                        </div>
+                    )}
+
+                    {step === 'generating' && (
+                        <div className="flex flex-col items-center justify-center space-y-6">
+                            <div className="relative">
+                                <div className="w-24 h-24 rounded-full border-4 border-amber-500/20 border-t-amber-500 animate-spin"></div>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <Headphones size={32} className="text-amber-500 animate-pulse" />
+                                </div>
+                            </div>
+                            <div className="text-center space-y-1">
+                                <h3 className="text-xl font-serif text-white">Synthesizing...</h3>
+                                <p className="text-white/40 text-sm">Directing actors and mastering audio.</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 'player' && (
+                        <div className="animate-fade-in space-y-8">
+                            <div className="bg-[#130822] border border-white/10 rounded-2xl p-8 shadow-2xl relative overflow-hidden flex flex-col items-center">
+                                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-0"></div>
+                                
+                                <div className="relative z-10 w-40 h-40 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-900 shadow-2xl mb-8 flex items-center justify-center border border-white/10 group">
+                                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <Volume2 size={64} className="text-white opacity-90 drop-shadow-lg" />
+                                </div>
+
+                                <div className="relative z-10 w-full space-y-6">
+                                    {/* Scrubber */}
+                                    <div className="space-y-2">
+                                        <input 
+                                            type="range" min="0" max={duration || 100} value={currentTime} onChange={handleSeek}
+                                            className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-amber-500"
+                                        />
+                                        <div className="flex justify-between text-[10px] font-mono text-white/40">
+                                            <span>{formatTime(currentTime)}</span>
+                                            <span>{formatTime(duration)}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Controls */}
+                                    <div className="flex items-center justify-center gap-8">
+                                        <button onClick={() => setCurrentTime(Math.max(0, currentTime - 5))} className="text-white/50 hover:text-white transition"><div className="text-xs font-bold">-5s</div></button>
+                                        <button 
+                                            onClick={togglePlay}
+                                            className="w-16 h-16 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                                        >
+                                            {isPlaying ? <Pause size={24} fill="black" /> : <Play size={24} fill="black" className="ml-1" />}
+                                        </button>
+                                        <button onClick={() => setCurrentTime(Math.min(duration, currentTime + 5))} className="text-white/50 hover:text-white transition"><div className="text-xs font-bold">+5s</div></button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="flex gap-4">
+                                <button onClick={() => setStep('setup')} className="flex-1 py-4 rounded-xl border border-white/10 text-white hover:bg-white/5 transition font-bold text-sm">
+                                    Adjust Settings
+                                </button>
+                                <button className="flex-1 py-4 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 transition font-bold text-sm shadow-lg shadow-indigo-900/50 flex items-center justify-center gap-2">
+                                    <Download size={16} /> Save to Library
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const AICreatePage = () => {
+  const navigate = useNavigate();
+  const [view, setView] = useState<'landing' | 'wizard'>('landing');
+  
+  // Theme State
+  const [darkMode, setDarkMode] = useState(true);
+
+  // Wizard State
+  const [wizardStep, setWizardStep] = useState(1); 
+  const [selectedGenre, setSelectedGenre] = useState<any>(null);
+  const [protagonistName, setProtagonistName] = useState('');
+  const [protagonistTrait, setProtagonistTrait] = useState('');
+  const [customWorldDescription, setCustomWorldDescription] = useState('');
+  
+  // Story State
+  const [segments, setSegments] = useState<StorySegment[]>([]);
+  const [historyText, setHistoryText] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('Weaving reality...');
+  const [areChoicesVisible, setAreChoicesVisible] = useState(false);
+  
+  // Audio Studio State
+  const [showAudioStudio, setShowAudioStudio] = useState(false);
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
+
+  useEffect(() => { scrollToBottom(); }, [segments, isGenerating, areChoicesVisible]);
+
+  // Updated Genre List per user request
+  const GENRES = [
+      { id: 'custom', label: 'Create from Scratch', icon: PenTool, image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=600&auto=format&fit=crop', desc: 'Design Your Own' },
+      { id: 'cozy', label: 'Cozy Escapism', icon: Coffee, image: 'https://images.unsplash.com/photo-1517856497829-3047e3fffae1?q=80&w=600&auto=format&fit=crop', desc: 'Warm & Low-Stakes' },
+      { id: 'fantasy', label: 'Immersive Fantasy', icon: Crown, image: 'https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=600&auto=format&fit=crop', desc: 'Dragons & Destiny' },
+      { id: 'scifi', label: 'Atmospheric Sci-Fi', icon: Zap, image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=600&auto=format&fit=crop', desc: 'High Tech, Low Life' },
+      { id: 'drama', label: 'Character Diaries', icon: BookOpen, image: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?q=80&w=600&auto=format&fit=crop', desc: 'Emotional Journeys' },
+      { id: 'adventure', label: 'Guided Adventures', icon: Map, image: 'https://images.unsplash.com/photo-1502472584811-0a2f2ca84465?q=80&w=600&auto=format&fit=crop', desc: 'Interactive Stories' },
+      { id: 'horror', label: 'Comfort Horror', icon: Ghost, image: 'https://images.unsplash.com/photo-1509557965875-b88c8a35e694?q=80&w=600&auto=format&fit=crop', desc: 'Folk & Spooky' },
+      { id: 'ya', label: 'Coming of Age', icon: Backpack, image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=600&auto=format&fit=crop', desc: 'Young Adult Fiction' },
+      { id: 'meditative', label: 'Meditative', icon: Sparkles, image: 'https://images.unsplash.com/photo-1528716321680-815a8cdb8cbe?q=80&w=600&auto=format&fit=crop', desc: 'Mind-Expanding' },
+  ];
+
+  const handleGenerateIdentity = async () => {
+    setIsGenerating(true);
+    try {
+        const genreLabel = selectedGenre?.id === 'custom' && customWorldDescription 
+            ? `Custom Genre: ${customWorldDescription}` 
+            : selectedGenre?.label || "General Fiction";
+            
+        const identity = await generateCharacter(genreLabel);
+        setProtagonistName(identity.name);
+        setProtagonistTrait(identity.trait);
+    } catch(e) {
+        console.error(e);
+        alert("Could not generate identity.");
+    } finally {
+        setIsGenerating(false);
+    }
+  };
+
+  const handleStartStory = async () => {
+    if (!protagonistName.trim()) return;
+    setWizardStep(3);
+    setIsGenerating(true);
+    setAreChoicesVisible(false);
+    
+    try {
+        const genrePrompt = selectedGenre?.id === 'custom' ? `Custom World: ${customWorldDescription}` : selectedGenre.label;
+        const stylePrompt = `Genre/Setting: ${genrePrompt}. Tone: Immersive, Cinematic.`;
+        const premise = `The protagonist is ${protagonistName}, who is known for being ${protagonistTrait || 'mysterious'}. Start the story in medias res.`;
+        
+        const firstSegment = await generateStorySegment("", `START STORY: ${premise}`, stylePrompt);
+        setSegments([firstSegment]);
+        setHistoryText(firstSegment.content);
+        
+        // Trigger auto image (silent)
+        generateImage(firstSegment.visualPrompt).then(url => {
+             setSegments(prev => prev.map(s => s.id === firstSegment.id ? {...s, imageUrl: url} : s));
+        }).catch(console.error);
+
+    } catch (e) {
+        alert("Failed to start story.");
+        setWizardStep(2);
+    } finally {
+        setIsGenerating(false);
+    }
+  };
+
+  const handleChoice = async (choice: StoryOption) => {
+    setIsGenerating(true);
+    setAreChoicesVisible(false);
+    
+    try {
+        const genrePrompt = selectedGenre?.id === 'custom' ? `Custom World: ${customWorldDescription}` : selectedGenre.label;
+        const stylePrompt = `Genre: ${genrePrompt}.`;
+        const nextSegment = await generateStorySegment(historyText, choice.text, stylePrompt);
+        setSegments(prev => [...prev, nextSegment]);
+        setHistoryText(prev => prev + "\n\n" + nextSegment.content);
+
+        generateImage(nextSegment.visualPrompt).then(url => {
+             setSegments(prev => prev.map(s => s.id === nextSegment.id ? {...s, imageUrl: url} : s));
+        }).catch(console.error);
+
+    } catch (e) {
+        alert("Failed to generate next segment.");
+    } finally {
+        setIsGenerating(false);
+    }
+  };
+
+  // --- VIEW: LANDING ---
+  if (view === 'landing') {
+      return (
+        <div className="min-h-screen bg-[#020305] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
+            <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0F0F11] via-[#020305] to-black opacity-90"></div>
+                <ParticleField />
+            </div>
+            
+            <div className="relative z-20 text-center max-w-4xl mx-auto px-6">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/20 bg-amber-500/5 text-amber-300 text-xs font-bold uppercase tracking-widest mb-8 backdrop-blur-md shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                    <Sparkles size={12} className="animate-pulse" /> The Architect Engine
+                </div>
+                
+                <h1 className="font-serif text-6xl md:text-8xl mb-8 leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-stone-200 to-stone-500 drop-shadow-2xl">
+                    Where Imagination <br/> Meets <span className="italic text-amber-400 font-light">Infinite</span> Reality.
+                </h1>
+                
+                <p className="text-stone-400 text-lg md:text-xl mb-12 leading-relaxed max-w-2xl mx-auto font-light">
+                    Craft immersive narratives. Weave characters, visualize worlds, and direct full-cast audio dramas.
+                </p>
+                
+                <button 
+                    onClick={() => setView('wizard')} 
+                    className="group relative px-10 py-5 bg-white text-black rounded-full font-bold text-lg tracking-wide overflow-hidden transition-transform hover:scale-105 shadow-[0_0_40px_rgba(255,255,255,0.2)]"
+                >
+                    <span className="relative flex items-center gap-3">
+                        Begin Your Odyssey <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                    </span>
+                </button>
+            </div>
+        </div>
+      );
+  }
+
+  // --- VIEW: GENRE SELECTION ---
+  if (wizardStep === 1) {
+      return (
+        <div className="min-h-screen bg-[#050505] p-6 pt-24 text-white font-sans relative">
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#050505] to-[#050505] z-0"></div>
+            
+            <div className="max-w-7xl mx-auto relative z-10">
+                <div className="flex items-center gap-6 mb-12">
+                     <button onClick={() => setView('landing')} className="p-3 bg-white/5 hover:bg-white/10 rounded-full transition text-white/50 hover:text-white border border-white/5"><ArrowLeft size={20} /></button>
+                     <div>
+                        <h2 className="font-serif text-4xl md:text-5xl mb-2 text-white">Select a World</h2>
+                        <p className="text-white/40 font-light text-lg">Where does your story begin?</p>
+                     </div>
+                </div>
+                
+                {/* DENSE GRID LAYOUT */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    {GENRES.map(g => (
+                        <div key={g.id} onClick={() => { setSelectedGenre(g); setWizardStep(2); }} className="group cursor-pointer relative aspect-[4/5] rounded-xl overflow-hidden border border-white/10 hover:border-amber-500/50 transition-all duration-300 shadow-2xl hover:shadow-[0_0_20px_rgba(245,158,11,0.1)] hover:-translate-y-1">
+                            <img src={g.image} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110 transition-all duration-700 ease-out" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                            
+                            <div className="absolute bottom-0 left-0 right-0 p-4 transform transition-transform duration-500">
+                                <div className={`w-8 h-8 rounded-lg mb-3 flex items-center justify-center text-black font-bold shadow-lg transition-all duration-300 ${g.id === 'custom' ? 'bg-amber-400 rotate-3' : 'bg-white group-hover:bg-amber-400'}`}>
+                                    <g.icon size={16} />
+                                </div>
+                                <h3 className="font-serif text-lg font-bold leading-tight mb-1 text-white group-hover:text-amber-50">{g.label}</h3>
+                                <p className="text-[10px] text-white/50 uppercase tracking-widest font-bold group-hover:text-white transition-colors">{g.desc}</p>
+                            </div>
+                            
+                            {/* Hover Border Effect */}
+                            <div className="absolute inset-0 border-2 border-amber-500/0 group-hover:border-amber-500/50 rounded-xl transition-all duration-300 pointer-events-none"></div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+      );
+  }
+
+  // --- VIEW: CHARACTER CREATION ---
+  if (wizardStep === 2) {
+      return (
+        <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 relative">
+             <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-900/5 via-[#050505] to-[#050505] z-0"></div>
+            
+            <div className="w-full max-w-lg bg-[#0F0F11] p-10 rounded-3xl border border-white/10 shadow-2xl relative z-10 backdrop-blur-sm">
+                <div className="flex items-center gap-4 mb-8">
+                    <button onClick={() => setWizardStep(1)} className="p-2 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition"><ArrowLeft size={20} /></button>
+                    <h2 className="font-serif text-3xl text-white">The Protagonist</h2>
+                </div>
+                
+                {selectedGenre?.id === 'custom' && (
+                    <div className="mb-8">
+                         <label className="block text-xs font-bold uppercase tracking-widest text-amber-500/80 mb-3">World Premise</label>
+                         <textarea 
+                            placeholder="Describe your world..." 
+                            value={customWorldDescription} 
+                            onChange={e => setCustomWorldDescription(e.target.value)} 
+                            className="w-full p-4 rounded-xl bg-black/50 border border-white/10 text-white outline-none focus:border-amber-500 transition h-24 text-sm resize-none placeholder-white/20"
+                        />
+                    </div>
+                )}
+
+                <button 
+                    onClick={handleGenerateIdentity}
+                    disabled={isGenerating}
+                    className="w-full mb-8 py-4 rounded-xl border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition flex items-center justify-center gap-3 text-sm font-bold tracking-wide group"
+                >
+                    {isGenerating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} className="text-amber-400 group-hover:scale-125 transition-transform" />}
+                    Auto-Generate Identity
+                </button>
+
+                <div className="space-y-6">
+                    <div>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-2">Name</label>
+                        <input type="text" value={protagonistName} onChange={e => setProtagonistName(e.target.value)} className="w-full p-4 rounded-xl bg-black/50 border border-white/10 text-white outline-none focus:border-amber-500 transition placeholder-white/20" />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-2">Core Trait</label>
+                        <input type="text" value={protagonistTrait} onChange={e => setProtagonistTrait(e.target.value)} className="w-full p-4 rounded-xl bg-black/50 border border-white/10 text-white outline-none focus:border-amber-500 transition placeholder-white/20" />
+                    </div>
+                    <button onClick={handleStartStory} disabled={!protagonistName} className="w-full bg-white text-black font-bold py-5 rounded-xl mt-4 hover:bg-amber-400 hover:scale-[1.02] transition-all shadow-lg text-lg">Initialize Narrative</button>
+                </div>
+            </div>
+        </div>
+      );
+  }
+
+  // --- VIEW: STORY FEED ---
+  return (
+    <div className="h-screen bg-[#020305] text-white flex flex-col font-sans relative overflow-hidden">
+        {/* Header */}
+        <div className="absolute top-0 w-full z-40 p-6 flex justify-between items-center bg-gradient-to-b from-black via-black/80 to-transparent pointer-events-none">
+             <button onClick={() => setView('landing')} className="pointer-events-auto p-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-full hover:bg-white/10 text-white transition"><Layout size={20} /></button>
+             <div className="bg-white/5 backdrop-blur-md px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest border border-white/10 text-amber-500 shadow-lg">{selectedGenre?.label}</div>
+             <button onClick={() => setDarkMode(!darkMode)} className="pointer-events-auto p-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-full hover:bg-white/10 text-white transition"><Sun size={20} /></button>
+        </div>
+
+        {/* Content Feed */}
+        <div className="flex-1 overflow-y-auto scroll-smooth no-scrollbar pb-40">
+            {segments.map((segment, idx) => (
+                <div key={segment.id} className="relative group animate-fade-in mb-1">
+                    {/* Visual */}
+                    <div className="w-full aspect-[21/9] md:aspect-[2.5/1] relative overflow-hidden bg-zinc-900 border-b border-white/5">
+                        {segment.imageUrl ? (
+                            <img src={segment.imageUrl} className="w-full h-full object-cover opacity-50 mask-image-gradient" />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-white/20"><Loader2 className="animate-spin" /></div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#020305] via-[#020305]/60 to-transparent"></div>
+                    </div>
+                    
+                    {/* Text */}
+                    <div className="max-w-4xl mx-auto px-8 -mt-32 relative z-10 pb-16">
+                        <div className="font-serif text-xl md:text-2xl leading-relaxed text-stone-200 whitespace-pre-line drop-shadow-md">
+                            {idx === segments.length - 1 && !areChoicesVisible ? (
+                                <TypewriterText text={segment.content} onComplete={() => setAreChoicesVisible(true)} speed={15} />
+                            ) : (
+                                segment.content
+                            )}
+                        </div>
+                    </div>
+                </div>
+            ))}
+            
+            {isGenerating && (
+                <div className="py-32 flex flex-col items-center justify-center text-amber-500 animate-pulse">
+                    <Sparkles size={32} className="mb-6 opacity-80" />
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-60">{loadingMessage}</p>
+                </div>
+            )}
+            <div ref={messagesEndRef} />
+        </div>
+
+        {/* Choices / Actions */}
+        {!isGenerating && areChoicesVisible && segments.length > 0 && (
+            <div className="absolute bottom-0 w-full z-50 p-6 bg-gradient-to-t from-black via-black/95 to-transparent pt-32 pb-12">
+                <div className="max-w-5xl mx-auto">
+                    {/* Audio Studio Trigger */}
+                    <div className="flex justify-center mb-10">
+                        <button 
+                            onClick={() => setShowAudioStudio(true)}
+                            className="bg-indigo-600/90 hover:bg-indigo-500 text-white px-8 py-3 rounded-full font-bold text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(79,70,229,0.4)] flex items-center gap-3 transition hover:-translate-y-1 backdrop-blur-md"
+                        >
+                            <Headphones size={16} /> Open Audio Studio
+                        </button>
+                    </div>
+
+                    {/* Choices */}
+                    <div className="grid md:grid-cols-3 gap-4">
+                        {segments[segments.length - 1].choices.map((choice, i) => (
+                            <button key={i} onClick={() => handleChoice(choice)} className="text-left bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-500/50 p-6 rounded-xl transition-all group backdrop-blur-sm">
+                                <span className="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest mb-2 block group-hover:text-amber-400">{choice.type}</span>
+                                <span className="text-sm font-medium text-stone-300 group-hover:text-white leading-relaxed">{choice.text}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {/* AUDIO STUDIO OVERLAY */}
+        {showAudioStudio && (
+            <AudioStudio 
+                storyText={historyText} 
+                onClose={() => setShowAudioStudio(false)} 
+            />
+        )}
+    </div>
+  );
+};
+
+export default AICreatePage;
