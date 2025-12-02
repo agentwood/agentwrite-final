@@ -268,7 +268,7 @@ export const generateVideo = async (
 
     // Fetch the actual video bytes using the API key
     // @ts-ignore
-    const apiKey = process.env.API_KEY;
+    const apiKey = import.meta.env.API_KEY || import.meta.env.VITE_API_KEY;
     const response = await fetch(`${videoUri}&key=${apiKey}`);
 
     if (!response.ok) {
