@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Sparkles, ChevronRight, Zap, PlayCircle, Layers, Trophy, ArrowRight } from 'lucide-react';
 import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
+import { OrganizationSchema, SoftwareApplicationSchema } from '../components/StructuredData';
 
 const LandingPage = () => {
     const navigate = useNavigate();
@@ -10,10 +12,24 @@ const LandingPage = () => {
     return (
         <div className="min-h-screen bg-stone-50 text-slate-800 font-sans selection:bg-amber-100 selection:text-amber-900">
             <Helmet>
-                <title>AgentWriteAI - The AI Creative Suite for Writers</title>
-                <meta name="description" content="Turn your ideas into finished manuscripts with AgentWriteAI. The professional AI writing tool for novelists and screenwriters." />
+                <title>AgentWrite - AI Video Marketing Tools & Content Creation Software | Video Ideas Generator</title>
+                <meta name="description" content="AI-powered video marketing tools and content creation software. Generate video ideas for brands, create video scripts, and automate content marketing. Start free trial." />
+                <meta name="keywords" content="AI video marketing tools, video ideas for brands, video script generator AI, AI content marketing tools, automated content creation software, video idea generator, social media video ideas generator, YouTube video ideas AI, brand video generator, video content creation AI" />
                 <link rel="canonical" href="https://agentwoodai.com/" />
+                
+                {/* Open Graph */}
+                <meta property="og:title" content="AgentWrite - AI Video Marketing Tools & Content Creation Software" />
+                <meta property="og:description" content="Generate video ideas for brands, create video scripts, and automate content marketing with AI. The ultimate video marketing platform." />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://agentwoodai.com/" />
+                
+                {/* Twitter */}
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="AgentWrite - AI Video Marketing Tools & Content Creation Software" />
+                <meta name="twitter:description" content="Generate video ideas for brands, create video scripts, and automate content marketing with AI." />
             </Helmet>
+            <OrganizationSchema />
+            <SoftwareApplicationSchema />
             <Navigation />
 
             {/* Hero Section */}
@@ -133,26 +149,80 @@ const LandingPage = () => {
 
             </main>
 
-            <footer className="bg-white border-t border-stone-200 py-12">
+            {/* Blog Preview Section */}
+            <section className="bg-white border-t border-stone-200 py-20">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-4">
-                        <div className="flex items-center gap-2 opacity-50">
-                            <span className="font-serif font-bold text-lg">AgentWrite</span>
-                            <span className="text-xs text-slate-400">© 2024</span>
+                    <div className="flex items-center justify-between mb-12">
+                        <div>
+                            <h2 className="font-serif text-4xl text-slate-900 mb-3">Latest from Our Blog</h2>
+                            <p className="text-slate-600">Expert insights on AI video marketing, content creation, and marketing automation</p>
                         </div>
-                        <div className="flex gap-8 text-sm text-slate-500">
-                            <a href="https://docs.agentwood.xyz" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition">Docs</a>
-                            <a href="/#/privacy" className="hover:text-slate-900 transition">Privacy Policy</a>
-                            <a href="/#/terms" className="hover:text-slate-900 transition">Terms</a>
-                            <a href="https://x.com/agentwoodstudio" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition">X (Twitter)</a>
-                            <a href="https://discord.com/invite/agentwood" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition">Discord</a>
-                        </div>
+                        <button
+                            onClick={() => navigate('/blog')}
+                            className="hidden md:flex items-center gap-2 text-slate-600 hover:text-slate-900 transition font-medium"
+                        >
+                            View All Articles <ArrowRight size={18} />
+                        </button>
                     </div>
-                    <div className="text-center">
-                        <p className="text-xs text-slate-400">AgentWrite is a subsidiary of Agentwood</p>
+                    
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {[
+                            {
+                                title: 'Ultimate Guide to AI Video Marketing: Boost Your Brand in 2024',
+                                excerpt: 'Discover how AI video marketing tools are transforming content creation and learn strategies for success.',
+                                category: 'Video Marketing',
+                                readTime: 8,
+                                slug: 'ultimate-guide-ai-video-marketing-2024',
+                            },
+                            {
+                                title: '100 Video Ideas for Brands: AI-Generated Concepts That Convert',
+                                excerpt: 'Never run out of video content ideas. Our AI-powered generator creates unlimited creative concepts.',
+                                category: 'Video Ideas',
+                                readTime: 6,
+                                slug: '100-video-ideas-brands-ai-generated',
+                            },
+                            {
+                                title: 'Content Marketing Automation: Complete Guide to AI Tools',
+                                excerpt: 'Streamline your content creation process with AI-powered automation tools and strategies.',
+                                category: 'Content Marketing',
+                                readTime: 10,
+                                slug: 'content-marketing-automation-ai-tools-guide',
+                            },
+                        ].map((post, idx) => (
+                            <article
+                                key={idx}
+                                onClick={() => navigate(`/blog/${post.slug}`)}
+                                className="bg-white rounded-2xl p-6 border border-stone-200 hover:shadow-lg transition-all cursor-pointer group"
+                            >
+                                <span className="inline-block px-3 py-1 bg-stone-100 text-slate-600 rounded-full text-xs font-medium mb-3">
+                                    {post.category}
+                                </span>
+                                <h3 className="font-serif text-xl text-slate-900 mb-3 group-hover:text-slate-700 transition">
+                                    {post.title}
+                                </h3>
+                                <p className="text-slate-600 text-sm mb-4 line-clamp-2">
+                                    {post.excerpt}
+                                </p>
+                                <div className="flex items-center justify-between text-xs text-slate-500">
+                                    <span>{post.readTime} min read</span>
+                                    <ArrowRight size={16} className="group-hover:translate-x-1 transition" />
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                    
+                    <div className="text-center mt-8 md:hidden">
+                        <button
+                            onClick={() => navigate('/blog')}
+                            className="text-slate-600 hover:text-slate-900 transition font-medium flex items-center gap-2 mx-auto"
+                        >
+                            View All Articles <ArrowRight size={18} />
+                        </button>
                     </div>
                 </div>
-            </footer>
+            </section>
+
+            <Footer />
         </div>
     );
 };

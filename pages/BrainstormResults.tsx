@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, RefreshCw, Copy, Check, Sparkles, Layout } from 'lucide-react';
+import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 import { BrainstormResponse, BrainstormRequest } from '../types';
 
 const BrainstormResults = () => {
@@ -26,6 +28,7 @@ const BrainstormResults = () => {
 
   return (
     <div className="min-h-screen bg-stone-50 py-12 px-4">
+      <Navigation />
        <div className="max-w-4xl mx-auto">
          {/* Navigation Header */}
          <div className="flex items-center justify-between mb-8">
@@ -86,6 +89,7 @@ const BrainstormResults = () => {
             </div>
          </div>
        </div>
+      <Footer />
     </div>
   );
 };

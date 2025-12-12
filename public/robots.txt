@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /profile/
+Disallow: /settings/
+Disallow: /project/
+Disallow: /onboarding/
+Disallow: /stripe-success/
+Disallow: /cancel/
+
+# Sitemap
+Sitemap: https://agentwoodai.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+

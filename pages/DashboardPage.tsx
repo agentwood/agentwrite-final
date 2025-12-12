@@ -7,6 +7,8 @@ import {
     Sparkles, Loader2, Play, Wand2, Clapperboard, Layout, Settings,
     Bot, FileText, PenTool
 } from 'lucide-react';
+import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 import { supabase } from '../services/supabaseClient';
 import { CreditTransaction, Project } from '../types';
 import { optimizePromptForVideo, generateVideo } from '../services/geminiService';
@@ -193,6 +195,7 @@ const DashboardPage = () => {
 
     return (
         <div className="min-h-screen bg-stone-50 font-sans relative pb-12">
+            <Navigation />
             {/* ... Modals ... */}
             {activeModal !== 'none' && <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 transition-opacity" onClick={closeModals} />}
 
@@ -535,12 +538,20 @@ const DashboardPage = () => {
                                     The AI Create Engine acts as your co-author, Dungeon Master, and director.
                                     Choose your path, generate audio narration, and visualize scenes with Veo 3.
                                 </p>
-                                <button
-                                    onClick={() => navigate('/create')}
-                                    className="w-full md:w-auto bg-white text-slate-900 px-8 py-4 rounded-xl font-bold text-lg hover:bg-indigo-50 transition shadow-lg flex items-center justify-center gap-2 group"
-                                >
-                                    Start New Story <Clapperboard size={20} className="group-hover:scale-110 transition-transform" />
-                                </button>
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <button
+                                        onClick={() => navigate('/create')}
+                                        className="w-full md:w-auto bg-white text-slate-900 px-8 py-4 rounded-xl font-bold text-lg hover:bg-indigo-50 transition shadow-lg flex items-center justify-center gap-2 group"
+                                    >
+                                        Start New Story <Clapperboard size={20} className="group-hover:scale-110 transition-transform" />
+                                    </button>
+                                    <button
+                                        onClick={() => navigate('/create')}
+                                        className="w-full md:w-auto bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-indigo-700 transition shadow-lg flex items-center justify-center gap-2 group border-2 border-indigo-400"
+                                    >
+                                        <Play size={20} className="group-hover:scale-110 transition-transform" /> Play Game
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -563,6 +574,7 @@ const DashboardPage = () => {
                 )}
 
             </main>
+            <Footer />
         </div>
     );
 };

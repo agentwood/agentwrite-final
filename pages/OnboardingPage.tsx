@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Sparkles, ArrowRight, Rocket, X } from 'lucide-react';
+import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -39,7 +41,9 @@ const OnboardingPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-stone-50">
+      <Navigation />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
       <div className="max-w-2xl w-full">
         {/* Progress Indicator */}
         <div className="flex items-center justify-center gap-2 mb-8">
@@ -278,6 +282,7 @@ const OnboardingPage: React.FC = () => {
           <X size={24} />
         </button>
       </div>
+      <Footer />
     </div>
   );
 };

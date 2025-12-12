@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Check, X, Clock, Sparkles } from 'lucide-react';
 import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 import { stripeService } from '../services/stripeService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -151,6 +153,12 @@ const PricingPage = () => {
 
   return (
     <div className="min-h-screen bg-stone-50 font-sans">
+      <Helmet>
+        <title>Pricing - AI Video Marketing Tools & Content Creation Software | AgentWrite</title>
+        <meta name="description" content="Affordable AI video marketing tools and content creation software pricing. Start from $7/month. 40% cheaper than competitors. Free trial available." />
+        <meta name="keywords" content="AI video marketing tools pricing, content creation software cost, video idea generator pricing, AI content marketing tools price" />
+        <link rel="canonical" href="https://agentwoodai.com/#/pricing" />
+      </Helmet>
       <Navigation />
 
       <main className="pt-32 pb-20 px-6">
@@ -324,6 +332,8 @@ const PricingPage = () => {
           </div>
         </div>
       </main>
+      
+      <Footer />
     </div>
   );
 };

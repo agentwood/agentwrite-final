@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Flame, Trophy, Zap, Lock, CheckCircle2, ShoppingBag, Shield, Palette, Feather, Award, BarChart2, Calendar, Target } from 'lucide-react';
+import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 import LevelUpModal from '../components/LevelUpModal';
 
 const StatsPage = () => {
@@ -29,6 +31,7 @@ const StatsPage = () => {
 
   return (
     <div className="min-h-screen bg-stone-50 font-sans pb-20">
+      <Navigation />
       <LevelUpModal isOpen={showLevelModal} onClose={() => setShowLevelModal(false)} level={currentLevel + 1} />
 
       <header className="bg-white border-b border-stone-200 sticky top-0 z-20 px-6 py-4">
@@ -188,6 +191,7 @@ const StatsPage = () => {
 
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

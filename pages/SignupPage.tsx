@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Loader2, Feather, CheckCircle2, Wrench, AlertCircle, Wifi, WifiOff, Info, Copy, AlertTriangle } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -362,6 +363,7 @@ const SignupPage = () => {
             </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

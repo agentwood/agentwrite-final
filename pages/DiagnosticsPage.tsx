@@ -1,4 +1,6 @@
 import React from 'react';
+import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 import { useAuth } from '../contexts/AuthContext';
 import { stripeService } from '../services/stripeService';
 
@@ -28,6 +30,7 @@ const DiagnosticsPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
+            <Navigation />
             <div className="max-w-4xl mx-auto bg-white rounded-lg shadow p-8">
                 <h1 className="text-2xl font-bold mb-6">Stripe Diagnostics</h1>
 
@@ -82,6 +85,7 @@ const DiagnosticsPage = () => {
                     </ol>
                 </div>
             </div>
+            <Footer />
         </div>
     );
 };

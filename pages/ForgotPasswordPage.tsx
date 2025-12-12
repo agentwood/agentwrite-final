@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mail, CheckCircle, Loader2 } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 
 const ForgotPasswordPage = () => {
   const navigate = useNavigate();
@@ -122,6 +123,7 @@ const ForgotPasswordPage = () => {
             )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, CheckCircle2, GraduationCap, Video, Sparkles, UploadCloud, FileAudio, Image as ImageIcon, Loader2, Download } from 'lucide-react';
 import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 import { summarizeLecture, generateCheatsheet } from '../services/geminiService';
 
 interface PersonaPageProps {
@@ -46,7 +47,6 @@ const PersonaPage: React.FC<PersonaPageProps> = ({ type }) => {
              const summaryText = await summarizeLecture(base64Content, mimeType, "");
              setSummary(summaryText);
 
-             // 3. Generate Visual Cheatsheet
              const imageUrl = await generateCheatsheet(summaryText);
              setCheatsheetUrl(imageUrl);
              
@@ -250,6 +250,8 @@ const PersonaPage: React.FC<PersonaPageProps> = ({ type }) => {
              <span className="text-2xl font-serif font-bold text-slate-900">Medium</span>
          </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

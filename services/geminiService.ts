@@ -1,9 +1,8 @@
 import { GoogleGenAI, Type, Modality } from "@google/genai";
-import { BrainstormRequest, BrainstormResponse, StorySegment, StoryOption } from "../types";
+import { BrainstormRequest, BrainstormResponse, StorySegment, StoryOption, AudioConfig } from "../types";
 
 const getClient = () => {
-  // Use import.meta.env which is defined in vite.config.ts
-  // @ts-ignore
+  // @ts-expect-error - Vite environment variables
   const apiKey = import.meta.env.API_KEY || import.meta.env.VITE_API_KEY;
 
   if (!apiKey) {
@@ -158,18 +157,20 @@ export const summarizeLecture = async (
 export const generateImage = async (prompt: string): Promise<string> => {
   const ai = getClient();
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents: {
-        parts: [{ text: prompt }],
-      },
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.0-flash-exp',
+      contents: prompt,
     });
 
-    for (const part of response.candidates[0].content.parts) {
-      if (part.inlineData) {
-        return `data:image/png;base64,${part.inlineData.data}`;
+    if (result.candidates?.[0]?.content?.parts) {
+      for (const part of result.candidates[0].content.parts) {
+        if (part.inlineData && part.inlineData.data) {
+          const mimeType = part.inlineData.mimeType || 'image/png';
+          return `data:${mimeType};base64,${part.inlineData.data}`;
+        }
       }
     }
+
     throw new Error("No image data found in response");
   } catch (error) {
     console.error("Image generation failed:", error);
@@ -197,7 +198,6 @@ export const generateCheatsheet = async (summary: string): Promise<string> => {
     });
 
     const imagePrompt = promptOptimization.text || "An educational infographic about the lecture.";
-    console.log("Generated Cheatsheet Prompt:", imagePrompt);
 
     // Step 2: Generate Image
     return generateImage(imagePrompt);
@@ -235,7 +235,6 @@ export const generateVideo = async (
   const ai = getClient();
 
   try {
-    console.log("Starting Veo generation with prompt:", prompt);
 
     // Use Veo 3.1 Fast Preview
     let operation = await ai.models.generateVideos({
@@ -253,10 +252,9 @@ export const generateVideo = async (
     const maxRetries = 60; // 5 minutes max wait
 
     while (!operation.done && retryCount < maxRetries) {
-      await new Promise(resolve => setTimeout(resolve, 5000)); // 5s interval
+      await new Promise(resolve => setTimeout(resolve, 5000));
       operation = await ai.operations.getVideosOperation({ operation: operation });
       retryCount++;
-      console.log(`Polling Veo operation... attempt ${retryCount}`);
     }
 
     if (!operation.done) {
@@ -266,8 +264,7 @@ export const generateVideo = async (
     const videoUri = operation.response?.generatedVideos?.[0]?.video?.uri;
     if (!videoUri) throw new Error("Video generation failed: No URI returned. Check your API key permissions.");
 
-    // Fetch the actual video bytes using the API key
-    // @ts-ignore
+    // @ts-expect-error - Vite environment variables
     const apiKey = import.meta.env.API_KEY || import.meta.env.VITE_API_KEY;
     const response = await fetch(`${videoUri}&key=${apiKey}`);
 
@@ -457,11 +454,10 @@ export const detectStoryCharacters = async (text: string): Promise<{ characters:
 
 // --- MULTI-SPEAKER AUDIO ---
 
-export const generateMultiSpeakerAudio = async (text: string, config: any): Promise<string> => {
+export const generateMultiSpeakerAudio = async (text: string, config: AudioConfig): Promise<string> => {
   // For now, we'll use the single speaker TTS as a fallback since multi-speaker requires more complex setup
   // In a real implementation, this would split text by speaker and generate separate audio clips
   // or use a model that supports multi-speaker generation directly.
 
-  console.log("Generating audio with config:", config);
   return generateSpeech(text);
 };

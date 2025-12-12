@@ -13,6 +13,16 @@ import BrainstormResults from './pages/BrainstormResults';
 import StatsPage from './pages/StatsPage';
 import PersonaPage from './pages/PersonaPage';
 import PricingPage from './pages/PricingPage';
+import BusinessPage from './pages/BusinessPage';
+import VideoIdeasPage from './pages/VideoIdeasPage';
+import ContentMarketingAIPage from './pages/ContentMarketingAIPage';
+import VideoScriptGeneratorPage from './pages/VideoScriptGeneratorPage';
+import VideoMarketingToolsPage from './pages/VideoMarketingToolsPage';
+import BlogPage from './pages/BlogPage';
+import BlogPostPage from './pages/BlogPostPage';
+import ChangelogPage from './pages/ChangelogPage';
+import FAQPage from './pages/FAQPage';
+import ResourcesPage from './pages/ResourcesPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import StripeSuccessPage from './pages/StripeSuccessPage';
@@ -32,7 +42,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/login" element={<SignupPage />} /> {/* Added /login route */}
+          <Route path="/login" element={<SignupPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           {/* Protected Routes */}
@@ -47,6 +57,16 @@ const App: React.FC = () => {
           <Route path="/creators" element={<PersonaPage type="creators" />} />
 
           <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/business" element={<BusinessPage />} />
+          <Route path="/video-ideas-generator" element={<VideoIdeasPage />} />
+          <Route path="/content-marketing-ai" element={<ContentMarketingAIPage />} />
+          <Route path="/video-script-generator" element={<VideoScriptGeneratorPage />} />
+          <Route path="/video-marketing-tools" element={<VideoMarketingToolsPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/changelog" element={<ChangelogPage />} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/diagnostics" element={<DiagnosticsPage />} />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/terms" element={<TermsPage />} />

@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Clock, Shield, Download, Check, TrendingUp, Video, Headphones, FileText, Activity } from 'lucide-react';
+import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 import { CreditTransaction } from '../types';
 
 const ProfilePage = () => {
@@ -45,6 +47,7 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-stone-50 font-sans pb-20">
+      <Navigation />
        <header className="bg-white border-b border-stone-200 px-6 py-4">
          <div className="max-w-5xl mx-auto flex items-center justify-between">
             <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition text-sm font-medium">
@@ -171,6 +174,7 @@ const ProfilePage = () => {
               </div>
           </div>
       </main>
+      <Footer />
     </div>
   );
 };

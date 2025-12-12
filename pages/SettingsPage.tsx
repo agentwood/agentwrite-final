@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, CreditCard, Bell, LogOut, Mail, Lock, CheckCircle2 } from 'lucide-react';
 import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 import { supabase } from '../services/supabaseClient';
 
 const SettingsPage = () => {
@@ -226,6 +227,7 @@ const SettingsPage = () => {
             </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

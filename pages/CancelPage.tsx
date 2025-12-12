@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle, Heart, XCircle, Pause, DollarSign, Zap } from 'lucide-react';
 import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 
 const CancelPage: React.FC = () => {
     const navigate = useNavigate();
@@ -155,6 +156,7 @@ const CancelPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-stone-50">
             <Navigation />
+            <Navigation />
 
             <div className="max-w-3xl mx-auto px-4 py-24">
                 <div className="text-center mb-12">
@@ -260,6 +262,7 @@ const CancelPage: React.FC = () => {
                     </div>
                 )}
             </div>
+            <Footer />
         </div>
     );
 };

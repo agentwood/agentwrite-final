@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Sparkles, Loader2, Layout, History, Clock, Trash2 } from 'lucide-react';
+import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 import { CATEGORIES } from '../constants';
 import ProTip from '../components/ProTip';
 import { BrainstormRequest, BrainstormHistoryItem } from '../types';
@@ -96,6 +98,7 @@ const BrainstormInput = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center py-8 md:py-12 px-4 bg-stone-50">
+      <Navigation />
         {/* Navigation Header */}
         <div className="w-full max-w-6xl mb-8 flex items-center justify-between">
             <button 
@@ -242,6 +245,7 @@ const BrainstormInput = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

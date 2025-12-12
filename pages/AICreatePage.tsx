@@ -7,6 +7,8 @@ import {
     Play, Pause, X, Download, Headphones,
     Coffee, Map, Backpack, Wand2, Settings2, Heart, Star, Compass
 } from 'lucide-react';
+import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 import { generateStorySegment, generateMultiSpeakerAudio, generateImage, generateCharacter, detectStoryCharacters } from '../services/geminiService';
 import { StorySegment, StoryOption, AudioConfig, AudioCharacter } from '../types';
 
@@ -557,7 +559,6 @@ const AICreatePage = () => {
         setSegments([firstSegment]);
         setHistoryText(firstSegment.content);
         
-        // Trigger auto image (silent)
         generateImage(firstSegment.visualPrompt).then(url => {
              setSegments(prev => prev.map(s => s.id === firstSegment.id ? {...s, imageUrl: url} : s));
         }).catch(console.error);
@@ -595,7 +596,9 @@ const AICreatePage = () => {
   // --- VIEW: LANDING ---
   if (view === 'landing') {
       return (
-        <div className="min-h-screen bg-[#020305] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
+        <div className="min-h-screen bg-stone-50 text-slate-800 font-sans">
+            <Navigation />
+            <div className="min-h-screen bg-[#020305] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans pt-32">
             <div className="absolute inset-0 z-0">
                 <div className="absolute inset-0 bg-gradient-to-b from-[#0F0F11] via-[#020305] to-black opacity-90"></div>
                 <ParticleField />
@@ -623,6 +626,8 @@ const AICreatePage = () => {
                     </span>
                 </button>
             </div>
+            </div>
+            <Footer />
         </div>
       );
   }
@@ -630,7 +635,9 @@ const AICreatePage = () => {
   // --- VIEW: GENRE SELECTION ---
   if (wizardStep === 1) {
       return (
-        <div className="min-h-screen bg-[#050505] p-6 pt-24 text-white font-sans relative">
+        <div className="min-h-screen bg-stone-50 text-slate-800 font-sans">
+            <Navigation />
+            <div className="min-h-screen bg-[#050505] p-6 pt-32 text-white font-sans relative">
             <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#050505] to-[#050505] z-0"></div>
             
             <div className="max-w-7xl mx-auto relative z-10">
@@ -663,6 +670,8 @@ const AICreatePage = () => {
                     ))}
                 </div>
             </div>
+            </div>
+            <Footer />
         </div>
       );
   }
@@ -670,7 +679,9 @@ const AICreatePage = () => {
   // --- VIEW: CHARACTER CREATION ---
   if (wizardStep === 2) {
       return (
-        <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 relative">
+        <div className="min-h-screen bg-stone-50 text-slate-800 font-sans">
+            <Navigation />
+            <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 relative pt-32">
              <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-900/5 via-[#050505] to-[#050505] z-0"></div>
             
             <div className="w-full max-w-lg bg-[#0F0F11] p-10 rounded-3xl border border-white/10 shadow-2xl relative z-10 backdrop-blur-sm">
@@ -712,13 +723,17 @@ const AICreatePage = () => {
                     <button onClick={handleStartStory} disabled={!protagonistName} className="w-full bg-white text-black font-bold py-5 rounded-xl mt-4 hover:bg-amber-400 hover:scale-[1.02] transition-all shadow-lg text-lg">Initialize Narrative</button>
                 </div>
             </div>
+            </div>
+            <Footer />
         </div>
       );
   }
 
   // --- VIEW: STORY FEED ---
   return (
-    <div className="h-screen bg-[#020305] text-white flex flex-col font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-stone-50 text-slate-800 font-sans">
+        <Navigation />
+        <div className="h-screen bg-[#020305] text-white flex flex-col font-sans relative overflow-hidden">
         {/* Header */}
         <div className="absolute top-0 w-full z-40 p-6 flex justify-between items-center bg-gradient-to-b from-black via-black/80 to-transparent pointer-events-none">
              <button onClick={() => setView('landing')} className="pointer-events-auto p-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-full hover:bg-white/10 text-white transition"><Layout size={20} /></button>
@@ -796,6 +811,8 @@ const AICreatePage = () => {
                 onClose={() => setShowAudioStudio(false)} 
             />
         )}
+        </div>
+        <Footer />
     </div>
   );
 };

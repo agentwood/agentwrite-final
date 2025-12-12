@@ -2,6 +2,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Feather, Layout } from 'lucide-react';
+import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 import { CATEGORIES } from '../constants';
 import CategoryCard from '../components/CategoryCard';
 
@@ -10,6 +12,7 @@ const BrainstormSelection = () => {
 
   return (
     <div className="min-h-screen bg-stone-50 py-12 px-4">
+      <Navigation />
       <div className="max-w-6xl mx-auto">
           {/* Navigation Header */}
           <div className="flex items-center justify-between mb-12">
@@ -52,6 +55,7 @@ const BrainstormSelection = () => {
             ))}
           </div>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 
 const TermsPage: React.FC = () => {
     return (
@@ -248,6 +249,8 @@ const TermsPage: React.FC = () => {
                     </section>
                 </div>
             </div>
+            
+            <Footer />
         </div>
     );
 };

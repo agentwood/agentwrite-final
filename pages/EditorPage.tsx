@@ -7,6 +7,8 @@ import {
     Sidebar, PanelRight, FileText, Settings
 } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
+import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
 
 import { AgentOrchestrator } from '../services/agentService';
 import { Project, OutlineSection, AgentTask } from '../types';
@@ -188,6 +190,7 @@ const EditorPage: React.FC = () => {
 
     return (
         <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
+            <Navigation />
             {/* Header */}
             <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-4 shrink-0 z-20">
                 <div className="flex items-center space-x-4">
@@ -284,6 +287,7 @@ const EditorPage: React.FC = () => {
                 )}
             </div>
         </div>
+        <Footer />
     );
 };
 
