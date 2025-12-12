@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Feather, ChevronDown, ArrowRight, Sparkles, Menu, X, Layout, Users, CreditCard, LogOut, User, Settings } from 'lucide-react';
+import { Feather, ChevronDown, ArrowRight, Sparkles, Menu, X, Layout, Users, CreditCard, LogOut, User, Settings, FileText, BookOpen, HelpCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navigation = () => {
@@ -119,7 +119,11 @@ const Navigation = () => {
                         </div>
                     </div>
 
-                    <div className="px-4 py-6 cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 transition" onClick={() => navigate('/blog')}>Blog</div>
+                    <div className="px-4 py-6 cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 transition" onClick={() => navigate('/articles')}>Articles</div>
+                    <div className="px-4 py-6 cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 transition" onClick={() => navigate('/help')}>Help</div>
+                    {user && (
+                        <div className="px-4 py-6 cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 transition" onClick={() => navigate('/blog-admin')}>Blog Admin</div>
+                    )}
                     <div className="px-4 py-6 cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 transition" onClick={() => navigate('/pricing')}>Pricing</div>
                     <div className="px-4 py-6 cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 transition" onClick={() => navigate('/')}>About</div>
                 </div>
@@ -147,6 +151,9 @@ const Navigation = () => {
                                     </div>
                                     <button onClick={() => navigate('/profile')} className="w-full text-left px-3 py-2 hover:bg-stone-50 rounded-lg text-sm text-slate-700 flex items-center gap-2">
                                         <User size={14} /> Profile
+                                    </button>
+                                    <button onClick={() => navigate('/blog-admin')} className="w-full text-left px-3 py-2 hover:bg-stone-50 rounded-lg text-sm text-slate-700 flex items-center gap-2">
+                                        <FileText size={14} /> Blog Admin
                                     </button>
                                     <button onClick={() => navigate('/settings')} className="w-full text-left px-3 py-2 hover:bg-stone-50 rounded-lg text-sm text-slate-700 flex items-center gap-2">
                                         <Settings size={14} /> Settings
@@ -184,7 +191,8 @@ const Navigation = () => {
                         <MobileLink onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false) }} icon={Layout} label="The Studio" desc="Main Writing Dashboard" />
                         <MobileLink onClick={() => { navigate('/create'); setIsMobileMenuOpen(false) }} icon={Sparkles} label="AI Create" desc="Interactive Story Engine" />
                         <MobileLink onClick={() => { navigate('/brainstorm'); setIsMobileMenuOpen(false) }} icon={Feather} label="Brainstorm" desc="Idea Generator" />
-                        <MobileLink onClick={() => { navigate('/blog'); setIsMobileMenuOpen(false) }} icon={BookOpen} label="Blog" desc="Latest Articles" />
+                        <MobileLink onClick={() => { navigate('/articles'); setIsMobileMenuOpen(false) }} icon={BookOpen} label="Articles" desc="The Journal" />
+                        <MobileLink onClick={() => { navigate('/help'); setIsMobileMenuOpen(false) }} icon={HelpCircle} label="Help" desc="Support & Docs" />
                     </div>
 
                     <div className="mb-6">
@@ -209,6 +217,9 @@ const Navigation = () => {
                                 </div>
                                 <button onClick={() => { navigate('/profile'); setIsMobileMenuOpen(false) }} className="w-full text-left px-3 py-3 hover:bg-stone-50 rounded-lg text-sm text-slate-700 flex items-center gap-3">
                                     <User size={16} /> Profile
+                                </button>
+                                <button onClick={() => { navigate('/blog-admin'); setIsMobileMenuOpen(false) }} className="w-full text-left px-3 py-3 hover:bg-stone-50 rounded-lg text-sm text-slate-700 flex items-center gap-3">
+                                    <FileText size={16} /> Blog Admin
                                 </button>
                                 <button onClick={() => { navigate('/settings'); setIsMobileMenuOpen(false) }} className="w-full text-left px-3 py-3 hover:bg-stone-50 rounded-lg text-sm text-slate-700 flex items-center gap-3">
                                     <Settings size={16} /> Settings

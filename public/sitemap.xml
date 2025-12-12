@@ -93,6 +93,29 @@
     <priority>0.9</priority>
   </url>
   
+  <!-- Articles (The Journal) -->
+  <url>
+    <loc>https://agentwriteai.com/#/articles</loc>
+    <lastmod>2024-12-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Help Center -->
+  <url>
+    <loc>https://help.agentwriteai.com</loc>
+    <lastmod>2024-12-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://agentwriteai.com/#/help</loc>
+    <lastmod>2024-12-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
   <url>
     <loc>https://agentwoodai.com/#/blog/ultimate-guide-ai-video-marketing-2024</loc>
     <lastmod>2024-12-27</lastmod>

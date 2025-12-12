@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Calendar, Clock, ArrowRight, Tag, Search, BookOpen } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, Tag, Search, BookOpen, Sparkles } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import { StructuredData } from '../components/StructuredData';
@@ -75,15 +75,35 @@ const BlogPage = () => {
                 <meta property="og:url" content="https://agentwoodai.com/#/blog" />
             </Helmet>
             
-            <StructuredData
-                type="SoftwareApplication"
-                data={{
-                    '@type': 'CollectionPage',
-                    name: 'AgentWrite Blog',
-                    description: 'Expert insights on AI video marketing, content creation, and marketing automation',
-                    url: 'https://agentwoodai.com/#/blog',
-                }}
-            />
+            {posts.length > 0 && (
+                <StructuredData
+                    type="Blog"
+                    data={{
+                        name: 'AgentWrite Blog',
+                        description: 'Expert insights on AI video marketing, content creation, and marketing automation',
+                        url: 'https://agentwoodai.com/#/blog',
+                        publisher: {
+                            '@type': 'Organization',
+                            name: 'AgentWrite',
+                            logo: {
+                                '@type': 'ImageObject',
+                                url: 'https://agentwoodai.com/logo.png'
+                            }
+                        },
+                        blogPost: posts.slice(0, 10).map(post => ({
+                            '@type': 'BlogPosting',
+                            headline: post.title,
+                            description: post.excerpt,
+                            url: `https://agentwoodai.com/#/blog/${post.slug}`,
+                            datePublished: post.publishedAt,
+                            author: {
+                                '@type': 'Organization',
+                                name: post.author
+                            }
+                        }))
+                    }}
+                />
+            )}
             
             <Navigation />
             
@@ -145,7 +165,12 @@ const BlogPage = () => {
                             >
                                 {post.imageUrl && (
                                     <div className="aspect-video bg-stone-100 overflow-hidden">
-                                        <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                        <img 
+                                            src={post.imageUrl} 
+                                            alt={`${post.title} - ${post.category} article`} 
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            loading="lazy"
+                                        />
                                     </div>
                                 )}
                                 <div className="p-6">
@@ -182,6 +207,7 @@ const BlogPage = () => {
                                     </div>
                                 </div>
                             </article>
+                        ))}
                         </div>
                     )}
 
@@ -191,21 +217,35 @@ const BlogPage = () => {
                         </div>
                     )}
 
-                    {/* Newsletter CTA */}
-                    <div className="max-w-4xl mx-auto mt-20 bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-12 text-center text-white">
-                        <h2 className="font-serif text-3xl mb-4">Stay Updated</h2>
-                        <p className="text-slate-300 mb-8 max-w-2xl mx-auto">
-                            Get the latest articles on AI video marketing, content creation tips, and marketing automation delivered to your inbox.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                            <input
-                                type="email"
-                                placeholder="Enter your email"
-                                className="flex-1 px-4 py-3 rounded-lg text-slate-900"
-                            />
-                            <button className="bg-white text-slate-900 px-8 py-3 rounded-lg font-medium hover:bg-slate-100 transition">
-                                Subscribe
-                            </button>
+                    {/* Enhanced Newsletter CTA */}
+                    <div className="max-w-4xl mx-auto mt-20 bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 rounded-3xl p-12 text-center text-white relative overflow-hidden">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.15),transparent)]"></div>
+                        <div className="relative z-10">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full mb-4 backdrop-blur-sm">
+                                <Sparkles size={18} className="text-amber-400" />
+                                <span className="text-sm font-bold">Free Resources</span>
+                            </div>
+                            <h2 className="font-serif text-4xl mb-4">Stay Updated</h2>
+                            <p className="text-slate-300 mb-2 text-lg max-w-2xl mx-auto">
+                                Get the latest articles on AI writing, content creation, storytelling tips, and writing tools delivered to your inbox.
+                            </p>
+                            <p className="text-slate-400 mb-8 text-sm">
+                                Join 10,000+ writers and content creators
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                                <input
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    className="flex-1 px-4 py-4 rounded-lg text-slate-900 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+                                />
+                                <button className="bg-white text-slate-900 px-8 py-4 rounded-lg font-bold hover:bg-amber-50 transition shadow-lg flex items-center justify-center gap-2">
+                                    <Sparkles size={18} />
+                                    Subscribe Free
+                                </button>
+                            </div>
+                            <p className="text-xs text-slate-400 mt-4">
+                                No spam • Unsubscribe anytime • Free writing resources
+                            </p>
                         </div>
                     </div>
                 </div>

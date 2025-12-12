@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
@@ -20,6 +19,10 @@ import VideoScriptGeneratorPage from './pages/VideoScriptGeneratorPage';
 import VideoMarketingToolsPage from './pages/VideoMarketingToolsPage';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
+import ArticlesPage from './pages/ArticlesPage';
+import BlogAdminPage from './pages/BlogAdminPage';
+import HelpPage from './pages/HelpPage';
+import HelpArticlePage from './pages/HelpArticlePage';
 import ChangelogPage from './pages/ChangelogPage';
 import FAQPage from './pages/FAQPage';
 import ResourcesPage from './pages/ResourcesPage';
@@ -64,6 +67,14 @@ const App: React.FC = () => {
           <Route path="/video-marketing-tools" element={<VideoMarketingToolsPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/articles" element={<ArticlesPage />} />
+          <Route path="/help" element={<HelpPage />} />
+          <Route path="/help/:slug" element={<HelpArticlePage />} />
+          <Route path="/blog-admin" element={
+            <ProtectedRoute>
+              <BlogAdminPage />
+            </ProtectedRoute>
+          } />
           <Route path="/changelog" element={<ChangelogPage />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/resources" element={<ResourcesPage />} />

@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 interface StructuredDataProps {
-  type: 'Organization' | 'SoftwareApplication' | 'Article' | 'VideoObject' | 'FAQPage' | 'BreadcrumbList' | 'Blog';
+  type: 'Organization' | 'SoftwareApplication' | 'Article' | 'VideoObject' | 'FAQPage' | 'BreadcrumbList' | 'Blog' | 'BlogPosting' | 'CollectionPage';
   data: Record<string, any>;
 }
 

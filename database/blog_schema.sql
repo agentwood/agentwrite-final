@@ -55,17 +55,48 @@ CREATE POLICY "Blog posts are publicly readable"
   ON blog_posts FOR SELECT
   USING (status = 'published');
 
+-- Authenticated users can create blog posts
+CREATE POLICY "Authenticated users can create blog posts"
+  ON blog_posts FOR INSERT
+  WITH CHECK (auth.role() = 'authenticated');
+
+-- Authenticated users can update blog posts
+CREATE POLICY "Authenticated users can update blog posts"
+  ON blog_posts FOR UPDATE
+  USING (auth.role() = 'authenticated')
+  WITH CHECK (auth.role() = 'authenticated');
+
+-- Authenticated users can delete blog posts
+CREATE POLICY "Authenticated users can delete blog posts"
+  ON blog_posts FOR DELETE
+  USING (auth.role() = 'authenticated');
+
 CREATE POLICY "Blog categories are publicly readable"
   ON blog_categories FOR SELECT
   USING (true);
+
+-- Authenticated users can manage blog categories
+CREATE POLICY "Authenticated users can manage blog categories"
+  ON blog_categories FOR ALL
+  USING (auth.role() = 'authenticated');
 
 CREATE POLICY "Blog tags are publicly readable"
   ON blog_tags FOR SELECT
   USING (true);
 
+-- Authenticated users can manage blog tags
+CREATE POLICY "Authenticated users can manage blog tags"
+  ON blog_tags FOR ALL
+  USING (auth.role() = 'authenticated');
+
 CREATE POLICY "Blog post tags are publicly readable"
   ON blog_post_tags FOR SELECT
   USING (true);
+
+-- Authenticated users can manage blog post tags
+CREATE POLICY "Authenticated users can manage blog post tags"
+  ON blog_post_tags FOR ALL
+  USING (auth.role() = 'authenticated');
 
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug);
@@ -89,10 +120,12 @@ GRANT SELECT ON blog_post_tags TO anon, authenticated;
 
 -- Insert default categories
 INSERT INTO blog_categories (name, slug, description) VALUES
-  ('Video Marketing', 'video-marketing', 'Articles about video marketing strategies and tools'),
-  ('Video Ideas', 'video-ideas', 'Creative video ideas and concepts'),
-  ('Content Marketing', 'content-marketing', 'Content marketing strategies and automation'),
-  ('AI Tools', 'ai-tools', 'AI tool reviews and comparisons'),
-  ('Tutorials', 'tutorials', 'Step-by-step guides and tutorials')
+  ('Creative Writing', 'creative-writing', 'Articles about creative writing, storytelling, and fiction'),
+  ('Content Writing', 'content-writing', 'Blog posts, articles, and content creation guides'),
+  ('Story Writing', 'story-writing', 'Fiction writing, novels, short stories, and narratives'),
+  ('AI Tools', 'ai-tools', 'AI tool reviews, comparisons, and guides'),
+  ('Tutorials', 'tutorials', 'Step-by-step guides and tutorials'),
+  ('Writing Tips', 'writing-tips', 'Best practices, techniques, and strategies for writers'),
+  ('Tool Comparisons', 'tool-comparisons', 'Head-to-head comparisons of writing tools and platforms')
 ON CONFLICT (name) DO NOTHING;
 

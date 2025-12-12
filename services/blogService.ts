@@ -229,5 +229,25 @@ export const blogService = {
             viewCount: post.view_count || 0,
         }));
     },
+    
+    /**
+     * Auto-generate tags for a blog post based on content
+     */
+    async autoTagPost(
+        title: string,
+        content: string,
+        excerpt: string,
+        category: string,
+        seoKeywords?: string
+    ): Promise<string[]> {
+        // Import auto-tagging service
+        const { autoGenerateTags, cleanTags } = await import('./autoTagService');
+        
+        // Generate tags automatically
+        const generatedTags = autoGenerateTags(title, content, excerpt, category, seoKeywords);
+        
+        // Clean and validate tags
+        return cleanTags(generatedTags);
+    },
 };
 

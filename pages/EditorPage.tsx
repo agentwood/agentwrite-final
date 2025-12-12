@@ -189,6 +189,7 @@ const EditorPage: React.FC = () => {
     }
 
     return (
+        <>
         <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
             <Navigation />
             {/* Header */}
@@ -288,6 +289,7 @@ const EditorPage: React.FC = () => {
             </div>
         </div>
         <Footer />
+        </>
     );
 };
 

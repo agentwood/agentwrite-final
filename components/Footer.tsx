@@ -61,8 +61,13 @@ const Footer = () => {
                                 </button>
                             </li>
                             <li>
-                                <button onClick={() => navigate('/blog')} className="text-sm text-slate-600 hover:text-slate-900 transition text-left">
-                                    Blog
+                                <button onClick={() => navigate('/articles')} className="text-sm text-slate-600 hover:text-slate-900 transition text-left">
+                                    Articles
+                                </button>
+                            </li>
+                            <li>
+                                <button onClick={() => navigate('/help')} className="text-sm text-slate-600 hover:text-slate-900 transition text-left">
+                                    Help
                                 </button>
                             </li>
                         </ul>

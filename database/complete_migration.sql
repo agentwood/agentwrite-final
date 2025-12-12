@@ -9,6 +9,18 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================================
+-- FIX EXISTING TABLES (if they have wrong types)
+-- ============================================
+
+-- Drop artifacts table if it exists (will be recreated with correct types)
+-- This fixes the foreign key type mismatch error
+DROP TABLE IF EXISTS artifacts CASCADE;
+
+-- Drop agent_tasks table if it exists (will be recreated with correct types)
+-- This fixes the case where id column might be TEXT instead of UUID
+DROP TABLE IF EXISTS agent_tasks CASCADE;
+
+-- ============================================
 -- CORE APPLICATION TABLES
 -- ============================================
 
@@ -229,20 +241,51 @@ CREATE POLICY "Blog posts are publicly readable"
   ON blog_posts FOR SELECT
   USING (status = 'published');
 
+-- Authenticated users can create blog posts
+CREATE POLICY "Authenticated users can create blog posts"
+  ON blog_posts FOR INSERT
+  WITH CHECK (auth.role() = 'authenticated');
+
+-- Authenticated users can update blog posts
+CREATE POLICY "Authenticated users can update blog posts"
+  ON blog_posts FOR UPDATE
+  USING (auth.role() = 'authenticated')
+  WITH CHECK (auth.role() = 'authenticated');
+
+-- Authenticated users can delete blog posts
+CREATE POLICY "Authenticated users can delete blog posts"
+  ON blog_posts FOR DELETE
+  USING (auth.role() = 'authenticated');
+
 -- Blog categories are publicly readable
 CREATE POLICY "Blog categories are publicly readable"
   ON blog_categories FOR SELECT
   USING (true);
+
+-- Authenticated users can manage blog categories
+CREATE POLICY "Authenticated users can manage blog categories"
+  ON blog_categories FOR ALL
+  USING (auth.role() = 'authenticated');
 
 -- Blog tags are publicly readable
 CREATE POLICY "Blog tags are publicly readable"
   ON blog_tags FOR SELECT
   USING (true);
 
+-- Authenticated users can manage blog tags
+CREATE POLICY "Authenticated users can manage blog tags"
+  ON blog_tags FOR ALL
+  USING (auth.role() = 'authenticated');
+
 -- Blog post tags are publicly readable
 CREATE POLICY "Blog post tags are publicly readable"
   ON blog_post_tags FOR SELECT
   USING (true);
+
+-- Authenticated users can manage blog post tags
+CREATE POLICY "Authenticated users can manage blog post tags"
+  ON blog_post_tags FOR ALL
+  USING (auth.role() = 'authenticated');
 
 -- ============================================
 -- RLS POLICIES: CHANGELOG SYSTEM
@@ -345,22 +388,28 @@ $$ LANGUAGE 'plpgsql';
 -- ============================================
 
 -- Triggers for updated_at
+DROP TRIGGER IF EXISTS update_projects_updated_at ON projects;
 CREATE TRIGGER update_projects_updated_at BEFORE UPDATE ON projects
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_outlines_updated_at ON outlines;
 CREATE TRIGGER update_outlines_updated_at BEFORE UPDATE ON outlines
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_user_credits_updated_at ON user_credits;
 CREATE TRIGGER update_user_credits_updated_at BEFORE UPDATE ON user_credits
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_blog_posts_updated_at ON blog_posts;
 CREATE TRIGGER update_blog_posts_updated_at BEFORE UPDATE ON blog_posts
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_changelog_updated_at ON changelog_entries;
 CREATE TRIGGER update_changelog_updated_at BEFORE UPDATE ON changelog_entries
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Trigger to auto-create credits entry for new users
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION init_user_credits();
