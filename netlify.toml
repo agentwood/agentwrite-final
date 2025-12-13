@@ -1,6 +1,15 @@
-[[plugins]]
-  package = "@netlify/plugin-scheduled-functions"
+[build]
+  command = "npm run build"
+  publish = "dist"
 
-[[schedules]]
-  cron = "0 9 * * *"
-  function = "daily-publish"
+[functions]
+  directory = "netlify/functions"
+
+# Scheduled functions are configured in Netlify UI:
+# 1. Go to Netlify Dashboard > Functions
+# 2. Click on "daily-publish" function
+# 3. Go to "Scheduled functions" tab
+# 4. Add schedule: "0 9 * * *" (9 AM daily)
+
+# Alternative: Use Netlify's built-in scheduled functions
+# Configure via: Site settings > Functions > Scheduled functions
