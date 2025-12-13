@@ -22,7 +22,6 @@
   },
   "devDependencies": {
     "@netlify/functions": "^5.1.0",
-    "@netlify/plugin-scheduled-functions": "^2.0.0",
     "@types/node": "^20.11.24",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
