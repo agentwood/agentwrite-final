@@ -62,7 +62,7 @@ const Footer = () => {
                             </li>
                             <li>
                                 <button onClick={() => navigate('/articles')} className="text-sm text-slate-600 hover:text-slate-900 transition text-left">
-                                    Articles
+                                    Blog
                                 </button>
                             </li>
                             <li>

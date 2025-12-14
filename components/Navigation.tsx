@@ -119,7 +119,7 @@ const Navigation = () => {
                         </div>
                     </div>
 
-                    <div className="px-4 py-6 cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 transition" onClick={() => navigate('/articles')}>Articles</div>
+                    <div className="px-4 py-6 cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 transition" onClick={() => navigate('/articles')}>Blog</div>
                     <div className="px-4 py-6 cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 transition" onClick={() => navigate('/help')}>Help</div>
                     {user && (
                         <div className="px-4 py-6 cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 transition" onClick={() => navigate('/blog-admin')}>Blog Admin</div>
@@ -191,7 +191,7 @@ const Navigation = () => {
                         <MobileLink onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false) }} icon={Layout} label="The Studio" desc="Main Writing Dashboard" />
                         <MobileLink onClick={() => { navigate('/create'); setIsMobileMenuOpen(false) }} icon={Sparkles} label="AI Create" desc="Interactive Story Engine" />
                         <MobileLink onClick={() => { navigate('/brainstorm'); setIsMobileMenuOpen(false) }} icon={Feather} label="Brainstorm" desc="Idea Generator" />
-                        <MobileLink onClick={() => { navigate('/articles'); setIsMobileMenuOpen(false) }} icon={BookOpen} label="Articles" desc="The Journal" />
+                        <MobileLink onClick={() => { navigate('/articles'); setIsMobileMenuOpen(false) }} icon={BookOpen} label="Blog" desc="The Journal" />
                         <MobileLink onClick={() => { navigate('/help'); setIsMobileMenuOpen(false) }} icon={HelpCircle} label="Help" desc="Support & Docs" />
                     </div>
 
