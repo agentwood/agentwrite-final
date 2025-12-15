@@ -35,6 +35,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsPage from './pages/TermsPage';
 import CancelPage from './pages/CancelPage';
+import ContactPage from './pages/ContactPage';
 
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -70,6 +71,7 @@ const App: React.FC = () => {
           <Route path="/articles" element={<ArticlesPage />} />
           <Route path="/help" element={<HelpPage />} />
           <Route path="/help/:slug" element={<HelpArticlePage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/blog-admin" element={
             <ProtectedRoute>
               <BlogAdminPage />

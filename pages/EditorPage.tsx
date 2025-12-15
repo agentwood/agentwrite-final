@@ -28,7 +28,7 @@ const MOCK_PROJECT: Project = {
 };
 
 const EditorPage: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+    const { projectId } = useParams<{ projectId: string }>();
     const navigate = useNavigate();
     const [project, setProject] = useState<Project | null>(null);
     const [content, setContent] = useState('');
@@ -43,18 +43,34 @@ const EditorPage: React.FC = () => {
 
     // Initialize project
     useEffect(() => {
+        // Handle new project creation
+        if (projectId === 'new') {
+            const newProject: Project = {
+                id: `proj-${Date.now()}`,
+                userId: 'user-1',
+                title: 'Untitled Project',
+                genre: 'General',
+                targetWordCount: 2000,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                status: 'draft'
+            };
+            setProject(newProject);
+            return;
+        }
+
         // TODO: Fetch project from Supabase
         setProject(MOCK_PROJECT);
 
         // Load saved content/outline from local storage for demo
-        const savedContent = localStorage.getItem(`doc_${id}_content`);
-        const savedOutline = localStorage.getItem(`doc_${id}_outline`);
-        const savedTasks = localStorage.getItem(`doc_${id}_tasks`);
+        const savedContent = localStorage.getItem(`doc_${projectId}_content`);
+        const savedOutline = localStorage.getItem(`doc_${projectId}_outline`);
+        const savedTasks = localStorage.getItem(`doc_${projectId}_tasks`);
 
         if (savedContent) setContent(savedContent);
         if (savedOutline) setOutline(JSON.parse(savedOutline));
         if (savedTasks) setAgentTasks(JSON.parse(savedTasks));
-    }, [id]);
+    }, [projectId]);
 
     // Autosave
     useEffect(() => {
@@ -62,16 +78,16 @@ const EditorPage: React.FC = () => {
             if (project) {
                 setIsSaving(true);
                 // TODO: Save to Supabase
-                localStorage.setItem(`doc_${id}_content`, content);
-                localStorage.setItem(`doc_${id}_outline`, JSON.stringify(outline));
-                localStorage.setItem(`doc_${id}_tasks`, JSON.stringify(agentTasks));
+                localStorage.setItem(`doc_${projectId}_content`, content);
+                localStorage.setItem(`doc_${projectId}_outline`, JSON.stringify(outline));
+                localStorage.setItem(`doc_${projectId}_tasks`, JSON.stringify(agentTasks));
 
                 setTimeout(() => setIsSaving(false), 800);
             }
         }, 2000);
 
         return () => clearTimeout(timer);
-    }, [content, outline, agentTasks, id, project]);
+    }, [content, outline, agentTasks, projectId, project]);
 
     const handleGenerateOutline = async () => {
         if (!project) return;

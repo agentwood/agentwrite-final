@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model PersonaTemplate {
+  id            String   @id @default(cuid())
+  seedId        String?  @unique // From persona templates seed
+  name          String
+  tagline       String?
+  greeting      String?
+  category      String
+  avatarUrl     String
+  voiceName     String
+  styleHint     String?  // Voice style hint
+  systemPrompt  String   // Built from system.persona, etc.
+  
+  // Archetype system
+  archetype     String   // e.g., "mentor", "trickster", "hero"
+  tonePack      String?  // e.g., "comedic", "dramatic", "mysterious"
+  scenarioSkin  String?  // e.g., "modern", "fantasy", "sci-fi"
+  
+  // Telemetry for discovery pipeline
+  viewCount     Int      @default(0)
+  chatCount     Int      @default(0)
+  retentionScore Float   @default(0.0) // Calculated weekly
+  featured      Boolean  @default(false)
+  trending      Boolean  @default(false)
+  lastRankedAt  DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  conversations Conversation[]
+  
+  @@index([category])
+  @@index([seedId])
+  @@index([archetype])
+  @@index([retentionScore])
+  @@index([featured])
+  @@index([trending])
+}
+
+model Conversation {
+  id          String   @id @default(cuid())
+  personaId   String
+  persona     PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  userId      String?  // For future auth
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  messages    Message[]
+  
+  @@index([personaId])
+  @@index([userId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String       // "user" | "assistant"
+  text           String
+  audioUrl       String?      // Cached TTS audio
+  createdAt      DateTime     @default(now())
+  
+  @@index([conversationId])
+}
+
+model UserQuota {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  textRepliesToday Int      @default(0)
+  ttsSecondsToday  Int      @default(0)
+  callMinutesToday Int      @default(0)
+  lastResetDate   DateTime @default(now())
+  
+  @@index([userId])
+}
