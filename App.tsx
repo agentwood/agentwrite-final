@@ -36,6 +36,10 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsPage from './pages/TermsPage';
 import CancelPage from './pages/CancelPage';
 import ContactPage from './pages/ContactPage';
+import CharacterNameGeneratorPage from './pages/CharacterNameGeneratorPage';
+import StoryGeneratorPage from './pages/StoryGeneratorPage';
+import TitleGeneratorPage from './pages/TitleGeneratorPage';
+import PlotGeneratorPage from './pages/PlotGeneratorPage';
 
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -72,6 +76,10 @@ const App: React.FC = () => {
           <Route path="/help" element={<HelpPage />} />
           <Route path="/help/:slug" element={<HelpArticlePage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/tools/character-name-generator" element={<CharacterNameGeneratorPage />} />
+          <Route path="/tools/story-generator" element={<StoryGeneratorPage />} />
+          <Route path="/tools/title-generator" element={<TitleGeneratorPage />} />
+          <Route path="/tools/plot-generator" element={<PlotGeneratorPage />} />
           <Route path="/blog-admin" element={
             <ProtectedRoute>
               <BlogAdminPage />

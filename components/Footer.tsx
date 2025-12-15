@@ -122,18 +122,18 @@ const Footer = () => {
                 <div className="border-t border-stone-200 pt-8 mb-8">
                     <h3 className="font-bold text-slate-900 mb-4 text-sm uppercase tracking-wider">Free Tools</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <a href="https://agentwood.xyz/tools/character-name-generator" target="_blank" rel="noopener noreferrer" className="text-sm text-slate-600 hover:text-slate-900 transition">
+                        <button onClick={() => navigate('/tools/character-name-generator')} className="text-sm text-slate-600 hover:text-slate-900 transition text-left">
                             Character Name Generators
-                        </a>
-                        <a href="https://agentwood.xyz/tools/story-generator" target="_blank" rel="noopener noreferrer" className="text-sm text-slate-600 hover:text-slate-900 transition">
+                        </button>
+                        <button onClick={() => navigate('/tools/story-generator')} className="text-sm text-slate-600 hover:text-slate-900 transition text-left">
                             AI Story Plot Generator
-                        </a>
-                        <a href="https://agentwood.xyz/tools/title-generator" target="_blank" rel="noopener noreferrer" className="text-sm text-slate-600 hover:text-slate-900 transition">
+                        </button>
+                        <button onClick={() => navigate('/tools/title-generator')} className="text-sm text-slate-600 hover:text-slate-900 transition text-left">
                             Book Title Generator
-                        </a>
-                        <a href="https://agentwood.xyz/tools/plot-generator" target="_blank" rel="noopener noreferrer" className="text-sm text-slate-600 hover:text-slate-900 transition">
+                        </button>
+                        <button onClick={() => navigate('/tools/plot-generator')} className="text-sm text-slate-600 hover:text-slate-900 transition text-left">
                             Plot Generator
-                        </a>
+                        </button>
                     </div>
                 </div>
 
