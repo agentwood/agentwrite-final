@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Search, Book, MessageCircle, FileText, Video, Settings, CreditCard, User, HelpCircle, ChevronRight } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
-import StructuredData from '../components/StructuredData';
+import { StructuredData } from '../components/StructuredData';
 
 const HelpPage = () => {
     const navigate = useNavigate();

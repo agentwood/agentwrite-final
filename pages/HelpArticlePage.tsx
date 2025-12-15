@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, Home } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
-import StructuredData from '../components/StructuredData';
+import { StructuredData } from '../components/StructuredData';
 
 // Help article content (in a real app, this would come from a CMS or database)
 const helpArticles: Record<string, {

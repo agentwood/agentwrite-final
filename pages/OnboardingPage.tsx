@@ -43,8 +43,8 @@ const OnboardingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-stone-50">
       <Navigation />
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
-      <div className="max-w-2xl w-full">
+      <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
+        <div className="max-w-2xl w-full">
         {/* Progress Indicator */}
         <div className="flex items-center justify-center gap-2 mb-8">
           {[1, 2, 3].map((s) => (
@@ -281,6 +281,7 @@ const OnboardingPage: React.FC = () => {
         >
           <X size={24} />
         </button>
+        </div>
       </div>
       <Footer />
     </div>

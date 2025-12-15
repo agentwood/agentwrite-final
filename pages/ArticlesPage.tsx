@@ -5,7 +5,7 @@ import { ArrowRight, Feather } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import Footer from '../components/Footer';
 import { blogService, BlogPost } from '../services/blogService';
-import StructuredData from '../components/StructuredData';
+import { StructuredData } from '../components/StructuredData';
 
 const ArticlesPage = () => {
     const navigate = useNavigate();
