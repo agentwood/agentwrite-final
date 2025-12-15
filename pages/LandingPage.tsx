@@ -155,7 +155,7 @@ const LandingPage = () => {
                     <div className="flex items-center justify-between mb-12">
                         <div>
                             <h2 className="font-serif text-4xl text-slate-900 mb-3">Latest from Our Blog</h2>
-                            <p className="text-slate-600">Expert insights on AI video marketing, content creation, and marketing automation</p>
+                            <p className="text-slate-600">Expert insights on creative writing, storytelling, and AI-powered content creation</p>
                         </div>
                         <button
                             onClick={() => navigate('/blog')}
@@ -168,25 +168,25 @@ const LandingPage = () => {
                     <div className="grid md:grid-cols-3 gap-6">
                         {[
                             {
-                                title: 'Ultimate Guide to AI Video Marketing: Boost Your Brand in 2024',
-                                excerpt: 'Discover how AI video marketing tools are transforming content creation and learn strategies for success.',
-                                category: 'Video Marketing',
+                                title: 'How to Write Better Dialogue: 7 Techniques That Bring Characters to Life',
+                                excerpt: 'Master the art of writing dialogue that feels natural and reveals character. Learn techniques for subtext, voice, and pacing.',
+                                category: 'Writing Tips',
                                 readTime: 8,
-                                slug: 'ultimate-guide-ai-video-marketing-2024',
+                                slug: 'how-to-write-better-dialogue',
                             },
                             {
-                                title: '100 Video Ideas for Brands: AI-Generated Concepts That Convert',
-                                excerpt: 'Never run out of video content ideas. Our AI-powered generator creates unlimited creative concepts.',
-                                category: 'Video Ideas',
-                                readTime: 6,
-                                slug: '100-video-ideas-brands-ai-generated',
-                            },
-                            {
-                                title: 'Content Marketing Automation: Complete Guide to AI Tools',
-                                excerpt: 'Streamline your content creation process with AI-powered automation tools and strategies.',
-                                category: 'Content Marketing',
+                                title: 'The Three-Act Structure: A Writer\'s Guide to Story Architecture',
+                                excerpt: 'Understand the fundamental structure that underpins most successful stories. Learn how to apply the three-act structure.',
+                                category: 'Creative Writing',
                                 readTime: 10,
-                                slug: 'content-marketing-automation-ai-tools-guide',
+                                slug: 'three-act-structure-writers-guide',
+                            },
+                            {
+                                title: 'Character Development: Creating Memorable Protagonists and Antagonists',
+                                excerpt: 'Learn how to create complex, believable characters that readers will remember. Explore techniques for character development.',
+                                category: 'Story Writing',
+                                readTime: 9,
+                                slug: 'character-development-memorable-characters',
                             },
                         ].map((post, idx) => (
                             <article

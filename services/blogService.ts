@@ -30,7 +30,13 @@ export interface BlogCategory {
 
 export const blogService = {
     async getAllPosts(category?: string, limit?: number, offset?: number): Promise<BlogPost[]> {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'blogService.ts:32',message:'getAllPosts called',data:{hasSupabase:!!supabase,category,limit,offset},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
         if (!supabase) {
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'blogService.ts:34',message:'No supabase client',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
             return [];
         }
 
@@ -53,6 +59,9 @@ export const blogService = {
         }
 
         const { data, error } = await query;
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'blogService.ts:55',message:'Query result',data:{dataCount:data?.length||0,error:error?.message||null,hasData:!!data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
 
         if (error) {
             console.error('Error fetching blog posts:', error);

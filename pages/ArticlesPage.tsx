@@ -21,13 +21,22 @@ const ArticlesPage = () => {
     const loadPosts = async () => {
         setIsLoading(true);
         try {
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ArticlesPage.tsx:21',message:'loadPosts called',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             const allPosts = await blogService.getAllPosts();
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ArticlesPage.tsx:25',message:'Posts fetched',data:{postCount:allPosts.length,posts:allPosts.map(p=>({title:p.title,slug:p.slug,status:p.status}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             setPosts(allPosts);
             
             // Extract unique categories
             const uniqueCategories = Array.from(new Set(allPosts.map(post => post.category)));
             setCategories(['All Posts', ...uniqueCategories]);
         } catch (error) {
+            // #region agent log
+            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ArticlesPage.tsx:31',message:'Error loading posts',data:{error:error instanceof Error?error.message:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             console.error('Error loading posts:', error);
         } finally {
             setIsLoading(false);
