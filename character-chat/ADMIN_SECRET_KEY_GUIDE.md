@@ -22,6 +22,7 @@ This generates a 64-character hexadecimal string (32 bytes = 64 hex characters).
 ```
 d9ecba2c4e57545301d49f7f700e9ac676ac4b91a84f5777b45f9133c163b209
 ```
+⚠️ **Note:** This is just an example - you must generate your own unique key!
 
 ### Method 2: Using Node.js
 
@@ -123,6 +124,7 @@ A: Yes, but using `openssl rand -hex 32` ensures it's cryptographically secure a
 
 **Q: What if I lose the key?**
 A: Just generate a new one and update your `.env` file. The old key will stop working.
+
 
 
 
