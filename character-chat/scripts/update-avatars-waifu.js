@@ -77,3 +77,4 @@ console.log(`\n🎨 All non-realistic characters now use waifu anime style like 
 
 
 
+

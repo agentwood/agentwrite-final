@@ -95,3 +95,4 @@ export function searchCelebrities(keyword: string): CelebritySource[] {
   return results.sort((a, b) => a.popularityRank - b.popularityRank);
 }
 
+

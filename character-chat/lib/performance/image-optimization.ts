@@ -68,3 +68,4 @@ export function generateBlurDataURL(width: number = 20, height: number = 20): st
   return canvas.toDataURL();
 }
 
+

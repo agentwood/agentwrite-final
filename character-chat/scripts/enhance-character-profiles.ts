@@ -209,3 +209,4 @@ if (require.main === module) {
 
 export { enhanceCharacter, enhanceAllCharacters };
 
+

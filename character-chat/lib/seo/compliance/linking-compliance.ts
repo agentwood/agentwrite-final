@@ -145,3 +145,4 @@ export function generateCanonicalUrl(
   return canonicalPath + (canonicalQuery ? `?${canonicalQuery}` : '');
 }
 
+

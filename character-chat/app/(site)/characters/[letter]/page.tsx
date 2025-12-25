@@ -185,3 +185,4 @@ export default async function CharactersByLetterPage({ params, searchParams }: P
   );
 }
 
+

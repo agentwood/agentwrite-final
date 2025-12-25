@@ -23,3 +23,4 @@ export default function DiscoverLayout({
   return children;
 }
 
+

@@ -96,3 +96,4 @@ export async function indexListingPage(path: string): Promise<boolean> {
   return submitToGoogleIndexing(url, 'URL_UPDATED');
 }
 
+

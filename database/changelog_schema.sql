@@ -35,3 +35,4 @@ GRANT SELECT ON changelog_entries TO anon, authenticated;
 
 
 
+

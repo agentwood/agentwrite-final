@@ -66,3 +66,4 @@ console.log(`🎨 Fantasy characters use waifu anime style`);
 
 
 
+
