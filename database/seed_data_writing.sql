@@ -366,3 +366,6 @@ SELECT COUNT(*) as blog_posts_count FROM blog_posts WHERE status = 'published';
 -- List all published posts
 SELECT title, category, published_at FROM blog_posts WHERE status = 'published' ORDER BY published_at DESC;
 
+
+
+

@@ -185,3 +185,6 @@ All pages now follow this pattern:
 - Sitemap and robots.txt are in `/public` for proper serving
 - Meta tags use react-helmet-async for dynamic updates
 
+
+
+

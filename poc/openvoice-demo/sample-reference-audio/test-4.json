@@ -1,0 +1,12 @@
+{
+  "character": {
+    "id": "test-4",
+    "name": "Test Character 4 - Female, Calm",
+    "voiceName": "pulcherrima",
+    "styleHint": "calm, soothing",
+    "referenceText": "Hello. I am a calm character with a soothing voice. This reference audio will help test OpenVoice capabilities."
+  },
+  "outputPath": "/Users/akeemojuko/Agentwood-Final/agentwrite-final/poc/openvoice-demo/sample-reference-audio/test-4.wav",
+  "generatedAt": "2025-12-24T14:42:40.239Z",
+  "audioSize": 432526
+}

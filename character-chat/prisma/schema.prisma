@@ -11,35 +11,64 @@ datasource db {
 }
 
 model PersonaTemplate {
-  id            String   @id @default(cuid())
-  seedId        String?  @unique // From persona templates seed
-  name          String
-  tagline       String?
-  greeting      String?
-  category      String
-  avatarUrl     String
-  voiceName     String
-  styleHint     String?  // Voice style hint
-  systemPrompt  String   // Built from system.persona, etc.
-  
+  id           String  @id @default(cuid())
+  seedId       String? @unique // From persona templates seed
+  name         String
+  tagline      String?
+  description  String? // Detailed character description
+  greeting     String?
+  category     String
+  avatarUrl    String
+  voiceName    String
+  styleHint    String? // Voice style hint (LOCKED - always use this)
+  voiceSpeed   Float?  // Locked voice speed (0.5-2.0) - always use this for consistency
+  voicePitch   Float?  // Locked voice pitch (0.5-2.0) - always use this for consistency
+  systemPrompt String // Built from system.persona, etc.
+
+  // OpenVoice integration
+  referenceAudioUrl    String? // URL to reference audio file
+  referenceAudioBase64 String? // Base64 encoded reference audio (alternative)
+  openVoiceVoiceId     String? // Cached OpenVoice voice ID
+
   // Archetype system
-  archetype     String   // e.g., "mentor", "trickster", "hero"
-  tonePack      String?  // e.g., "comedic", "dramatic", "mysterious"
-  scenarioSkin  String?  // e.g., "modern", "fantasy", "sci-fi"
-  
+  archetype    String // e.g., "mentor", "trickster", "hero"
+  tonePack     String? // e.g., "comedic", "dramatic", "mysterious"
+  scenarioSkin String? // e.g., "modern", "fantasy", "sci-fi"
+
+  // Character mapping fields
+  sourceCharacterName String? // e.g., "Denki Kaminarimon"
+  sourceCharacterUrl  String? // e.g., "https://boruto.fandom.com/wiki/Denki_Kaminarimon"
+  sourceType          String? // "anime" | "celebrity" | "real_person"
+  sourceDescription   String? // Scraped description from source
+  characterKeywords   String? // JSON array of keywords for matching
+  mappingConfidence   Float? // 0.0-1.0 confidence score for mapping
+
   // Telemetry for discovery pipeline
-  viewCount     Int      @default(0)
-  chatCount     Int      @default(0)
-  retentionScore Float   @default(0.0) // Calculated weekly
-  featured      Boolean  @default(false)
-  trending      Boolean  @default(false)
-  lastRankedAt  DateTime?
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  conversations Conversation[]
-  
+  viewCount        Int       @default(0)
+  chatCount        Int       @default(0)
+  followerCount    Int       @default(0)
+  interactionCount Int       @default(0)
+  saveCount        Int       @default(0) // Real save count
+  commentCount     Int       @default(0) // Real comment count
+  retentionScore   Float     @default(0.0) // Calculated weekly
+  featured         Boolean   @default(false)
+  trending         Boolean   @default(false)
+  lastRankedAt     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  conversations     Conversation[]
+  memories          CharacterMemory[]
+  patterns          ConversationPattern[]
+  evolutions        CharacterEvolution[]
+  followers         UserFollow[]
+  views             PersonaView[]
+  voicePerformances VoicePerformance[]
+  voiceParameters   VoiceParameters[]
+  saves             CharacterSave[]
+  comments          CharacterComment[]
+
   @@index([category])
   @@index([seedId])
   @@index([archetype])
@@ -49,15 +78,16 @@ model PersonaTemplate {
 }
 
 model Conversation {
-  id          String   @id @default(cuid())
-  personaId   String
-  persona     PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
-  userId      String?  // For future auth
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  messages    Message[]
-  
+  id        String          @id @default(cuid())
+  personaId String
+  persona   PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  userId    String? // For future auth
+  user      User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  messages Message[]
+
   @@index([personaId])
   @@index([userId])
 }
@@ -66,21 +96,260 @@ model Message {
   id             String       @id @default(cuid())
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  role           String       // "user" | "assistant"
+  role           String // "user" | "assistant"
   text           String
-  audioUrl       String?      // Cached TTS audio
+  audioUrl       String? // Cached TTS audio
   createdAt      DateTime     @default(now())
-  
+
+  feedback      MessageFeedback?
+  voiceFeedback VoiceFeedback?
+  pinned        PinnedMessage?
+
   @@index([conversationId])
 }
 
+model MessageFeedback {
+  id           String   @id @default(cuid())
+  messageId    String   @unique
+  message      Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating       Int? // 1-5 stars
+  thumbsUp     Boolean?
+  thumbsDown   Boolean?
+  feedbackText String?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+model CharacterMemory {
+  id               String          @id @default(cuid())
+  personaId        String
+  persona          PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  userId           String          @default("")
+  facts            String          @default("{}") // JSON
+  preferences      String          @default("{}") // JSON
+  patterns         String          @default("{}") // JSON
+  emotionalState   String? // JSON
+  interactionCount Int             @default(0)
+  confidenceScore  Float           @default(0.5)
+  lastInteraction  DateTime        @default(now())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@unique([personaId, userId])
+  @@index([personaId])
+  @@index([userId])
+}
+
+model ConversationPattern {
+  id           String          @id @default(cuid())
+  personaId    String
+  persona      PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  patternType  String // "topic" | "style" | "emotion" | "preference"
+  patternKey   String
+  patternValue String // JSON
+  frequency    Int             @default(1)
+  confidence   Float           @default(0.5)
+  lastSeen     DateTime        @default(now())
+  createdAt    DateTime        @default(now())
+
+  @@unique([personaId, patternType, patternKey])
+  @@index([personaId])
+  @@index([confidence])
+}
+
+model CharacterEvolution {
+  id                 String          @id @default(cuid())
+  personaId          String
+  persona            PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  version            Int
+  improvements       String // JSON array
+  performanceMetrics String // JSON
+  totalInteractions  Int             @default(0)
+  averageRating      Float           @default(0.0)
+  responseQuality    Float           @default(0.5)
+  lastEvolved        DateTime        @default(now())
+  createdAt          DateTime        @default(now())
+
+  @@unique([personaId, version])
+  @@index([personaId])
+  @@index([version])
+}
+
 model UserQuota {
-  id              String   @id @default(cuid())
-  userId          String   @unique
+  id               String   @id @default(cuid())
+  userId           String   @unique
   textRepliesToday Int      @default(0)
   ttsSecondsToday  Int      @default(0)
   callMinutesToday Int      @default(0)
-  lastResetDate   DateTime @default(now())
-  
+  lastResetDate    DateTime @default(now())
+
   @@index([userId])
+}
+
+model Subscription {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  planId               String // 'free', 'premium', 'pro'
+  status               String // 'active', 'canceled', 'past_due'
+  currentPeriodEnd     DateTime?
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String?   @unique
+  username      String?   @unique
+  displayName   String?
+  avatarUrl     String?
+  dateOfBirth   DateTime? // Date of birth for age verification
+  ageVerified   Boolean   @default(false) // 18+ verification status
+  ageVerifiedAt DateTime? // When age was verified
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  following         UserFollow[]
+  conversations     Conversation[]
+  views             PersonaView[]
+  feedback          MessageFeedback[]
+  voiceFeedback     VoiceFeedback[]
+  pinnedMessages    PinnedMessage[]
+  savedCharacters   CharacterSave[]
+  characterComments CharacterComment[]
+
+  @@index([username])
+  @@index([email])
+}
+
+model UserFollow {
+  id        String          @id @default(cuid())
+  userId    String
+  personaId String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  persona   PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+
+  @@unique([userId, personaId])
+  @@index([personaId])
+  @@index([userId])
+}
+
+model PersonaView {
+  id        String          @id @default(cuid())
+  personaId String
+  userId    String?
+  persona   PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  user      User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  viewedAt  DateTime        @default(now())
+
+  @@index([personaId])
+  @@index([userId])
+  @@index([viewedAt])
+}
+
+model PinnedMessage {
+  id        String   @id @default(cuid())
+  messageId String   @unique
+  userId    String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pinnedAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model VoicePerformance {
+  id              String          @id @default(cuid())
+  personaId       String
+  persona         PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  voiceName       String
+  userId          String? // Optional: track per-user preferences
+  rating          Float           @default(3.0) // 1-5 average rating
+  engagementScore Float           @default(0.5) // Based on conversation length, return rate
+  usageCount      Int             @default(0)
+  lastUsed        DateTime        @default(now())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([personaId, voiceName, userId])
+  @@index([personaId])
+  @@index([rating])
+  @@index([engagementScore])
+}
+
+model VoiceParameters {
+  id               String          @id @default(cuid())
+  personaId        String
+  persona          PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  voiceName        String
+  speed            Float           @default(1.0) // 0.5-2.0
+  pitch            Float           @default(1.0) // 0.5-2.0
+  styleHint        String? // Learned optimal style hint
+  confidence       Float           @default(0.5) // How confident we are
+  performanceScore Float           @default(0.0) // Combined performance metric
+  usageCount       Int             @default(0)
+  lastOptimized    DateTime        @default(now())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@unique([personaId, voiceName])
+  @@index([personaId])
+  @@index([performanceScore])
+}
+
+model VoiceFeedback {
+  id                String   @id @default(cuid())
+  messageId         String   @unique
+  message           Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  personaId         String
+  voiceName         String
+  userId            String?
+  user              User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  voiceRating       Int? // 1-5 rating for voice quality
+  speedRating       Int? // 1-5 rating for speed
+  pitchRating       Int? // 1-5 rating for pitch
+  naturalnessRating Int? // 1-5 rating for naturalness
+  feedbackText      String?
+  createdAt         DateTime @default(now())
+
+  @@index([personaId])
+  @@index([voiceName])
+  @@index([userId])
+}
+
+model CharacterSave {
+  id        String          @id @default(cuid())
+  personaId String
+  persona   PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+
+  @@unique([userId, personaId])
+  @@index([personaId])
+  @@index([userId])
+}
+
+model CharacterComment {
+  id        String          @id @default(cuid())
+  personaId String
+  persona   PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text      String
+  isPublic  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([personaId])
+  @@index([userId])
+  @@index([createdAt])
 }

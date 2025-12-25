@@ -179,3 +179,6 @@ Once the `.env` file is in the project root with your Supabase credentials:
 2. Restart your dev server
 3. The "Failed to fetch" error should be gone!
 
+
+
+

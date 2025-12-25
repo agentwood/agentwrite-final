@@ -17,6 +17,26 @@ export async function GET(request: NextRequest) {
 
     const personas = await db.personaTemplate.findMany({
       where,
+      select: {
+        id: true,
+        name: true,
+        tagline: true,
+        description: true,
+        greeting: true,
+        category: true,
+        avatarUrl: true,
+        voiceName: true,
+        styleHint: true,
+        archetype: true,
+        followerCount: true,
+        viewCount: true,
+        interactionCount: true,
+        chatCount: true,
+        featured: true,
+        trending: true,
+        retentionScore: true,
+        createdAt: true,
+      },
       orderBy: featured 
         ? { retentionScore: 'desc' }
         : trending

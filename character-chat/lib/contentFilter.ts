@@ -1,6 +1,7 @@
 /**
  * Content Filter - Character.ai-style safety filter
  * Prevents explicit profanity, sexual content, aggression, and real-world weapons
+ * Context-aware filtering based on character category/archetype
  */
 
 interface FilterResult {
@@ -9,26 +10,53 @@ interface FilterResult {
   filteredText?: string;
 }
 
-// Profanity patterns (common explicit words)
+interface CharacterMetadata {
+  category?: string;
+  archetype?: string;
+  name?: string;
+}
+
+// Profanity patterns (common explicit words) - Enhanced list
 const PROFANITY_PATTERNS = [
-  /\b(f\*\*k|fuck|sh\*\*t|shit|b\*\*ch|bitch|a\*\*hole|asshole|d\*\*k|dick|c\*\*t|cunt|p\*\*sy|pussy)\b/gi,
-  /\b(n\*\*ga|nigger|n\*\*ger)\b/gi,
-  /\b(m\*\*therf\*\*ker|motherfucker)\b/gi,
+  /\b(f\*\*k|fuck|f\*\*king|fucking|sh\*\*t|shit|sh\*\*ty|b\*\*ch|bitch|a\*\*hole|asshole|d\*\*k|dick|d\*\*khead|c\*\*t|cunt|p\*\*sy|pussy)\b/gi,
+  /\b(n\*\*ga|nigger|n\*\*ger|n\*\*gas)\b/gi,
+  /\b(m\*\*therf\*\*ker|motherfucker|m\*\*therf\*\*king)\b/gi,
+  /\b(b\*\*stard|bastard|w\*\*nker|wanker|t\*\*t|twat|pr\*\*k|prick)\b/gi,
+  /\b(c\*\*ksucker|cocksucker|wh\*\*re|whore|sl\*\*t|slut)\b/gi,
+  /\b(d\*\*che|douche|d\*\*chebag|douchebag|f\*\*ktard|fucktard)\b/gi,
 ];
 
-// Sexual content patterns
+// Sexual content patterns - Enhanced list
 const SEXUAL_PATTERNS = [
-  /\b(sex|sexual|porn|pornography|masturbat|orgasm|erotic|nude|naked|genital|penis|vagina|breast|nipple)\b/gi,
-  /\b(rape|molest|assault|abuse)\b/gi,
-  /\b(incest|pedophil|child.*sex)\b/gi,
+  /\b(sex|sexual|porn|pornography|masturbat|orgasm|erotic|nude|naked|genital|penis|vagina|breast|nipple|clitoris|testicle|scrotum)\b/gi,
+  /\b(rape|molest|assault|abuse|sexual.*assault|sexual.*abuse)\b/gi,
+  /\b(incest|pedophil|child.*sex|underage|minor.*sex)\b/gi,
+  /\b(cum|sperm|ejaculat|ejaculate|oral.*sex|anal.*sex|blowjob|handjob)\b/gi,
+  /\b(prostitut|prostitute|escort|hooker|stripper|stripping)\b/gi,
+  /\b(hentai|xxx|nsfw|adult.*content|explicit.*content)\b/gi,
 ];
 
-// Aggression patterns
+// Aggression patterns (context-dependent words)
 const AGGRESSION_PATTERNS = [
   /\b(kill|murder|suicide|self.*harm|cut.*yourself|hurt.*yourself|die)\b/gi,
   /\b(violence|violent|attack|assault|fight|beat.*up|punch|stab|shoot)\b/gi,
   /\b(threat|threaten|harm|hurt|injure|maim)\b/gi,
 ];
+
+// Context-aware allowed words for specific character types
+const CONTEXT_ALLOWED_WORDS: Record<string, string[]> = {
+  'sports': ['fight', 'battle', 'match', 'competition', 'combat', 'fight night', 'boxing', 'wrestling'],
+  'fight': ['fight', 'battle', 'match', 'competition', 'combat', 'fight night', 'boxing', 'wrestling', 'martial arts'],
+  'announcer': ['fight', 'battle', 'match', 'competition', 'combat', 'round', 'knockout', 'winner'],
+  'commentator': ['fight', 'battle', 'match', 'game', 'play', 'score'],
+  'fantasy': ['fight', 'battle', 'combat', 'war', 'sword', 'magic'],
+  'warrior': ['fight', 'battle', 'combat', 'war', 'sword', 'weapon'],
+  'educational': ['violence', 'war', 'battle', 'historical', 'history'],
+};
+
+// Character categories/archetypes that allow fight-related words
+const FIGHT_ALLOWED_CATEGORIES = ['sports', 'fight', 'announcer', 'commentator', 'fantasy', 'warrior'];
+const FIGHT_ALLOWED_ARCHETYPES = ['sports', 'fighter', 'announcer', 'commentator', 'warrior', 'knight', 'combat'];
 
 // Real-world weapons (not fantasy)
 const REAL_WEAPON_PATTERNS = [
@@ -61,10 +89,83 @@ function containsSexualContent(text: string): boolean {
 }
 
 /**
- * Check if text contains aggression/violence
+ * Check if character allows fight-related words
  */
-function containsAggression(text: string): boolean {
-  return AGGRESSION_PATTERNS.some(pattern => pattern.test(text));
+function allowsFightWords(characterMetadata?: CharacterMetadata): boolean {
+  if (!characterMetadata) return false;
+  
+  const category = characterMetadata.category?.toLowerCase() || '';
+  const archetype = characterMetadata.archetype?.toLowerCase() || '';
+  const name = characterMetadata.name?.toLowerCase() || '';
+  const description = ''; // Could add description check if needed
+  
+  // Check category matches
+  const categoryMatch = FIGHT_ALLOWED_CATEGORIES.some(allowed => 
+    category.includes(allowed) || category === allowed
+  );
+  
+  // Check archetype matches
+  const archetypeMatch = FIGHT_ALLOWED_ARCHETYPES.some(allowed => 
+    archetype.includes(allowed) || archetype === allowed
+  );
+  
+  // Check name/description contains relevant keywords
+  const keywordMatch = name.includes('announcer') || name.includes('commentator') || 
+                      name.includes('fighter') || name.includes('sports') ||
+                      name.includes('fight') || description.includes('announcer') ||
+                      description.includes('commentator');
+  
+  return categoryMatch || archetypeMatch || keywordMatch;
+}
+
+/**
+ * Check if text contains aggression/violence (context-aware)
+ */
+function containsAggression(text: string, characterMetadata?: CharacterMetadata): boolean {
+  const lowerText = text.toLowerCase();
+  const allowsFight = allowsFightWords(characterMetadata);
+  
+  // Check for severe aggression words (never allowed, regardless of context)
+  const severeAggression = /\b(kill|murder|suicide|self.*harm|cut.*yourself|hurt.*yourself)\b/gi.test(text);
+  if (severeAggression) {
+    return true; // Always block these
+  }
+  
+  // Check for threat/harm words (blocked unless in safe context)
+  const threatWords = /\b(threat|threaten|harm|hurt|injure|maim)\b/gi.test(text);
+  if (threatWords) {
+    // Allow in safe contexts (gaming, fantasy) even for non-fight characters
+    const isSafeContext = /(game|gaming|video.*game|fantasy|magical|story|fiction)/i.test(text);
+    return !isSafeContext; // Block unless in safe context
+  }
+  
+  // Check for fight-related words (context-dependent)
+  const fightWords = ['fight', 'battle', 'match', 'competition', 'combat', 'boxing', 'wrestling', 'martial arts'];
+  const foundFightWord = fightWords.some(word => {
+    // Use word boundary regex for accurate matching
+    const regex = new RegExp(`\\b${word.replace(/\s+/g, '\\s+')}\\b`, 'i');
+    return regex.test(lowerText);
+  });
+  
+  if (foundFightWord) {
+    // Fight-related word found - allow if character type permits it
+    if (allowsFight) {
+      return false; // Allowed for fight/sports characters
+    }
+    // Not a fight character, but might be in safe context
+    const isSafeContext = /(game|gaming|video.*game|fantasy|magical|story|fiction|history|historical)/i.test(text);
+    return !isSafeContext; // Block unless in safe context
+  }
+  
+  // Check for other aggression words (attack, assault, etc.)
+  const otherAggression = /\b(attack|assault|beat.*up|punch|stab|shoot|violence|violent)\b/gi.test(text);
+  if (otherAggression) {
+    // These are more severe - only allow in specific safe contexts
+    const isSafeContext = /(game|gaming|video.*game|fantasy|magical|story|fiction|history|historical)/i.test(text);
+    return !isSafeContext; // Block unless in safe context
+  }
+  
+  return false; // No aggression found
 }
 
 /**
@@ -80,9 +181,13 @@ function containsRealWeapons(text: string): boolean {
 }
 
 /**
- * Filter text content
+ * Filter text content (context-aware based on character metadata)
  */
-export function filterContent(text: string, isUserInput: boolean = false): FilterResult {
+export function filterContent(
+  text: string, 
+  isUserInput: boolean = false,
+  characterMetadata?: CharacterMetadata
+): FilterResult {
   const lowerText = text.toLowerCase();
   
   // Check profanity
@@ -101,8 +206,8 @@ export function filterContent(text: string, isUserInput: boolean = false): Filte
     };
   }
   
-  // Check aggression (stricter for user input)
-  if (containsAggression(lowerText)) {
+  // Check aggression (context-aware, stricter for user input)
+  if (containsAggression(lowerText, characterMetadata)) {
     if (isUserInput) {
       return {
         allowed: false,
@@ -139,10 +244,13 @@ export function sanitizeText(text: string): string {
 }
 
 /**
- * Check if response should be blocked and provide alternative
+ * Check if response should be blocked and provide alternative (context-aware)
  */
-export function shouldBlockResponse(text: string): { blocked: boolean; alternative?: string } {
-  const filterResult = filterContent(text, false);
+export function shouldBlockResponse(
+  text: string, 
+  characterMetadata?: CharacterMetadata
+): { blocked: boolean; alternative?: string } {
+  const filterResult = filterContent(text, false, characterMetadata);
   
   if (!filterResult.allowed) {
     return {
@@ -153,4 +261,5 @@ export function shouldBlockResponse(text: string): { blocked: boolean; alternati
   
   return { blocked: false };
 }
+
 

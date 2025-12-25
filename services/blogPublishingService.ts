@@ -524,3 +524,6 @@ export function getTemplateByIndex(index: number): BlogPostTemplate | null {
     return CONTENT_PLAN[index];
 }
 
+
+
+

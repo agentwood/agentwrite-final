@@ -1,33 +1,44 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import AgeGate from "./components/AgeGate";
+import StructuredData from "./components/StructuredData";
+import { generateMetadata as generateSEOMetadata } from "@/lib/seo/metadata";
+import { generateOrganizationSchema, generateWebSiteSchema } from "@/lib/seo/structured-data";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+export const metadata: Metadata = generateSEOMetadata({
+  title: "Agentwood - Chat with AI Characters | Character.ai Alternative",
+  description: "Chat with thousands of AI characters, create your own, and discover unique personalities. Free AI character chat platform similar to Character.ai. Talk to AI waifus, fantasy characters, and real-world personas.",
+  keywords: [
+    "AI characters",
+    "character chat",
+    "character.ai alternative",
+    "AI waifu",
+    "fantasy characters",
+    "AI chatbot",
+    "virtual characters",
+    "AI companion",
+    "chat with AI",
+    "character creator",
+    "AI roleplay",
+  ],
 });
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Character Chat - AgentWrite",
-  description: "Chat with AI characters powered by Gemini",
-};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const organizationSchema = generateOrganizationSchema();
+  const websiteSchema = generateWebSiteSchema();
+
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" style={{ fontFamily: "'Inter', sans-serif" }}>
+      <body className="text-[#0f172a] selection:bg-indigo-100 selection:text-indigo-900 bg-[#fcfcfc] antialiased" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <StructuredData data={organizationSchema} />
+        <StructuredData data={websiteSchema} />
+        <AgeGate>
+          {children}
+        </AgeGate>
       </body>
     </html>
   );

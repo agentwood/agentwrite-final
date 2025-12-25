@@ -348,3 +348,6 @@ SELECT COUNT(*) as categories_count FROM blog_categories;
 -- Categories: 5 (already in complete_migration.sql)
 -- ============================================
 
+
+
+

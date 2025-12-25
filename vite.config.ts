@@ -20,6 +20,10 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    server: {
+      host: 'aibcmedia.com',
+      port: 5173,
+    },
     define: {
       // Manually expose the API_KEY on import.meta.env
       'import.meta.env.API_KEY': JSON.stringify(finalEnv.API_KEY),

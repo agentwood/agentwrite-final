@@ -1,6 +1,7 @@
 import CharacterCard from '@/app/components/CharacterCard';
 import { db } from '@/lib/db';
 import { Filter, TrendingUp, Star } from 'lucide-react';
+import Footer from '@/app/components/Footer';
 
 export default async function PersonaGallery() {
   const [allPersonas, featuredPersonas, trendingPersonas, categories] = await Promise.all([
@@ -123,6 +124,7 @@ export default async function PersonaGallery() {
           )}
         </section>
       </div>
+      <Footer />
     </div>
   );
 }

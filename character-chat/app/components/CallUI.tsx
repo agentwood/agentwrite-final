@@ -58,16 +58,14 @@ export default function CallUI({ persona }: CallUIProps) {
       const { token } = await tokenResponse.json();
 
       // Connect to Live API WebSocket
-      // Note: The token should be used as Authorization header, not query param
-      const ws = new WebSocket(
-        'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService/BidiGenerateContent'
-      );
+      // The WebSocket URL should include the API key as a query parameter
+      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+      const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService/BidiGenerateContent?key=${apiKey}`;
       
-      // Set authorization when connection opens
-      ws.addEventListener('open', () => {
-        // The token is sent in the setup message or as auth header
-        // For now, we'll include it in the setup message
-      });
+      // Note: In production, you should use the token from the server
+      // For now, we'll use the API key directly (client-side requires NEXT_PUBLIC_ prefix)
+      // Better approach: Use the token from /api/live-token endpoint
+      const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
         console.log('WebSocket connected');

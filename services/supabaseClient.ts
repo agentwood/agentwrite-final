@@ -8,9 +8,14 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 if (typeof window !== 'undefined') {
   console.log("[Supabase Config] URL Present:", !!supabaseUrl);
   console.log("[Supabase Config] Key Present:", !!supabaseAnonKey);
+  console.log("[Supabase Config] URL Value:", supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'MISSING');
+  console.log("[Supabase Config] Key Value:", supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'MISSING');
   if (!supabaseUrl || !supabaseAnonKey) {
     console.warn("[Supabase Config] ⚠️ Missing environment variables!");
     console.warn("[Supabase Config] Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env file");
+    console.warn("[Supabase Config] Make sure to restart dev server after updating .env");
+  } else {
+    console.log("[Supabase Config] ✅ Configuration looks good");
   }
 }
 

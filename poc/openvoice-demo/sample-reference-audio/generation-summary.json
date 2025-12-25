@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2025-12-24T16:43:18.511Z",
+  "total": 5,
+  "successful": 0,
+  "failed": 5,
+  "results": [
+    {
+      "character": {
+        "id": "test-1",
+        "name": "Test Character 1 - Male, Professional",
+        "voiceName": "kore",
+        "styleHint": "professional, clear",
+        "referenceText": "Hello, I am a professional character with a clear speaking voice. This is a test for OpenVoice voice cloning."
+      },
+      "success": false
+    },
+    {
+      "character": {
+        "id": "test-2",
+        "name": "Test Character 2 - Female, Friendly",
+        "voiceName": "aoede",
+        "styleHint": "friendly, warm",
+        "referenceText": "Hi there! I am a friendly character with a warm voice. This sample will be used for voice cloning testing."
+      },
+      "success": false
+    },
+    {
+      "character": {
+        "id": "test-3",
+        "name": "Test Character 3 - Male, Energetic",
+        "voiceName": "charon",
+        "styleHint": "energetic, enthusiastic",
+        "referenceText": "Hey! I am an energetic character with an enthusiastic voice. This is perfect for testing voice synthesis quality."
+      },
+      "success": false
+    },
+    {
+      "character": {
+        "id": "test-4",
+        "name": "Test Character 4 - Female, Calm",
+        "voiceName": "pulcherrima",
+        "styleHint": "calm, soothing",
+        "referenceText": "Hello. I am a calm character with a soothing voice. This reference audio will help test OpenVoice capabilities."
+      },
+      "success": false
+    },
+    {
+      "character": {
+        "id": "test-5",
+        "name": "Test Character 5 - Male, Authoritative",
+        "voiceName": "rasalgethi",
+        "styleHint": "authoritative, confident",
+        "referenceText": "Good day. I am an authoritative character with a confident speaking style. This sample tests voice cloning accuracy."
+      },
+      "success": false
+    }
+  ]
+}

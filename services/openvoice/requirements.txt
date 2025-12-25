@@ -1,0 +1,37 @@
+# OpenVoice Production Requirements
+# Based on OpenVoice GitHub repository
+
+# Core OpenVoice dependencies
+torch>=2.0.0
+numpy>=1.21.0
+scipy>=1.7.0
+librosa>=0.9.0
+soundfile>=0.10.0
+
+# API Server
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+pydantic>=2.0.0
+
+# Audio processing
+pydub>=0.25.1
+audioread>=3.0.0
+
+# Utilities
+requests>=2.31.0
+python-dotenv>=1.0.0
+aiofiles>=23.0.0
+
+# Gemini TTS (for immediate functionality)
+google-generativeai>=0.3.0
+
+# CORS support
+python-cors>=1.0.0
+
+# Note: OpenVoice model files need to be downloaded separately
+# See: https://github.com/myshell-ai/OpenVoice
+# Model checkpoints should be placed in /app/checkpoints/
+
+
+

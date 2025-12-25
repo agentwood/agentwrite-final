@@ -32,3 +32,6 @@ CREATE TRIGGER update_changelog_updated_at BEFORE UPDATE ON changelog_entries
 -- Grant permissions
 GRANT SELECT ON changelog_entries TO anon, authenticated;
 
+
+
+

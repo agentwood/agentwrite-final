@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, KeyboardEvent } from 'react';
-import { Send } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
 
 interface ComposerProps {
   onSend: (text: string) => void;
   disabled?: boolean;
+  placeholder?: string;
 }
 
-export default function Composer({ onSend, disabled }: ComposerProps) {
+export default function Composer({ onSend, disabled, placeholder = "Type your message..." }: ComposerProps) {
   const [text, setText] = useState('');
 
   const handleSend = () => {
@@ -18,7 +19,7 @@ export default function Composer({ onSend, disabled }: ComposerProps) {
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -26,27 +27,23 @@ export default function Composer({ onSend, disabled }: ComposerProps) {
   };
 
   return (
-    <div className="border-t border-gray-200 p-4 bg-white">
-      <div className="flex items-end gap-2 max-w-4xl mx-auto">
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Type your message..."
-          disabled={disabled}
-          className="flex-1 resize-none rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-          rows={1}
-          style={{ minHeight: '44px', maxHeight: '120px' }}
-        />
-        <button
-          onClick={handleSend}
-          disabled={!text.trim() || disabled}
-          className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <Send size={20} />
-        </button>
-      </div>
-    </div>
+    <>
+      <input
+        type="text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        disabled={disabled}
+        className="w-full bg-zinc-50 text-zinc-900 rounded-2xl py-4 pl-6 pr-14 outline-none focus:ring-2 focus:ring-zinc-900/10 focus:bg-white focus:border-zinc-900 border border-zinc-200 transition-all placeholder:text-zinc-400 shadow-sm"
+      />
+      <button 
+        onClick={handleSend}
+        disabled={!text.trim() || disabled}
+        className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 bg-zinc-900 text-white rounded-xl disabled:opacity-50 disabled:bg-zinc-300 disabled:cursor-not-allowed hover:bg-zinc-800 transition-all hover:scale-105 active:scale-95 shadow-md shadow-zinc-900/20"
+      >
+        {disabled ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} fill="currentColor" />}
+      </button>
+    </>
   );
 }
-

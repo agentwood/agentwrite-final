@@ -1,0 +1,12 @@
+{
+  "character": {
+    "id": "test-5",
+    "name": "Test Character 5 - Male, Authoritative",
+    "voiceName": "rasalgethi",
+    "styleHint": "authoritative, confident",
+    "referenceText": "Good day. I am an authoritative character with a confident speaking style. This sample tests voice cloning accuracy."
+  },
+  "outputPath": "/Users/akeemojuko/Agentwood-Final/agentwrite-final/poc/openvoice-demo/sample-reference-audio/test-5.wav",
+  "generatedAt": "2025-12-24T14:42:47.197Z",
+  "audioSize": 419086
+}

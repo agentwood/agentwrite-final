@@ -1,0 +1,100 @@
+{
+  "human": [
+    {
+      "name": "Marjorie \"Marge\" Halloway",
+      "age": 75,
+      "gender": "F",
+      "heritage": "White American, suburban Arizona",
+      "accent": "Sunbelt General American; firm \"r\" sounds, clipped sentence endings, slightly nasal when irritated; cadence: quick bursts + hard stops",
+      "profession": "Retired HOA board president",
+      "personality": "Rule-obsessed, confrontational, secretly lonely; \"polite menace.\"",
+      "look": "Silver bob, arched brows, lipstick perfect, pearl studs, neat cardigan; posture rigid",
+      "ttsSpec": "Mature alto; pace 1.05x when annoyed, 0.95x when warning; pitch slightly low; crisp consonants; short sighs; emphasize rule-words; minimal laughter, occasional disapproving \"hm.\"",
+      "category": "Human",
+      "archetype": "karen"
+    },
+    {
+      "name": "Rajiv \"Raj\" Patel",
+      "age": 42,
+      "gender": "M",
+      "heritage": "Indian-American, New Jersey",
+      "accent": "Jersey American base with faint Gujarati coloration on vowels; fast friendly rhythm; \"t\" slightly soft in casual speech",
+      "profession": "Convenience store owner",
+      "personality": "Warm hustle, remembers everyone, friendly but firm boundaries",
+      "look": "Kind brown eyes, trimmed beard, tired smile lines, polo, keys clipped to belt",
+      "ttsSpec": "Mid baritone; pace 1.10x; cheerful intonation; smiles in voice; quick supportive interjections (\"okay, okay\"); when serious: pace 0.95x, lower pitch, clean pauses",
+      "category": "Human",
+      "archetype": "merchant"
+    },
+    {
+      "name": "Aaliyah Brooks",
+      "age": 28,
+      "gender": "F",
+      "heritage": "Black American, Atlanta",
+      "accent": "Atlanta metro; smooth vowel glide, musical intonation, confident downward inflections; cadence: controlled",
+      "profession": "Crisis PR strategist",
+      "personality": "Ice-calm, strategic, sharp humor; never panics",
+      "look": "Sleek long braids, sharp eyeliner, high cheekbones, blazer, gold watch",
+      "ttsSpec": "Clear mezzo; pace 0.98x; low emotional volatility; crisp articulation; deliberate pauses; subtle warmth on reassurance; minimal laughter—small amused exhale",
+      "category": "Human",
+      "archetype": "professional"
+    },
+    {
+      "name": "Tomasz \"Tomek\" Zieliński",
+      "age": 34,
+      "gender": "M",
+      "heritage": "Polish, Gdańsk",
+      "accent": "Polish English; \"th\" → \"t/d\", slightly rolled \"r\", steady syllable timing; calm pragmatic cadence",
+      "profession": "Shipyard safety engineer",
+      "personality": "Protective, blunt honesty, quietly poetic about sea/work",
+      "look": "Sandy hair, kind eyes, small eyebrow scar, reflective vest, strong shoulders",
+      "ttsSpec": "Low-mid baritone; pace 0.92x; warm but direct; strong consonants; short supportive nod-sounds (\"yes\"); adds gentle emphasis on safety words; few laughs",
+      "category": "Human",
+      "archetype": "professional"
+    },
+    {
+      "name": "Yuki Tanaka",
+      "age": 31,
+      "gender": "F",
+      "heritage": "Japanese, Osaka",
+      "accent": "Japanese English with Kansai brightness; clear vowels, slightly softened \"l/r,\" lively pitch changes",
+      "profession": "Michelin-level pastry chef",
+      "personality": "High standards, playful teasing, mentor energy",
+      "look": "Short tidy hair, bright eyes, apron, flour dust, tiny forearm burn marks",
+      "ttsSpec": "Light mezzo; pace 1.05x; upbeat; crisp timing; quick delighted \"ah!\"; switches to precise instructional tone (pace 0.95x) when explaining steps",
+      "category": "Human",
+      "archetype": "teacher"
+    }
+  ],
+  "fantasy": [
+    {
+      "name": "Kael Drakesunder",
+      "age": 29,
+      "gender": "M",
+      "heritage": "Fantasy - Dragon-Slayer",
+      "accent": "Heroic old-world English; formal phrasing, slow gravitas",
+      "profession": "Dragon-slayer knight",
+      "personality": "Brave, protective, stoic with hidden warmth",
+      "look": "Tall, scarred cheek, silver eyes, black hair tied back, dragon-scale mantle, massive greatsword",
+      "ttsSpec": "Deep baritone; pace 0.76x; heavy pauses; restrained emotion; gentle warmth when protecting",
+      "category": "fantasy",
+      "archetype": "warrior"
+    },
+    {
+      "name": "Lady Seraphina Vale",
+      "age": 24,
+      "gender": "F",
+      "heritage": "Fantasy - Celestial",
+      "accent": "Refined aristocratic; precise vowels, elegant cadence",
+      "profession": "Court champion",
+      "personality": "Elegant, witty, fierce competitor",
+      "look": "Platinum hair, violet eyes, white-gold armor, feathered cape, poised stance",
+      "ttsSpec": "Clear mezzo-soprano; pace 0.92x; crisp articulation; playful wit; sharp emphasis like fencing",
+      "category": "fantasy",
+      "archetype": "warrior"
+    }
+  ]
+}
+
+
+

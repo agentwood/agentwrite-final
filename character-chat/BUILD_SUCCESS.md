@@ -97,3 +97,6 @@ character-chat/
 - All 50 personas are ready to seed
 - Audio components are ready but need API testing
 
+
+
+

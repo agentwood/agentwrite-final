@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+import { supabase, isSupabaseConfigured } from './supabaseClient';
 
 export interface BlogPost {
     id: string;
@@ -30,12 +30,14 @@ export interface BlogCategory {
 
 export const blogService = {
     async getAllPosts(category?: string, limit?: number, offset?: number): Promise<BlogPost[]> {
+        console.log('[blogService] getAllPosts called', { hasSupabase: !!supabase, isConfigured: isSupabaseConfigured(), category, limit, offset });
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'blogService.ts:32',message:'getAllPosts called',data:{hasSupabase:!!supabase,category,limit,offset},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'blogService.ts:32',message:'getAllPosts called',data:{hasSupabase:!!supabase,isConfigured:isSupabaseConfigured(),category,limit,offset},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch((e)=>console.error('[Debug] Log fetch failed:',e));
         // #endregion
         if (!supabase) {
+            console.warn('[blogService] No Supabase client available');
             // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'blogService.ts:34',message:'No supabase client',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'blogService.ts:36',message:'No supabase client',data:{isConfigured:isSupabaseConfigured()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch((e)=>console.error('[Debug] Log fetch failed:',e));
             // #endregion
             return [];
         }
@@ -59,12 +61,37 @@ export const blogService = {
         }
 
         const { data, error } = await query;
+        console.log('[blogService] Query result:', { 
+            dataCount: data?.length || 0, 
+            error: error ? {
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                code: error.code
+            } : null, 
+            hasData: !!data 
+        });
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'blogService.ts:55',message:'Query result',data:{dataCount:data?.length||0,error:error?.message||null,hasData:!!data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'blogService.ts:55',message:'Query result',data:{dataCount:data?.length||0,error:error?{message:error.message,details:error.details,hint:error.hint,code:error.code}:null,hasData:!!data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch((e)=>console.error('[Debug] Log fetch failed:',e));
         // #endregion
 
         if (error) {
-            console.error('Error fetching blog posts:', error);
+            console.error('[blogService] Error fetching blog posts:', {
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                code: error.code,
+                fullError: error
+            });
+            
+            // Check for common RLS policy issues
+            if (error.code === '42501' || error.message?.includes('permission denied')) {
+                console.error('[blogService] ⚠️ RLS Policy Error: Check if "Blog posts are publicly readable" policy exists');
+            }
+            if (error.message?.includes('relation "blog_posts" does not exist')) {
+                console.error('[blogService] ⚠️ Table Missing: Run database/complete_migration.sql');
+            }
+            
             return [];
         }
 

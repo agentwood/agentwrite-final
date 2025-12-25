@@ -15,31 +15,39 @@ const ArticlesPage = () => {
     const [categories, setCategories] = useState<string[]>([]);
 
     useEffect(() => {
+        // #region agent log
+        console.log('[ArticlesPage] Component mounted');
+        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ArticlesPage.tsx:17',message:'ArticlesPage mounted',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch((e)=>console.error('[Debug] Log fetch failed:',e));
+        // #endregion
         loadPosts();
     }, []);
 
     const loadPosts = async () => {
+        console.log('[ArticlesPage] loadPosts called');
         setIsLoading(true);
         try {
             // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ArticlesPage.tsx:21',message:'loadPosts called',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ArticlesPage.tsx:21',message:'loadPosts called',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch((e)=>console.error('[Debug] Log fetch failed:',e));
             // #endregion
             const allPosts = await blogService.getAllPosts();
+            console.log('[ArticlesPage] Posts fetched:', allPosts.length, allPosts);
             // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ArticlesPage.tsx:25',message:'Posts fetched',data:{postCount:allPosts.length,posts:allPosts.map(p=>({title:p.title,slug:p.slug,status:p.status}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ArticlesPage.tsx:25',message:'Posts fetched',data:{postCount:allPosts.length,posts:allPosts.map(p=>({title:p.title,slug:p.slug,status:p.status}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch((e)=>console.error('[Debug] Log fetch failed:',e));
             // #endregion
             setPosts(allPosts);
             
             // Extract unique categories
             const uniqueCategories = Array.from(new Set(allPosts.map(post => post.category)));
             setCategories(['All Posts', ...uniqueCategories]);
+            console.log('[ArticlesPage] Categories:', uniqueCategories);
         } catch (error) {
+            console.error('[ArticlesPage] Error loading posts:', error);
             // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ArticlesPage.tsx:31',message:'Error loading posts',data:{error:error instanceof Error?error.message:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ArticlesPage.tsx:31',message:'Error loading posts',data:{error:error instanceof Error?error.message:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch((e)=>console.error('[Debug] Log fetch failed:',e));
             // #endregion
-            console.error('Error loading posts:', error);
         } finally {
             setIsLoading(false);
+            console.log('[ArticlesPage] Loading complete, isLoading:', false);
         }
     };
 
@@ -133,7 +141,25 @@ const ArticlesPage = () => {
                     </div>
                 ) : filteredPosts.length === 0 ? (
                     <div className="text-center py-20">
+                        {/* #region agent log */}
+                        {(() => { 
+                            console.log('[ArticlesPage] No posts found', { totalPosts: posts.length, filteredPosts: filteredPosts.length, selectedCategory, isLoading });
+                            fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ArticlesPage.tsx:125',message:'No posts found',data:{totalPosts:posts.length,filteredPosts:filteredPosts.length,selectedCategory,isLoading},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch((e)=>console.error('[Debug] Log fetch failed:',e)); 
+                            return null; 
+                        })()}
+                        {/* #endregion */}
                         <p className="text-slate-500 text-lg">No articles found. Try a different category.</p>
+                        <p className="text-slate-400 text-sm mt-2">Total posts: {posts.length} | Filtered: {filteredPosts.length}</p>
+                        <div className="mt-4 p-4 bg-slate-50 rounded-lg text-left max-w-md mx-auto">
+                            <p className="text-xs text-slate-500 mb-2">Debug Info:</p>
+                            <ul className="text-xs text-slate-600 space-y-1">
+                                <li>Loading: {isLoading ? 'Yes' : 'No'}</li>
+                                <li>Total Posts: {posts.length}</li>
+                                <li>Filtered Posts: {filteredPosts.length}</li>
+                                <li>Selected Category: {selectedCategory}</li>
+                                <li>Available Categories: {categories.join(', ')}</li>
+                            </ul>
+                        </div>
                     </div>
                 ) : (
                     <div className="space-y-12">

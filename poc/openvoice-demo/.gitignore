@@ -1,0 +1,39 @@
+# OpenVoice POC - Git Ignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# OpenVoice model files (large)
+checkpoints/
+models/
+*.pth
+*.ckpt
+
+# Audio files
+sample-reference-audio/*.wav
+sample-reference-audio/*.mp3
+output/*.wav
+output/*.mp3
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+

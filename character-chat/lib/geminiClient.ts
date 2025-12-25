@@ -8,3 +8,6 @@ export const getGeminiClient = () => {
   return new GoogleGenAI({ apiKey });
 };
 
+
+
+

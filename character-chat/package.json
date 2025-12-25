@@ -9,7 +9,21 @@
     "lint": "eslint",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "update-assets": "tsx scripts/update-character-assets.ts",
+    "generate-characters": "tsx scripts/generate-new-characters.ts",
+    "generate-diverse": "tsx scripts/generate-diverse-characters.ts",
+    "generate-diverse-v2": "tsx scripts/generate-diverse-characters-v2.ts",
+    "audit-voices": "tsx scripts/audit-voices.ts",
+    "fix-voices": "tsx scripts/fix-voices.ts",
+    "fix-voices:apply": "tsx scripts/fix-voices.ts --apply",
+    "update-all-characters": "tsx scripts/update-all-characters.ts",
+    "update-character-names": "tsx scripts/update-character-names-and-images.ts",
+    "voice-audit": "tsx scripts/voice-audit-system.ts",
+    "voice-audit:test": "tsx scripts/voice-audit-system.ts --test",
+    "test-features": "tsx scripts/test-new-features.ts",
+    "map-characters": "tsx scripts/map-characters.ts",
+    "enhance-profiles": "tsx scripts/enhance-character-profiles.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -17,6 +31,7 @@
   "dependencies": {
     "@google/genai": "^1.33.0",
     "@prisma/client": "^6.19.1",
+    "@supabase/supabase-js": "^2.89.0",
     "better-sqlite3": "^12.5.0",
     "lucide-react": "^0.561.0",
     "next": "16.0.10",
@@ -29,6 +44,7 @@
     "@types/node": "^20.19.27",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
     "prisma": "^6.19.1",

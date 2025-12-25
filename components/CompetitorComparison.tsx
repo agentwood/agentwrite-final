@@ -192,3 +192,6 @@ const CompetitorComparison: React.FC<CompetitorComparisonProps> = ({
 
 export default CompetitorComparison;
 
+
+
+

@@ -1,0 +1,8 @@
+
+{
+  "name": "Agentwood AI - Autonomous Collaborator Network",
+  "description": "A high-end platform for discovering, collaborating with, and creating autonomous AI agents. Features real-time streaming conversations and AI-powered character generation.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

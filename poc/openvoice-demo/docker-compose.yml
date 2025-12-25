@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  openvoice-demo:
+    build: .
+    container_name: openvoice-poc
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./sample-reference-audio:/app/sample-reference-audio
+      - ./output:/app/output
+      - ./checkpoints:/app/checkpoints
+    environment:
+      - PYTHONUNBUFFERED=1
+    # Note: OpenVoice model files need to be in ./checkpoints directory
+    # Download from: https://github.com/myshell-ai/OpenVoice
+    command: python server.py
+

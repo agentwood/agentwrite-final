@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  openvoice:
+    build: .
+    container_name: openvoice-production
+    ports:
+      - "${PORT:-8000}:8000"
+    volumes:
+      - ./checkpoints:/app/checkpoints
+      - ./output:/app/output
+      - ./reference-audio:/app/reference-audio
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=${PORT:-8000}
+      - HOST=${HOST:-0.0.0.0}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Note: OpenVoice model files need to be in ./checkpoints directory
+    # Download from: https://github.com/myshell-ai/OpenVoice
+    command: python server.py
+
+
+
