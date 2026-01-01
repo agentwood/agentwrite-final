@@ -136,7 +136,7 @@ export const GEMINI_VOICE_METADATA: Record<string, GeminiVoiceMetadata> = {
     },
     description: 'Mature female voice, calm and measured',
   },
-  
+
   // Male voices
   'charon': {
     voiceName: 'charon',
@@ -180,20 +180,7 @@ export const GEMINI_VOICE_METADATA: Record<string, GeminiVoiceMetadata> = {
     },
     description: 'Energetic male voice, playful and casual',
   },
-  'fenrir': {
-    voiceName: 'fenrir',
-    gender: 'male',
-    age: 'middle',
-    keywords: ['confident', 'professional', 'clear', 'articulate', 'strong'],
-    characteristics: {
-      pitch: 'low',
-      speed: 'medium',
-      tone: 'neutral',
-      energy: 'medium',
-      formality: 'formal',
-    },
-    description: 'Confident male voice, professional and clear',
-  },
+
   'zephyr': {
     voiceName: 'zephyr',
     gender: 'neutral',
@@ -224,7 +211,7 @@ export const GEMINI_VOICE_METADATA: Record<string, GeminiVoiceMetadata> = {
   },
   'achird': {
     voiceName: 'achird',
-    gender: 'male',
+    gender: 'female',
     age: 'middle',
     keywords: ['calm', 'steady', 'reliable', 'measured', 'composed'],
     characteristics: {
@@ -234,7 +221,7 @@ export const GEMINI_VOICE_METADATA: Record<string, GeminiVoiceMetadata> = {
       energy: 'low',
       formality: 'neutral',
     },
-    description: 'Calm male voice, steady and reliable',
+    description: 'Calm female voice, steady and reliable',
   },
   'algenib': {
     voiceName: 'algenib',
@@ -278,7 +265,7 @@ export const GEMINI_VOICE_METADATA: Record<string, GeminiVoiceMetadata> = {
     },
     description: 'Dynamic male voice, energetic and vibrant',
   },
-  
+
   // Additional voices (continuing pattern)
   'enceladus': {
     voiceName: 'enceladus',

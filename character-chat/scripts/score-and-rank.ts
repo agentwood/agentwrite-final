@@ -14,7 +14,6 @@ import { join } from 'path';
 import type { CharacterData } from './extract-character-data';
 import type { TestDialogue } from './generate-test-dialogues';
 import type { TTSSample } from './generate-tts-samples';
-import type { CharacterData } from './extract-character-data';
 import { getVoiceMetadata, getAllVoiceNames } from './voice-metadata';
 import { evaluateGenderMatch } from './evaluators/genderEvaluator';
 import { evaluateAgeMatch } from './evaluators/ageEvaluator';
@@ -59,10 +58,10 @@ export async function evaluateAllCombinations(): Promise<VoiceEvaluation[]> {
   const charactersPath = join(__dirname, 'selected-characters.json');
   const dialoguesPath = join(__dirname, 'test-dialogues.json');
   const ttsSamplesPath = join(__dirname, 'tts-samples.json');
-  
+
   const charactersData = await readFile(charactersPath, 'utf-8');
   const dialoguesData = await readFile(dialoguesPath, 'utf-8');
-  
+
   let ttsSamples: TTSSample[] = [];
   try {
     const ttsData = await readFile(ttsSamplesPath, 'utf-8');
@@ -70,7 +69,7 @@ export async function evaluateAllCombinations(): Promise<VoiceEvaluation[]> {
   } catch (error) {
     console.warn('TTS samples file not found, will evaluate without audio');
   }
-  
+
   const characters: CharacterData[] = JSON.parse(charactersData);
   const dialogues: TestDialogue[] = JSON.parse(dialoguesData);
 
@@ -111,7 +110,7 @@ export async function evaluateAllCombinations(): Promise<VoiceEvaluation[]> {
 
   for (const character of characters) {
     const characterDialogues = dialogues.filter(d => d.characterId === character.id);
-    
+
     for (const voiceName of voiceNames) {
       // Skip if already evaluated
       const evalKey = `${character.id}-${voiceName}`;
@@ -141,7 +140,7 @@ export async function evaluateAllCombinations(): Promise<VoiceEvaluation[]> {
         // IMMEDIATE FIX: Skip audio evaluation if TTS sample not available (text-only evaluation)
         // This works around quota issues while still providing voice-character matching
         const useAudio = ttsSample?.audioBase64 && ttsSample.audioBase64.length > 0;
-        
+
         // Run all 5 evaluators (with or without audio)
         const [genderResult, ageResult, accentResult, overallResult, consistencyResult] = await Promise.all([
           evaluateGenderMatch(
@@ -223,7 +222,7 @@ export async function evaluateAllCombinations(): Promise<VoiceEvaluation[]> {
         // Aggressive rate limiting: 60 requests per minute max (1000 limit, but we need 5 per evaluation)
         // Space out requests: 1 second between each, plus batch delays
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         // Every 50 evaluations, wait 30 seconds to avoid hitting rate limits
         if (allEvaluations.length % 50 === 0 && allEvaluations.length > 0) {
           console.log(`\n⏸️  Rate limit protection: Waiting 30 seconds after ${allEvaluations.length} evaluations...`);
@@ -269,7 +268,7 @@ export async function rankAndAssignVoices(): Promise<AuditResult[]> {
 
   // Find best voice for each character
   const characterResults: Array<{ character: CharacterData; bestEvaluation: VoiceEvaluation }> = [];
-  
+
   for (const character of characters) {
     const characterEvals = evaluationsByCharacter.get(character.id) || [];
     if (characterEvals.length === 0) continue;

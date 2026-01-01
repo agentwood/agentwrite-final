@@ -5,13 +5,13 @@ import { getUserId } from '@/lib/auth';
 export async function POST(request: NextRequest) {
   try {
     const { dateOfBirth } = await request.json();
-    const userId = getUserId();
 
+    // Get userId from request headers (sent by client)
+    let userId = request.headers.get('x-user-id');
+
+    // If no userId in headers, generate an anonymous one
     if (!userId) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 }
-      );
+      userId = `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
 
     if (!dateOfBirth) {
@@ -55,10 +55,10 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       age,
-      message: 'Age verified successfully' 
+      message: 'Age verified successfully'
     });
   } catch (error: any) {
     console.error('Error verifying age:', error);

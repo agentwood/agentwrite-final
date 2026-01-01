@@ -25,14 +25,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export async function generateStaticParams() {
   const archetypes = await db.personaTemplate.groupBy({
     by: ['archetype'],
-    where: {
-      archetype: { not: null },
-    },
   });
 
-  return archetypes.map((arch) => ({
-    archetype: encodeURIComponent(arch.archetype || ''),
-  }));
+  return archetypes
+    .filter((arch) => arch.archetype != null && arch.archetype !== '')
+    .map((arch) => ({
+      archetype: encodeURIComponent(arch.archetype!),
+    }));
 }
 
 export default async function ArchetypePage({ params, searchParams }: PageProps) {
@@ -144,11 +143,10 @@ export default async function ArchetypePage({ params, searchParams }: PageProps)
                       <a
                         key={page}
                         href={`${baseUrl}${page > 1 ? `?page=${page}` : ''}`}
-                        className={`px-4 py-2 rounded-lg ${
-                          page === pageNum
-                            ? 'bg-indigo-600 text-white'
-                            : 'bg-white border border-zinc-200 hover:bg-zinc-50'
-                        }`}
+                        className={`px-4 py-2 rounded-lg ${page === pageNum
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-white border border-zinc-200 hover:bg-zinc-50'
+                          }`}
                       >
                         {page}
                       </a>

@@ -85,11 +85,8 @@ export async function generateCharacterRelatedLinks(characterId: string, limit: 
  * Generate category navigation links
  */
 export async function generateCategoryLinks(): Promise<InternalLink[]> {
-  const categories = await db.personaTemplate.groupBy({
+  const allCategories = await db.personaTemplate.groupBy({
     by: ['category'],
-    where: {
-      category: { not: null },
-    },
     _count: {
       id: true,
     },
@@ -100,6 +97,9 @@ export async function generateCategoryLinks(): Promise<InternalLink[]> {
     },
     take: 10,
   });
+
+  // Filter out null categories
+  const categories = allCategories.filter(cat => cat.category !== null);
 
   return categories.map(cat => ({
     url: `/discover?category=${cat.category}`,

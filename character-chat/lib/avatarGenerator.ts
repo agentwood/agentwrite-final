@@ -2,11 +2,11 @@
  * Avatar Generator Utility
  * 
  * Generates avatars based on character type:
- * - Human/Realistic characters: Minimalist cartoon style (template style)
+ * - Human/Realistic characters: Realistic human photos (pravatar.cc)
  * - Fantasy characters: Waifu anime style
  * 
  * This matches the design system where:
- * - Human characters use the minimalist cartoon template style
+ * - Human characters use realistic human faces
  * - Fantasy characters use waifu anime style (like Talkie AI)
  */
 
@@ -20,18 +20,25 @@ export interface AvatarOptions {
 }
 
 /**
- * Generate minimalist cartoon avatar for human/realistic characters
- * Uses Dicebear's "avataaars" style - minimalist cartoon with simple lines
- * Similar to the template: clean, simple, limited color palette
+ * Manual mappings for audited characters with custom generated images
  */
-export function getMinimalistCartoonAvatar(
+const MANUAL_AVATARS: Record<string, string> = {
+  'marjorie': '/avatars/humans/marjorie.png',
+  'rajiv': '/avatars/humans/rajiv.png',
+  'asha': '/avatars/humans/asha.png',
+};
+
+/**
+ * Generate realistic human photo for human characters
+ * Uses pravatar.cc for realistic human faces based on seed
+ */
+export function getRealisticHumanAvatar(
   characterId: string,
   characterName?: string
 ): string {
   const seed = characterId.replace(/-/g, '');
-  // Dicebear avataaars: minimalist cartoon style
-  // Colors: soft pastels matching template aesthetic
-  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf&radius=20`;
+  // pravatar.cc: realistic human photos
+  return `https://i.pravatar.cc/400?u=${seed}`;
 }
 
 /**
@@ -48,18 +55,13 @@ export function getWaifuAnimeAvatar(
 
 /**
  * Generate real human-looking avatar for older people (Karen, granny, etc.)
- * Uses thispersondoesnotexist.net or similar service for realistic human faces
+ * Uses realistic photos from pravatar.cc
  */
 export function getRealHumanAvatar(
   characterId: string,
   characterName?: string
 ): string {
-  const seed = characterId.replace(/-/g, '');
-  // Using thispersondoesnotexist.net for realistic human faces
-  // Note: This service generates random faces, so we use seed for consistency
-  // Alternative: Use a seed-based face generation API if available
-  const seedNum = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return `https://thispersondoesnotexist.net/?seed=${seedNum}`;
+  return getRealisticHumanAvatar(characterId, characterName);
 }
 
 /**
@@ -69,6 +71,11 @@ export function getRealHumanAvatar(
  */
 export function generateAvatar(options: AvatarOptions): string {
   const { characterId, characterName, isFantasy, isHuman, isOlderPerson, isRealistic } = options;
+
+  // Check manual mappings first
+  if (MANUAL_AVATARS[characterId]) {
+    return MANUAL_AVATARS[characterId];
+  }
 
   // Real human-looking images for older people (Karen, granny, etc.)
   if (isOlderPerson || (isHuman && isOlderPerson)) {
@@ -84,14 +91,13 @@ export function generateAvatar(options: AvatarOptions): string {
   if (isFantasy) {
     return getWaifuAnimeAvatar(characterId, characterName);
   }
-  
+
   if (isHuman) {
-    return getMinimalistCartoonAvatar(characterId, characterName);
+    return getRealisticHumanAvatar(characterId, characterName);
   }
 
-  // Default: assume human (minimalist cartoon) unless explicitly fantasy
-  // This matches the template style preference
-  return getMinimalistCartoonAvatar(characterId, characterName);
+  // Default: assume human (realistic) unless explicitly fantasy
+  return getRealisticHumanAvatar(characterId, characterName);
 }
 
 /**
@@ -99,18 +105,17 @@ export function generateAvatar(options: AvatarOptions): string {
  * All others default to waifu anime (fantasy)
  */
 export const HUMAN_CHARACTER_IDS = [
-  'grumpy-old-man',
+  'marjorie',
+  'rajiv',
+  'asha',
+  'dex',
+  'eamon',
+  'viktor',
+  'tomasz',
+  'aaliyah',
   'california-surfer',
   'sassy-best-friend',
   'chef-gordon',
-  'ai-tutor',
-  'therapy-bot',
-  'shy-introvert',
-  'confident-leader',
-  'comedic-relief',
-  'romantic-partner',
-  'cyberpunk-hacker',
-  'mafia-job-report',
 ];
 
 /**

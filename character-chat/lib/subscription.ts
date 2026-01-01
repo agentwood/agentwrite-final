@@ -3,6 +3,8 @@
  * Handles subscription checks and feature gating
  */
 
+import { db } from './db';
+
 export type PlanId = 'free' | 'starter' | 'pro';
 
 export interface SubscriptionStatus {
@@ -22,23 +24,40 @@ export interface SubscriptionStatus {
 
 /**
  * Get subscription status for a user
- * In production, this would fetch from the database
+ * Fetches from database and returns appropriate plan features
  */
 export async function getSubscriptionStatus(userId?: string | null): Promise<SubscriptionStatus> {
-  // TODO: Fetch from database when auth is implemented
-  // For now, default to free plan
   if (!userId) {
     return getFreePlanFeatures();
   }
 
-  // Mock: In production, fetch from Subscription model
-  // const subscription = await db.subscription.findFirst({
-  //   where: { userId, isActive: true },
-  //   orderBy: { createdAt: 'desc' }
-  // });
+  try {
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: {
+        subscriptionTier: true,
+        subscriptionStatus: true,
+      },
+    });
 
-  // For now, return free plan
-  return getFreePlanFeatures();
+    if (!user || user.subscriptionStatus !== 'active') {
+      return getFreePlanFeatures();
+    }
+
+    // Return features based on subscription tier
+    switch (user.subscriptionTier) {
+      case 'premium':
+      case 'pro':
+        return getProPlanFeatures();
+      case 'starter':
+        return getStarterPlanFeatures();
+      default:
+        return getFreePlanFeatures();
+    }
+  } catch (error) {
+    console.error('Error fetching subscription status:', error);
+    return getFreePlanFeatures();
+  }
 }
 
 /**

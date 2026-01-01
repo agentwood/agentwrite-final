@@ -24,9 +24,9 @@ export interface CharacterMappingResult {
  */
 function extractCharacterKeywords(description: string, archetype?: string, category?: string): string[] {
   const allText = `${description} ${archetype || ''} ${category || ''}`.toLowerCase();
-  
+
   const keywords: string[] = [];
-  
+
   // Personality traits
   const personalityTraits = [
     'shy', 'confident', 'energetic', 'calm', 'aggressive', 'gentle', 'serious', 'playful',
@@ -35,13 +35,13 @@ function extractCharacterKeywords(description: string, archetype?: string, categ
     'professional', 'amateur', 'experienced', 'inexperienced', 'brave', 'cowardly',
     'strong', 'weak', 'tall', 'short', 'young', 'old', 'middle-aged',
   ];
-  
+
   for (const trait of personalityTraits) {
     if (allText.includes(trait)) {
       keywords.push(trait);
     }
   }
-  
+
   // Age indicators
   if (allText.includes('young') || allText.includes('teen') || allText.includes('child') || allText.includes('kid')) {
     keywords.push('young');
@@ -50,14 +50,14 @@ function extractCharacterKeywords(description: string, archetype?: string, categ
   } else {
     keywords.push('middle');
   }
-  
+
   // Gender indicators (basic)
   if (allText.includes(' he ') || allText.includes(' his ') || allText.includes(' male ') || allText.includes(' boy ')) {
     keywords.push('male');
   } else if (allText.includes(' she ') || allText.includes(' her ') || allText.includes(' female ') || allText.includes(' girl ')) {
     keywords.push('female');
   }
-  
+
   return [...new Set(keywords)];
 }
 
@@ -71,10 +71,10 @@ function calculateSimilarityScore(
   if (characterKeywords.length === 0 || sourceKeywords.length === 0) {
     return 0;
   }
-  
+
   const matches = characterKeywords.filter(keyword => sourceKeywords.includes(keyword)).length;
   const total = Math.max(characterKeywords.length, sourceKeywords.length);
-  
+
   return matches / total;
 }
 
@@ -89,16 +89,16 @@ async function mapToAnimeCharacter(
 ): Promise<CharacterMappingResult | null> {
   // Extract keywords from character
   const characterKeywords = extractCharacterKeywords(description, archetype, category);
-  
+
   // Search through top anime for matching characters
   // For now, we'll use a simple approach - in production, this could use AI/ML for better matching
   let bestMatch: { anime: string; characterName: string; url: string; score: number } | null = null;
-  
+
   // Check if character description mentions any anime
   for (const anime of TOP_30_ANIME) {
     const animeNameLower = anime.name.toLowerCase();
-    if (description.toLowerCase().includes(animeNameLower) || 
-        characterName.toLowerCase().includes(animeNameLower)) {
+    if (description.toLowerCase().includes(animeNameLower) ||
+      characterName.toLowerCase().includes(animeNameLower)) {
       // Found anime reference - construct character URL (simplified)
       const characterUrl = `${anime.wikiBaseUrl}/${characterName.replace(/\s+/g, '_')}`;
       bestMatch = {
@@ -110,13 +110,13 @@ async function mapToAnimeCharacter(
       break;
     }
   }
-  
+
   if (!bestMatch) {
     // No direct match found - return null for now
     // In production, this could use semantic search or AI matching
     return null;
   }
-  
+
   // Try to scrape the character profile
   let profile: CharacterProfile | null = null;
   try {
@@ -124,17 +124,17 @@ async function mapToAnimeCharacter(
   } catch (error) {
     console.error('Error scraping anime character:', error);
   }
-  
+
   const sourceKeywords = profile ? extractKeywords(profile) : characterKeywords;
   const confidence = profile ? calculateSimilarityScore(characterKeywords, sourceKeywords) : 0.6;
-  
+
   return {
     success: true,
     sourceCharacterName: bestMatch.characterName,
     sourceCharacterUrl: bestMatch.url,
     sourceType: 'anime',
     sourceDescription: profile?.description || description,
-    characterKeywords: JSON.stringify(characterKeywords),
+    characterKeywords: characterKeywords, // Array for interface
     mappingConfidence: Math.max(confidence, 0.6),
   };
 }
@@ -150,7 +150,7 @@ async function mapToCelebrity(
 ): Promise<CharacterMappingResult | null> {
   // Extract profession from description/category
   const allText = `${description} ${category || ''} ${archetype || ''}`.toLowerCase();
-  
+
   // Map category/archetype to profession
   const professionMap: Record<string, string> = {
     'therapist': 'therapist',
@@ -164,7 +164,7 @@ async function mapToCelebrity(
     'coach': 'coach',
     'trainer': 'coach',
   };
-  
+
   let profession: string | null = null;
   for (const [key, value] of Object.entries(professionMap)) {
     if (allText.includes(key)) {
@@ -172,20 +172,20 @@ async function mapToCelebrity(
       break;
     }
   }
-  
+
   if (!profession) {
     return null; // No profession found
   }
-  
+
   // Get celebrities for this profession
   const celebrities = getCelebritiesForProfession(profession);
   if (celebrities.length === 0) {
     return null;
   }
-  
+
   // For now, pick the top celebrity (in production, use semantic matching)
   const celebrity = celebrities[0];
-  
+
   // Try to scrape the celebrity profile
   let profile: CharacterProfile | null = null;
   if (celebrity.wikipediaUrl) {
@@ -195,18 +195,18 @@ async function mapToCelebrity(
       console.error('Error scraping celebrity profile:', error);
     }
   }
-  
+
   const characterKeywords = extractCharacterKeywords(description, archetype, category);
   const sourceKeywords = profile ? extractKeywords(profile) : characterKeywords;
   const confidence = profile ? calculateSimilarityScore(characterKeywords, sourceKeywords) : 0.7;
-  
+
   return {
     success: true,
     sourceCharacterName: celebrity.name,
     sourceCharacterUrl: celebrity.wikipediaUrl || undefined,
     sourceType: 'celebrity',
     sourceDescription: profile?.description || celebrity.description || description,
-    characterKeywords: JSON.stringify(characterKeywords),
+    characterKeywords: characterKeywords, // Array for interface
     mappingConfidence: Math.max(confidence, 0.7),
   };
 }
@@ -230,14 +230,14 @@ export async function mapCharacter(
         sourceCharacterName: true, // Check if already mapped
       },
     });
-    
+
     if (!character) {
       return {
         success: false,
         error: 'Character not found',
       };
     }
-    
+
     // Skip if already mapped
     if (character.sourceCharacterName) {
       return {
@@ -245,19 +245,19 @@ export async function mapCharacter(
         error: 'Character already mapped',
       };
     }
-    
+
     const description = character.description || '';
     const category = character.category?.toLowerCase() || '';
     const archetype = character.archetype?.toLowerCase() || '';
-    
+
     // Determine if fantasy or real human
-    const isFantasy = category.includes('fantasy') || 
-                     category.includes('anime') ||
-                     archetype.includes('fantasy') ||
-                     archetype.includes('anime');
-    
+    const isFantasy = category.includes('fantasy') ||
+      category.includes('anime') ||
+      archetype.includes('fantasy') ||
+      archetype.includes('anime');
+
     let result: CharacterMappingResult | null = null;
-    
+
     if (isFantasy) {
       // Try to map to anime character
       result = await mapToAnimeCharacter(
@@ -275,14 +275,14 @@ export async function mapCharacter(
         category
       );
     }
-    
+
     if (!result || !result.success) {
       return {
         success: false,
         error: 'No suitable mapping found',
       };
     }
-    
+
     // Update character in database
     await db.personaTemplate.update({
       where: { id: characterId },
@@ -291,11 +291,11 @@ export async function mapCharacter(
         sourceCharacterUrl: result.sourceCharacterUrl,
         sourceType: result.sourceType,
         sourceDescription: result.sourceDescription,
-        characterKeywords: result.characterKeywords,
+        characterKeywords: result.characterKeywords ? JSON.stringify(result.characterKeywords) : null, // Convert array to JSON string for storage
         mappingConfidence: result.mappingConfidence,
       },
     });
-    
+
     return result;
   } catch (error: any) {
     return {

@@ -1,15 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Check, Sparkles } from 'lucide-react';
-import Header from '@/app/components/Header';
-import Footer from '@/app/components/Footer';
-
-interface PlanFeature {
-  category: string;
-  name: string;
-  value: string;
-}
+import { Check, Sparkles, Zap } from 'lucide-react';
+import Sidebar from '@/app/components/Sidebar';
 
 interface Plan {
   id: string;
@@ -21,13 +14,7 @@ interface Plan {
   interval?: string;
   tagline?: string;
   mostPopular?: boolean;
-  features: PlanFeature[];
-  limits: {
-    messagesPerDay: number;
-    ttsSecondsPerDay: number;
-    callMinutesPerDay: number;
-    characters: number;
-  };
+  features: string[];
   ctaText?: string;
 }
 
@@ -35,6 +22,7 @@ export default function PricingPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly');
+  const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/pricing')
@@ -49,192 +37,198 @@ export default function PricingPage() {
       });
   }, []);
 
-  const handleSubscribe = (planId: string, priceId: string | null, annualPriceId?: string | null) => {
-    if (!priceId) {
+  const handleSubscribe = async (plan: Plan) => {
+    if (!plan.priceId || plan.price === 0) {
       window.location.href = '/signup?plan=free';
       return;
     }
-    
-    const selectedPriceId = billingInterval === 'annual' && annualPriceId ? annualPriceId : priceId;
-    // TODO: Integrate with Stripe
-    alert(`Subscribe to ${planId} plan (${billingInterval}) - Stripe integration coming soon`);
+
+    setProcessingPlan(plan.id);
+
+    try {
+      const priceId = billingInterval === 'annual' && plan.annualPriceId
+        ? plan.annualPriceId
+        : plan.priceId;
+
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceId,
+          planId: plan.id,
+          mode: plan.interval === 'one-time' ? 'payment' : 'subscription',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('Unable to start checkout. Please try again.');
+    } finally {
+      setProcessingPlan(null);
+    }
   };
 
-  const groupFeaturesByCategory = (features: PlanFeature[]) => {
-    const grouped: Record<string, PlanFeature[]> = {};
-    features.forEach(feature => {
-      if (!grouped[feature.category]) {
-        grouped[feature.category] = [];
-      }
-      grouped[feature.category].push(feature);
-    });
-    return grouped;
+  const getDisplayPrice = (plan: Plan) => {
+    if (plan.price === 0) return 'Free';
+    if (billingInterval === 'annual' && plan.annualPrice) {
+      return `$${plan.annualPrice}`;
+    }
+    return `$${plan.price}`;
+  };
+
+  const getPriceLabel = (plan: Plan) => {
+    if (plan.price === 0) return 'forever';
+    if (plan.interval === 'one-time') return 'one-time';
+    return billingInterval === 'annual' && plan.annualPrice ? '/year' : '/month';
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <Header />
-      
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="bg-white py-20 border-b border-zinc-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-5xl font-bold mb-4 text-zinc-900">Pricing</h1>
-            <p className="text-xl text-zinc-600 max-w-2xl mx-auto">
-              Choose the plan that works best for you
+    <div className="flex min-h-screen font-sans bg-[#0f0f0f] text-white">
+      {/* Sidebar - same as home page */}
+      <Sidebar recentCharacters={[]} />
+
+      {/* Main Content */}
+      <main className="flex-1 lg:ml-60 overflow-y-auto">
+        {/* Hero */}
+        <section className="py-12 sm:py-16 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
+              Simple, transparent pricing
+            </h1>
+            <p className="text-lg text-white/60">
+              Start free. Upgrade when you need more.
             </p>
           </div>
         </section>
 
         {/* Pricing Cards */}
-        <section className="py-20 bg-zinc-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="pb-16 px-4">
+          <div className="max-w-5xl mx-auto">
             {loading ? (
               <div className="text-center py-12">
-                <div className="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                <div className="inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
               </div>
             ) : (
               <>
-                {/* Billing Toggle (for Pro plan) */}
-                <div className="flex justify-center mb-12">
-                  <div className="inline-flex bg-zinc-100 rounded-xl p-1">
+                {/* Billing Toggle */}
+                <div className="flex justify-center mb-10">
+                  <div className="inline-flex bg-[#1a1a1a] rounded-full p-1 border border-white/10">
                     <button
                       onClick={() => setBillingInterval('monthly')}
-                      className={`px-6 py-2 rounded-lg font-semibold transition-all ${
-                        billingInterval === 'monthly'
-                          ? 'bg-white text-zinc-900 shadow-sm'
-                          : 'text-zinc-600'
-                      }`}
+                      className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${billingInterval === 'monthly'
+                        ? 'bg-white text-black'
+                        : 'text-white/60 hover:text-white'
+                        }`}
                     >
                       Monthly
                     </button>
                     <button
                       onClick={() => setBillingInterval('annual')}
-                      className={`px-6 py-2 rounded-lg font-semibold transition-all ${
-                        billingInterval === 'annual'
-                          ? 'bg-white text-zinc-900 shadow-sm'
-                          : 'text-zinc-600'
-                      }`}
+                      className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${billingInterval === 'annual'
+                        ? 'bg-white text-black'
+                        : 'text-white/60 hover:text-white'
+                        }`}
                     >
                       Annual
+                      <span className="ml-2 text-xs text-emerald-400">Save 17%</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {plans.map((plan) => {
-                    const groupedFeatures = groupFeaturesByCategory(plan.features);
-                    const displayPrice = billingInterval === 'annual' && plan.annualPrice 
-                      ? plan.annualPrice 
-                      : plan.price;
-                    const displayPriceId = billingInterval === 'annual' && plan.annualPriceId 
-                      ? plan.annualPriceId 
-                      : plan.priceId;
-                    const isAnnual = billingInterval === 'annual' && plan.annualPrice;
-
-                    return (
-                      <div
-                        key={plan.id}
-                        className={`bg-white rounded-2xl p-8 shadow-lg border-2 ${
-                          plan.mostPopular
-                            ? 'border-indigo-500 scale-105 relative'
-                            : 'border-zinc-200'
+                {/* Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {plans.map((plan) => (
+                    <div
+                      key={plan.id}
+                      className={`relative rounded-2xl p-6 ${plan.mostPopular
+                        ? 'bg-gradient-to-b from-purple-900/30 to-[#1a1a1a] border-2 border-purple-500/50 scale-105'
+                        : 'bg-[#1a1a1a] border border-white/10'
                         }`}
-                      >
-                        {plan.mostPopular && (
-                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-yellow-400 text-zinc-900 text-sm font-semibold rounded-full flex items-center gap-1">
-                            <Sparkles className="w-3 h-3" />
-                            Most Popular
-                          </div>
-                        )}
-                        
-                        <div className="mb-6">
-                          <h3 className="text-2xl font-bold text-zinc-900 mb-1">{plan.name}</h3>
-                          {plan.tagline && (
-                            <p className="text-sm text-zinc-600 mb-4">{plan.tagline}</p>
-                          )}
-                          <div className="flex items-baseline gap-1 mb-2">
-                            <span className="text-5xl font-bold text-zinc-900">
-                              {displayPrice === 0 ? 'Free' : `$${displayPrice}`}
-                            </span>
-                            {displayPrice > 0 && (
-                              <>
-                                <span className="text-zinc-600">
-                                  {plan.interval === 'one-time' ? ' / one-time' : ` / ${billingInterval === 'annual' ? 'year' : 'month'}`}
-                                </span>
-                                {isAnnual && plan.price && (
-                                  <span className="text-sm text-zinc-500 ml-2 line-through">
-                                    ${plan.price}/mo
-                                  </span>
-                                )}
-                              </>
-                            )}
-                          </div>
-                          {displayPrice === 0 && (
-                            <p className="text-sm text-zinc-600">Forever</p>
-                          )}
-                          {isAnnual && plan.annualPrice && plan.price && (
-                            <p className="text-sm text-indigo-600 font-semibold mt-1">
-                              Save ${(plan.price * 12 - plan.annualPrice).toFixed(2)}/year
-                            </p>
-                          )}
+                    >
+                      {/* Popular Badge */}
+                      {plan.mostPopular && (
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          MOST POPULAR
                         </div>
+                      )}
 
-                        <div className="space-y-6 mb-8">
-                          {Object.entries(groupedFeatures).map(([category, features]) => (
-                            <div key={category}>
-                              <h4 className="text-sm font-bold text-zinc-900 mb-3 uppercase tracking-wider">
-                                {category}
-                              </h4>
-                              <ul className="space-y-2">
-                                {features.map((feature, idx) => (
-                                  <li key={idx} className="flex items-start justify-between">
-                                    <div className="flex items-start gap-2 flex-1">
-                                      <Check className="w-4 h-4 text-indigo-600 flex-shrink-0 mt-0.5" />
-                                      <span className="text-sm text-zinc-700 flex-1">
-                                        {feature.name}
-                                      </span>
-                                    </div>
-                                    <span className="text-sm font-medium text-zinc-900 ml-2">
-                                      {feature.value}
-                                    </span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          ))}
-                        </div>
-
-                        <button
-                          onClick={() => handleSubscribe(plan.id, displayPriceId, plan.annualPriceId)}
-                          className={`w-full py-3 rounded-xl font-semibold transition-all ${
-                            plan.mostPopular
-                              ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700'
-                              : plan.price === 0
-                              ? 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200'
-                              : 'bg-zinc-900 text-white hover:bg-zinc-800'
-                          }`}
-                        >
-                          {plan.ctaText || (plan.price === 0 ? 'Start Free' : 'Subscribe')}
-                        </button>
+                      {/* Plan Name & Tagline */}
+                      <div className="mb-4">
+                        <h3 className="text-lg font-bold text-white mb-1">{plan.name}</h3>
+                        <p className="text-sm text-white/40">{plan.tagline}</p>
                       </div>
-                    );
-                  })}
+
+                      {/* Price */}
+                      <div className="mb-6">
+                        <span className="text-3xl font-bold text-white">
+                          {getDisplayPrice(plan)}
+                        </span>
+                        <span className="text-white/40 ml-1 text-sm">
+                          {getPriceLabel(plan)}
+                        </span>
+                        {billingInterval === 'annual' && plan.annualPrice && plan.price > 0 && plan.interval !== 'one-time' && (
+                          <p className="text-sm text-emerald-400 mt-1">
+                            Save ${((plan.price * 12) - plan.annualPrice).toFixed(0)}/year
+                          </p>
+                        )}
+                      </div>
+
+                      {/* CTA Button */}
+                      <button
+                        onClick={() => handleSubscribe(plan)}
+                        disabled={processingPlan === plan.id}
+                        className={`w-full py-3 rounded-xl font-semibold transition-all mb-6 ${plan.mostPopular
+                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90'
+                          : plan.price === 0
+                            ? 'bg-[#2a2a2a] text-white hover:bg-[#333]'
+                            : 'bg-white text-black hover:bg-white/90'
+                          } ${processingPlan === plan.id ? 'opacity-50 cursor-wait' : ''}`}
+                      >
+                        {processingPlan === plan.id ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                            Processing...
+                          </span>
+                        ) : (
+                          plan.ctaText || 'Subscribe'
+                        )}
+                      </button>
+
+                      {/* Features */}
+                      <ul className="space-y-2.5">
+                        {plan.features.map((feature, idx) => (
+                          <li key={idx} className="flex items-start gap-2.5">
+                            <Check className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+                            <span className="text-sm text-white/70">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
 
-                {/* Footnote */}
-                <div className="mt-12 text-center">
-                  <p className="text-sm text-zinc-500 max-w-2xl mx-auto">
-                    "Unlimited" = fair use + anti-abuse rate limits. Voice minutes reset monthly; tap-to-play voice keeps costs sane.
-                  </p>
+                {/* Trust Badge */}
+                <div className="mt-10 text-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] rounded-full border border-white/10">
+                    <Zap className="w-4 h-4 text-yellow-400" />
+                    <span className="text-sm text-white/60">
+                      Cancel anytime · No hidden fees · Secure payment
+                    </span>
+                  </div>
                 </div>
               </>
             )}
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }

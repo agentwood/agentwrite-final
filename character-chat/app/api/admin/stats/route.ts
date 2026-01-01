@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     // Calculate date range
     const now = new Date();
     let startDate = new Date();
-    
+
     switch (range) {
       case '7d':
         startDate.setDate(now.getDate() - 7);
@@ -43,23 +43,25 @@ export async function GET(request: NextRequest) {
     });
 
     // Get active users (users who had conversations in the date range)
-    const activeUsersToday = await db.conversation.count({
+    const activeConversationsToday = await db.conversation.findMany({
       where: {
         createdAt: {
           gte: new Date(now.setHours(0, 0, 0, 0))
         }
       },
-      distinct: ['userId']
+      select: { userId: true }
     });
+    const activeUsersToday = new Set(activeConversationsToday.map(c => c.userId)).size;
 
-    const activeUsersThisWeek = await db.conversation.count({
+    const activeConversationsThisWeek = await db.conversation.findMany({
       where: {
         createdAt: {
           gte: new Date(now.setDate(now.getDate() - 7))
         }
       },
-      distinct: ['userId']
+      select: { userId: true }
     });
+    const activeUsersThisWeek = new Set(activeConversationsThisWeek.map(c => c.userId)).size;
 
     // Get character views
     const totalCharacterViews = await db.personaView.count({
@@ -95,8 +97,8 @@ export async function GET(request: NextRequest) {
       return acc;
     }, 0);
 
-    const averageSessionDuration = conversations.length > 0 
-      ? totalDuration / conversations.length 
+    const averageSessionDuration = conversations.length > 0
+      ? totalDuration / conversations.length
       : 0;
 
     // Get top characters
@@ -134,7 +136,7 @@ export async function GET(request: NextRequest) {
       const date = new Date();
       date.setDate(date.getDate() - i);
       date.setHours(0, 0, 0, 0);
-      
+
       const nextDate = new Date(date);
       nextDate.setDate(nextDate.getDate() + 1);
 

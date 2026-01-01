@@ -1,0 +1,46 @@
+// Voice Audit System - Prisma Schema Extension
+// Add these models to your existing schema.prisma
+
+model VoiceAuditLog {
+  id               String   @id @default(cuid())
+  characterId      String
+  voiceName        String
+  finalScore       Int
+  genderScore      Int
+  ageScore         Int
+  accentScore      Int
+  overallScore     Int
+  consistencyScore Int
+  status           String   // 'approved', 'review_required', 'rejected'
+  reason           String?
+  approvedAt       DateTime?
+  createdAt        DateTime @default(now())
+
+  character PersonaTemplate @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model VoiceReviewQueue {
+  id            String   @id @default(cuid())
+  characterId   String
+  proposedVoice String
+  finalScore    Int
+  reason        String
+  priority      String   // 'high', 'medium', 'low'
+  status        String   @default("pending") // 'pending', 'approved', 'rejected'
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  character PersonaTemplate @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+}

@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Users, MessageSquare, TrendingUp, Clock, 
-  BarChart3, Activity, Eye, Heart, 
+import {
+  Users, MessageSquare, TrendingUp, Clock,
+  BarChart3, Activity, Eye, Heart,
   ArrowUp, ArrowDown, Calendar, Filter
 } from 'lucide-react';
 import { db } from '@/lib/db';
@@ -112,7 +112,7 @@ export default function AdminPage() {
             title="Total Users"
             value={stats.totalUsers.toLocaleString()}
             icon={Users}
-            trend={stats.userGrowth.length > 1 ? 
+            trend={stats.userGrowth.length > 1 ?
               ((stats.userGrowth[stats.userGrowth.length - 1].count - stats.userGrowth[0].count) / stats.userGrowth[0].count * 100).toFixed(1) : '0'
             }
           />
@@ -256,8 +256,8 @@ interface MetricCardProps {
 
 function MetricCard({ title, value, icon: Icon, trend, variant = 'primary' }: MetricCardProps) {
   const isPositive = trend?.startsWith('+');
-  const trendValue = trend?.replace(/[+-%]/g, '');
-  
+  const trendValue = trend?.replace(/[+%\-]/g, '');
+
   return (
     <div className={`bg-white rounded-xl border border-gray-200 p-6 ${variant === 'secondary' ? 'bg-gray-50' : ''}`}>
       <div className="flex items-center justify-between mb-4">

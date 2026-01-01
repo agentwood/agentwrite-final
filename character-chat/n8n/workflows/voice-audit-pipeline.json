@@ -1,0 +1,557 @@
+{
+    "name": "Voice Audit Pipeline",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "voice-audit-trigger",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "webhook-trigger",
+            "name": "Webhook Trigger",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ],
+            "webhookId": "voice-audit-webhook"
+        },
+        {
+            "parameters": {
+                "functionCode": "// Extract character data from webhook payload\nconst characterId = $json.characterId;\nconst characterName = $json.characterName;\nconst description = $json.description;\nconst voiceName = $json.voiceName;\nconst category = $json.category;\nconst archetype = $json.archetype;\n\n// Prepare for validation\nreturn {\n  json: {\n    characterId,\n    characterName,\n    description,\n    voiceName,\n    category,\n    archetype,\n    auditTimestamp: new Date().toISOString(),\n    status: 'pending_validation'\n  }\n};"
+            },
+            "id": "extract-data",
+            "name": "Extract Character Data",
+            "type": "n8n-nodes-base.function",
+            "typeVersion": 1,
+            "position": [
+                450,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "url": "={{$env.APP_URL}}/api/voice-audit/validate",
+                "method": "POST",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "characterId",
+                            "value": "={{$json.characterId}}"
+                        },
+                        {
+                            "name": "characterName",
+                            "value": "={{$json.characterName}}"
+                        },
+                        {
+                            "name": "description",
+                            "value": "={{$json.description}}"
+                        },
+                        {
+                            "name": "voiceName",
+                            "value": "={{$json.voiceName}}"
+                        },
+                        {
+                            "name": "category",
+                            "value": "={{$json.category}}"
+                        },
+                        {
+                            "name": "archetype",
+                            "value": "={{$json.archetype}}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "agent-1-gender",
+            "name": "Agent 1: Gender Match",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 3,
+            "position": [
+                650,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "url": "={{$env.APP_URL}}/api/voice-audit/validate-age",
+                "method": "POST",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "characterId",
+                            "value": "={{$json.characterId}}"
+                        },
+                        {
+                            "name": "characterName",
+                            "value": "={{$json.characterName}}"
+                        },
+                        {
+                            "name": "description",
+                            "value": "={{$json.description}}"
+                        },
+                        {
+                            "name": "voiceName",
+                            "value": "={{$json.voiceName}}"
+                        }
+                    ]
+                }
+            },
+            "id": "agent-2-age",
+            "name": "Agent 2: Age Match",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 3,
+            "position": [
+                650,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "url": "={{$env.APP_URL}}/api/voice-audit/validate-accent",
+                "method": "POST",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "characterId",
+                            "value": "={{$json.characterId}}"
+                        },
+                        {
+                            "name": "description",
+                            "value": "={{$json.description}}"
+                        },
+                        {
+                            "name": "voiceName",
+                            "value": "={{$json.voiceName}}"
+                        }
+                    ]
+                }
+            },
+            "id": "agent-3-accent",
+            "name": "Agent 3: Accent Match",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 3,
+            "position": [
+                650,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "url": "={{$env.APP_URL}}/api/voice-audit/validate-overall",
+                "method": "POST",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "characterId",
+                            "value": "={{$json.characterId}}"
+                        },
+                        {
+                            "name": "characterName",
+                            "value": "={{$json.characterName}}"
+                        },
+                        {
+                            "name": "description",
+                            "value": "={{$json.description}}"
+                        },
+                        {
+                            "name": "voiceName",
+                            "value": "={{$json.voiceName}}"
+                        },
+                        {
+                            "name": "category",
+                            "value": "={{$json.category}}"
+                        },
+                        {
+                            "name": "archetype",
+                            "value": "={{$json.archetype}}"
+                        }
+                    ]
+                }
+            },
+            "id": "agent-4-overall",
+            "name": "Agent 4: Overall Fit",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 3,
+            "position": [
+                650,
+                500
+            ]
+        },
+        {
+            "parameters": {
+                "url": "={{$env.APP_URL}}/api/voice-audit/validate-consistency",
+                "method": "POST",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "characterId",
+                            "value": "={{$json.characterId}}"
+                        },
+                        {
+                            "name": "voiceName",
+                            "value": "={{$json.voiceName}}"
+                        }
+                    ]
+                }
+            },
+            "id": "agent-5-consistency",
+            "name": "Agent 5: Consistency",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 3,
+            "position": [
+                650,
+                600
+            ]
+        },
+        {
+            "parameters": {
+                "functionCode": "// Aggregate scores from all 5 agents\nconst items = $input.all();\n\nconst scores = {\n  genderScore: 0,\n  ageScore: 0,\n  accentScore: 0,\n  overallScore: 0,\n  consistencyScore: 0\n};\n\n// Extract scores from each agent response\nfor (const item of items) {\n  if (item.json.agentType === 'gender') scores.genderScore = item.json.score;\n  if (item.json.agentType === 'age') scores.ageScore = item.json.score;\n  if (item.json.agentType === 'accent') scores.accentScore = item.json.score;\n  if (item.json.agentType === 'overall') scores.overallScore = item.json.score;\n  if (item.json.agentType === 'consistency') scores.consistencyScore = item.json.score;\n}\n\n// Calculate weighted average (20% each)\nconst finalScore = (\n  scores.genderScore * 0.2 +\n  scores.ageScore * 0.2 +\n  scores.accentScore * 0.2 +\n  scores.overallScore * 0.2 +\n  scores.consistencyScore * 0.2\n);\n\nconst passed = finalScore >= 70;\nconst status = passed ? 'approved' : 'rejected';\n\nreturn {\n  json: {\n    characterId: items[0].json.characterId,\n    characterName: items[0].json.characterName,\n    voiceName: items[0].json.voiceName,\n    scores,\n    finalScore: Math.round(finalScore),\n    passed,\n    status,\n    timestamp: new Date().toISOString()\n  }\n};"
+            },
+            "id": "aggregate-scores",
+            "name": "Aggregate Agent Scores",
+            "type": "n8n-nodes-base.function",
+            "typeVersion": 1,
+            "position": [
+                850,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "boolean": [
+                        {
+                            "value1": "={{$json.passed}}",
+                            "value2": true
+                        }
+                    ]
+                }
+            },
+            "id": "decision-gate",
+            "name": "Pass/Fail Decision",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                1050,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "url": "={{$env.APP_URL}}/api/voice-audit/approve",
+                "method": "POST",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "characterId",
+                            "value": "={{$json.characterId}}"
+                        },
+                        {
+                            "name": "voiceName",
+                            "value": "={{$json.voiceName}}"
+                        },
+                        {
+                            "name": "finalScore",
+                            "value": "={{$json.finalScore}}"
+                        },
+                        {
+                            "name": "scores",
+                            "value": "={{JSON.stringify($json.scores)}}"
+                        }
+                    ]
+                }
+            },
+            "id": "approve-voice",
+            "name": "Approve & Release Voice",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 3,
+            "position": [
+                1250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "url": "={{$env.APP_URL}}/api/voice-audit/queue-review",
+                "method": "POST",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "characterId",
+                            "value": "={{$json.characterId}}"
+                        },
+                        {
+                            "name": "voiceName",
+                            "value": "={{$json.voiceName}}"
+                        },
+                        {
+                            "name": "finalScore",
+                            "value": "={{$json.finalScore}}"
+                        },
+                        {
+                            "name": "scores",
+                            "value": "={{JSON.stringify($json.scores)}}"
+                        },
+                        {
+                            "name": "reason",
+                            "value": "Failed voice audit - Score: {{$json.finalScore}}/100"
+                        }
+                    ]
+                }
+            },
+            "id": "queue-review",
+            "name": "Queue for Manual Review",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 3,
+            "position": [
+                1250,
+                500
+            ]
+        },
+        {
+            "parameters": {
+                "to": "{{$env.ADMIN_EMAIL}}",
+                "subject": "Voice Approved: {{$json.characterName}}",
+                "text": "Voice audit passed!\n\nCharacter: {{$json.characterName}}\nVoice: {{$json.voiceName}}\nFinal Score: {{$json.finalScore}}/100\n\nThe character has been released to production.",
+                "options": {}
+            },
+            "id": "notify-approved",
+            "name": "Send Approval Notification",
+            "type": "n8n-nodes-base.emailSend",
+            "typeVersion": 2,
+            "position": [
+                1450,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "to": "{{$env.ADMIN_EMAIL}}",
+                "subject": "Voice Audit Failed: {{$json.characterName}}",
+                "text": "Voice audit failed - manual review required.\n\nCharacter: {{$json.characterName}}\nVoice: {{$json.voiceName}}\nFinal Score: {{$json.finalScore}}/100\n\nGender: {{$json.scores.genderScore}}/100\nAge: {{$json.scores.ageScore}}/100\nAccent: {{$json.scores.accentScore}}/100\nOverall: {{$json.scores.overallScore}}/100\nConsistency: {{$json.scores.consistencyScore}}/100\n\nPlease review in the admin panel.",
+                "options": {}
+            },
+            "id": "notify-failed",
+            "name": "Send Failure Notification",
+            "type": "n8n-nodes-base.emailSend",
+            "typeVersion": 2,
+            "position": [
+                1450,
+                500
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ JSON.stringify($json) }}",
+                "options": {}
+            },
+            "id": "respond-webhook",
+            "name": "Respond to Webhook",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1650,
+                400
+            ]
+        }
+    ],
+    "connections": {
+        "Webhook Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Extract Character Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Extract Character Data": {
+            "main": [
+                [
+                    {
+                        "node": "Agent 1: Gender Match",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Agent 2: Age Match",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Agent 3: Accent Match",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Agent 4: Overall Fit",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Agent 5: Consistency",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Agent 1: Gender Match": {
+            "main": [
+                [
+                    {
+                        "node": "Aggregate Agent Scores",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Agent 2: Age Match": {
+            "main": [
+                [
+                    {
+                        "node": "Aggregate Agent Scores",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Agent 3: Accent Match": {
+            "main": [
+                [
+                    {
+                        "node": "Aggregate Agent Scores",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Agent 4: Overall Fit": {
+            "main": [
+                [
+                    {
+                        "node": "Aggregate Agent Scores",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Agent 5: Consistency": {
+            "main": [
+                [
+                    {
+                        "node": "Aggregate Agent Scores",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Aggregate Agent Scores": {
+            "main": [
+                [
+                    {
+                        "node": "Pass/Fail Decision",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Pass/Fail Decision": {
+            "main": [
+                [
+                    {
+                        "node": "Approve & Release Voice",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Queue for Manual Review",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Approve & Release Voice": {
+            "main": [
+                [
+                    {
+                        "node": "Send Approval Notification",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Queue for Manual Review": {
+            "main": [
+                [
+                    {
+                        "node": "Send Failure Notification",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Send Approval Notification": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Send Failure Notification": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "settings": {
+        "errorWorkflow": "",
+        "saveDataErrorExecution": "all",
+        "saveDataSuccessExecution": "all",
+        "saveManualExecutions": true,
+        "timezone": "America/New_York"
+    },
+    "staticData": null,
+    "tags": [
+        "voice-audit",
+        "automation",
+        "quality-control"
+    ],
+    "triggerCount": 1,
+    "updatedAt": "2025-01-01T00:00:00.000Z",
+    "versionId": "1"
+}

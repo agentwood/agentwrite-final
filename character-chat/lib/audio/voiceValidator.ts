@@ -36,7 +36,7 @@ export function validateVoiceForCharacter(
 ): VoiceValidationResult {
   const issues: string[] = [];
   let score = 100;
-  
+
   // Extract character traits
   const nameLower = character.name.toLowerCase();
   const descLower = (character.description || '').toLowerCase();
@@ -44,10 +44,10 @@ export function validateVoiceForCharacter(
   const archLower = character.archetype.toLowerCase();
   const catLower = character.category.toLowerCase();
   const allText = `${nameLower} ${descLower} ${taglineLower} ${archLower} ${catLower}`;
-  
+
   // Detect gender from name
   const detectedGender = detectGenderFromName(character.name);
-  
+
   // Get expected voice configuration
   const expectedConfig = getAdvancedVoiceConfig(
     character.name,
@@ -56,15 +56,15 @@ export function validateVoiceForCharacter(
     character.tagline,
     character.description
   );
-  
+
   const currentVoice = character.voiceName.toLowerCase();
   const expectedVoice = expectedConfig.voiceName.toLowerCase();
-  
+
   // Gender mismatch check
-  const femaleVoices = ['aoede', 'kore', 'leda', 'autonoe', 'callirrhoe', 'despina', 'erinome', 'pulcherrima', 'sadachbia', 'sadaltager', 'schedar', 'sulafat', 'vindemiatrix', 'zephyr', 'zubenelgenubi'];
-  const maleVoices = ['fenrir', 'charon', 'puck', 'achernar', 'achird', 'algenib', 'algieba', 'alnilam', 'charon', 'enceladus', 'gacrux', 'iapetus', 'orus', 'rasalgethi', 'umbriel'];
+  const femaleVoices = ['aoede', 'kore', 'leda', 'autonoe', 'callirrhoe', 'despina', 'erinome', 'pulcherrima', 'sadachbia', 'sadaltager', 'schedar', 'sulafat', 'vindemiatrix', 'zephyr', 'zubenelgenubi', 'achird'];
+  const maleVoices = ['fenrir', 'charon', 'puck', 'achernar', 'algenib', 'algieba', 'alnilam', 'charon', 'enceladus', 'gacrux', 'iapetus', 'orus', 'rasalgethi', 'umbriel'];
   const neutralVoices = ['kore', 'puck', 'zephyr'];
-  
+
   // Check gender-voice alignment
   if (detectedGender === 'female' && maleVoices.includes(currentVoice)) {
     issues.push(`Gender mismatch: Female character "${character.name}" has male voice "${currentVoice}"`);
@@ -73,47 +73,47 @@ export function validateVoiceForCharacter(
     issues.push(`Gender mismatch: Male character "${character.name}" has female voice "${currentVoice}"`);
     score -= 30;
   }
-  
+
   // Check if voice matches expected archetype
   if (currentVoice !== expectedVoice) {
     const reason = getVoiceMismatchReason(character, currentVoice, expectedVoice);
     issues.push(`Voice mismatch: Current "${currentVoice}" doesn't match expected "${expectedVoice}" for archetype "${character.archetype}"`);
     score -= 20;
-    
+
     // If score is still high, it might be acceptable
     if (score > 50) {
       // Check if current voice is at least gender-appropriate
-      const isGenderAppropriate = 
+      const isGenderAppropriate =
         (detectedGender === 'female' && (femaleVoices.includes(currentVoice) || neutralVoices.includes(currentVoice))) ||
         (detectedGender === 'male' && (maleVoices.includes(currentVoice) || neutralVoices.includes(currentVoice))) ||
         detectedGender === 'neutral';
-      
+
       if (isGenderAppropriate) {
         score += 10; // Partial credit for gender match
       }
     }
   }
-  
+
   // Age-based validation
   const ageIndicators = ['old', 'elder', 'senior', 'grandfather', 'grandmother', 'granny', 'veteran', 'young', 'teen', 'child', 'kid'];
   const hasAgeIndicator = ageIndicators.some(indicator => allText.includes(indicator));
-  
+
   if (hasAgeIndicator) {
     // Old characters should have deeper, slower voices
-    if ((allText.includes('old') || allText.includes('elder') || allText.includes('senior')) && 
-        !['charon', 'fenrir', 'kore'].includes(currentVoice)) {
+    if ((allText.includes('old') || allText.includes('elder') || allText.includes('senior')) &&
+      !['charon', 'fenrir', 'kore'].includes(currentVoice)) {
       issues.push(`Age mismatch: Older character should use deeper voice like "charon" or "fenrir", not "${currentVoice}"`);
       score -= 15;
     }
-    
+
     // Young characters should have higher-pitched voices
-    if ((allText.includes('young') || allText.includes('teen') || allText.includes('child')) && 
-        !['kore', 'puck', 'aoede'].includes(currentVoice)) {
+    if ((allText.includes('young') || allText.includes('teen') || allText.includes('child')) &&
+      !['kore', 'puck', 'aoede'].includes(currentVoice)) {
       issues.push(`Age mismatch: Younger character should use lighter voice like "kore" or "puck", not "${currentVoice}"`);
       score -= 15;
     }
   }
-  
+
   // Culture/location validation (basic)
   const culturalVoices: Record<string, string[]> = {
     'asian': ['kore', 'aoede'],
@@ -122,7 +122,7 @@ export function validateVoiceForCharacter(
     'latin': ['kore', 'aoede', 'puck'],
     'middle eastern': ['kore', 'fenrir'],
   };
-  
+
   // Check for cultural indicators
   const culturalKeywords: Record<string, string[]> = {
     'asian': ['japanese', 'chinese', 'korean', 'asian', 'tokyo', 'beijing', 'seoul'],
@@ -130,7 +130,7 @@ export function validateVoiceForCharacter(
     'african': ['african', 'nigerian', 'kenyan', 'south african'],
     'middle eastern': ['arab', 'persian', 'turkish', 'middle east'],
   };
-  
+
   for (const [culture, keywords] of Object.entries(culturalKeywords)) {
     if (keywords.some(keyword => allText.includes(keyword))) {
       const appropriateVoices = culturalVoices[culture] || [];
@@ -140,7 +140,7 @@ export function validateVoiceForCharacter(
       }
     }
   }
-  
+
   // Generate recommendation
   let recommendation: VoiceValidationResult['recommendations'] = null;
   if (score < 70 || issues.length > 0) {
@@ -150,12 +150,12 @@ export function validateVoiceForCharacter(
       confidence: score < 50 ? 0.9 : 0.7,
     };
   }
-  
+
   return {
     isValid: score >= 70,
     score: Math.max(0, Math.min(100, score)),
     issues,
-    recommendations,
+    recommendations: recommendation,
   };
 }
 
@@ -168,15 +168,15 @@ function getVoiceMismatchReason(
   expectedVoice: string
 ): string {
   const detectedGender = detectGenderFromName(character.name);
-  
+
   if (detectedGender === 'female' && ['fenrir', 'charon', 'puck'].includes(currentVoice)) {
     return 'Female character should use a more feminine voice';
   }
-  
+
   if (detectedGender === 'male' && ['aoede', 'kore'].includes(currentVoice) && !['kore', 'puck'].includes(currentVoice)) {
     return 'Male character should use a more masculine voice';
   }
-  
+
   return `Voice doesn't match archetype "${character.archetype}"`;
 }
 
@@ -193,10 +193,10 @@ export async function validateAllCharacters(
   const valid: CharacterMetadata[] = [];
   const invalid: Array<{ character: CharacterMetadata; validation: VoiceValidationResult }> = [];
   const needsReview: Array<{ character: CharacterMetadata; validation: VoiceValidationResult }> = [];
-  
+
   for (const character of characters) {
     const validation = validateVoiceForCharacter(character);
-    
+
     if (validation.isValid && validation.score >= 80) {
       valid.push(character);
     } else if (validation.score < 50) {
@@ -205,7 +205,7 @@ export async function validateAllCharacters(
       needsReview.push({ character, validation });
     }
   }
-  
+
   return { valid, invalid, needsReview };
 }
 

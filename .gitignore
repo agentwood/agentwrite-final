@@ -12,18 +12,6 @@ dist
 dist-ssr
 *.local
 
-# Environment variables - NEVER commit these!
-.env
-.env.local
-.env.*.local
-.env.development
-.env.production
-.env.test
-.env.backup
-*.env
-!.env.example
-!*.env.example
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -35,13 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# Temporary helper files
-.cursor/
-.github-auth-setup.md
-FIX_PUSH_ISSUE.md
-PERSONAL_ACCESS_TOKEN_SETUP.md
-PUSH_NOW.md
-PUSH_WITH_TOKEN.md
-EXACT_COMMAND_TO_RUN.md
-QUICK_PUSH_COMMAND.txt
-STATUS_CHECK.md
+# Python virtual environments
+venv/
+**/venv/
+__pycache__/
+*.pyc

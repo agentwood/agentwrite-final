@@ -29,7 +29,7 @@ async function enhanceCharacter(characterId: string): Promise<EnhancementResult>
   let voiceMatchSuccess = false;
   let voiceMatchScore: number | undefined;
   let recommendedVoice: string | undefined;
-  
+
   try {
     // Get character
     const character = await prisma.personaTemplate.findUnique({
@@ -44,7 +44,7 @@ async function enhanceCharacter(characterId: string): Promise<EnhancementResult>
         voiceName: true,
       },
     });
-    
+
     if (!character) {
       return {
         characterId,
@@ -54,12 +54,12 @@ async function enhanceCharacter(characterId: string): Promise<EnhancementResult>
         errors: ['Character not found'],
       };
     }
-    
+
     // Step 1: Map to source character (if not already mapped)
     if (!character.sourceCharacterName) {
       console.log(`Mapping character: ${character.name}...`);
       const mappingResult = await mapCharacter(characterId);
-      
+
       if (mappingResult.success) {
         mappingSuccess = true;
         console.log(`  ✓ Mapped to: ${mappingResult.sourceCharacterName}`);
@@ -71,20 +71,20 @@ async function enhanceCharacter(characterId: string): Promise<EnhancementResult>
       mappingSuccess = true;
       console.log(`  ✓ Already mapped to: ${character.sourceCharacterName}`);
     }
-    
+
     // Step 2: Run voice matching (80% threshold)
     console.log(`Matching voice for: ${character.name}...`);
     const voiceMatchResult = await matchVoiceToCharacter(characterId, 0.8);
-    
+
     if (voiceMatchResult.success && voiceMatchResult.voiceName) {
       voiceMatchSuccess = true;
       voiceMatchScore = voiceMatchResult.matchScore;
       recommendedVoice = voiceMatchResult.voiceName;
-      
+
       console.log(`  ✓ Best match: ${recommendedVoice} (${(voiceMatchScore! * 100).toFixed(1)}%)`);
-      
+
       // Update voice if it's different and match is good enough
-      if (character.voiceName !== recommendedVoice && voiceMatchScore >= 0.8) {
+      if (character.voiceName !== recommendedVoice && voiceMatchScore !== undefined && voiceMatchScore >= 0.8) {
         await prisma.personaTemplate.update({
           where: { id: characterId },
           data: { voiceName: recommendedVoice },
@@ -99,7 +99,7 @@ async function enhanceCharacter(characterId: string): Promise<EnhancementResult>
       errors.push(`Voice matching failed: ${voiceMatchResult.reason || 'No suitable voice found'}`);
       console.log(`  ✗ Voice matching failed: ${voiceMatchResult.reason}`);
     }
-    
+
     return {
       characterId,
       characterName: character.name,
@@ -126,52 +126,52 @@ async function enhanceCharacter(characterId: string): Promise<EnhancementResult>
  */
 async function enhanceAllCharacters() {
   console.log('Starting character profile enhancement...\n');
-  
+
   try {
     // Get all characters
     const characters = await prisma.personaTemplate.findMany({
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
     });
-    
+
     console.log(`Found ${characters.length} characters to enhance\n`);
-    
+
     const results: EnhancementResult[] = [];
     let successCount = 0;
     let needsReviewCount = 0;
-    
+
     // Process each character
     for (let i = 0; i < characters.length; i++) {
       const character = characters[i];
       console.log(`[${i + 1}/${characters.length}] Processing: ${character.name}`);
-      
+
       const result = await enhanceCharacter(character.id);
       results.push(result);
-      
+
       if (result.voiceMatchSuccess && result.voiceMatchScore && result.voiceMatchScore >= 0.8) {
         successCount++;
       } else {
         needsReviewCount++;
       }
-      
+
       console.log(''); // Blank line between characters
-      
+
       // Small delay to avoid overwhelming APIs
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    
+
     // Print summary
     console.log('\n=== Enhancement Summary ===');
     console.log(`Total characters: ${characters.length}`);
     console.log(`Successfully matched (≥80%): ${successCount}`);
     console.log(`Needs review (<80% or failed): ${needsReviewCount}`);
     console.log('');
-    
+
     // Print characters that need review
-    const needsReview = results.filter(r => 
+    const needsReview = results.filter(r =>
       !r.voiceMatchSuccess || !r.voiceMatchScore || r.voiceMatchScore < 0.8
     );
-    
+
     if (needsReview.length > 0) {
       console.log('Characters needing review:');
       for (const result of needsReview) {
@@ -184,7 +184,7 @@ async function enhanceAllCharacters() {
         }
       }
     }
-    
+
     return results;
   } catch (error) {
     console.error('Error enhancing characters:', error);

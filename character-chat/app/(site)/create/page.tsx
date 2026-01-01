@@ -20,7 +20,7 @@ export default function CreateCharacterPage() {
     getSubscriptionStatus(null).then(status => {
       setIsPremium(status.planId !== 'free');
       setLoading(false);
-      
+
       // Only show onboarding if premium
       if (status.planId === 'free') {
         setShowOnboarding(false);
@@ -55,7 +55,7 @@ export default function CreateCharacterPage() {
 
     setOnboardingData(data);
     setShowOnboarding(false);
-    
+
     // Redirect to home or character creation
     router.push('/');
   };
@@ -68,15 +68,15 @@ export default function CreateCharacterPage() {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full bg-zinc-50 items-center justify-center">
-        <div className="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      <div className="flex h-screen w-full bg-[#0f0f0f] items-center justify-center">
+        <div className="inline-block w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   // Show character creator for premium users, locked feature for free users
   return (
-    <div className="flex flex-col min-h-screen w-full bg-zinc-50">
+    <div className="flex flex-col min-h-screen w-full bg-[#0f0f0f]">
       {!isPremium ? (
         <div className="flex-1 flex items-center justify-center p-8">
           <LockedFeature
@@ -85,8 +85,8 @@ export default function CreateCharacterPage() {
             className="min-h-[400px] w-full max-w-2xl"
           >
             <div className="p-8">
-              <h2 className="text-2xl font-bold text-zinc-900 mb-4">Create Custom Characters</h2>
-              <p className="text-zinc-600 mb-6">
+              <h2 className="text-2xl font-bold text-white mb-4">Create Custom Characters</h2>
+              <p className="text-white/60 mb-6">
                 Design unique AI characters with custom personalities, voices, and appearances.
               </p>
             </div>

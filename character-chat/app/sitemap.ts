@@ -84,80 +84,77 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Get unique categories
     const categories = await db.personaTemplate.groupBy({
       by: ['category'],
-      where: {
-        category: { not: null },
-      },
     });
 
-    // Add category pages (with pagination)
-    categories.forEach((cat) => {
-      const categoryUrl = encodeURIComponent(cat.category || '');
-      // Add main category page
-      routes.push({
-        url: `${SITE_URL}/category/${categoryUrl}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: 0.8,
-      });
-      // Add paginated category pages (first 200 pages for 500k scale)
-      for (let page = 2; page <= 200; page++) {
+    // Add category pages (with pagination) - filter nulls
+    categories
+      .filter((cat) => cat.category != null && cat.category !== '')
+      .forEach((cat) => {
+        const categoryUrl = encodeURIComponent(cat.category || '');
+        // Add main category page
         routes.push({
-          url: `${SITE_URL}/category/${categoryUrl}?page=${page}`,
+          url: `${SITE_URL}/category/${categoryUrl}`,
           lastModified: new Date(),
           changeFrequency: 'daily' as const,
-          priority: 0.6,
+          priority: 0.8,
         });
-      }
-    });
+        // Add paginated category pages (first 200 pages for 500k scale)
+        for (let page = 2; page <= 200; page++) {
+          routes.push({
+            url: `${SITE_URL}/category/${categoryUrl}?page=${page}`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: 0.6,
+          });
+        }
+      });
 
     // Get unique archetypes
     const archetypes = await db.personaTemplate.groupBy({
       by: ['archetype'],
-      where: {
-        archetype: { not: null },
-      },
     });
 
-    // Add archetype pages with deep pagination (200 pages)
-    archetypes.forEach((arch) => {
-      const archetypeUrl = encodeURIComponent(arch.archetype || '');
-      // Main archetype page
-      routes.push({
-        url: `${SITE_URL}/archetype/${archetypeUrl}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: 0.7,
-      });
-      // Paginated archetype pages (first 200 pages)
-      for (let page = 2; page <= 200; page++) {
+    // Add archetype pages with deep pagination (200 pages) - filter nulls
+    archetypes
+      .filter((arch) => arch.archetype != null && arch.archetype !== '')
+      .forEach((arch) => {
+        const archetypeUrl = encodeURIComponent(arch.archetype || '');
+        // Main archetype page
         routes.push({
-          url: `${SITE_URL}/archetype/${archetypeUrl}?page=${page}`,
+          url: `${SITE_URL}/archetype/${archetypeUrl}`,
           lastModified: new Date(),
           changeFrequency: 'daily' as const,
-          priority: 0.5,
+          priority: 0.7,
         });
-      }
-    });
+        // Paginated archetype pages (first 200 pages)
+        for (let page = 2; page <= 200; page++) {
+          routes.push({
+            url: `${SITE_URL}/archetype/${archetypeUrl}?page=${page}`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: 0.5,
+          });
+        }
+      });
 
     // Add category + archetype combination pages
     const combinations = await db.personaTemplate.groupBy({
       by: ['category', 'archetype'],
-      where: {
-        category: { not: null },
-        archetype: { not: null },
-      },
     });
 
-    combinations.forEach((combo) => {
-      const categoryUrl = encodeURIComponent(combo.category || '');
-      const archetypeUrl = encodeURIComponent(combo.archetype || '');
-      routes.push({
-        url: `${SITE_URL}/category/${categoryUrl}/archetype/${archetypeUrl}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: 0.6,
+    // Filter nulls and add combination pages
+    combinations
+      .filter((combo) => combo.category != null && combo.category !== '' && combo.archetype != null && combo.archetype !== '')
+      .forEach((combo) => {
+        const categoryUrl = encodeURIComponent(combo.category || '');
+        const archetypeUrl = encodeURIComponent(combo.archetype || '');
+        routes.push({
+          url: `${SITE_URL}/category/${categoryUrl}/archetype/${archetypeUrl}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.6,
+        });
       });
-    });
 
     // Add "top" listing pages with pagination
     const topTypes = ['popular', 'trending', 'most-viewed', 'most-chatted', 'newest', 'top-rated'];

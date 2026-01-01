@@ -7,6 +7,7 @@ import { audioManager } from '@/lib/audio/audioManager';
 interface VoiceButtonProps {
   text: string;
   voiceName: string;
+  messageId?: string; // Add messageId for tracking which message is playing
   disabled?: boolean;
   characterName?: string;
   archetype?: string;
@@ -15,11 +16,13 @@ interface VoiceButtonProps {
   description?: string | null;
   personaId?: string;
   styleHint?: string | null;
+  compact?: boolean; // Small button style for above messages
 }
 
-export default function VoiceButton({ 
-  text, 
-  voiceName, 
+export default function VoiceButton({
+  text,
+  voiceName,
+  messageId, // Add messageId parameter
   disabled,
   characterName,
   archetype,
@@ -28,41 +31,43 @@ export default function VoiceButton({
   description,
   personaId,
   styleHint,
+  compact = false, // Default to full-size button
 }: VoiceButtonProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [audioData, setAudioData] = useState<string | null>(null);
   const [cachedPlaybackRate, setCachedPlaybackRate] = useState<number>(1.25); // Store playback rate with cached audio
   const [cachedSampleRate, setCachedSampleRate] = useState<number>(24000); // Store sample rate with cached audio
+  const [cachedFormat, setCachedFormat] = useState<string | undefined>(undefined); // Store format (mp3, wav, pcm) with cached audio
   const abortControllerRef = useRef<AbortController | null>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Extract only dialogue (quoted text) for TTS
+  // Extract dialogue for TTS by removing action descriptions (*actions*)
+  // Character.AI style uses *asterisks* for actions/emotions, plain text for dialogue
   const extractDialogue = (text: string): string => {
-    const dialogueParts: string[] = [];
-    const dialogueRegex = /'([^']+)'/g;
-    
-    let match;
-    while ((match = dialogueRegex.exec(text)) !== null) {
-      dialogueParts.push(match[1]);
-    }
-    
-    // If no dialogue found, return empty string (don't read action descriptions)
-    if (dialogueParts.length === 0) {
-      return '';
-    }
-    
-    // Join all dialogue parts with pauses
-    return dialogueParts.join('. ');
+    // Remove action descriptions (text between asterisks like *smiles*)
+    let dialogueText = text.replace(/\*[^*]+\*/g, '');
+
+    // Clean up extra whitespace created by removing actions
+    dialogueText = dialogueText.replace(/\s+/g, ' ').trim();
+
+    return dialogueText;
   };
 
   // Subscribe to audio manager state changes
   useEffect(() => {
     const unsubscribe = audioManager.subscribe((isPlayingAudio) => {
-      setIsPlaying(isPlayingAudio);
+      // Only update playing state if this message is the currently playing one
+      const currentMessageId = audioManager.getCurrentMessageId();
+      if (currentMessageId === messageId || !isPlayingAudio) {
+        setIsPlaying(isPlayingAudio);
+      } else if (isPlayingAudio && currentMessageId !== messageId) {
+        // Some other message is playing, this one should show "Play"
+        setIsPlaying(false);
+      }
     });
     return unsubscribe;
-  }, []);
+  }, [messageId]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -82,15 +87,15 @@ export default function VoiceButton({
 
   const handlePlay = async () => {
     // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/components/VoiceButton.tsx:53',message:'handlePlay called',data:{isPlaying,hasAudioData:!!audioData,voiceName,characterName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/components/VoiceButton.tsx:53', message: 'handlePlay called', data: { isPlaying, hasAudioData: !!audioData, voiceName, characterName }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
     // #endregion
-    
+
     // Clear any pending debounce
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
       debounceTimeoutRef.current = null;
     }
-    
+
     // Debounce rapid clicks (50ms - reduced for responsiveness)
     debounceTimeoutRef.current = setTimeout(async () => {
       // If already playing, stop it first
@@ -99,12 +104,12 @@ export default function VoiceButton({
         setIsPlaying(false);
         return;
       }
-      
+
       // If loading, don't allow another click
       if (isLoading) {
         return;
       }
-      
+
       await executePlay();
     }, 50);
   };
@@ -113,7 +118,7 @@ export default function VoiceButton({
     try {
       // Extract ONLY dialogue for TTS
       const dialogueText = extractDialogue(text);
-      
+
       // If no dialogue found, silently skip (don't show alert - user can see formatted message)
       if (!dialogueText || dialogueText.trim().length === 0) {
         // Silently return - the formatted message already shows action descriptions
@@ -121,7 +126,7 @@ export default function VoiceButton({
       }
 
       setIsLoading(true);
-      
+
       // Stop any currently playing audio (including auto-play from ChatWindow)
       audioManager.stop();
       // If we don't have cached audio, fetch it
@@ -130,19 +135,19 @@ export default function VoiceButton({
         if (abortControllerRef.current) {
           abortControllerRef.current.abort();
         }
-        
+
         // Create new AbortController for this request
         abortControllerRef.current = new AbortController();
-        
+
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/components/VoiceButton.tsx:108',message:'Fetching fresh TTS (first play)',data:{dialogueLength:dialogueText.length,voiceName,characterName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/components/VoiceButton.tsx:108', message: 'Fetching fresh TTS (first play)', data: { dialogueLength: dialogueText.length, voiceName, characterName }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
         // #endregion
-        
+
         const response = await fetch('/api/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           signal: abortControllerRef.current.signal, // Add abort signal
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             text: dialogueText, // ONLY dialogue, not action descriptions
             voiceName,
             // Pass personaId and styleHint for consistent voice/accent
@@ -163,10 +168,10 @@ export default function VoiceButton({
             setIsLoading(false);
             return;
           }
-          
+
           let errorData: any = {};
           const contentType = response.headers.get('content-type');
-          
+
           // Try to parse error response
           try {
             if (contentType?.includes('application/json')) {
@@ -178,7 +183,7 @@ export default function VoiceButton({
           } catch (parseError) {
             errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
           }
-          
+
           // Check if it's a quota error - handle gracefully
           if (errorData.quotaExceeded || response.status === 429 || errorData.error?.includes('quota')) {
             // Don't throw - just log and return (modal will be shown by ChatWindow)
@@ -187,7 +192,7 @@ export default function VoiceButton({
             setIsPlaying(false);
             return;
           }
-          
+
           // For other errors, show user-friendly message (don't throw - handle gracefully)
           const errorMessage = errorData.error || errorData.reason || `Failed to generate TTS (${response.status})`;
           console.error('TTS API Error:', {
@@ -196,7 +201,7 @@ export default function VoiceButton({
             errorData: Object.keys(errorData).length > 0 ? errorData : 'Empty error response',
             url: '/api/tts',
           });
-          
+
           // Don't throw - just show error and return
           setIsLoading(false);
           setIsPlaying(false);
@@ -209,7 +214,7 @@ export default function VoiceButton({
           setIsLoading(false);
           return;
         }
-        
+
         // Parse response JSON safely
         let data: any;
         try {
@@ -221,7 +226,7 @@ export default function VoiceButton({
           alert('Audio error: Invalid response from server. Please try again.');
           return;
         }
-        
+
         // Check if audio data exists
         if (!data.audio) {
           console.error('No audio data in TTS response:', data);
@@ -230,42 +235,44 @@ export default function VoiceButton({
           setIsPlaying(false);
           return;
         }
-        
+
         // Check again after async operation
         if (abortControllerRef.current?.signal.aborted) {
           setIsLoading(false);
           return;
         }
-        
+
         setAudioData(data.audio);
 
         // Calculate playback rate and clamp to reasonable range (0.8x to 1.5x to prevent squeaky sounds)
         const rawPlaybackRate = data.playbackRate || data.parameters?.speed || 1.25;
         const playbackRate = Math.max(0.8, Math.min(1.5, rawPlaybackRate)); // Clamp between 0.8x and 1.5x
         const sampleRate = data.sampleRate || 24000;
-        
-        // Store playback rate and sample rate with cached audio
+
+        // Store playback rate, sample rate, and format with cached audio
         setCachedPlaybackRate(playbackRate);
         setCachedSampleRate(sampleRate);
+        setCachedFormat(data.format);
 
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/components/VoiceButton.tsx:163',message:'TTS response received (first play)',data:{hasAudio:!!data.audio,sampleRate,rawPlaybackRate,clampedPlaybackRate:playbackRate,voiceUsed:data.voiceUsed},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/components/VoiceButton.tsx:163', message: 'TTS response received (first play)', data: { hasAudio: !!data.audio, sampleRate, rawPlaybackRate, clampedPlaybackRate: playbackRate, voiceUsed: data.voiceUsed, format: data.format }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
         // #endregion
 
         // Use shared audio manager to play audio (automatically stops any currently playing audio)
+        // Pass format parameter for MP3 vs PCM handling
         try {
-          await audioManager.playAudio(data.audio, sampleRate, playbackRate);
+          await audioManager.playAudio(data.audio, sampleRate, playbackRate, messageId, data.format);
         } catch (error) {
           console.error('Audio playback error:', error);
         }
       } else {
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/components/VoiceButton.tsx:177',message:'Playing cached audio (second play)',data:{hasAudioData:!!audioData,cachedPlaybackRate,cachedSampleRate},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/components/VoiceButton.tsx:177', message: 'Playing cached audio (second play)', data: { hasAudioData: !!audioData, cachedPlaybackRate, cachedSampleRate }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
-        
+
         // Use shared audio manager to play cached audio (automatically stops any currently playing audio)
         try {
-          await audioManager.playAudio(audioData, cachedSampleRate, cachedPlaybackRate);
+          await audioManager.playAudio(audioData, cachedSampleRate, cachedPlaybackRate, messageId, cachedFormat);
         } catch (error) {
           console.error('Audio playback error:', error);
         }
@@ -276,11 +283,11 @@ export default function VoiceButton({
         setIsLoading(false);
         return;
       }
-      
+
       console.error('Error playing audio:', error);
       // Check if it's a quota error - show modal once, not alert every time
       const errorMsg = error.message || 'Failed to play audio';
-      
+
       // For quota errors, show modal only once (component will handle state)
       if (errorMsg.includes('quota') || errorMsg.includes('Quota exceeded')) {
         // Don't show alert - let the QuotaExceededModal handle it
@@ -296,31 +303,37 @@ export default function VoiceButton({
     }
   };
 
+  // Compact style: small icon-only button
+  // Full style: larger button with text
+  const buttonClasses = compact
+    ? 'flex items-center justify-center gap-1 px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-white rounded-full text-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm'
+    : 'flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg min-w-[120px]';
+
+  const iconSize = compact ? 12 : 20;
+
   return (
     <button
       onClick={handlePlay}
       disabled={disabled || isLoading}
-      className="flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg min-w-[120px]"
+      className={buttonClasses}
       title={isPlaying ? 'Stop' : 'Play voice'}
     >
       {isLoading ? (
         <>
-          <Loader2 size={20} className="animate-spin" />
-          <span>Loading...</span>
+          <Loader2 size={iconSize} className="animate-spin" />
+          {!compact && <span>Loading...</span>}
         </>
       ) : isPlaying ? (
         <>
-          <Pause size={20} fill="currentColor" />
-          <span>Pause</span>
+          <Pause size={iconSize} fill="currentColor" />
+          {!compact && <span>Pause</span>}
         </>
       ) : (
         <>
-          <Play size={20} fill="currentColor" />
-          <span>Play</span>
+          <Play size={iconSize} fill="currentColor" />
+          {!compact && <span>Play</span>}
         </>
       )}
     </button>
   );
 }
-
-

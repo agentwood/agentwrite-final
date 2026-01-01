@@ -25,14 +25,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export async function generateStaticParams() {
   const categories = await db.personaTemplate.groupBy({
     by: ['category'],
-    where: {
-      category: { not: null },
-    },
   });
 
-  return categories.map((cat) => ({
-    category: encodeURIComponent(cat.category || ''),
-  }));
+  return categories
+    .filter((cat) => cat.category != null && cat.category !== '')
+    .map((cat) => ({
+      category: encodeURIComponent(cat.category!),
+    }));
 }
 
 export default async function CategoryPage({ params, searchParams }: PageProps) {
@@ -146,11 +145,10 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                       <a
                         key={page}
                         href={`${baseUrl}${page > 1 ? `?page=${page}` : ''}`}
-                        className={`px-4 py-2 rounded-lg ${
-                          page === pageNum
+                        className={`px-4 py-2 rounded-lg ${page === pageNum
                             ? 'bg-indigo-600 text-white'
                             : 'bg-white border border-zinc-200 hover:bg-zinc-50'
-                        }`}
+                          }`}
                       >
                         {page}
                       </a>

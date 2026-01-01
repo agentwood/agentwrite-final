@@ -1,0 +1,2 @@
+# requirements.txt for voice library builder
+requests>=2.31.0

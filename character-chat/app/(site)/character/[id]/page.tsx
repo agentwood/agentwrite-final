@@ -60,7 +60,7 @@ export async function generateStaticParams() {
 
 export default async function CharacterProfilePage({ params }: PageProps) {
   const { id } = await params;
-  
+
   const persona = await db.personaTemplate.findUnique({
     where: { id },
     include: {
@@ -80,8 +80,8 @@ export default async function CharacterProfilePage({ params }: PageProps) {
     notFound();
   }
 
-  // Get chat starters from system examples or generate defaults
-  const chatStarters = persona.system?.examples?.slice(0, 4).map((ex: any) => ex.user) || [
+  // Generate default chat starters
+  const chatStarters = [
     `Tell me about yourself, ${persona.name}`,
     `What's your favorite thing to talk about?`,
     `How would you describe your personality?`,
@@ -94,15 +94,15 @@ export default async function CharacterProfilePage({ params }: PageProps) {
       personaId: id,
       userId: undefined,
     },
-  }).catch(() => {}); // Silent fail
+  }).catch(() => { }); // Silent fail
 
   // Increment view count (async)
   db.personaTemplate.update({
     where: { id },
-    data: { 
+    data: {
       viewCount: { increment: 1 },
     },
-  }).catch(() => {}); // Silent fail
+  }).catch(() => { }); // Silent fail
 
   const structuredData = generateCharacterSchema({
     id: persona.id,
@@ -131,8 +131,8 @@ export default async function CharacterProfilePage({ params }: PageProps) {
           saveCount: (persona as any).saveCount || 0,
           commentCount: (persona as any).commentCount || 0,
           likes: 0,
-          expertise: extractExpertise(persona.system?.persona || ''),
-          simplePleasures: extractSimplePleasures(persona.system?.persona || ''),
+          expertise: extractExpertise(persona.archetype || persona.category || ''),
+          simplePleasures: extractSimplePleasures(persona.description || ''),
           chatStarters: chatStarters,
         }}
       />

@@ -19,7 +19,7 @@ export const revalidate = 86400;
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { letter } = await params;
   const upperLetter = letter.toUpperCase();
-  
+
   return generateSEOMetadata({
     title: `AI Characters Starting with ${upperLetter} - Browse ${upperLetter} Characters`,
     description: `Discover AI characters whose names start with ${upperLetter}. Browse our collection of ${upperLetter} characters and start chatting.`,
@@ -53,7 +53,6 @@ export default async function CharactersByLetterPage({ params, searchParams }: P
       where: {
         name: {
           startsWith: upperLetter,
-          mode: 'insensitive',
         },
         viewCount: { gte: 0 },
       },
@@ -78,7 +77,6 @@ export default async function CharactersByLetterPage({ params, searchParams }: P
       where: {
         name: {
           startsWith: upperLetter,
-          mode: 'insensitive',
         },
       },
     }),
@@ -156,11 +154,10 @@ export default async function CharactersByLetterPage({ params, searchParams }: P
                       <a
                         key={page}
                         href={`${baseUrl}${page > 1 ? `?page=${page}` : ''}`}
-                        className={`px-4 py-2 rounded-lg ${
-                          page === pageNum
+                        className={`px-4 py-2 rounded-lg ${page === pageNum
                             ? 'bg-indigo-600 text-white'
                             : 'bg-white border border-zinc-200 hover:bg-zinc-50'
-                        }`}
+                          }`}
                       >
                         {page}
                       </a>

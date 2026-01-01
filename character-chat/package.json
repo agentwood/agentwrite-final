@@ -23,22 +23,27 @@
     "voice-audit:test": "tsx scripts/voice-audit-system.ts --test",
     "test-features": "tsx scripts/test-new-features.ts",
     "map-characters": "tsx scripts/map-characters.ts",
-    "enhance-profiles": "tsx scripts/enhance-character-profiles.ts"
+    "enhance-profiles": "tsx scripts/enhance-character-profiles.ts",
+    "generate-avatars": "tsx scripts/generate-avatars.ts",
+    "update-avatar-urls": "tsx scripts/update-avatar-urls.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@google/genai": "^1.33.0",
+    "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^6.19.1",
     "@supabase/supabase-js": "^2.89.0",
     "better-sqlite3": "^12.5.0",
     "lucide-react": "^0.561.0",
     "next": "16.0.10",
     "react": "19.2.1",
-    "react-dom": "19.2.1"
+    "react-dom": "19.2.1",
+    "stripe": "^20.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@tailwindcss/postcss": "^4",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20.19.27",
@@ -47,6 +52,7 @@
     "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
+    "playwright": "^1.57.0",
     "prisma": "^6.19.1",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",

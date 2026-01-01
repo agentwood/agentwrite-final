@@ -32,8 +32,12 @@ export default function RootLayout({
   const websiteSchema = generateWebSiteSchema();
 
   return (
-    <html lang="en" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <body className="text-[#0f172a] selection:bg-indigo-100 selection:text-indigo-900 bg-[#fcfcfc] antialiased" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <html lang="en" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <body
+        className="text-white selection:bg-purple-500 selection:text-white bg-[#0f0f0f] antialiased"
+        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        suppressHydrationWarning
+      >
         <StructuredData data={organizationSchema} />
         <StructuredData data={websiteSchema} />
         <AgeGate>

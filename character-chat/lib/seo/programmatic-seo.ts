@@ -21,10 +21,10 @@ export async function generateProgrammaticPages(): Promise<ProgrammaticPageConfi
 
   try {
     // Category pages
-    const categories = await db.personaTemplate.groupBy({
+    const allCategories = await db.personaTemplate.groupBy({
       by: ['category'],
-      where: { category: { not: null } },
     });
+    const categories = allCategories.filter(cat => cat.category !== null && cat.category !== '');
 
     categories.forEach((cat) => {
       const categoryUrl = encodeURIComponent(cat.category || '');
@@ -45,10 +45,10 @@ export async function generateProgrammaticPages(): Promise<ProgrammaticPageConfi
     });
 
     // Archetype pages
-    const archetypes = await db.personaTemplate.groupBy({
+    const allArchetypes = await db.personaTemplate.groupBy({
       by: ['archetype'],
-      where: { archetype: { not: null } },
     });
+    const archetypes = allArchetypes.filter(arch => arch.archetype !== null && arch.archetype !== '');
 
     archetypes.forEach((arch) => {
       const archetypeUrl = encodeURIComponent(arch.archetype || '');
@@ -68,13 +68,13 @@ export async function generateProgrammaticPages(): Promise<ProgrammaticPageConfi
     });
 
     // Category + Archetype combination pages
-    const combinations = await db.personaTemplate.groupBy({
+    const allCombinations = await db.personaTemplate.groupBy({
       by: ['category', 'archetype'],
-      where: {
-        category: { not: null },
-        archetype: { not: null },
-      },
     });
+    const combinations = allCombinations.filter(combo =>
+      combo.category !== null && combo.category !== '' &&
+      combo.archetype !== null && combo.archetype !== ''
+    );
 
     combinations.forEach((combo) => {
       const categoryUrl = encodeURIComponent(combo.category || '');
@@ -131,27 +131,27 @@ export async function estimateIndexedPages(): Promise<number> {
     count += characterCount;
 
     // Category pages with pagination
-    const categories = await db.personaTemplate.groupBy({
+    const allCategories = await db.personaTemplate.groupBy({
       by: ['category'],
-      where: { category: { not: null } },
     });
+    const categories = allCategories.filter(cat => cat.category !== null && cat.category !== '');
     count += categories.length * 50; // 50 pages per category
 
     // Archetype pages with pagination
-    const archetypes = await db.personaTemplate.groupBy({
+    const allArchetypes = await db.personaTemplate.groupBy({
       by: ['archetype'],
-      where: { archetype: { not: null } },
     });
+    const archetypes = allArchetypes.filter(arch => arch.archetype !== null && arch.archetype !== '');
     count += archetypes.length * 50; // 50 pages per archetype
 
     // Category + Archetype combinations
-    const combinations = await db.personaTemplate.groupBy({
+    const allCombinations = await db.personaTemplate.groupBy({
       by: ['category', 'archetype'],
-      where: {
-        category: { not: null },
-        archetype: { not: null },
-      },
     });
+    const combinations = allCombinations.filter(combo =>
+      combo.category !== null && combo.category !== '' &&
+      combo.archetype !== null && combo.archetype !== ''
+    );
     count += combinations.length;
 
     // Top listing pages

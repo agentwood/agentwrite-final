@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const trending = searchParams.get('trending') === 'true';
     const archetype = searchParams.get('archetype');
 
-    const where: any = {};
+    const where: any = { voiceReady: true }; // Only show characters with unique voices
     if (category) where.category = category;
     if (featured) where.featured = true;
     if (trending) where.trending = true;
@@ -37,11 +37,11 @@ export async function GET(request: NextRequest) {
         retentionScore: true,
         createdAt: true,
       },
-      orderBy: featured 
+      orderBy: featured
         ? { retentionScore: 'desc' }
         : trending
-        ? { retentionScore: 'desc' }
-        : { createdAt: 'desc' },
+          ? { retentionScore: 'desc' }
+          : { createdAt: 'desc' },
     });
 
     return NextResponse.json({ personas });

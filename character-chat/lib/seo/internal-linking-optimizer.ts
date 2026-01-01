@@ -118,13 +118,28 @@ export async function generateOptimizedLinks(
     .sort((a, b) => b.relevance - a.relevance)
     .slice(0, maxLinks * 2); // Get more to filter
 
-  // Apply compliance filtering
-  const compliantLinks = generateNaturalLinks(sortedLinks, maxLinks);
+  // Apply compliance filtering - map to expected format
+  const naturalLinks = generateNaturalLinks(
+    sortedLinks.map(link => ({
+      url: link.toUrl,
+      anchorText: link.anchorText,
+      relevance: link.relevance
+    })),
+    maxLinks
+  );
 
-  // Verify compliance
+  // Map back to InternalLink format
+  const compliantLinks: InternalLink[] = naturalLinks.map((link) => ({
+    fromUrl: `${SITE_URL}/character/${characterId}`,
+    toUrl: link.url,
+    anchorText: link.anchorText,
+    relevance: link.relevance
+  }));
+
+  // Verify compliance (using natural links format)
   const compliance = checkLinkingCompliance(
     `${process.env.NEXT_PUBLIC_SITE_URL || 'https://agentwood.xyz'}/character/${characterId}`,
-    compliantLinks
+    naturalLinks
   );
 
   if (!compliance.natural && compliance.score < 70) {
@@ -144,11 +159,11 @@ export async function generateListingPageLinks(
   currentPage: number = 1
 ): Promise<InternalLink[]> {
   const links: InternalLink[] = [];
-  const baseUrl = pageType === 'top' 
+  const baseUrl = pageType === 'top'
     ? `${SITE_URL}/top/${pageValue}`
     : pageType === 'category'
-    ? `${SITE_URL}/category/${encodeURIComponent(pageValue)}`
-    : `${SITE_URL}/archetype/${encodeURIComponent(pageValue)}`;
+      ? `${SITE_URL}/category/${encodeURIComponent(pageValue)}`
+      : `${SITE_URL}/archetype/${encodeURIComponent(pageValue)}`;
 
   // Pagination links
   if (currentPage > 1) {

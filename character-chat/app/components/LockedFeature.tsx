@@ -24,7 +24,7 @@ export default function LockedFeature({
       <div className="blur-sm pointer-events-none select-none">
         {children}
       </div>
-      
+
       {/* Lock overlay */}
       <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl border-2 border-dashed border-zinc-300">
         <div className="text-center p-6">
@@ -36,7 +36,7 @@ export default function LockedFeature({
           </h3>
           <p className="text-sm text-zinc-600 mb-4 max-w-xs">
             Upgrade to <span className="font-semibold text-indigo-600">
-              {planRequired === 'starter' ? 'Talkie+ Standard' : 'Talkie+ Pro'}
+              {planRequired === 'starter' ? 'Agentwood+ Standard' : 'Agentwood+ Pro'}
             </span> to unlock this feature
           </p>
           {showUpgradeButton && (

@@ -55,6 +55,27 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // 🎯 Automatically trigger voice audit via n8n
+    try {
+      const webhookUrl = process.env.N8N_WEBHOOK_URL || 'http://localhost:5678/webhook/voice-audit-trigger';
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          characterId: persona.id,
+          characterName: persona.name,
+          description: persona.description || persona.tagline || '',
+          voiceName: persona.voiceName,
+          category: persona.category,
+          archetype: persona.archetype || 'general',
+        }),
+      });
+      console.log(`✅ Voice audit triggered for: ${persona.name}`);
+    } catch (auditError) {
+      // Don't fail character creation if audit fails
+      console.error('Voice audit trigger failed (non-critical):', auditError);
+    }
+
     return NextResponse.json({
       success: true,
       persona: {

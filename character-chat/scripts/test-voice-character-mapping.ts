@@ -81,44 +81,44 @@ const VOICE_GENDER_MAP: Record<string, 'male' | 'female' | 'neutral'> = {
 
 function extractGender(text: string): string | undefined {
   const lower = text.toLowerCase();
-  
+
   // Direct mentions
-  if (lower.includes('male') || lower.includes('man') || lower.includes('guy') || 
-      lower.includes('he ') || lower.includes('his ') || lower.includes('him ')) {
+  if (lower.includes('male') || lower.includes('man') || lower.includes('guy') ||
+    lower.includes('he ') || lower.includes('his ') || lower.includes('him ')) {
     return 'male';
   }
   if (lower.includes('female') || lower.includes('woman') || lower.includes('girl') ||
-      lower.includes('she ') || lower.includes('her ') || lower.includes('hers ')) {
+    lower.includes('she ') || lower.includes('her ') || lower.includes('hers ')) {
     return 'female';
   }
-  
+
   // Name-based heuristics (common patterns)
   const malePatterns = /\b(he|his|him|himself|mr\.|mister|sir|gentleman)\b/i;
   const femalePatterns = /\b(she|her|hers|herself|mrs\.|miss|ms\.|lady|woman)\b/i;
-  
+
   if (malePatterns.test(text)) return 'male';
   if (femalePatterns.test(text)) return 'female';
-  
+
   return undefined;
 }
 
 function extractAge(text: string): string | undefined {
   const lower = text.toLowerCase();
-  
+
   // Age ranges
-  if (lower.includes('young') || lower.includes('teen') || lower.includes('20s') || 
-      lower.includes('early 20') || lower.includes('college')) {
+  if (lower.includes('young') || lower.includes('teen') || lower.includes('20s') ||
+    lower.includes('early 20') || lower.includes('college')) {
     return 'young';
   }
   if (lower.includes('middle-aged') || lower.includes('40s') || lower.includes('50s') ||
-      lower.includes('adult') || lower.includes('professional')) {
+    lower.includes('adult') || lower.includes('professional')) {
     return 'middle';
   }
   if (lower.includes('old') || lower.includes('elderly') || lower.includes('senior') ||
-      lower.includes('70s') || lower.includes('80s') || lower.includes('retired')) {
+    lower.includes('70s') || lower.includes('80s') || lower.includes('retired')) {
     return 'elderly';
   }
-  
+
   // Extract numeric age
   const ageMatch = text.match(/\b(\d{1,2})\s*(?:years?\s*old|age|aged)\b/i);
   if (ageMatch) {
@@ -127,14 +127,14 @@ function extractAge(text: string): string | undefined {
     if (age < 60) return 'middle';
     return 'elderly';
   }
-  
+
   return undefined;
 }
 
 function extractPersonality(text: string): string | undefined {
   const lower = text.toLowerCase();
   const traits: string[] = [];
-  
+
   if (lower.includes('friendly') || lower.includes('warm') || lower.includes('kind')) {
     traits.push('friendly');
   }
@@ -150,16 +150,16 @@ function extractPersonality(text: string): string | undefined {
   if (lower.includes('authoritative') || lower.includes('confident') || lower.includes('strong')) {
     traits.push('authoritative');
   }
-  
+
   return traits.length > 0 ? traits.join(', ') : undefined;
 }
 
 function assessMatch(character: any, extracted: any): { quality: 'good' | 'warning' | 'poor'; issues: string[] } {
   const issues: string[] = [];
-  
+
   const voiceGender = VOICE_GENDER_MAP[character.voiceName.toLowerCase()];
   const charGender = extracted.gender;
-  
+
   // Gender mismatch
   if (voiceGender && charGender) {
     if (voiceGender === 'male' && charGender !== 'male') {
@@ -168,13 +168,13 @@ function assessMatch(character: any, extracted: any): { quality: 'good' | 'warni
       issues.push(`Gender mismatch: Voice is female but character appears ${charGender}`);
     }
   }
-  
+
   // Age-voice appropriateness (rough heuristic)
   const voiceName = character.voiceName.toLowerCase();
   if (extracted.age === 'elderly' && (voiceName.includes('energetic') || voiceName === 'charon')) {
     issues.push(`Age mismatch: Elderly character with energetic voice`);
   }
-  
+
   // Personality-voice match
   const personality = extracted.personality?.toLowerCase() || '';
   if (personality.includes('energetic') && voiceName !== 'charon') {
@@ -183,12 +183,12 @@ function assessMatch(character: any, extracted: any): { quality: 'good' | 'warni
   if (personality.includes('calm') && voiceName !== 'pulcherrima') {
     // Could be okay, just a note
   }
-  
+
   let quality: 'good' | 'warning' | 'poor' = 'good';
   if (issues.length > 0) {
     quality = issues.some(i => i.includes('Gender mismatch')) ? 'poor' : 'warning';
   }
-  
+
   return { quality, issues };
 }
 
@@ -197,7 +197,7 @@ async function main() {
   console.log('Voice-Character Mapping Test');
   console.log('='.repeat(60));
   console.log();
-  
+
   // Fetch characters that use the test voices
   const testVoices = Object.keys(TEST_AUDIO_MAP);
   const characters = await db.personaTemplate.findMany({
@@ -217,52 +217,56 @@ async function main() {
     },
     take: 20, // Limit for testing
   });
-  
+
   console.log(`Found ${characters.length} characters using test voices\n`);
-  
+
   const matches: CharacterMatch[] = [];
-  
+
   for (const char of characters) {
     const fullText = [char.description, char.tagline].filter(Boolean).join(' ');
-    
+
     const extracted = {
       gender: extractGender(fullText),
       age: extractAge(fullText),
       personality: extractPersonality(fullText),
     };
-    
+
     const audioFile = TEST_AUDIO_MAP[char.voiceName.toLowerCase()];
     const { quality, issues } = assessMatch(char, extracted);
-    
+
     matches.push({
-      character: char,
+      character: {
+        ...char,
+        description: char.description ?? undefined,
+        tagline: char.tagline ?? undefined,
+      },
       extracted,
       audioFile,
       matchQuality: quality,
       issues,
     });
   }
-  
+
   // Generate HTML report
   const htmlReport = generateHTMLReport(matches);
   const reportPath = path.join(__dirname, '../../poc/openvoice-demo/voice-character-mapping-report.html');
   fs.writeFileSync(reportPath, htmlReport);
-  
+
   // Generate console report
   console.log('='.repeat(60));
   console.log('Mapping Results');
   console.log('='.repeat(60));
   console.log();
-  
+
   const good = matches.filter(m => m.matchQuality === 'good').length;
   const warning = matches.filter(m => m.matchQuality === 'warning').length;
   const poor = matches.filter(m => m.matchQuality === 'poor').length;
-  
+
   console.log(`✅ Good matches: ${good}`);
   console.log(`⚠️  Warnings: ${warning}`);
   console.log(`❌ Poor matches: ${poor}`);
   console.log();
-  
+
   // Show poor matches
   if (poor > 0) {
     console.log('Poor Matches:');
@@ -274,7 +278,7 @@ async function main() {
       console.log(`  Issues: ${m.issues.join(', ')}`);
     });
   }
-  
+
   console.log(`\n📄 HTML Report: ${reportPath}`);
   console.log(`\nOpen the HTML file in your browser to see the full report and play audio files.`);
 }
@@ -283,7 +287,7 @@ function generateHTMLReport(matches: CharacterMatch[]): string {
   // Load audio files as base64 for embedding
   const audioBasePath = path.join(__dirname, '../../poc/openvoice-demo/sample-reference-audio');
   const audioBase64Map: Record<string, string> = {};
-  
+
   // Load all test audio files
   for (const [voice, filename] of Object.entries(TEST_AUDIO_MAP)) {
     const audioPath = path.join(audioBasePath, filename);
@@ -292,7 +296,7 @@ function generateHTMLReport(matches: CharacterMatch[]): string {
       audioBase64Map[filename] = audioBuffer.toString('base64');
     }
   }
-  
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>

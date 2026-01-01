@@ -4,10 +4,10 @@ import { getUserId } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const personaId = params.id;
+    const { id: personaId } = await params;
     const comments = await db.characterComment.findMany({
       where: {
         personaId,
@@ -41,10 +41,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const personaId = params.id;
+    const { id: personaId } = await params;
     const { text } = await request.json();
     const userId = getUserId() || 'anonymous';
 

@@ -16,8 +16,8 @@ import {
 } from './openVoiceTypes';
 
 const DEFAULT_API_URL = process.env.OPENVOICE_API_URL || process.env.OPENVOICE_LOCAL_URL || 'http://localhost:8000';
-const DEFAULT_TIMEOUT = 30000; // 30 seconds
-const DEFAULT_RETRIES = 3;
+const DEFAULT_TIMEOUT = 5000; // Reduced to 5 seconds to avoid long wait times
+const DEFAULT_RETRIES = 1; // Reduced to 1 retry
 const DEFAULT_RETRY_DELAY = 1000; // 1 second
 
 export class OpenVoiceClient {
@@ -25,6 +25,10 @@ export class OpenVoiceClient {
   private timeout: number;
   private retries: number;
   private retryDelay: number;
+
+  private static isServerDown: boolean = false;
+  private static lastFailureTime: number = 0;
+  private static readonly CIRCUIT_BREAKER_MS = 60000; // 1 minute
 
   constructor(
     apiUrl: string = DEFAULT_API_URL,
@@ -58,7 +62,7 @@ export class OpenVoiceClient {
    */
   async cloneVoice(referenceAudio: string | File | Blob): Promise<string> {
     let formData: FormData;
-    
+
     if (typeof referenceAudio === 'string') {
       // Base64 string - convert to blob
       const binaryString = atob(referenceAudio);
@@ -184,7 +188,12 @@ export class OpenVoiceClient {
     retryCount: number = 0
   ): Promise<Response> {
     const url = `${this.apiUrl}${endpoint}`;
-    
+
+    // Circuit breaker: skip if server is known to be down
+    if (OpenVoiceClient.isServerDown && Date.now() - OpenVoiceClient.lastFailureTime < OpenVoiceClient.CIRCUIT_BREAKER_MS) {
+      throw new Error('OpenVoice server marked as down (Circuit Breaker)');
+    }
+
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
@@ -196,6 +205,9 @@ export class OpenVoiceClient {
 
       clearTimeout(timeoutId);
 
+      // Successfully connected, reset circuit breaker
+      OpenVoiceClient.isServerDown = false;
+
       // Retry on 5xx errors
       if (response.status >= 500 && retryCount < this.retries) {
         await this.delay(this.retryDelay * (retryCount + 1));
@@ -204,6 +216,10 @@ export class OpenVoiceClient {
 
       return response;
     } catch (error: any) {
+      // Mark as down on network errors or timeouts
+      OpenVoiceClient.isServerDown = true;
+      OpenVoiceClient.lastFailureTime = Date.now();
+
       // Retry on network errors
       if (retryCount < this.retries && (error.name === 'AbortError' || error.name === 'TypeError')) {
         await this.delay(this.retryDelay * (retryCount + 1));

@@ -14,6 +14,7 @@ model PersonaTemplate {
   id           String  @id @default(cuid())
   seedId       String? @unique // From persona templates seed
   name         String
+  handle       String? // e.g., @marge_watch
   tagline      String?
   description  String? // Detailed character description
   greeting     String?
@@ -21,9 +22,19 @@ model PersonaTemplate {
   avatarUrl    String
   voiceName    String
   styleHint    String? // Voice style hint (LOCKED - always use this)
-  voiceSpeed   Float?  // Locked voice speed (0.5-2.0) - always use this for consistency
-  voicePitch   Float?  // Locked voice pitch (0.5-2.0) - always use this for consistency
+  voiceSpeed   Float? // Locked voice speed (0.5-2.0) - always use this for consistency
+  voicePitch   Float? // Locked voice pitch (0.5-2.0) - always use this for consistency
   systemPrompt String // Built from system.persona, etc.
+  
+  // New Character Profile Fields
+  age             Int?     // Character age (18+)
+  gender          String?  // M, F, NB
+  heritage        String?  // e.g., "American (AZ suburbs)"
+  accentProfile   String?  // Detailed accent description
+  ttsVoiceSpec    String?  // TTS voice specification for synthesis
+  faceDescription String?  // Face/Look description for avatar generation
+  prompts         String?  // JSON array of conversation starters
+  totalChats      String?  // Display chat count e.g., "450k"
 
   // OpenVoice integration
   referenceAudioUrl    String? // URL to reference audio file
@@ -53,6 +64,7 @@ model PersonaTemplate {
   retentionScore   Float     @default(0.0) // Calculated weekly
   featured         Boolean   @default(false)
   trending         Boolean   @default(false)
+  voiceReady       Boolean   @default(false) // Only show characters with unique cloned voices
   lastRankedAt     DateTime?
 
   createdAt DateTime @default(now())
@@ -213,20 +225,43 @@ model User {
   dateOfBirth   DateTime? // Date of birth for age verification
   ageVerified   Boolean   @default(false) // 18+ verification status
   ageVerifiedAt DateTime? // When age was verified
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
 
-  following         UserFollow[]
-  conversations     Conversation[]
-  views             PersonaView[]
-  feedback          MessageFeedback[]
-  voiceFeedback     VoiceFeedback[]
-  pinnedMessages    PinnedMessage[]
-  savedCharacters   CharacterSave[]
-  characterComments CharacterComment[]
+  // Subscription and Credits
+  subscriptionTier   String  @default("free") // "free", "premium"
+  stripeCustomerId   String? @unique
+  subscriptionId     String? @unique
+  subscriptionStatus String? // "active", "canceled", "past_due"
+  creditsBalance     Int     @default(100) // Starting credits for new users
+  
+  // Affiliate Program
+  referralCode      String?  @unique // Unique referral code
+  referredBy        String?  // Referral code of person who referred this user
+  referralCount     Int      @default(0) // Number of successful referrals
+  referralClicks    Int      @default(0) // Total clicks on referral link
+  affiliateEarnings Float    @default(0) // Total earnings from affiliates
+  unpaidEarnings    Float    @default(0) // Pending payout amount
+  stripeConnectId   String?  // Stripe Connect account for payouts
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  following          UserFollow[]
+  conversations      Conversation[]
+  views              PersonaView[]
+  feedback           MessageFeedback[]
+  voiceFeedback      VoiceFeedback[]
+  pinnedMessages     PinnedMessage[]
+  savedCharacters    CharacterSave[]
+  characterComments  CharacterComment[]
+  creditTransactions CreditTransaction[]
+  creditPurchases    CreditPurchase[]
+  referralPurchases  ReferralPurchase[]
+  payouts            Payout[]
 
   @@index([username])
   @@index([email])
+  @@index([subscriptionTier])
+  @@index([stripeCustomerId])
 }
 
 model UserFollow {
@@ -351,5 +386,112 @@ model CharacterComment {
 
   @@index([personaId])
   @@index([userId])
+  @@index([createdAt])
+}
+
+model TTSCache {
+  id          String   @id @default(cuid())
+  textHash    String // SHA256 hash of (text + voiceId + engine + params)
+  text        String // Original text (for debugging)
+  voiceId     String // ElevenLabs voice ID or engine identifier
+  engine      String // 'elevenlabs', 'xtts', 'gemini'
+  audioBase64 String // Cached audio as base64
+  format      String // 'mp3', 'wav'
+  contentType String // MIME type
+  sampleRate  Int // Audio sample rate
+  hitCount    Int      @default(0) // How many times this cache was used
+  lastUsed    DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@unique([textHash])
+  @@index([engine])
+  @@index([hitCount])
+  @@index([lastUsed])
+}
+
+// Credit Pack Configuration
+model CreditPack {
+  id            String   @id @default(cuid())
+  name          String // "Starter", "Plus", "Pro", "Ultimate"
+  credits       Int // 165, 475, 855, 9245
+  priceUsd      Float // 1.99, 5.99, 10.99, 119.99
+  stripePriceId String?  @unique
+  isActive      Boolean  @default(true)
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  purchases CreditPurchase[]
+
+  @@index([isActive])
+  @@index([displayOrder])
+}
+
+// Credit Purchase History
+model CreditPurchase {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creditPackId    String?
+  creditPack      CreditPack? @relation(fields: [creditPackId], references: [id], onDelete: SetNull)
+  creditsAdded    Int
+  amountPaid      Float
+  stripeSessionId String?     @unique
+  status          String      @default("pending") // "pending", "completed", "failed"
+  createdAt       DateTime    @default(now())
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Credit Transaction Log
+model CreditTransaction {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount       Int // Positive for purchases, negative for usage
+  actionType   String // "message", "voice", "image", "purchase", "refund"
+  description  String?
+  balanceAfter Int
+  metadata     String?  @default("{}") // JSON for additional context
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([actionType])
+  @@index([createdAt])
+}
+
+// Affiliate Program - Track referral purchases
+model ReferralPurchase {
+  id              String    @id @default(cuid())
+  referrerId      String
+  referrer        User      @relation(fields: [referrerId], references: [id], onDelete: Cascade)
+  purchaseAmount  Float     // Amount of the purchase
+  commissionRate  Float     @default(0.30) // 30% default
+  commission      Float     // Calculated commission
+  status          String    @default("pending") // pending, paid, held
+  holdUntil       DateTime? // 90-day hold period end date
+  createdAt       DateTime  @default(now())
+  paidAt          DateTime?
+
+  @@index([referrerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Affiliate Program - Payout history
+model Payout {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount     Float     // Payout amount
+  status     String    @default("processing") // processing, paid, failed
+  period     String    // e.g., "June 2023 Earnings"
+  createdAt  DateTime  @default(now())
+  paidAt     DateTime?
+
+  @@index([userId])
+  @@index([status])
   @@index([createdAt])
 }

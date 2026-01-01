@@ -34,7 +34,7 @@ export default function DiscoverPage() {
 
   useEffect(() => {
     loadPersonas();
-    
+
     // Check URL params for type filter
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -58,7 +58,7 @@ export default function DiscoverPage() {
       if (response.ok) {
         const data = await response.json();
         setPersonas(data.personas || []);
-        
+
         // Extract unique categories
         const uniqueCategories = Array.from(
           new Set((data.personas || []).map((p: Persona) => p.category))
@@ -104,21 +104,21 @@ export default function DiscoverPage() {
   };
 
   const featuredPersonas = personas.filter(p => p.featured);
-  const trendingPersonas = personas.filter(p => p.trending).sort((a, b) => 
+  const trendingPersonas = personas.filter(p => p.trending).sort((a, b) =>
     (b.interactionCount || 0) - (a.interactionCount || 0)
   );
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
+    <div className="min-h-screen flex bg-[#0f0f0f]">
       <Sidebar />
-      
+
       <div className="flex-1 flex flex-col">
         <Header />
-        
+
         <main className="flex-1 overflow-y-auto">
           {/* Ad Banner for Free Users */}
           <AdBanner variant="banner" />
-          
+
           {/* Hero Section */}
           <section className="bg-gradient-to-br from-indigo-600 via-purple-700 to-pink-600 text-white py-16 px-6">
             <div className="max-w-7xl mx-auto">
@@ -126,7 +126,7 @@ export default function DiscoverPage() {
               <p className="text-xl text-indigo-100 max-w-2xl">
                 Chat with AI characters powered by advanced machine learning
               </p>
-              
+
               {/* Search Bar */}
               <div className="mt-8 max-w-2xl">
                 <div className="relative">
@@ -149,60 +149,55 @@ export default function DiscoverPage() {
               <div className="flex items-center gap-2 overflow-x-auto mb-4">
                 <button
                   onClick={() => { setSelectedType('all'); setSelectedCategory('all'); }}
-                  className={`px-6 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
-                    selectedType === 'all'
+                  className={`px-6 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${selectedType === 'all'
                       ? 'bg-indigo-600 text-white shadow-lg'
                       : 'bg-white border-2 border-zinc-200 text-zinc-600 hover:border-indigo-300 hover:text-indigo-600'
-                  }`}
+                    }`}
                 >
                   All Characters
                 </button>
                 <button
                   onClick={() => { setSelectedType('human'); setSelectedCategory('all'); }}
-                  className={`px-6 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
-                    selectedType === 'human'
+                  className={`px-6 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${selectedType === 'human'
                       ? 'bg-blue-600 text-white shadow-lg'
                       : 'bg-white border-2 border-zinc-200 text-zinc-600 hover:border-blue-300 hover:text-blue-600'
-                  }`}
+                    }`}
                 >
                   👤 Human
                 </button>
                 <button
                   onClick={() => { setSelectedType('fantasy'); setSelectedCategory('all'); }}
-                  className={`px-6 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
-                    selectedType === 'fantasy'
+                  className={`px-6 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${selectedType === 'fantasy'
                       ? 'bg-pink-600 text-white shadow-lg'
                       : 'bg-white border-2 border-zinc-200 text-zinc-600 hover:border-pink-300 hover:text-pink-600'
-                  }`}
+                    }`}
                 >
                   ✨ Fantasy
                 </button>
               </div>
-              
+
               {/* Sub-category filters */}
               {selectedType !== 'all' && (
                 <div className="flex items-center gap-2 overflow-x-auto">
                   <button
                     onClick={() => setSelectedCategory('all')}
-                    className={`px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                      selectedCategory === 'all'
+                    className={`px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${selectedCategory === 'all'
                         ? 'bg-indigo-600 text-white shadow-lg'
                         : 'bg-white border border-zinc-200 text-zinc-600 hover:border-indigo-300 hover:text-indigo-600'
-                    }`}
+                      }`}
                   >
                     All {selectedType === 'human' ? 'Professions' : 'Waifus'}
                   </button>
-                  {categories.filter(cat => 
+                  {categories.filter(cat =>
                     selectedType === 'fantasy' ? cat === 'fantasy' : cat !== 'fantasy'
                   ).map((cat) => (
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                        selectedCategory === cat
+                      className={`px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${selectedCategory === cat
                           ? 'bg-indigo-600 text-white shadow-lg'
                           : 'bg-white border border-zinc-200 text-zinc-600 hover:border-indigo-300 hover:text-indigo-600'
-                      }`}
+                        }`}
                     >
                       {cat}
                     </button>
@@ -271,7 +266,7 @@ export default function DiscoverPage() {
                   {filteredPersonas.length} {filteredPersonas.length === 1 ? 'character' : 'characters'}
                 </span>
               </div>
-              
+
               {loading ? (
                 <div className="text-center py-12">
                   <div className="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />

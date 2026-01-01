@@ -43,10 +43,9 @@ export async function getTrendingTopics(limit: number = 20): Promise<TrendingTop
   }));
 
   // Add category-based trending topics
-  const categoryStats = await db.personaTemplate.groupBy({
+  const allCategoryStats = await db.personaTemplate.groupBy({
     by: ['category'],
     where: {
-      category: { not: null },
       interactionCount: { gt: 0 },
     },
     _sum: {
@@ -63,6 +62,9 @@ export async function getTrendingTopics(limit: number = 20): Promise<TrendingTop
     },
     take: 10,
   });
+
+  // Filter out null categories
+  const categoryStats = allCategoryStats.filter(cat => cat.category !== null);
 
   categoryStats.forEach(cat => {
     if (cat.category) {
@@ -88,7 +90,7 @@ export async function generateTrendingTopicPages(): Promise<Array<{
   keywords: string[];
 }>> {
   const topics = await getTrendingTopics(50);
-  
+
   return topics.map(topic => ({
     path: `/trending/${encodeURIComponent(topic.keyword.toLowerCase().replace(/\s+/g, '-'))}`,
     title: `Trending: ${topic.keyword} AI Characters`,

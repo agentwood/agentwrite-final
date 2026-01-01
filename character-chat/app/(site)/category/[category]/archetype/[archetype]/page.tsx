@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { category, archetype } = await params;
   const decodedCategory = decodeURIComponent(category);
   const decodedArchetype = decodeURIComponent(archetype);
-  
+
   return generateSEOMetadata({
     title: `${decodedArchetype} ${decodedCategory} AI Characters`,
     description: `Discover ${decodedArchetype.toLowerCase()} ${decodedCategory.toLowerCase()} AI characters. Chat with unique virtual personalities that match your interests.`,
@@ -37,16 +37,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export async function generateStaticParams() {
   const combinations = await db.personaTemplate.groupBy({
     by: ['category', 'archetype'],
-    where: {
-      category: { not: null },
-      archetype: { not: null },
-    },
   });
 
-  return combinations.map((combo) => ({
-    category: encodeURIComponent(combo.category || ''),
-    archetype: encodeURIComponent(combo.archetype || ''),
-  }));
+  return combinations
+    .filter((combo) => combo.category != null && combo.category !== '' && combo.archetype != null && combo.archetype !== '')
+    .map((combo) => ({
+      category: encodeURIComponent(combo.category!),
+      archetype: encodeURIComponent(combo.archetype!),
+    }));
 }
 
 export default async function CategoryArchetypePage({ params, searchParams }: PageProps) {
@@ -161,11 +159,10 @@ export default async function CategoryArchetypePage({ params, searchParams }: Pa
                       <a
                         key={page}
                         href={`${baseUrl}${page > 1 ? `?page=${page}` : ''}`}
-                        className={`px-4 py-2 rounded-lg ${
-                          page === pageNum
+                        className={`px-4 py-2 rounded-lg ${page === pageNum
                             ? 'bg-indigo-600 text-white'
                             : 'bg-white border border-zinc-200 hover:bg-zinc-50'
-                        }`}
+                          }`}
                       >
                         {page}
                       </a>

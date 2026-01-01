@@ -333,45 +333,45 @@ const VOICE_MAPPING: Record<string, AdvancedVoiceConfig> = {
 /**
  * Detect gender from name (basic heuristic)
  */
-function detectGenderFromName(name: string): 'male' | 'female' | 'neutral' {
+export function detectGenderFromName(name: string): 'male' | 'female' | 'neutral' {
   const nameLower = name.toLowerCase();
-  
+
   // Common female name endings
   const femaleEndings = ['a', 'ia', 'ina', 'ella', 'ette', 'elle', 'ana', 'ena', 'ina', 'ia'];
   // Common male name endings  
   const maleEndings = ['o', 'io', 'us', 'er', 'or', 'an', 'en', 'on', 'el', 'al'];
-  
+
   // Check endings
   for (const ending of femaleEndings) {
     if (nameLower.endsWith(ending) && nameLower.length > 3) {
       return 'female';
     }
   }
-  
+
   for (const ending of maleEndings) {
     if (nameLower.endsWith(ending) && nameLower.length > 3) {
       return 'male';
     }
   }
-  
+
   // Check for common female name patterns (expanded list)
   const femaleNames = ['maria', 'sophia', 'emily', 'sarah', 'anna', 'lisa', 'jessica', 'jennifer', 'nicole', 'rachel', 'elizabeth', 'michelle', 'ashley', 'amanda', 'melissa', 'deborah', 'stephanie', 'rebecca', 'laura', 'sharon', 'cynthia', 'kathleen', 'amy', 'angela', 'shirley', 'brenda', 'pamela', 'emma', 'nancy', 'betty', 'helen', 'sandra', 'donna', 'carol', 'ruth', 'kimberly', 'virginia', 'martha', 'debra', 'carolyn', 'christine', 'marie', 'janet', 'catherine', 'frances', 'ann', 'joyce', 'diane', 'alice', 'julie', 'heather', 'teresa', 'doris', 'gloria', 'evelyn', 'jean', 'cheryl', 'mildred', 'katherine', 'joan', 'judith', 'rose', 'janice', 'kelly', 'judy', 'christina', 'kathy', 'theresa', 'beverly', 'denise', 'tammy', 'irene', 'jane', 'lori', 'marilyn', 'andrea', 'kathryn', 'louise', 'sara', 'anne', 'jacqueline', 'wanda', 'bonnie', 'julia', 'ruby', 'lois', 'tina', 'phyllis', 'norma', 'paula', 'diana', 'annie', 'lillian', 'robin', 'peggy', 'crystal', 'gladys', 'rita', 'dawn', 'connie', 'florence', 'tracy', 'edna', 'tiffany', 'carmen', 'rosa', 'cindy', 'grace', 'wendy', 'victoria', 'edith', 'kim', 'sherry', 'sylvia', 'josephine', 'thelma', 'shannon', 'sheila', 'ethel', 'ellen', 'elaine', 'marjorie', 'carrie', 'charlotte', 'monica', 'esther', 'pauline', 'juanita', 'anita', 'rhonda', 'hazel', 'amber', 'eva', 'debbie', 'april', 'leslie', 'clara', 'lucille', 'jamie', 'joanne', 'eleanor', 'valerie', 'danielle', 'megan', 'alicia', 'suzanne', 'michele', 'gail', 'bertha', 'terri', 'gertrude', 'lucy', 'tonya', 'ella', 'stacey', 'wilma', 'gina', 'kristin', 'jessie', 'natalie', 'agnes', 'vera', 'charlene', 'bessie', 'delores', 'melinda', 'pearl', 'arlene', 'maureen', 'colleen', 'allison', 'tamara', 'joy', 'georgia', 'constance', 'lillie', 'claudia', 'jackie', 'marcia', 'tanya', 'nellie', 'minnie', 'marlene', 'heidi', 'glenda', 'lydia', 'viola', 'courtney', 'marian', 'stella', 'caroline', 'dora', 'vickie', 'mattie', 'maxine', 'irma', 'mabel', 'marsha', 'myrtle', 'lena', 'christy', 'deanna', 'patsy', 'hilda', 'gwendolyn', 'jennie', 'nora', 'margie', 'nina', 'cassandra', 'leah', 'penny', 'kay', 'priscilla', 'naomi', 'carole', 'brandy', 'olga', 'billie', 'dianne', 'tracey', 'leona', 'jenny', 'felicia', 'sonia', 'miriam', 'velma', 'becky', 'bobbie', 'vivian', 'roberta', 'holly', 'brittany', 'melanie', 'loretta', 'yolanda', 'jeanette', 'laurie', 'katie', 'kristen', 'vanessa', 'alma', 'sue', 'elsie', 'beth', 'jeanne', 'rosemary', 'linda', 'karen', 'susan'];
-  
+
   // Check for common male name patterns (expanded list)
   const maleNames = ['michael', 'john', 'david', 'james', 'robert', 'william', 'richard', 'joseph', 'thomas', 'charles', 'christopher', 'daniel', 'matthew', 'anthony', 'mark', 'donald', 'steven', 'paul', 'andrew', 'joshua', 'kenneth', 'kevin', 'brian', 'george', 'timothy', 'ronald', 'jason', 'edward', 'jeffrey', 'ryan', 'jacob', 'gary', 'nicholas', 'eric', 'jonathan', 'stephen', 'larry', 'justin', 'scott', 'brandon', 'benjamin', 'frank', 'gregory', 'raymond', 'alexander', 'patrick', 'jack', 'dennis', 'jerry', 'tyler', 'aaron', 'jose', 'henry', 'adam', 'douglas', 'nathan', 'zachary', 'kyle', 'noah', 'ethan', 'jeremy', 'walter', 'christian', 'keith', 'roger', 'terry', 'gerald', 'harold', 'sean', 'austin', 'carl', 'arthur', 'lawrence', 'dylan', 'jesse', 'jordan', 'bryan', 'billy', 'joe', 'bruce', 'ralph', 'roy', 'wayne', 'eugene', 'louis', 'philip', 'johnny', 'howard', 'alan', 'juan', 'willie', 'russell', 'harry', 'albert', 'randy', 'carlos', 'victor', 'jimmy', 'craig', 'bobby', 'phillip', 'samuel', 'fred'];
-  
+
   for (const name of femaleNames) {
     if (nameLower.includes(name)) {
       return 'female';
     }
   }
-  
+
   for (const name of maleNames) {
     if (nameLower.includes(name)) {
       return 'male';
     }
   }
-  
+
   return 'neutral';
 }
 
@@ -390,9 +390,9 @@ export function getAdvancedVoiceConfig(
   const catLower = category.toLowerCase();
   const taglineLower = (tagline || '').toLowerCase();
   const descLower = (description || '').toLowerCase();
-  
+
   const allText = `${nameLower} ${archLower} ${catLower} ${taglineLower} ${descLower}`;
-  
+
   // Detect gender from name
   const detectedGender = detectGenderFromName(characterName);
 
@@ -416,11 +416,11 @@ export function getAdvancedVoiceConfig(
       if (config) {
         // CRITICAL: Adjust voice based on detected gender - ensure gender matches
         let voiceName = config.voiceName;
-        
+
         // Female voices: aoede, kore, pulcherrima, zephyr
         // Male voices: fenrir, charon, puck, gacrux, orus
         // Neutral voices: kore, puck (can work for both)
-        
+
         if (detectedGender === 'female') {
           // Force female voices for female characters
           if (voiceName === 'charon' || voiceName === 'fenrir' || voiceName === 'orus' || voiceName === 'gacrux') {
@@ -436,7 +436,7 @@ export function getAdvancedVoiceConfig(
             voiceName = 'puck'; // More masculine than kore
           }
         }
-        
+
         return { ...config, voiceName }; // Return copy with gender-adjusted voice
       }
     }
@@ -451,7 +451,7 @@ export function getAdvancedVoiceConfig(
   } else {
     defaultVoice = 'kore'; // Neutral fallback
   }
-  
+
   if (catLower.includes('comedy')) {
     return {
       voiceName: defaultVoice,

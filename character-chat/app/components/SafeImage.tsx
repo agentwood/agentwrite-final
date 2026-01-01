@@ -10,26 +10,38 @@ interface SafeImageProps {
 }
 
 export default function SafeImage({ src, alt, className = '', fallback }: SafeImageProps) {
-  const [imgSrc, setImgSrc] = useState(src);
+  // Generate default fallback for empty/null src
+  const getDefaultFallback = () => {
+    const seed = alt?.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20) || 'default';
+    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf&radius=20`;
+  };
+
+  // Use fallback or default if src is empty/null
+  const initialSrc = src && src.trim() !== '' ? src : (fallback || getDefaultFallback());
+
+  const [imgSrc, setImgSrc] = useState(initialSrc);
   const [hasError, setHasError] = useState(false);
 
   const handleError = () => {
     if (!hasError) {
       setHasError(true);
-      if (fallback) {
+      if (fallback && imgSrc !== fallback) {
         setImgSrc(fallback);
       } else {
-        // Default fallback
-        const seed = alt.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20);
-        setImgSrc(`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf&radius=20`);
+        setImgSrc(getDefaultFallback());
       }
     }
   };
 
+  // Don't render if we somehow still have no valid src
+  if (!imgSrc || imgSrc.trim() === '') {
+    return null;
+  }
+
   return (
-    <img 
-      src={imgSrc} 
-      alt={alt}
+    <img
+      src={imgSrc}
+      alt={alt || 'Image'}
       className={className}
       onError={handleError}
     />

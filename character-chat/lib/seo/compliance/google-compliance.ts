@@ -115,7 +115,7 @@ async function checkDuplicateContent(content: {
 
   const duplicateTitles = await db.personaTemplate.findMany({
     where: {
-      name: { contains: titleSignature, mode: 'insensitive' },
+      name: { contains: titleSignature },
       ...(content.characterId && { id: { not: content.characterId } }),
     },
     take: 1,
@@ -255,12 +255,11 @@ async function checkOriginality(content: {
   // Check if description is unique (not repeated across many characters)
   if (content.description) {
     const descriptionWords = content.description.toLowerCase().split(/\s+/).slice(0, 10).join(' ');
-    
+
     const similarDescriptions = await db.personaTemplate.findMany({
       where: {
         description: {
           contains: descriptionWords.substring(0, 50),
-          mode: 'insensitive',
         },
         ...(content.characterId && { id: { not: content.characterId } }),
       },
@@ -295,7 +294,7 @@ function checkOverOptimization(content: {
   const titleWords = content.title.toLowerCase().split(/\s+/);
   const commonKeywords = ['ai', 'character', 'chat', 'chatbot', 'virtual'];
   const keywordCount = titleWords.filter(w => commonKeywords.includes(w)).length;
-  
+
   if (keywordCount > 2) {
     warnings.push('Title may be over-optimized with too many keywords');
     deduction += 5;
@@ -365,7 +364,7 @@ export async function generateCompliantContent(
 }> {
   // Generate unique title variations
   const titleVariations = generateUniqueTitle(character);
-  
+
   // Generate unique description
   const description = await generateUniqueDescription(character);
 
@@ -459,7 +458,6 @@ async function generateUniqueDescription(character: {
     where: {
       description: {
         contains: baseDescription.substring(0, 50),
-        mode: 'insensitive',
       },
       id: { not: character.id },
     },

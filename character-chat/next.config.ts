@@ -38,8 +38,6 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // Enable static page generation where possible
   output: 'standalone',
-  // Optimize production builds
-  swcMinify: true,
   // Enable experimental features for better performance
   experimental: {
     optimizePackageImports: ['lucide-react', '@prisma/client'],
