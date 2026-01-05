@@ -13,11 +13,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   const TabButton = ({ tab, icon }: { tab: SettingsTab, icon?: React.ReactNode }) => (
     <button
       onClick={() => setActiveTab(tab)}
-      className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-        activeTab === tab 
-          ? 'bg-zinc-200 text-zinc-900' 
+      className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === tab
+          ? 'bg-zinc-200 text-zinc-900'
           : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
-      }`}
+        }`}
     >
       {tab}
     </button>
@@ -29,7 +28,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         return (
           <div className="space-y-8">
             <h2 className="text-3xl font-bold text-zinc-900">Public profile</h2>
-            
+
             <div className="relative inline-block group">
               <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-pink-400 to-pink-200 flex items-center justify-center text-4xl font-bold text-zinc-800 shadow-inner">
                 S
@@ -43,8 +42,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               <div>
                 <div className="bg-zinc-100/80 rounded-xl p-4">
                   <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Username</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     defaultValue="SparklyCamel8370"
                     className="w-full bg-transparent text-sm font-semibold text-zinc-900 outline-none"
                   />
@@ -55,8 +54,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               <div>
                 <div className="bg-zinc-100/80 rounded-xl p-4">
                   <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Display Name</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     defaultValue="SparklyCamel8370"
                     className="w-full bg-transparent text-sm font-semibold text-zinc-900 outline-none"
                   />
@@ -67,7 +66,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
               <div>
                 <div className="bg-zinc-100/80 rounded-xl p-4 min-h-[100px]">
                   <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Description</label>
-                  <textarea 
+                  <textarea
                     placeholder="Add a bio..."
                     className="w-full bg-transparent text-sm font-semibold text-zinc-900 outline-none resize-none h-20"
                   />
@@ -81,7 +80,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         return (
           <div className="space-y-8 flex flex-col h-full">
             <h2 className="text-3xl font-bold text-zinc-900">Account</h2>
-            
+
             <div className="bg-zinc-100/50 border border-zinc-200 rounded-2xl p-6 flex items-center justify-between">
               <div>
                 <p className="text-xs text-zinc-500 font-medium mb-1">Your current plan</p>
@@ -103,7 +102,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         return (
           <div className="space-y-8">
             <h2 className="text-3xl font-bold text-zinc-900">Preferences</h2>
-            
+
             <div className="space-y-8">
               <div>
                 <div className="bg-zinc-100/80 rounded-xl p-4 flex items-center justify-between cursor-pointer border border-transparent hover:border-zinc-200 transition-all">
@@ -176,7 +175,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/40 backdrop-blur-sm p-4">
       <div className="bg-white w-full max-w-5xl h-[85vh] rounded-[2rem] shadow-2xl overflow-hidden flex animate-in zoom-in-95 duration-200 relative">
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-6 right-6 p-2 text-zinc-400 hover:text-zinc-900 transition-colors z-50"
         >
@@ -197,13 +196,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
           <div className="space-y-3">
             <button className="w-full flex items-center gap-3 px-4 py-3 bg-zinc-200/80 rounded-2xl text-xs font-bold text-zinc-900 hover:bg-zinc-200 transition-all">
               <div className="w-6 h-6 bg-indigo-600 rounded-md flex items-center justify-center text-white">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.086 2.157 2.419c0 1.334-.947 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.086 2.157 2.419c0 1.334-.946 2.419-2.157 2.419z"/></svg>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.086 2.157 2.419c0 1.334-.947 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.086 2.157 2.419c0 1.334-.946 2.419-2.157 2.419z" /></svg>
               </div>
               Join community
             </button>
             <button className="w-full flex items-center gap-3 px-4 py-3 bg-zinc-200/80 rounded-2xl text-xs font-bold text-zinc-900 hover:bg-zinc-200 transition-all">
               <div className="w-6 h-6 rounded overflow-hidden">
-                <img src="https://pbs.twimg.com/profile_images/1792695503023849472/I8W6jY_e_400x400.jpg" alt="Logo" className="w-full h-full object-cover" />
+                <img src="/agentwood-logo.png" alt="Logo" className="w-full h-full object-cover" />
               </div>
               Get the app
             </button>

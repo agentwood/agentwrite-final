@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ArrowLeft, Send, Loader2, Volume2, VolumeX, MoreVertical, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Send, Loader2, Volume2, VolumeX, MoreVertical, RefreshCw, MessageCircle, Heart, Share2, Plus, Settings, ChevronRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import ChatSidebar from './ChatSidebar';
 import VoiceButton from './VoiceButton';
@@ -534,53 +534,73 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
   return (
     <div className="flex h-screen w-full bg-[#121212] overflow-hidden fade-in text-white">
       {/* Main Chat Content */}
+      {/* Main Chat Content */}
       <div className="flex-1 flex flex-col relative">
+        {/* Chat Header - Matches Screenshot 3 */}
+        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-white/5 bg-[#121212]/80 px-6 backdrop-blur-xl shrink-0">
+          <div className="flex items-center gap-4">
+            <Link href="/home" className="xl:hidden p-2 -ml-2 text-white/40 hover:text-white transition-colors">
+              <ArrowLeft size={20} />
+            </Link>
+            <div>
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                {persona.name}
+                <Sparkles size={12} className="text-amber-400" />
+              </h2>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-white/30">ONLINE</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="p-2 text-white/40 hover:text-white transition-colors">
+              <MoreVertical size={18} />
+            </button>
+          </div>
+        </header>
+
         {/* Ad Banner for Free Users */}
-        <AdBanner variant="banner" className="sticky top-0 z-10" />
+        <AdBanner variant="banner" className="sticky top-16 z-10" />
 
         {/* Chat Scroll Area */}
-        <div className="flex-1 overflow-y-auto no-scrollbar pt-12 pb-32 px-4 md:px-0">
+        <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-4 md:px-0 scroll-smooth">
           <div className="max-w-3xl mx-auto space-y-12">
 
-            {/* Header Profile Info */}
-            <div className="flex flex-col items-center text-center mb-16">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white/10 shadow-2xl mb-6 p-0.5 bg-black/50">
-                <SafeImage
-                  src={persona.avatarUrl}
-                  alt={persona.name}
-                  className="w-full h-full rounded-full object-cover"
-                  fallback={`https://api.dicebear.com/7.x/avataaars/svg?seed=${persona.name}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf&radius=20`}
-                />
+            {/* Empty State / Welcome Info */}
+            {messages.length <= 1 && (
+              <div className="flex flex-col items-center justify-center text-center py-24 animate-fade-in">
+                <h1 className="text-[52px] font-serif italic text-white mb-4 tracking-tight leading-none">Start a new story</h1>
+                <p className="text-[10px] text-white/20 font-black uppercase tracking-[0.4em]">
+                  TYPE BELOW TO BEGIN
+                </p>
               </div>
-              <h1 className="text-2xl font-bold text-white mb-2">{persona.name}</h1>
-              <p className="text-sm text-gray-400 max-w-md font-medium px-6">
-                {persona.tagline || ''}
-              </p>
-              <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-3">
-                By @{persona.name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 15)}
-              </p>
-            </div>
+            )}
 
             {/* Messages */}
-            <div className="space-y-8">
+            <div className="space-y-12 pt-10">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                   {msg.role === 'assistant' && (
                     <>
                       {/* Header with avatar and name */}
-                      <div className="flex items-center gap-2 mb-2 ml-1">
-                        <SafeImage
-                          src={persona.avatarUrl}
-                          className="w-6 h-6 rounded-full object-cover border border-white/10"
-                          alt={persona.name}
-                          fallback={`https://api.dicebear.com/7.x/avataaars/svg?seed=${persona.name}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf&radius=20`}
-                        />
-                        <span className="text-xs font-bold text-gray-300">{persona.name}</span>
-                        <span className="px-1.5 py-0.5 bg-black/30 text-gray-500 text-[9px] font-black rounded uppercase">AI</span>
+                      <div className="flex items-center gap-2.5 mb-3 ml-1">
+                        <div className="w-7 h-7 rounded-full overflow-hidden border border-white/10 ring-2 ring-white/5">
+                          <SafeImage
+                            src={persona.avatarUrl}
+                            className="w-full h-full object-cover"
+                            alt={persona.name}
+                            fallback={`https://api.dicebear.com/7.x/avataaars/svg?seed=${persona.name}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf&radius=20`}
+                          />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-black text-white/80 uppercase tracking-wider">{persona.name}</p>
+                          <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.1em]">AI COMPANION</p>
+                        </div>
                       </div>
 
-                      {/* Small play button ABOVE message - Character.AI style */}
-                      <div className="flex items-center gap-1.5 mb-2 ml-1">
+                      {/* Character.AI style audio badge */}
+                      <div className="flex items-center gap-2 mb-3 ml-2">
                         <VoiceButton
                           text={msg.text}
                           voiceName={persona.voiceName}
@@ -594,15 +614,22 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
                           description={persona.description}
                           compact={true}
                         />
-                        <span className="px-1.5 py-0.5 bg-indigo-500/20 text-indigo-400 text-[9px] font-bold rounded">Free</span>
+                        <div className="px-2 py-1 rounded-full bg-white/[0.03] border border-white/5 flex items-center gap-1.5">
+                          <div className="flex gap-0.5">
+                            <span className="w-0.5 h-2 bg-white/20 rounded-full"></span>
+                            <span className="w-0.5 h-3 bg-white/40 rounded-full animate-pulse"></span>
+                            <span className="w-0.5 h-2 bg-white/20 rounded-full"></span>
+                          </div>
+                          <span className="text-[9px] font-black text-white/30">{Math.max(3, Math.ceil(msg.text.length / 15))}s</span>
+                        </div>
                       </div>
                     </>
                   )}
 
                   {/* Message bubble */}
-                  <div className={`max-w-[85%] px-5 py-4 rounded-2xl text-[15px] leading-relaxed ${msg.role === 'user'
-                    ? 'bg-indigo-600 text-white rounded-br-none ml-auto'
-                    : 'bg-[#1e1e1e] text-gray-200 border border-white/5 rounded-tl-none'
+                  <div className={`max-w-[85%] px-6 py-5 rounded-[24px] text-[16px] leading-[1.6] ${msg.role === 'user'
+                    ? 'bg-purple-600 text-white rounded-br-none ml-auto shadow-lg shadow-purple-600/10 font-medium'
+                    : 'bg-white/[0.03] text-white/90 border border-white/5 rounded-tl-none font-normal'
                     }`}>
                     <FormattedMessage text={msg.text} />
                   </div>
@@ -647,35 +674,38 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
         </div>
 
         {/* Floating Input Bar */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col items-center bg-gradient-to-t from-[#121212] via-[#121212]/95 to-transparent">
-          <div className="w-full max-w-3xl flex items-center gap-3">
+        <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col items-center bg-gradient-to-t from-[#121212] via-[#121212] to-transparent pointer-events-none">
+          <div className="w-full max-w-3xl flex items-center gap-3 pointer-events-auto">
             <div className="flex-1 relative">
-              <div className="bg-[#1e1e1e] rounded-3xl p-2 pl-4 flex items-center gap-3 border border-white/10 shadow-2xl">
+              <div className="bg-[#1a1a1a] rounded-2xl p-1.5 pl-4 flex items-center gap-3 border border-white/5 shadow-2xl">
+                <button className="p-2 text-white/20 hover:text-white/40 transition-colors">
+                  <div className="w-5 h-5 border-2 border-current rounded-sm flex items-center justify-center relative">
+                    <div className="w-1.5 h-1.5 rounded-full border-2 border-current absolute top-0.5 right-0.5" />
+                  </div>
+                </button>
                 <input
                   type="text"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                  placeholder={`Message ${persona.name}...`}
-                  className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-white placeholder-gray-500 text-sm py-3"
+                  placeholder="Type message..."
+                  className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-white placeholder-white/10 text-sm py-3"
                   autoComplete="off"
                 />
                 <button
                   onClick={handleSend}
                   disabled={!inputText.trim() || isLoading}
-                  className={`p-2.5 rounded-full transition-all ${inputText.trim() && !isLoading ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20' : 'text-gray-500'}`}
+                  className={`p-3 rounded-xl transition-all ${inputText.trim() && !isLoading ? 'bg-white text-black hover:bg-white/90' : 'text-white/10 bg-white/5'}`}
                 >
                   {isLoading ? <Loader2 size={18} className="animate-spin" /> : (
-                    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 12h14M12 5l7 7-7 7"></path>
-                    </svg>
+                    <Send size={18} fill={inputText.trim() && !isLoading ? "currentColor" : "none"} />
                   )}
                 </button>
               </div>
             </div>
           </div>
-          <p className="text-[10px] text-gray-600 font-medium mt-3">
-            AI characters can make mistakes. Please double-check facts.
+          <p className="text-[10px] text-white/10 font-black uppercase tracking-widest mt-4">
+            AGENTWOOD AI CAN MAKE MISTAKES. CHECK IMPORTANT INFO.
           </p>
         </div>
       </div>
@@ -691,66 +721,98 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
         />
       )}
 
-      {/* Right Panel - Character Art (Desktop only) */}
-      <div className="hidden xl:flex flex-col w-[380px] h-full relative shrink-0 border-l border-white/5 bg-black">
-        {/* Character Full Art */}
-        <div className="relative flex-1 overflow-hidden">
-          <SafeImage
-            src={persona.avatarUrl}
-            className="w-full h-full object-cover opacity-80"
-            alt={persona.name}
-            fallback={`https://api.dicebear.com/7.x/avataaars/svg?seed=${persona.name}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf&radius=20`}
-          />
-          {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#121212]/20 to-[#121212]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent" />
+      {/* Right Panel - Character Profile & Comments (Desktop only) */}
+      <div className="hidden xl:flex flex-col w-[380px] h-full relative shrink-0 border-l border-white/5 bg-[#0a0a0a]">
+        {/* Character Profile Section */}
+        <div className="flex-1 overflow-y-auto no-scrollbar">
+          {/* Large Image */}
+          <div className="w-full aspect-square relative bg-white/5">
+            <SafeImage
+              src={persona.avatarUrl}
+              className="w-full h-full object-cover"
+              alt={persona.name}
+              fallback={`https://api.dicebear.com/7.x/avataaars/svg?seed=${persona.name}`}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+          </div>
 
-          {/* Image gallery thumbnails */}
-          <div className="absolute top-4 right-4 flex flex-col gap-2">
-            <div className="w-12 h-12 rounded-lg overflow-hidden border-2 border-white/30 hover:border-white/60 transition-colors cursor-pointer">
-              <SafeImage
-                src={persona.avatarUrl}
-                className="w-full h-full object-cover"
-                alt="variant"
-              />
+          <div className="px-6 -mt-12 relative z-10">
+            <h3 className="text-3xl font-serif italic text-white mb-4 leading-tight">{persona.name}</h3>
+
+            <div className="flex items-center gap-6 mb-6">
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-white leading-none">{(persona.viewCount || Math.floor(Math.random() * 50 + 10)).toFixed(1)}K</span>
+                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">VIEWS</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-white leading-none">{(persona.saveCount || Math.floor(Math.random() * 5 + 1)).toFixed(1)}K</span>
+                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">LIKES</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">CREATED BY</p>
+                <p className="text-xs font-bold text-white/60">@{persona.name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 15)}_creator</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <button className="h-10 w-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-all">
+                  <Share2 size={16} className="text-white/60" />
+                </button>
+                <button className="px-6 py-2.5 bg-white text-black rounded-full text-xs font-black uppercase tracking-widest hover:bg-white/90 transition-all">
+                  FOLLOW
+                </button>
+              </div>
+            </div>
+
+            {/* Profile Tabs/Tools */}
+            <div className="flex items-center gap-1 p-1 rounded-full bg-white/[0.03] border border-white/5 mb-8">
+              <button className="flex-1 py-1.5 flex items-center justify-center rounded-full bg-white/10 text-white">
+                <MessageCircle size={16} />
+              </button>
+              <button className="flex-1 py-1.5 flex items-center justify-center rounded-full text-white/40 hover:text-white transition-colors">
+                <Plus size={16} />
+              </button>
+              <button className="flex-1 py-1.5 flex items-center justify-center rounded-full text-white/40 hover:text-white transition-colors">
+                <Settings size={16} />
+              </button>
+            </div>
+
+            {/* Comments Section */}
+            <div className="pb-10">
+              <div className="flex items-center justify-between mb-6">
+                <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">COMMENTS (24)</h4>
+                <ChevronRight size={14} className="text-white/20" />
+              </div>
+
+              <div className="space-y-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-white/10 flex-shrink-0" />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-bold text-white/80">User_{i}04</span>
+                        <span className="text-[9px] font-medium text-white/20">2h ago</span>
+                      </div>
+                      <p className="text-xs text-white/50 leading-relaxed">
+                        This character is absolutely amazing! The voice is so realistic and the responses are so in character.
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Character Info Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#121212] to-transparent">
-          <h3 className="text-2xl font-bold text-white/90 drop-shadow-xl mb-1">{persona.name}</h3>
-          <p className="text-white/60 text-sm backdrop-blur-sm bg-black/30 inline-block px-2 py-0.5 rounded">
-            @{persona.name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 15)}
-          </p>
-
-          {/* Stats */}
-          <div className="flex items-center gap-4 mt-3 text-xs text-white/50">
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              Online
-            </span>
-            <span>|</span>
-            <span>{persona.archetype || 'Character'}</span>
-          </div>
-
-          {/* Tabs placeholder */}
-          <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/10">
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="text-white/80 text-sm font-medium hover:text-white transition-colors"
-              title="Chat"
-            >💬</button>
-            <button
-              onClick={() => alert('Stats coming soon!')}
-              className="text-white/50 text-sm font-medium hover:text-white transition-colors"
-              title="Statistics"
-            >📊</button>
-            <button
-              onClick={() => window.location.href = '/settings'}
-              className="text-white/50 text-sm font-medium hover:text-white transition-colors"
-              title="Settings"
-            >⚙️</button>
+        {/* Comment Input at Bottom */}
+        <div className="p-4 border-t border-white/5 bg-[#0a0a0a]">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Add a comment..."
+              className="w-full bg-white/[0.03] border border-white/5 rounded-xl py-2.5 px-4 text-xs text-white placeholder-white/20 focus:outline-none focus:border-white/10"
+            />
           </div>
         </div>
       </div>

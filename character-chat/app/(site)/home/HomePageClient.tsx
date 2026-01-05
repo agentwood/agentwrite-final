@@ -187,69 +187,101 @@ export default function HomePageClient({ characters, categories, heroStates, sta
 
                 <div className="flex-1">
                     <div className="fade-in">
-                        {/* Hero Section */}
+                        {/* Hero Section - "Find your favorite fantasy." */}
                         <section className="relative overflow-hidden px-10 py-16">
                             <div className="relative z-10 flex flex-col lg:flex-row items-center gap-16">
                                 <div className="flex-1">
-                                    <p className="mb-4 text-[10px] font-black uppercase tracking-[0.25em] text-white/40 flex items-center gap-2">
-                                        ARE YOU... <Sparkle size={10} className="text-white/60" />
-                                    </p>
-                                    <h1 className="mb-8 text-6xl font-black tracking-tight leading-[1] font-serif">
-                                        Looking for <br />
-                                        connections?
+                                    <h1 className="mb-8 text-[80px] font-serif italic text-white leading-[0.9] tracking-tight">
+                                        Find your<br />
+                                        favorite<br />
+                                        fantasy.
                                     </h1>
-                                    <div className="flex gap-3">
-                                        {EMOJI_CATEGORIES.map((cat, i) => (
-                                            <EmojiPill
-                                                key={i}
-                                                emoji={cat.emoji}
-                                                bgColor={cat.bgColor}
-                                                borderColor={cat.borderColor}
-                                                active={activeEmoji === i}
-                                                onClick={() => {
-                                                    setActiveEmoji(i);
-                                                    setCarouselIndex(0);
-                                                }}
-                                            />
-                                        ))}
+
+                                    <Link
+                                        href="/discover"
+                                        className="inline-flex items-center gap-2 px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full text-xs font-bold text-white transition-all mb-12"
+                                    >
+                                        TRY AGENTWOOD
+                                    </Link>
+
+                                    <div className="pt-8 border-t border-white/5 max-w-xs">
+                                        <p className="text-[10px] font-black tracking-widest text-white/30 uppercase mb-4 leading-relaxed">
+                                            OR DOWNLOAD THE APP FOR THE BEST<br />LISTENING EXPERIENCE
+                                        </p>
+                                        <div className="flex gap-3">
+                                            <button className="flex items-center gap-2 px-4 py-2 bg-black border border-white/10 rounded-lg hover:bg-white/5 transition-all">
+                                                <div className="w-5 h-5 flex items-center justify-center">🍎</div>
+                                                <div className="text-left">
+                                                    <p className="text-[7px] text-white/50 leading-none">Download on the</p>
+                                                    <p className="text-[10px] font-bold text-white leading-none">App Store</p>
+                                                </div>
+                                            </button>
+                                            <button className="flex items-center gap-2 px-4 py-2 bg-black border border-white/10 rounded-lg hover:bg-white/5 transition-all">
+                                                <div className="w-5 h-5 flex items-center justify-center">🤖</div>
+                                                <div className="text-left">
+                                                    <p className="text-[7px] text-white/50 leading-none">Get it on</p>
+                                                    <p className="text-[10px] font-bold text-white leading-none">Google Play</p>
+                                                </div>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Carousel */}
-                                <div className="flex flex-1 items-center justify-center gap-6 perspective-1000 relative">
-                                    <button
-                                        onClick={() => setCarouselIndex(Math.max(0, carouselIndex - 1))}
-                                        className="absolute left-0 h-10 w-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors border border-white/10 z-30"
-                                    >
-                                        <ChevronLeft size={20} />
-                                    </button>
-                                    <div className="flex items-center gap-4 transition-transform duration-500">
-                                        {featuredCharacters.map((c, i) => (
-                                            <div
-                                                key={i}
-                                                className={`rounded-2xl overflow-hidden relative shadow-2xl transition-all duration-500 hover:scale-105 border border-white/10 cursor-pointer flex-shrink-0 ${i === carouselIndex ? 'w-52 aspect-[3/4.5] z-20 scale-110 shadow-purple-500/10' : 'w-36 aspect-[3/4.5] opacity-40 hover:opacity-100'
-                                                    }`}
-                                            >
-                                                {c.avatarUrl ? <img src={c.avatarUrl} className="w-full h-full object-cover" alt={c.name} /> : <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-3xl">{c.name.charAt(0)}</div>}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent"></div>
-                                                <div className="absolute bottom-4 left-4 right-4">
-                                                    <p className="text-[12px] font-black mb-1 truncate">{c.name}</p>
-                                                    <div className="flex items-center gap-1.5 opacity-60 text-[9px] font-black">
-                                                        <MessageSquare size={10} /> {c.totalChats}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
+                                {/* Large Character Card - Right side */}
+                                <div className="flex-1 flex justify-center lg:justify-end">
+                                    <div className="relative w-full max-w-[400px] aspect-square rounded-[40px] overflow-hidden border-[12px] border-white/5 shadow-2xl">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-indigo-600 flex items-center justify-center">
+                                            {/* Stylized Avatar Placeholder or First Featured Character */}
+                                            {featuredCharacters[0]?.avatarUrl ? (
+                                                <img src={featuredCharacters[0].avatarUrl} className="w-full h-full object-cover" alt="Hero" />
+                                            ) : (
+                                                <div className="text-white text-[120px] font-bold opacity-20">?</div>
+                                            )}
+                                        </div>
                                     </div>
-                                    <button
-                                        onClick={() => setCarouselIndex(Math.min(featuredCharacters.length - 1, carouselIndex + 1))}
-                                        className="absolute right-0 h-10 w-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors border border-white/10 z-30"
-                                    >
-                                        <ChevronRight size={20} />
-                                    </button>
                                 </div>
                             </div>
-                            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-600/5 rounded-full blur-[120px] pointer-events-none translate-x-1/2 -translate-y-1/2" />
+                            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-purple-600/10 rounded-full blur-[150px] pointer-events-none translate-x-1/4 -translate-y-1/4" />
+                        </section>
+
+                        {/* Trending Now - Meet our Characters */}
+                        <section className="px-10 py-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-xl font-serif italic text-white">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400 block mb-1">TRENDING NOW</span>
+                                    Meet our Characters
+                                </h2>
+                                <Link href="/discover" className="text-[10px] font-black opacity-40 hover:opacity-100 transition-opacity uppercase tracking-widest">
+                                    SEE ALL
+                                </Link>
+                            </div>
+
+                            {/* Character List - Row layout like user's screenshot */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
+                                {characters.slice(0, 12).map((char, i) => (
+                                    <Link
+                                        key={char.id}
+                                        href={`/character/${char.id}`}
+                                        className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-white/5 transition-all group"
+                                    >
+                                        <div className="w-14 h-14 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0 relative">
+                                            <SafeImage
+                                                src={char.avatarUrl}
+                                                alt={char.name}
+                                                className="w-full h-full object-cover"
+                                                fallback={`https://api.dicebear.com/7.x/avataaars/svg?seed=${char.name}`}
+                                            />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-black text-white truncate">{char.name}</p>
+                                            <p className="text-[10px] text-white/40 truncate font-medium">{char.description || char.handle}</p>
+                                        </div>
+                                        <button className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:bg-white/10 transition-all">
+                                            <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1"></div>
+                                        </button>
+                                    </Link>
+                                ))}
+                            </div>
                         </section>
 
                         {/* Category Filters */}
@@ -386,10 +418,10 @@ export default function HomePageClient({ characters, categories, heroStates, sta
                             </section>
                         </div>
                     </div>
-                </div>
+                </div >
 
                 <Footer />
-            </main>
-        </div>
+            </main >
+        </div >
     );
 }

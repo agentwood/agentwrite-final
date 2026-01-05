@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
+import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import AgeGate from "./components/AgeGate";
 import StructuredData from "./components/StructuredData";
 import { generateMetadata as generateSEOMetadata } from "@/lib/seo/metadata";
 import { generateOrganizationSchema, generateWebSiteSchema } from "@/lib/seo/structured-data";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: "italic",
+  variable: "--font-instrument"
+});
 
 export const metadata: Metadata = generateSEOMetadata({
   title: "Agentwood - Chat with AI Characters | Character.ai Alternative",
@@ -32,10 +41,9 @@ export default function RootLayout({
   const websiteSchema = generateWebSiteSchema();
 
   return (
-    <html lang="en" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <html lang="en" className={`${inter.variable} ${instrumentSerif.variable}`}>
       <body
         className="text-white selection:bg-purple-500 selection:text-white bg-[#0f0f0f] antialiased"
-        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         suppressHydrationWarning
       >
         <StructuredData data={organizationSchema} />

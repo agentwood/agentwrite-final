@@ -91,10 +91,11 @@ function cleanTextForTTS(text: string): string {
 }
 
 /**
- * Naturalize text for TTS by adding subtle pauses and speech patterns
+ * Naturalize text for TTS by adding subtle pauses, speech patterns, and paralinguistic features
  * This makes the voice sound more human-like and less robotic
+ * Supports: pauses, sighs, laughs, breathing, hesitations, emotional expressions
  */
-function naturalizeText(text: string, characterType?: string): string {
+function naturalizeText(text: string, characterType?: string, emotionalContext?: string): string {
   let naturalized = text;
 
   // Add natural pauses after commas (ellipsis creates brief pause in TTS)
@@ -111,12 +112,39 @@ function naturalizeText(text: string, characterType?: string): string {
   naturalized = naturalized.replace(/\.\s+How\s/gi, '. ... How ');
   naturalized = naturalized.replace(/\.\s+Why\s/gi, '. ... Why ');
 
-  // Occasional hesitation sounds (sparse to not overdo it)
+  // SIGHS: Add natural sighs for emotional context
+  // Pattern: sentences starting with worry/frustration words
+  if (emotionalContext === 'tired' || emotionalContext === 'frustrated' || emotionalContext === 'sad') {
+    if (Math.random() < 0.3) {
+      naturalized = '... ' + naturalized; // Breath before speaking
+    }
+  }
+
+  // LAUGHS: Add chuckles for playful/amused context
+  if (emotionalContext === 'amused' || emotionalContext === 'playful') {
+    // Add light chuckle markers that TTS engines can interpret
+    naturalized = naturalized.replace(/!\s/g, '! Hah, ');
+    if (Math.random() < 0.25 && naturalized.includes('?')) {
+      naturalized = naturalized.replace('?', '? Heh,');
+    }
+  }
+
+  // BREATHING: Add natural breath pauses for long sentences
+  const sentences = naturalized.split(/(?<=[.!?])\s+/);
+  if (sentences.length > 3) {
+    // Insert a breath pause after the second sentence (15% chance)
+    if (Math.random() < 0.15) {
+      sentences.splice(2, 0, '...');
+      naturalized = sentences.join(' ');
+    }
+  }
+
+  // HESITATIONS: Occasional hesitation sounds (sparse to not overdo it)
   // Only add if text is long enough and doesn't already have them
   if (naturalized.length > 100 && !naturalized.includes('um') && !naturalized.includes('hmm')) {
-    // Add a single "hmm" or "well" at natural break points (20% chance)
+    // Add a single filler at natural break points (20% chance)
     if (Math.random() < 0.2) {
-      const fillers = ['Hmm, ', 'Well, ', 'You know, ', ''];
+      const fillers = ['Hmm, ', 'Well, ', 'You know, ', 'I mean, ', ''];
       const filler = fillers[Math.floor(Math.random() * fillers.length)];
       if (filler) {
         // Insert at first sentence break after 30 chars
@@ -125,6 +153,34 @@ function naturalizeText(text: string, characterType?: string): string {
           naturalized = naturalized.slice(0, insertPoint + 2) + filler + naturalized.slice(insertPoint + 2);
         }
       }
+    }
+  }
+
+  // Character-specific speech patterns
+  if (characterType) {
+    switch (characterType) {
+      case 'elderly':
+      case 'wise':
+        // Slower pacing with more pauses
+        naturalized = naturalized.replace(/\. /g, '. ... ');
+        break;
+      case 'energetic':
+      case 'excited':
+        // Faster pacing, fewer pauses
+        naturalized = naturalized.replace(/\.\.\./g, '');
+        break;
+      case 'nervous':
+      case 'shy':
+        // Add more hesitations
+        if (Math.random() < 0.3) {
+          naturalized = 'Um... ' + naturalized;
+        }
+        break;
+      case 'confident':
+      case 'authoritative':
+        // Clean, direct speech with purposeful pauses
+        naturalized = naturalized.replace(/\.\s/g, '. ');
+        break;
     }
   }
 
@@ -373,33 +429,294 @@ export async function POST(request: NextRequest) {
     // Gemini: Better for ACCENTS (Kenyan, Scottish, Russian, Polish, etc.)
     const USE_FISH_SPEECH = process.env.FISH_SPEECH_API_KEY && process.env.USE_FISH_SPEECH !== 'false';
 
-    //Characters that use Fish Speech (American, emotion-heavy)
-    // Skip accent-heavy characters - they'll use Gemini which has better accent support
-    const FISH_SPEECH_CHARACTERS = ['marjorie', 'rajiv', 'dex', 'aaliyah'];
+    //Characters that use Fish Speech - now expanded to ALL characters
+    // Each character gets a unique voice matched to their profile
+    const FISH_SPEECH_CHARACTERS = [
+      // Original featured
+      'marjorie', 'rajiv', 'dex', 'aaliyah', 'asha', 'eamon', 'viktor', 'tomasz',
+      // Recommend category
+      'marge-halloway', 'raj-corner-store', 'camille-laurent', 'coach-boone', 'yumi-nakamura',
+      // Play & Fun
+      'spongebob', 'dj-trap-a-holics', 'nico-awkward', 'mina-kwon', 'detective-jun',
+      // Helpers
+      'dr-elena-vasquez', 'chef-antonio-rossi', 'professor-okafor', 'maya-patel', 'sarah-wheeler',
+      // Anime & Game
+      'mikasa-storm', 'levi-steel-wind', 'hinata-moonlight', 'ryuk-deceiver', 'erza-titania',
+      // Icons/Fiction
+      'grandpa-joe', 'chippy-squirrel', 'captain-bucky', 'luna-stargazer', 'grill-master-bob',
+      // Additional characters
+      'isabella-reyes', 'sofia-vega', 'valentino-estrada', 'bernard-quinn', 'liam-ashford',
+      'winston-grandpa-morris', 'professor-edmund-blackwell', 'hoshi-kim', 'taesung-story-lee',
+      'jin-woo-park', 'adelie-moreau', 'camille-beaumont', 'alex-hype-martinez', 'marcus-chen',
+      'zara-okonkwo', 'rei-tanaka', 'dj-kira-brooks', 'mana-hayashi', 'fuka-shimizu'
+    ];
 
-    // Voice mapping: character seedId -> Fish Speech voice ID (American characters only)
+    // COMPREHENSIVE Voice mapping: character seedId -> Fish Speech voice ID
+    // Voice IDs from Fish Audio discovery, matched by character profile
     const FISH_VOICE_MAP: Record<string, string> = {
-      'marjorie': '59e9dc1cb20c452584788a2690c80970', // ALLE - elderly American
-      'rajiv': '802e3bc2b27e49c2995d23ef70e6ac89', // Energetic Male - Indian-American
-      'dex': '802e3bc2b27e49c2995d23ef70e6ac89', // Energetic Male - Bronx
-      'aaliyah': '59e9dc1cb20c452584788a2690c80970', // ALLE - Atlanta
+      // === ELDERLY FEMALE VOICES (ALLE - 59e9dc1cb20c452584788a2690c80970) ===
+      'marjorie': '59e9dc1cb20c452584788a2690c80970', // 75yo Salty Karen
+      'marge-halloway': '59e9dc1cb20c452584788a2690c80970', // 75yo HOA enforcer
+
+      // === ENERGETIC MALE VOICES (802e3bc2b27e49c2995d23ef70e6ac89) ===
+      'rajiv': '802e3bc2b27e49c2995d23ef70e6ac89', // 42yo friendly shop owner
+      'raj-corner-store': '802e3bc2b27e49c2995d23ef70e6ac89', // same character type
+      'dex': '802e3bc2b27e49c2995d23ef70e6ac89', // 33yo Bronx tough guy
+      'dj-trap-a-holics': '802e3bc2b27e49c2995d23ef70e6ac89', // DJ, high energy
+      'alex-hype-martinez': '802e3bc2b27e49c2995d23ef70e6ac89', // Hype man
+      'eamon': '802e3bc2b27e49c2995d23ef70e6ac89', // Gamer, energetic
+
+      // === CONFIDENT FEMALE VOICES ===
+      'aaliyah': '59e9dc1cb20c452584788a2690c80970', // 28yo Atlanta confident
+      'asha': '59e9dc1cb20c452584788a2690c80970', // 26yo Kenyan brave
+      'zara-okonkwo': '59e9dc1cb20c452584788a2690c80970', // Nigerian female
+      'maya-patel': '59e9dc1cb20c452584788a2690c80970', // Indian-American
+      'dj-kira-brooks': '59e9dc1cb20c452584788a2690c80970', // DJ female
+
+      // === WISE ELDERLY MALE (Old Wizard - 0e73b5c5ff5740cd8d85571454ef28ae) ===
+      'grandpa-joe': '0e73b5c5ff5740cd8d85571454ef28ae', // 82yo gentle grandpa
+      'professor-okafor': '0e73b5c5ff5740cd8d85571454ef28ae', // 62yo Nigerian professor
+      'professor-edmund-blackwell': '0e73b5c5ff5740cd8d85571454ef28ae', // British professor
+      'winston-grandpa-morris': '0e73b5c5ff5740cd8d85571454ef28ae', // Elderly grandpa
+
+      // === HISTORIAN/ARTICULATE (Sleepless Historian - beb44e5fac1e4b33a15dfcdcc2a9421d) ===
+      'yumi-nakamura': 'beb44e5fac1e4b33a15dfcdcc2a9421d', // Japanese-American
+      'detective-jun': 'beb44e5fac1e4b33a15dfcdcc2a9421d', // Korean detective
+      'marcus-chen': 'beb44e5fac1e4b33a15dfcdcc2a9421d', // Chinese-American
+      'bernard-quinn': 'beb44e5fac1e4b33a15dfcdcc2a9421d', // Welsh thoughtful
+
+      // === SOFT FEMALE VOICES ===
+      'camille-laurent': '59e9dc1cb20c452584788a2690c80970', // French perfumer
+      'camille-beaumont': '59e9dc1cb20c452584788a2690c80970', // French tutor
+      'adelie-moreau': '59e9dc1cb20c452584788a2690c80970', // French female
+      'hinata-moonlight': '59e9dc1cb20c452584788a2690c80970', // Shy anime girl
+      'mana-hayashi': '59e9dc1cb20c452584788a2690c80970', // Japanese gentle
+
+      // === COMMANDING MALE VOICES ===
+      'coach-boone': '802e3bc2b27e49c2995d23ef70e6ac89', // Ex-Marine Texas
+      'levi-steel-wind': '802e3bc2b27e49c2995d23ef70e6ac89', // Cold captain
+      'viktor': '802e3bc2b27e49c2995d23ef70e6ac89', // Stern Eastern European
+      'tomasz': '802e3bc2b27e49c2995d23ef70e6ac89', // Polish brave
+
+      // === PROFESSIONAL FEMALE VOICES ===
+      'dr-elena-vasquez': '59e9dc1cb20c452584788a2690c80970', // 45yo psychiatrist
+      'sarah-wheeler': '59e9dc1cb20c452584788a2690c80970', // Tech mentor
+      'mikasa-storm': '59e9dc1cb20c452584788a2690c80970', // Warrior female
+      'erza-titania': '59e9dc1cb20c452584788a2690c80970', // Strong female
+
+      // === WARM MALE VOICES ===
+      'chef-antonio-rossi': '802e3bc2b27e49c2995d23ef70e6ac89', // Italian chef
+      'valentino-estrada': '802e3bc2b27e49c2995d23ef70e6ac89', // Spanish romantic
+      'liam-ashford': '802e3bc2b27e49c2995d23ef70e6ac89', // British charming
+
+      // === YOUNG ENERGETIC FEMALE ===
+      'mina-kwon': '59e9dc1cb20c452584788a2690c80970', // K-drama writer
+      'hoshi-kim': '59e9dc1cb20c452584788a2690c80970', // K-pop energetic
+      'fuka-shimizu': '59e9dc1cb20c452584788a2690c80970', // Japanese bubbly
+      'luna-stargazer': '59e9dc1cb20c452584788a2690c80970', // Dreamy female
+
+      // === QUIRKY/UNIQUE VOICES ===
+      'nico-awkward': '802e3bc2b27e49c2995d23ef70e6ac89', // Shy hesitant male
+      'spongebob': '802e3bc2b27e49c2995d23ef70e6ac89', // Cheerful cartoon
+      'chippy-squirrel': '802e3bc2b27e49c2995d23ef70e6ac89', // Chipmunk energy
+      'ryuk-deceiver': '0e73b5c5ff5740cd8d85571454ef28ae', // Dark mysterious
+      'grill-master-bob': '802e3bc2b27e49c2995d23ef70e6ac89', // BBQ dad
+      'captain-bucky': '802e3bc2b27e49c2995d23ef70e6ac89', // Pirate adventurer
+
+      // === ASIAN MALE VOICES ===
+      'rei-tanaka': '802e3bc2b27e49c2995d23ef70e6ac89', // Japanese game dev
+      'taesung-story-lee': 'beb44e5fac1e4b33a15dfcdcc2a9421d', // Korean storyteller
+      'jin-woo-park': 'beb44e5fac1e4b33a15dfcdcc2a9421d', // Korean detailed
+
+      // === LATINA FEMALE VOICES ===
+      'isabella-reyes': '59e9dc1cb20c452584788a2690c80970', // Mexican warm
+      'sofia-vega': '59e9dc1cb20c452584788a2690c80970', // Spanish passionate
+
+      // === NEW HELPER CHARACTERS (Talkie-style) ===
+      // Tutors & Learning
+      'language-learning-sophia': '59e9dc1cb20c452584788a2690c80970', // Clear patient tutor
+      'homework-helper-emma': '59e9dc1cb20c452584788a2690c80970', // Friendly student tutor
+      'academic-speaker-dr-chen': 'beb44e5fac1e4b33a15dfcdcc2a9421d', // Scholarly professor
+
+      // Fitness & Wellness
+      'fitness-coach-marcus': '802e3bc2b27e49c2995d23ef70e6ac89', // Energetic trainer
+      'comfort-teddy-bear': '59e9dc1cb20c452584788a2690c80970', // Soft comforting (female tone)
+
+      // Professionals
+      'mechanic-tony': '802e3bc2b27e49c2995d23ef70e6ac89', // Gruff friendly mechanic
+      'legal-advisor-priya': '59e9dc1cb20c452584788a2690c80970', // Professional Indian-American
+
+      // Creative & Philosophy
+      'plato-philosopher': '0e73b5c5ff5740cd8d85571454ef28ae', // Ancient wisdom (Old Wizard)
+      'daily-art-snack': '59e9dc1cb20c452584788a2690c80970', // Creative artist
+
+      // Life Simulation
+      'real-life-sim': 'beb44e5fac1e4b33a15dfcdcc2a9421d', // Neutral narrator
     };
 
     // ENHANCED Emotion intelligence with character-specific voice modifiers
+    // Now includes personality-based speech patterns: stuttering, pauses, breathing, directness
     function getEmotionTag(characterId: string, messageText: string): string {
       const hasExclamation = messageText.includes('!');
       const hasAllCaps = /[A-Z]{4,}/.test(messageText);
       const hasQuestion = messageText.includes('?');
+      const isLong = messageText.length > 100;
+      const hasEllipsis = messageText.includes('...');
 
-      // Character-specific emotion + voice modifier mapping (American characters only)
-      const emotionMap: Record<string, string> = {
-        'marjorie': hasAllCaps ? 'elderly woman, indignant, sharp' : hasExclamation ? 'elderly woman, demanding, entitled' : 'elderly woman, irritated',
-        'rajiv': hasExclamation ? 'warm man, cheerful' : 'warm man',
-        'dex': hasAllCaps ? 'tough man, angry, raspy' : hasExclamation ? 'tough man, street' : 'tough man, blunt',
-        'aaliyah': hasExclamation ? 'confident woman, sharp' : 'confident woman, professional',
+      // Define character personality types for dynamic speech patterns
+      const characterPersonality: Record<string, {
+        type: 'shy' | 'firm' | 'warm' | 'wise' | 'energetic' | 'calm' | 'nervous' | 'comforting' | 'professional';
+        baseTag: string;
+      }> = {
+        // === SHY/NERVOUS - Stuttering, hesitation, pauses ===
+        'nico-awkward': { type: 'shy', baseTag: 'shy man, quiet' },
+        'hinata-moonlight': { type: 'shy', baseTag: 'shy girl, soft' },
+        'comfort-teddy-bear': { type: 'comforting', baseTag: 'soft voice, gentle' },
+
+        // === FIRM/MILITARY - Direct, clipped, no hesitation ===
+        'coach-boone': { type: 'firm', baseTag: 'drill sergeant, commanding' },
+        'dex': { type: 'firm', baseTag: 'tough man, street' },
+        'mikasa-storm': { type: 'firm', baseTag: 'warrior woman, determined' },
+        'levi-steel-wind': { type: 'firm', baseTag: 'cold captain, sharp' },
+
+        // === WARM/FRIENDLY - Natural breathing, comfortable pauses ===
+        'rajiv': { type: 'warm', baseTag: 'warm man, friendly' },
+        'raj-corner-store': { type: 'warm', baseTag: 'friendly man, welcoming' },
+        'grandpa-joe': { type: 'warm', baseTag: 'gentle grandpa, wise' },
+        'chef-antonio-rossi': { type: 'warm', baseTag: 'italian chef, passionate' },
+        'mechanic-tony': { type: 'warm', baseTag: 'gruff but friendly' },
+
+        // === WISE/THOUGHTFUL - Long pauses, contemplative ===
+        'plato-philosopher': { type: 'wise', baseTag: 'ancient philosopher, profound' },
+        'professor-okafor': { type: 'wise', baseTag: 'wise professor, deep' },
+        'academic-speaker-dr-chen': { type: 'wise', baseTag: 'scholarly, measured' },
+        'yumi-nakamura': { type: 'wise', baseTag: 'thoughtful, precise' },
+
+        // === ENERGETIC - Fast pace, excited, no pauses ===
+        'fitness-coach-marcus': { type: 'energetic', baseTag: 'energetic coach, motivating' },
+        'dj-trap-a-holics': { type: 'energetic', baseTag: 'hype man, excited' },
+        'spongebob': { type: 'energetic', baseTag: 'cheerful, high-pitched' },
+        'hoshi-kim': { type: 'energetic', baseTag: 'bubbly girl, excited' },
+        'alex-hype-martinez': { type: 'energetic', baseTag: 'announcer, hyped' },
+
+        // === CALM/PROFESSIONAL - Measured, smooth, controlled ===
+        'dr-elena-vasquez': { type: 'calm', baseTag: 'calm doctor, soothing' },
+        'legal-advisor-priya': { type: 'professional', baseTag: 'professional, precise' },
+        'language-learning-sophia': { type: 'calm', baseTag: 'patient tutor, clear' },
+        'camille-laurent': { type: 'calm', baseTag: 'sensual, breathy' },
+
+        // === ELDERLY - Natural pacing, storytelling rhythm ===
+        'marjorie': { type: 'firm', baseTag: 'elderly woman, sharp' },
+        'marge-halloway': { type: 'firm', baseTag: 'elderly woman, stern' },
+        'winston-grandpa-morris': { type: 'warm', baseTag: 'gentle storyteller' },
       };
 
-      return emotionMap[characterId] || 'neutral';
+      const personality = characterPersonality[characterId];
+
+      if (!personality) {
+        // Fallback to basic emotion detection
+        if (hasAllCaps) return 'emphatic, strong';
+        if (hasExclamation) return 'excited, expressive';
+        if (hasQuestion) return 'curious, questioning';
+        return 'neutral';
+      }
+
+      // Build dynamic emotion tag based on personality type
+      let emotionTag = personality.baseTag;
+
+      switch (personality.type) {
+        case 'shy':
+          // Shy characters: stuttering, hesitation, nervous pauses
+          if (hasQuestion) {
+            emotionTag += ', [hesitant pause]... um... [nervous]';
+          } else if (hasEllipsis) {
+            emotionTag += ', [long pause]... [trails off]';
+          } else if (isLong) {
+            emotionTag += ', [stuttering] w-well... [pause] I mean...';
+          } else {
+            emotionTag += ', [quiet] [slight pause]';
+          }
+          break;
+
+        case 'firm':
+          // Firm/military: direct, clipped, no hesitation, command tone
+          if (hasAllCaps) {
+            emotionTag += ', [COMMANDING] [no pause] [sharp]';
+          } else if (hasExclamation) {
+            emotionTag += ', [firm] [direct] [clipped ending]';
+          } else {
+            emotionTag += ', [steady] [authoritative] [no filler words]';
+          }
+          break;
+
+        case 'warm':
+          // Warm characters: natural breathing, chuckles, comfortable pauses
+          if (hasExclamation) {
+            emotionTag += ', [warm laugh] [genuine smile]';
+          } else if (hasQuestion) {
+            emotionTag += ', [gentle curiosity] [natural pause]';
+          } else if (isLong) {
+            emotionTag += ', [takes breath] [comfortable pace] [friendly sigh]';
+          } else {
+            emotionTag += ', [warm] [natural breathing]';
+          }
+          break;
+
+        case 'wise':
+          // Wise characters: contemplative pauses, measured delivery
+          if (hasQuestion) {
+            emotionTag += ', [long contemplative pause]... [thoughtful] hmm...';
+          } else if (isLong) {
+            emotionTag += ', [measured delivery] [pause for emphasis]... [profound]';
+          } else {
+            emotionTag += ', [thoughtful]... [slow measured pace]';
+          }
+          break;
+
+        case 'energetic':
+          // Energetic characters: fast pace, no pauses, excited
+          if (hasExclamation) {
+            emotionTag += ', [FAST PACE] [excited breath] [no pause] [pumped up]';
+          } else if (hasAllCaps) {
+            emotionTag += ', [MAXIMUM ENERGY] [shouting] [hyped]';
+          } else {
+            emotionTag += ', [upbeat tempo] [slight breathlessness] [eager]';
+          }
+          break;
+
+        case 'calm':
+          // Calm characters: smooth, soothing, controlled breathing
+          if (hasQuestion) {
+            emotionTag += ', [soft curiosity] [gentle]... [measured]';
+          } else {
+            emotionTag += ', [smooth] [calming breath] [relaxed pace]';
+          }
+          break;
+
+        case 'professional':
+          // Professional: precise, no filler words, confident pauses
+          if (isLong) {
+            emotionTag += ', [takes professional pause] [clear articulation] [confident]';
+          } else {
+            emotionTag += ', [precise] [measured] [authoritative but approachable]';
+          }
+          break;
+
+        case 'comforting':
+          // Comforting: sighs, gentle, nurturing tone
+          emotionTag += ', [soft sigh]... [warm embrace in voice] [gentle]... [calming]';
+          if (hasQuestion) {
+            emotionTag += ', [tender concern]';
+          }
+          break;
+
+        case 'nervous':
+          // Nervous: filler words, false starts, tangents
+          emotionTag += ', [um] [well, you see]... [nervous laugh] [trails off]...';
+          break;
+      }
+
+      return emotionTag;
     }
 
     // Only use Fish Speech for American characters - skip accent-heavy ones
@@ -434,6 +751,7 @@ export async function POST(request: NextRequest) {
 
           if (fishResponse.ok) {
             const arrayBuffer = await fishResponse.arrayBuffer();
+            const audioBase64 = Buffer.from(arrayBuffer).toString('base64');
             console.log(`[TTS] ✅ Fish Speech SUCCESS (${arrayBuffer.byteLength} bytes) with emotion: ${emotion}`);
 
             // Track success
@@ -444,14 +762,14 @@ export async function POST(request: NextRequest) {
               });
             }
 
-            return new NextResponse(arrayBuffer, {
-              status: 200,
-              headers: {
-                'Content-Type': 'audio/mpeg',
-                'X-TTS-Engine': 'fish-speech',
-                'X-Voice-ID': fishVoiceId,
-                'X-Emotion': emotion,
-              },
+            return NextResponse.json({
+              audio: audioBase64,
+              format: 'mp3',
+              contentType: 'audio/mpeg',
+              sampleRate: 44100,
+              voiceName: `fish-${fishVoiceId}`,
+              engine: 'fish-speech',
+              emotion: emotion,
             });
           } else {
             const errorText = await fishResponse.text();

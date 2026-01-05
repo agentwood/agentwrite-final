@@ -6,7 +6,10 @@ import {
   Plus,
   Compass,
   Search,
+  Heart,
   Library,
+  Bell,
+  Book,
   PenTool,
   Award,
   Settings,
@@ -112,7 +115,10 @@ export default function Sidebar({ recentCharacters = [] }: SidebarProps) {
               href="/home"
             />
             <SidebarLink icon={<Search size={16} />} label="Search" href="/home" />
-            <SidebarLink icon={<Library size={16} />} label="Memory" href="/library" />
+            <SidebarLink icon={<Heart size={16} />} label="Favorites" href="/home" />
+            <SidebarLink icon={<Library size={16} />} label="Memory" href="/home" />
+            <SidebarLink icon={<Bell size={16} />} label="Notification" href="/home" />
+            <SidebarLink icon={<Book size={16} />} label="Blog" href="/home" />
           </div>
         </section>
 

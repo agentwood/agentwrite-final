@@ -7,8 +7,11 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const persona = await db.personaTemplate.findUnique({
+
+    // Increment view count atomically
+    const persona = await db.personaTemplate.update({
       where: { id },
+      data: { viewCount: { increment: 1 } },
       select: {
         id: true,
         name: true,

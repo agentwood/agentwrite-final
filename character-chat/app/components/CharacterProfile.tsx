@@ -288,8 +288,8 @@ export default function CharacterProfile({ persona, similarCharacters = [] }: Ch
                   <button
                     onClick={handleLike}
                     className={`p-3 rounded-xl transition-all ${isLiked
-                        ? 'bg-purple-600/20 text-purple-400'
-                        : 'bg-white/5 hover:bg-white/10 text-white/60'
+                      ? 'bg-purple-600/20 text-purple-400'
+                      : 'bg-white/5 hover:bg-white/10 text-white/60'
                       }`}
                   >
                     <ThumbsUp className="w-5 h-5" fill={isLiked ? 'currentColor' : 'none'} />
@@ -297,8 +297,8 @@ export default function CharacterProfile({ persona, similarCharacters = [] }: Ch
                   <button
                     onClick={handleDislike}
                     className={`p-3 rounded-xl transition-all ${isDisliked
-                        ? 'bg-red-600/20 text-red-400'
-                        : 'bg-white/5 hover:bg-white/10 text-white/60'
+                      ? 'bg-red-600/20 text-red-400'
+                      : 'bg-white/5 hover:bg-white/10 text-white/60'
                       }`}
                   >
                     <ThumbsDown className="w-5 h-5" fill={isDisliked ? 'currentColor' : 'none'} />
@@ -311,15 +311,11 @@ export default function CharacterProfile({ persona, similarCharacters = [] }: Ch
                   </button>
                 </div>
 
-                {/* Stats */}
+                {/* Stats - Only show view count (200-9K range) */}
                 <div className="w-full space-y-3 mb-6">
                   <div className="flex items-center gap-3 text-sm">
-                    <MessageSquare className="w-4 h-4 text-purple-400" />
-                    <span className="text-white/70">{persona.interactionCount.toLocaleString()} Interactions</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <ThumbsUp className="w-4 h-4 text-green-400" />
-                    <span className="text-white/70">{likeCount.toLocaleString()} Likes</span>
+                    <Eye className="w-4 h-4 text-blue-400" />
+                    <span className="text-white/70">{persona.viewCount.toLocaleString()} Views</span>
                   </div>
                 </div>
 
@@ -352,8 +348,8 @@ export default function CharacterProfile({ persona, similarCharacters = [] }: Ch
                   <button
                     onClick={handleFollow}
                     className={`flex-1 py-3 rounded-xl font-bold transition-all ${isFollowing
-                        ? 'bg-white text-black'
-                        : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'
+                      ? 'bg-white text-black'
+                      : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'
                       }`}
                   >
                     {isFollowing ? 'Following' : 'Follow'}
@@ -361,8 +357,8 @@ export default function CharacterProfile({ persona, similarCharacters = [] }: Ch
                   <button
                     onClick={handleSave}
                     className={`p-3 rounded-xl transition-all ${isSaved
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'
                       }`}
                   >
                     <Bookmark className="w-5 h-5" fill={isSaved ? 'currentColor' : 'none'} />
@@ -380,8 +376,8 @@ export default function CharacterProfile({ persona, similarCharacters = [] }: Ch
                 <button
                   onClick={() => setActiveTab('about')}
                   className={`text-sm font-bold pb-3 transition-all ${activeTab === 'about'
-                      ? 'text-white border-b-2 border-purple-500'
-                      : 'text-white/40 hover:text-white/70'
+                    ? 'text-white border-b-2 border-purple-500'
+                    : 'text-white/40 hover:text-white/70'
                     }`}
                 >
                   About
@@ -389,8 +385,8 @@ export default function CharacterProfile({ persona, similarCharacters = [] }: Ch
                 <button
                   onClick={() => setActiveTab('starters')}
                   className={`text-sm font-bold pb-3 transition-all ${activeTab === 'starters'
-                      ? 'text-white border-b-2 border-purple-500'
-                      : 'text-white/40 hover:text-white/70'
+                    ? 'text-white border-b-2 border-purple-500'
+                    : 'text-white/40 hover:text-white/70'
                     }`}
                 >
                   Chat Starters
@@ -398,8 +394,8 @@ export default function CharacterProfile({ persona, similarCharacters = [] }: Ch
                 <button
                   onClick={() => setActiveTab('similar')}
                   className={`text-sm font-bold pb-3 transition-all ${activeTab === 'similar'
-                      ? 'text-white border-b-2 border-purple-500'
-                      : 'text-white/40 hover:text-white/70'
+                    ? 'text-white border-b-2 border-purple-500'
+                    : 'text-white/40 hover:text-white/70'
                     }`}
                 >
                   Similar Characters

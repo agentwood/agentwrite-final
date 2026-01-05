@@ -16,6 +16,7 @@ interface Plan {
   mostPopular?: boolean;
   features: string[];
   ctaText?: string;
+  redirectUrl?: string;
 }
 
 export default function PricingPage() {
@@ -38,8 +39,9 @@ export default function PricingPage() {
   }, []);
 
   const handleSubscribe = async (plan: Plan) => {
+    // Free tier redirects to homepage - user is already on Starter
     if (!plan.priceId || plan.price === 0) {
-      window.location.href = '/signup?plan=free';
+      window.location.href = plan.redirectUrl || '/';
       return;
     }
 

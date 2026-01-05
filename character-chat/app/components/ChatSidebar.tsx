@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Upload, 
-  ThumbsUp, 
-  ThumbsDown, 
-  Bookmark, 
+import {
+  Upload,
+  ThumbsUp,
+  ThumbsDown,
+  Bookmark,
   MoreVertical,
   MessageSquare,
   Volume2,
@@ -45,11 +45,11 @@ interface ChatSidebarProps {
   setVoiceEnabled?: (enabled: boolean) => void;
 }
 
-export default function ChatSidebar({ 
-  persona, 
+export default function ChatSidebar({
+  persona,
   conversationId,
-  voiceEnabled = false, 
-  setVoiceEnabled 
+  voiceEnabled = false,
+  setVoiceEnabled
 }: ChatSidebarProps) {
   const router = useRouter();
   const [isFollowing, setIsFollowing] = useState(false);
@@ -64,7 +64,7 @@ export default function ChatSidebar({
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
-  
+
   // Modal states
   const [showHistory, setShowHistory] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
@@ -117,7 +117,7 @@ export default function ChatSidebar({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setIsFollowing(data.following);
@@ -159,7 +159,7 @@ export default function ChatSidebar({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ characterId: persona.id }),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         router.push(`/c/${persona.id}?conversation=${data.conversation.id}`);
@@ -218,7 +218,7 @@ export default function ChatSidebar({
         method,
         headers: { 'Content-Type': 'application/json' },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setIsSaved(data.saved);
@@ -243,14 +243,14 @@ export default function ChatSidebar({
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
-    
+
     try {
       const response = await fetch(`/api/personas/${persona.id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: newComment }),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setComments(prev => [data.comment, ...prev]);
@@ -269,16 +269,16 @@ export default function ChatSidebar({
       {/* Right Sidebar Panel */}
       <aside className="w-[320px] h-full bg-white border-l border-zinc-100 flex flex-col">
         <div className="p-8 flex-1 overflow-y-auto no-scrollbar">
-          
+
           {/* Top Panel Identity */}
           <div className="flex flex-col items-center mb-10">
             <div className="w-16 h-16 rounded-full overflow-hidden mb-4 shadow-lg">
-                <SafeImage 
-                  src={persona.avatarUrl} 
-                  alt={persona.name}
-                  className="w-full h-full object-cover"
-                  fallback={`https://api.dicebear.com/7.x/avataaars/svg?seed=${persona.name}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf&radius=20`}
-                />
+              <SafeImage
+                src={persona.avatarUrl}
+                alt={persona.name}
+                className="w-full h-full object-cover"
+                fallback={`https://api.dicebear.com/7.x/avataaars/svg?seed=${persona.name}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf&radius=20`}
+              />
             </div>
             <h2 className="text-base font-bold text-zinc-900">{persona.name}</h2>
             <p className="text-[11px] text-zinc-400 font-bold mb-4">By @{persona.name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 15)}</p>
@@ -302,54 +302,47 @@ export default function ChatSidebar({
                 <Upload className="w-4 h-4" />
               </button>
               <div className="flex bg-zinc-50 border border-zinc-100 rounded-full px-4 py-2 gap-3">
-                <button 
+                <button
                   onClick={handleLike}
                   className={`flex items-center gap-1.5 text-xs font-bold ${isLiked ? 'text-zinc-900' : 'text-zinc-400 hover:text-zinc-900'}`}
                 >
                   <ThumbsUp className="w-4 h-4" />
                 </button>
                 <div className="w-[1px] h-4 bg-zinc-200 self-center"></div>
-                <button 
+                <button
                   onClick={handleDislike}
                   className={`text-zinc-400 hover:text-zinc-900 ${isDisliked ? 'text-zinc-900' : ''}`}
                 >
                   <ThumbsDown className="w-4 h-4" />
                 </button>
               </div>
-              <button 
+              <button
                 onClick={handleSave}
-                className={`p-2.5 rounded-full transition-all ${
-                  isSaved 
-                    ? 'bg-indigo-600 text-white' 
+                className={`p-2.5 rounded-full transition-all ${isSaved
+                    ? 'bg-indigo-600 text-white'
                     : 'bg-zinc-50 border border-zinc-100 text-zinc-500 hover:text-indigo-600'
-                }`}
+                  }`}
                 title={isSaved ? 'Unsave' : 'Save'}
               >
                 <Bookmark className="w-4 h-4" fill={isSaved ? 'currentColor' : 'none'} />
               </button>
-              <button 
+              <button
                 onClick={handleFollow}
-                className={`p-2.5 rounded-full transition-all ${
-                  isFollowing 
-                    ? 'bg-zinc-900 text-white' 
+                className={`p-2.5 rounded-full transition-all ${isFollowing
+                    ? 'bg-zinc-900 text-white'
                     : 'bg-zinc-50 border border-zinc-100 text-zinc-500 hover:text-red-500'
-                }`}
+                  }`}
               >
                 <Heart className="w-4 h-4" fill={isFollowing ? 'currentColor' : 'none'} />
               </button>
             </div>
-            
-            <button
-              onClick={() => setShowComments(!showComments)}
-              className="mt-4 w-full py-2 px-4 bg-zinc-50 hover:bg-zinc-100 rounded-xl text-sm font-semibold text-zinc-900 transition-colors"
-            >
-              {showComments ? 'Hide' : 'Show'} Comments ({commentCount})
-            </button>
+
+            {/* Comments button removed - only showing viewCount */}
           </div>
 
           {/* Navigation Options */}
           <div className="space-y-2">
-            <button 
+            <button
               onClick={handleNewChat}
               className="w-full flex items-center justify-between p-4 rounded-2xl bg-zinc-50 border border-transparent hover:border-zinc-200 transition-all text-left"
             >
@@ -361,7 +354,7 @@ export default function ChatSidebar({
               </div>
             </button>
 
-            <button 
+            <button
               onClick={() => {
                 if (setVoiceEnabled) {
                   setVoiceEnabled(!voiceEnabled);
@@ -381,7 +374,7 @@ export default function ChatSidebar({
               </span>
             </button>
 
-            <button 
+            <button
               onClick={() => setShowHistory(true)}
               className="w-full flex items-center justify-between p-4 rounded-2xl bg-white border border-transparent hover:border-zinc-100 transition-all text-left group"
             >
@@ -394,7 +387,7 @@ export default function ChatSidebar({
               <ChevronRight className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-900" />
             </button>
 
-            <button 
+            <button
               onClick={() => setShowCustomize(true)}
               className="w-full flex items-center justify-between p-4 rounded-2xl bg-white border border-transparent hover:border-zinc-100 transition-all text-left group"
             >
@@ -407,7 +400,7 @@ export default function ChatSidebar({
               <ChevronRight className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-900" />
             </button>
 
-            <button 
+            <button
               onClick={() => {
                 setShowPinned(true);
                 loadPinnedMessages();
@@ -423,7 +416,7 @@ export default function ChatSidebar({
               <ChevronRight className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-900" />
             </button>
 
-            <button 
+            <button
               onClick={() => setShowCreateStory(true)}
               className="w-full flex items-center justify-between p-4 rounded-2xl bg-white border border-transparent hover:border-zinc-100 transition-all text-left group"
             >
@@ -439,7 +432,7 @@ export default function ChatSidebar({
         </div>
 
         <div className="p-8 border-t border-zinc-100 flex items-center gap-3">
-          <Link 
+          <Link
             href="/discover"
             className="flex-1 py-4 px-6 bg-zinc-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-md active:scale-[0.98] text-center"
           >
@@ -504,9 +497,9 @@ export default function ChatSidebar({
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-2">Response Length</label>
-                <select 
+                <select
                   value={customizeSettings.responseLength}
-                  onChange={(e) => setCustomizeSettings({...customizeSettings, responseLength: e.target.value})}
+                  onChange={(e) => setCustomizeSettings({ ...customizeSettings, responseLength: e.target.value })}
                   className="w-full px-4 py-2 border border-zinc-200 rounded-xl"
                 >
                   <option value="short">Short</option>
@@ -518,31 +511,31 @@ export default function ChatSidebar({
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
                   Temperature: {customizeSettings.temperature}
                 </label>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="1" 
-                  step="0.1" 
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
                   value={customizeSettings.temperature}
-                  onChange={(e) => setCustomizeSettings({...customizeSettings, temperature: parseFloat(e.target.value)})}
-                  className="w-full" 
+                  onChange={(e) => setCustomizeSettings({ ...customizeSettings, temperature: parseFloat(e.target.value) })}
+                  className="w-full"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
                   Creativity: {customizeSettings.creativity}
                 </label>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="1" 
-                  step="0.1" 
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
                   value={customizeSettings.creativity}
-                  onChange={(e) => setCustomizeSettings({...customizeSettings, creativity: parseFloat(e.target.value)})}
-                  className="w-full" 
+                  onChange={(e) => setCustomizeSettings({ ...customizeSettings, creativity: parseFloat(e.target.value) })}
+                  className="w-full"
                 />
               </div>
-              <button 
+              <button
                 onClick={() => {
                   // TODO: Save settings to API
                   setShowCustomize(false);
@@ -616,7 +609,7 @@ export default function ChatSidebar({
                     />
                   </div>
                   <p className="text-sm text-zinc-600">
-                    Create an engaging story based on your conversation with {persona.name}. 
+                    Create an engaging story based on your conversation with {persona.name}.
                     The AI will transform your chat into a readable narrative.
                   </p>
                   <button
@@ -755,18 +748,18 @@ export default function ChatSidebar({
   );
 }
 
-const NavMenuItem = ({ 
-  icon, 
-  label, 
-  value, 
-  onClick 
-}: { 
-  icon: React.ReactNode; 
-  label: string; 
+const NavMenuItem = ({
+  icon,
+  label,
+  value,
+  onClick
+}: {
+  icon: React.ReactNode;
+  label: string;
   value?: string;
   onClick?: () => void;
 }) => (
-  <button 
+  <button
     onClick={onClick}
     className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-zinc-50 transition-colors group"
   >

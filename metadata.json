@@ -1,8 +1,0 @@
-{
-  "name": "Agentwood.ai - Character Dashboard",
-  "description": "A high-density character discovery platform with advanced reasoning capabilities.",
-  "requestFramePermissions": [
-    "camera",
-    "microphone"
-  ]
-}
