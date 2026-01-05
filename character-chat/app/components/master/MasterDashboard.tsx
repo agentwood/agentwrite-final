@@ -592,9 +592,9 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     setIsGeneratingImage(true);
 
     try {
-      const prompt = `Create a high-quality, vibrant, illustrative character portrait of a ${gender} character named ${name}. 
-          Description: ${description}. 
-          Style: High-end 2D digital illustration, visual novel style, semi-realistic but stylized, atmospheric lighting, detailed facial features, vibrant colors like purple/blue/neon or warm sunset. Close-up portrait. No photorealism.`;
+      const prompt = `High-end semi-realistic digital illustration, cinematic visual novel art style. A detailed character portrait of a ${gender} named ${name}. 
+          Character Details: ${description}. 
+          Artistic Style: Painterly brush strokes, rich atmospheric background with environmental storytelling, dramatic cinematic lighting with rim lights and soft fill, expressive detailed facial features, textured clothing, vibrant yet sophisticated color palette. Masterwork quality, trending on ArtStation, 4k ultra-detailed. Close-up or waist-up composition.`;
 
       const response = await fetch('/api/generate-image', {
         method: 'POST',
