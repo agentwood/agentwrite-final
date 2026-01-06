@@ -65,6 +65,7 @@ model PersonaTemplate {
   followers            UserFollow[]
   voiceParameters      VoiceParameters[]
   voicePerformances    VoicePerformance[]
+  engagements          UserCharacterEngagement[]
 
   @@index([category])
   @@index([seedId])
@@ -233,7 +234,10 @@ model User {
   pinnedMessages     PinnedMessage[]
   referralPurchases  ReferralPurchase[]
   following          UserFollow[]
-  voiceFeedback      VoiceFeedback[]
+  voiceFeedback        VoiceFeedback[]
+  rewardProgress       UserRewardProgress[]
+  engagements          UserCharacterEngagement[]
+  loginStreak          UserLoginStreak?
 
   @@index([username])
   @@index([email])
@@ -465,3 +469,51 @@ model Payout {
   @@index([status])
   @@index([createdAt])
 }
+
+// User reward progress tracking - no more dummy data
+model UserRewardProgress {
+  id        String    @id @default(cuid())
+  userId    String
+  rewardId  String
+  progress  Int       @default(0)
+  claimed   Boolean   @default(false)
+  claimedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, rewardId])
+  @@index([userId])
+}
+
+// Character engagement tracking - logs every interaction
+model UserCharacterEngagement {
+  id            String          @id @default(cuid())
+  userId        String
+  personaId     String
+  messagesSent  Int             @default(0)
+  lastChatAt    DateTime?
+  totalChatTime Int             @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  persona       PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, personaId])
+  @@index([userId])
+  @@index([personaId])
+}
+
+// Daily login streak tracking
+model UserLoginStreak {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  currentStreak Int      @default(0)
+  longestStreak Int      @default(0)
+  lastLoginDate DateTime @default(now())
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+

@@ -122,6 +122,15 @@ export async function POST(request: NextRequest) {
 
     // Fetch persona for context-aware filtering and other operations
     console.log(`[Chat] Looking up persona by ID: ${characterId}`);
+    console.log(`[Chat] DATABASE_URL:`, process.env.DATABASE_URL);
+
+    // Debug: List first 5 personas to verify db connection
+    const allPersonas = await db.personaTemplate.findMany({
+      take: 5,
+      select: { id: true, name: true },
+    });
+    console.log(`[Chat] First 5 personas in DB:`, allPersonas);
+
     const persona = await db.personaTemplate.findUnique({
       where: { id: characterId },
     });
@@ -163,14 +172,19 @@ export async function POST(request: NextRequest) {
     // Get user ID from request
     const userId = request.headers.get('x-user-id') || undefined;
 
-    // Check quota
+    // Check quota - use proper UTC midnight for 24h reset
     const subscriptionStatus = await getSubscriptionStatus(userId);
     const limits = getPlanLimits(subscriptionStatus.planId);
 
     if (limits.messagesPerDay > 0) {
-      // Check daily message count for free users
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      // Get UTC midnight for today (proper 24h UTC-based window)
+      const now = new Date();
+      const utcMidnight = new Date(Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        0, 0, 0, 0
+      ));
 
       const messageCount = await db.message.count({
         where: {
@@ -179,7 +193,7 @@ export async function POST(request: NextRequest) {
           },
           role: 'user',
           createdAt: {
-            gte: today,
+            gte: utcMidnight,
           },
         },
       });
@@ -188,13 +202,33 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: 'Daily message limit reached',
-            reason: `You've reached your daily limit of ${limits.messagesPerDay} messages. Upgrade to unlock unlimited messages.`,
+            reason: `You've reached your daily limit of ${limits.messagesPerDay} messages. Upgrade to unlock more messages.`,
             quotaExceeded: true,
             upgradeUrl: '/pricing',
+            resetsAt: new Date(utcMidnight.getTime() + 24 * 60 * 60 * 1000).toISOString(),
           },
           { status: 429 }
         );
       }
+    }
+
+    // Track character engagement (every chat interaction is logged)
+    if (userId) {
+      await db.userCharacterEngagement.upsert({
+        where: {
+          userId_personaId: { userId, personaId: characterId }
+        },
+        create: {
+          userId,
+          personaId: characterId,
+          messagesSent: 1,
+          lastChatAt: new Date(),
+        },
+        update: {
+          messagesSent: { increment: 1 },
+          lastChatAt: new Date(),
+        },
+      });
     }
 
     // Increment chat count

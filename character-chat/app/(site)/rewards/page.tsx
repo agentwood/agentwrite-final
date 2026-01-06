@@ -110,30 +110,31 @@ export default function RewardsPage() {
             try {
                 const session = getSession();
                 if (!session?.id) {
-                    // Demo user - show sample progress
-                    const demoRewards = DEFAULT_REWARDS.map((r, i) => ({
-                        ...r,
-                        progress: i === 0 ? 1 : Math.floor(Math.random() * r.target),
-                        claimed: false,
-                    }));
-                    setRewards(demoRewards);
+                    // Not logged in - show empty progress
+                    setRewards(DEFAULT_REWARDS);
                     setLoading(false);
                     return;
                 }
 
-                // In production, fetch from /api/rewards
-                const response = await fetch(`/api/user/preferences?userId=${session.id}`);
+                // Fetch real progress from API
+                const response = await fetch('/api/rewards', {
+                    headers: {
+                        'x-user-id': session.id,
+                    },
+                });
+
                 if (response.ok) {
-                    // Parse user data and calculate progress
-                    // For now, use demo data
-                    const demoRewards = DEFAULT_REWARDS.map((r, i) => ({
-                        ...r,
-                        progress: i === 0 ? 1 : Math.floor(Math.random() * r.target),
-                    }));
-                    setRewards(demoRewards);
+                    const data = await response.json();
+                    setRewards(data.rewards);
+                    setTotalCredits(data.creditsBalance || 0);
+                } else {
+                    // Fallback to defaults if API fails
+                    console.error('Failed to fetch rewards');
+                    setRewards(DEFAULT_REWARDS);
                 }
             } catch (error) {
                 console.error('Error fetching rewards:', error);
+                setRewards(DEFAULT_REWARDS);
             } finally {
                 setLoading(false);
             }
@@ -145,22 +146,46 @@ export default function RewardsPage() {
     const handleClaim = async (reward: Reward) => {
         if (reward.progress < reward.target || reward.claimed) return;
 
+        const session = getSession();
+        if (!session?.id) {
+            alert('Please log in to claim rewards');
+            return;
+        }
+
         setClaiming(reward.id);
 
-        // Simulate claiming (in production, call /api/rewards/claim)
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        try {
+            const response = await fetch('/api/rewards/claim', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-user-id': session.id,
+                },
+                body: JSON.stringify({ rewardId: reward.id }),
+            });
 
-        // Update local state
-        setRewards(prev => prev.map(r =>
-            r.id === reward.id ? { ...r, claimed: true } : r
-        ));
+            if (response.ok) {
+                const data = await response.json();
 
-        setTotalCredits(prev => prev + reward.rewardAmount);
-        setClaimedAmount(reward.rewardAmount);
-        setShowClaimToast(true);
-        setTimeout(() => setShowClaimToast(false), 3000);
+                // Update local state
+                setRewards(prev => prev.map(r =>
+                    r.id === reward.id ? { ...r, claimed: true } : r
+                ));
 
-        setClaiming(null);
+                setTotalCredits(data.newBalance);
+                setClaimedAmount(reward.rewardAmount);
+                setShowClaimToast(true);
+                setTimeout(() => setShowClaimToast(false), 3000);
+            } else {
+                const error = await response.json();
+                alert(error.error || 'Failed to claim reward');
+            }
+        } catch (error) {
+            console.error('Error claiming reward:', error);
+            alert('Failed to claim reward');
+        } finally {
+            setClaiming(null);
+        }
     };
 
     const totalEarned = rewards.filter(r => r.claimed).reduce((sum, r) => sum + r.rewardAmount, 0);
@@ -220,18 +245,18 @@ export default function RewardsPage() {
                                         <div
                                             key={reward.id}
                                             className={`bg-white/5 border rounded-2xl p-6 flex items-center justify-between transition-all ${canClaim
-                                                    ? 'border-purple-500/50 bg-purple-500/10 hover:bg-purple-500/20'
-                                                    : reward.claimed
-                                                        ? 'border-green-500/30 bg-green-500/5'
-                                                        : 'border-white/10 hover:bg-white/10'
+                                                ? 'border-purple-500/50 bg-purple-500/10 hover:bg-purple-500/20'
+                                                : reward.claimed
+                                                    ? 'border-green-500/30 bg-green-500/5'
+                                                    : 'border-white/10 hover:bg-white/10'
                                                 }`}
                                         >
                                             <div className="flex items-center gap-5 flex-1">
                                                 <div className={`p-3 rounded-xl ${reward.claimed
-                                                        ? 'bg-green-500/20 text-green-400'
-                                                        : canClaim
-                                                            ? 'bg-purple-500/20 text-purple-400 animate-pulse'
-                                                            : 'bg-white/10 text-white/40'
+                                                    ? 'bg-green-500/20 text-green-400'
+                                                    : canClaim
+                                                        ? 'bg-purple-500/20 text-purple-400 animate-pulse'
+                                                        : 'bg-white/10 text-white/40'
                                                     }`}>
                                                     {reward.claimed ? <Check size={20} /> : <Icon size={20} />}
                                                 </div>
@@ -249,10 +274,10 @@ export default function RewardsPage() {
                                                         <div className="h-2 flex-1 max-w-xs bg-white/10 rounded-full overflow-hidden">
                                                             <div
                                                                 className={`h-full transition-all duration-500 ${reward.claimed
-                                                                        ? 'bg-green-500'
-                                                                        : canClaim
-                                                                            ? 'bg-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)]'
-                                                                            : 'bg-white/30'
+                                                                    ? 'bg-green-500'
+                                                                    : canClaim
+                                                                        ? 'bg-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)]'
+                                                                        : 'bg-white/30'
                                                                     }`}
                                                                 style={{ width: `${progressPercent}%` }}
                                                             />
@@ -272,10 +297,10 @@ export default function RewardsPage() {
                                                     onClick={() => handleClaim(reward)}
                                                     disabled={!canClaim || claiming === reward.id}
                                                     className={`text-xs font-bold uppercase tracking-wide px-4 py-2 rounded-xl transition-all ${reward.claimed
-                                                            ? 'bg-green-500/20 text-green-400 cursor-default'
-                                                            : canClaim
-                                                                ? 'bg-purple-500 text-white hover:bg-purple-600 cursor-pointer'
-                                                                : 'bg-white/5 text-white/20 cursor-not-allowed'
+                                                        ? 'bg-green-500/20 text-green-400 cursor-default'
+                                                        : canClaim
+                                                            ? 'bg-purple-500 text-white hover:bg-purple-600 cursor-pointer'
+                                                            : 'bg-white/5 text-white/20 cursor-not-allowed'
                                                         }`}
                                                 >
                                                     {claiming === reward.id ? (
@@ -311,8 +336,8 @@ export default function RewardsPage() {
                                     <div
                                         key={day}
                                         className={`flex-1 h-12 rounded-xl flex items-center justify-center text-sm font-bold ${day <= 1
-                                                ? 'bg-amber-500 text-black'
-                                                : 'bg-white/10 text-white/40'
+                                            ? 'bg-amber-500 text-black'
+                                            : 'bg-white/10 text-white/40'
                                             }`}
                                     >
                                         {day === 7 ? '🎁' : `D${day}`}

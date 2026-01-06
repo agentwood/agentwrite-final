@@ -142,19 +142,19 @@ export async function isPremium(userId?: string | null): Promise<boolean> {
 export function getPlanLimits(planId: PlanId) {
   const limits = {
     free: {
-      messagesPerDay: 50,
-      ttsSecondsPerDay: 300,
+      messagesPerDay: 20,      // Very limited for free users
+      ttsSecondsPerDay: 60,    // 1 minute TTS
       callMinutesPerDay: 0,
     },
     starter: {
-      messagesPerDay: -1, // Unlimited
-      ttsSecondsPerDay: -1, // Unlimited
-      callMinutesPerDay: 60,
+      messagesPerDay: 100,     // Limited but usable
+      ttsSecondsPerDay: 300,   // 5 minutes TTS  
+      callMinutesPerDay: 10,
     },
     pro: {
-      messagesPerDay: -1, // Unlimited
-      ttsSecondsPerDay: -1, // Unlimited
-      callMinutesPerDay: -1, // Unlimited
+      messagesPerDay: 500,     // High limit (Plus tier)
+      ttsSecondsPerDay: 1800,  // 30 minutes TTS
+      callMinutesPerDay: 60,
     },
   };
 
