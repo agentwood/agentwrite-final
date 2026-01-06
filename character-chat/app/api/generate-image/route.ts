@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI, Modality } from '@google/genai';
 
 export async function POST(request: NextRequest) {
     try {
@@ -9,20 +9,26 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
         }
 
-        const genAI = new GoogleGenerativeAI(process.env.API_KEY || '');
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || process.env.API_KEY || '' });
 
-        const result = await model.generateContent(prompt);
+        // Use Imagen 4 for image generation
+        const response = await ai.models.generateImages({
+            model: 'imagen-4.0-generate-001',
+            prompt: prompt,
+            config: {
+                numberOfImages: 1,
+                aspectRatio: '1:1',
+                outputMimeType: 'image/png',
+            }
+        });
 
-        const response = result.response;
-        if (response.candidates?.[0]?.content?.parts) {
-            for (const part of response.candidates[0].content.parts) {
-                if (part.inlineData) {
-                    return NextResponse.json({
-                        mimeType: part.inlineData.mimeType,
-                        data: part.inlineData.data
-                    });
-                }
+        if (response.generatedImages && response.generatedImages.length > 0) {
+            const imageBytes = response.generatedImages[0].image?.imageBytes;
+            if (imageBytes) {
+                return NextResponse.json({
+                    mimeType: 'image/png',
+                    data: imageBytes
+                });
             }
         }
 

@@ -19,10 +19,10 @@ const USER_ID_KEY = 'agentwood_user_id';
  */
 export function getUserId(): string | null {
   if (typeof window === 'undefined') return null;
-  
+
   const userId = localStorage.getItem(USER_ID_KEY);
   if (userId) return userId;
-  
+
   // Generate a new anonymous user ID
   const newUserId = `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   localStorage.setItem(USER_ID_KEY, newUserId);
@@ -52,7 +52,7 @@ export function getUserAge(): number | null {
  */
 export function getSession(): User | null {
   if (typeof window === 'undefined') return null;
-  
+
   const session = localStorage.getItem(STORAGE_KEY);
   if (!session) {
     // Create anonymous session
@@ -64,7 +64,7 @@ export function getSession(): User | null {
     setSession(anonymousUser);
     return anonymousUser;
   }
-  
+
   try {
     return JSON.parse(session);
   } catch {
@@ -88,6 +88,17 @@ export function clearSession(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(USER_ID_KEY);
+}
+
+/**
+ * Check if the user is fully authenticated (not anonymous)
+ */
+export function isAuthenticated(): boolean {
+  if (typeof window === 'undefined') return false;
+  const session = getSession();
+  // A "fully" logged in user in this simple system is one with a session that isn't just anonymous
+  // Usually this means they have an email or we check if the session was created via login
+  return !!(session && session.email);
 }
 
 /**

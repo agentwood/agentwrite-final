@@ -1291,12 +1291,26 @@ export async function POST(request: NextRequest) {
         console.log(`[TTS] Applied accent cue for ${seedId}: "${accentCue.substring(0, 50)}..."`);
       }
 
+      // Instruction for the model to be expressive and include natural pauses/breathing
+      const ttsInstruction = `
+        You are a high-fidelity Text-to-Speech engine.
+        Speak the provided text naturally and extremely expressively.
+        Include realistic pauses, soft sighs, light breathing, and subtle emotional cues (like small laughs, throat clearing, or hesitations) where appropriate based on the context of the text.
+        Text within *asterisks* (like *chuckles* or *sighs*) should be ACTED OUT naturally, NOT spoken as words.
+        Maintain a consistent ${finalVoiceName} persona.
+        Make it sound like a real person in a quiet room, with natural human energy.
+        IMPORTANT: Output ONLY audio. Do NOT generate any text response.
+      `;
+
       result = await ai.models.generateContent({
         model: 'gemini-2.5-flash-preview-tts', // Use TTS model directly
         contents: {
-          parts: [{ text: ttsText }]
+          parts: [{ text: cleanedText }] // Cleaned text now includes *cues*
         },
         config: {
+          systemInstruction: {
+            parts: [{ text: ttsInstruction }]
+          },
           responseModalities: [Modality.AUDIO],
           speechConfig: speechConfig
         }

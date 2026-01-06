@@ -42,31 +42,10 @@ interface ChatWindowProps {
   conversationId: string;
 }
 
-// Extract dialogue for TTS by removing action descriptions (*actions*)
-// Character.AI style uses *asterisks* for actions/emotions, plain text for dialogue
-function extractDialogueForTTS(text: string): string {
-  // Remove action descriptions (text between asterisks like *smiles*)
-  let dialogueText = text.replace(/\*[^*]+\*/g, '');
-
-  // Clean up extra whitespace created by removing actions
-  dialogueText = dialogueText.replace(/\s+/g, ' ').trim();
-
-  // If after removing actions there's still text, use it
-  if (dialogueText.length > 0) {
-    console.log('[TTS] Dialogue extracted for TTS', {
-      originalLength: text.length,
-      dialogueLength: dialogueText.length,
-      extracted: dialogueText.substring(0, 100) + (dialogueText.length > 100 ? '...' : ''),
-    });
-    return dialogueText;
-  }
-
-  // If the message is ONLY actions (no dialogue), return empty
-  console.log('[TTS] No dialogue found in message - skipping action descriptions', {
-    originalLength: text.length,
-    hasAsterisks: text.includes('*'),
-  });
-  return '';
+export function extractDialogueForTTS(text: string): string {
+  // Multimodal Gemini can interpret *asterisks* (sighs, laughs)
+  // so we keep them to allow natural acting.
+  return text.trim();
 }
 
 // Component to format messages with action descriptions and emphasis
@@ -296,7 +275,7 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
   const handleSendMessage = useCallback(async (messageText: string) => {
     if (!messageText.trim() || isLoading) return;
 
-    // IMPORTANT: Stop any currently playing audio immediately when user sends a new message
+    // IMPORTANT: Stop any currently playing audio immediately
     audioManager.stop();
 
     // Add user message
@@ -435,20 +414,16 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
       setMessages([greetingMessage]);
 
       // Auto-play greeting voice (speech-first) - ONLY if not already played (prevent Strict Mode double-fire)
-      if (!isMuted && persona.voiceName && !greetingPlayedRef.current) {
+      if (persona.voiceName && !greetingPlayedRef.current) {
         greetingPlayedRef.current = true; // Mark as played IMMEDIATELY to prevent double-fire
 
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'ChatWindow.tsx:greetingAutoPlay', message: 'Scheduling greeting auto-play (first time only)', data: { voiceName: persona.voiceName, personaName: persona.name }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
-        // #endregion
+        console.log(`[ChatWindow] Auto-playing greeting for ${persona.name}. isMuted: ${isMuted}`);
 
         setTimeout(() => {
-          // #region agent log
-          fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'ChatWindow.tsx:greetingTimeout', message: 'Greeting timeout fired - calling playVoiceForMessage', data: { voiceName: persona.voiceName }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
-          // #endregion
           lastAutoPlayedMessageRef.current = 'greeting';
+          // Force play even if muted? No, respect muted state but playVoiceForMessage might handle it
           playVoiceForMessage(persona.greeting!, 'greeting');
-        }, 500);
+        }, 800); // Slightly longer timeout to ensure audio context is ready
       }
     }
   }, [persona.greeting, messages.length, handleSendMessage, isMuted, persona.voiceName, playVoiceForMessage]);

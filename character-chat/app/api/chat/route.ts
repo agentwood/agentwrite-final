@@ -121,11 +121,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch persona for context-aware filtering and other operations
+    console.log(`[Chat] Looking up persona by ID: ${characterId}`);
     const persona = await db.personaTemplate.findUnique({
       where: { id: characterId },
     });
 
+    console.log(`[Chat] Persona lookup result:`, persona ? { id: persona.id, name: persona.name } : 'NOT FOUND');
+
     if (!persona) {
+      console.error(`[Chat] Persona not found for ID: ${characterId}`);
       return NextResponse.json(
         { error: 'Persona not found' },
         { status: 404 }
@@ -156,7 +160,7 @@ export async function POST(request: NextRequest) {
     // Also filter AI responses before sending
     // This will be checked after generation
 
-    // Get user ID from request (for now, use a placeholder - implement auth later)
+    // Get user ID from request
     const userId = request.headers.get('x-user-id') || undefined;
 
     // Check quota
@@ -249,22 +253,46 @@ export async function POST(request: NextRequest) {
       parts: [{ text: msg.text }],
     }));
 
-    // Call Gemini
+    // Call Gemini with detailed logging
+    console.log(`[Chat] Sending to Gemini (${persona.name}):`, JSON.stringify({
+      messagesCount: geminiContents.length,
+      lastMessage: geminiContents[geminiContents.length - 1]?.parts[0]?.text
+    }));
+
     const ai = getGeminiClient();
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: geminiContents,
       config: {
         systemInstruction: {
           parts: [{ text: systemInstruction }],
         },
-        maxOutputTokens: 2000, // Increased from 600 to allow detailed responses
-        temperature: 1.0, // Increased from 0.9 to 1.0 for more variety
-        topP: 0.95, // Add topP for more diverse responses
+        maxOutputTokens: 2000,
+        temperature: 1.0,
+        topP: 0.95,
       },
     });
 
-    let responseText = result.text || '';
+    // Handle responses from different SDK versions or error states
+    // result.text is a getter that might throw or be empty
+    let responseText = '';
+
+    try {
+      if (result.text) {
+        responseText = result.text;
+      }
+    } catch (e) {
+      console.warn('[Chat] result.text failed, trying candidates', e);
+    }
+
+    if (!responseText && result.candidates?.[0]?.content?.parts?.[0]?.text) {
+      responseText = result.candidates[0].content.parts[0].text;
+    }
+
+    if (!responseText) {
+      console.error('[Chat] Gemini returned no text. Full result:', JSON.stringify(result, null, 2));
+      throw new Error('Gemini returned an empty response');
+    }
 
     // Process response to character.ai style (dialogue-first, no excessive descriptions)
     responseText = processToDialogueStyle(responseText);

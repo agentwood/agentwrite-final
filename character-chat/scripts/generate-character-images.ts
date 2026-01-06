@@ -4,10 +4,10 @@
  * Generates character avatars in the Agentwood art style based on data from
  * comprehensive-character-data.xlsx
  * 
- * Art Style: Stylized digital illustration portraits with bold vibrant colors,
- * dramatic lighting, atmospheric backgrounds, semi-realistic with illustrative quality.
+ * Art Style: High-fidelity realistic digital illustrations,
+ * dramatic lighting, atmospheric backgrounds, professional concept art quality.
  * 
- * Usage: npx ts-node scripts/generate-character-images.ts
+ * Usage: npx tsx scripts/generate-character-images.ts
  */
 
 import dotenv from 'dotenv';
@@ -15,6 +15,7 @@ import XLSX from 'xlsx';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import { GoogleGenAI } from '@google/genai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // ES Module compatibility - get __dirname equivalent
@@ -29,16 +30,17 @@ dotenv.config();
 const EXCEL_PATH = '/Users/akeemojuko/Downloads/comprehensive-character-data.xlsx';
 const OUTPUT_DIR = path.join(__dirname, '../public/characters');
 
-// GEMINI SETUP
+// GEMINI SETUP - use both SDKs (one for text, one for images)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+const imageAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
-// --- STYLE RECIPE (Updated to match user's reference images) ---
-// User examples: Detailed digital illustrations with painterly brush strokes, 
-// rich atmospheric backgrounds, warm/cool color palettes, semi-realistic faces
-const STYLE_BLOCK = "detailed digital illustration, painterly brush strokes, semi-realistic portrait, rich atmospheric background, cinematic composition, warm and cool color contrast, dramatic lighting with rim lights and soft fill, detailed facial features, expressive eyes, textured clothing, environmental storytelling, moody atmosphere, vibrant color palette, professional concept art quality, artstation trending, 4k ultra detailed";
+// --- STYLE RECIPE (Updated to match user's realistic reference images) ---
+// User examples: High-fidelity realistic digital illustrations like concept art,
+// detailed faces, atmospheric backgrounds, warm lighting, professional quality
+const STYLE_BLOCK = "Professional semi-realistic digital illustration, painterly textures, expressive brush strokes, dramatic cinematic lighting, rich colors, artistic hand-painted feel, character-focused composition, atmospheric background, visual novel quality, artstation trending, 4k ultra detailed";
 
-const NEGATIVE_CONSTRAINTS = "cartoon, anime, chibi, pixar style, 3d render, photorealistic photograph, blurry, low quality, deformed face, extra fingers, text overlay, watermark, signature, logo, plain background, flat colors, amateur art";
+const NEGATIVE_CONSTRAINTS = "cartoon, anime, chibi, pixar style, 3d render, blurry, low quality, deformed face, extra fingers, text overlay, watermark, signature, logo, plain background, flat colors, amateur art";
 
 interface CharacterData {
     'Character ID': string;
@@ -69,7 +71,7 @@ async function craftDetailedPrompt(char: CharacterData): Promise<string> {
     Metadata: Age ${char['Age']}, Gender ${char['Gender']}, Heritage ${char['Heritage']}
     
     Keep it concise but vivid. Focus on visual details. 
-    Ensure the character's appearance is detailed and the scene is brightly lit with realistic colors.
+    Ensure the character's appearance is highly detailed with realistic features and the scene is beautifully lit with natural, sophisticated colors.
     Return ONLY the four lines (Character, Environment, Lighting, Framing).
     `;
 
@@ -79,36 +81,43 @@ async function craftDetailedPrompt(char: CharacterData): Promise<string> {
         return text.trim();
     } catch (e) {
         console.error(`  ⚠️ Gemini prompt crafting failed for ${char['Name']}, using fallback.`);
-        return `Character: ${char['Name']}, ${char['Heritage']}\nEnvironment: Atmospheric background\nLighting: Neon backlight\nFraming: Waist-up portrait`;
+        return `Character: ${char['Name']}, ${char['Heritage']}\nEnvironment: Atmospheric background\nLighting: Warm cinematic lighting\nFraming: Waist-up portrait`;
     }
 }
 
 /**
- * Generate image using Pollinations.ai (using the crafted recipe)
+ * Generate image using Gemini Imagen API
  */
 async function generateImage(recipe: string, characterId: string): Promise<{ success: boolean; imagePath?: string; error?: string }> {
     // Combine for final prompt
-    const finalPrompt = `“${STYLE_BLOCK}”\n\n${recipe}\n\nNegative: ${NEGATIVE_CONSTRAINTS}`;
+    const finalPrompt = `${STYLE_BLOCK}\n\n${recipe}\n\nAvoid: ${NEGATIVE_CONSTRAINTS}`;
 
     try {
-        const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=1000&height=1000&nologo=true&seed=${characterId}&model=flux`;
+        console.log(`  Generating via Gemini Imagen API...`);
 
-        console.log(`  Generating via Pollinations.ai...`);
+        const response = await imageAI.models.generateImages({
+            model: 'imagen-4.0-generate-001',
+            prompt: finalPrompt,
+            config: {
+                numberOfImages: 1,
+                aspectRatio: '1:1',
+                outputMimeType: 'image/png',
+            }
+        });
 
-        const response = await fetch(pollinationsUrl);
-
-        if (!response.ok) {
-            return { success: false, error: `HTTP ${response.status}` };
+        if (response.generatedImages && response.generatedImages.length > 0) {
+            const imageBytes = response.generatedImages[0].image?.imageBytes;
+            if (imageBytes) {
+                const imagePath = path.join(OUTPUT_DIR, `${characterId}.png`);
+                const imageBuffer = Buffer.from(imageBytes, 'base64');
+                fs.writeFileSync(imagePath, imageBuffer);
+                return { success: true, imagePath };
+            }
         }
 
-        const imageBuffer = await response.arrayBuffer();
-
-        // Save image
-        const imagePath = path.join(OUTPUT_DIR, `${characterId}.png`);
-        fs.writeFileSync(imagePath, Buffer.from(imageBuffer));
-
-        return { success: true, imagePath };
+        return { success: false, error: 'No image generated' };
     } catch (error: any) {
+        console.error(`  Gemini image generation error:`, error.message);
         return { success: false, error: error.message };
     }
 }
@@ -157,10 +166,22 @@ async function main(): Promise<void> {
     const generatedImages = new Map<string, string>();
     const errors: Array<{ seedId: string; error: string }> = [];
 
+    const targetName = process.env.TARGET_NAME;
     for (let i = 0; i < characters.length; i++) {
         const char = characters[i];
         const seedId = char['Seed ID'];
         const name = char['Name'];
+
+        if (targetName && !name.toLowerCase().includes(targetName.toLowerCase())) {
+            continue;
+        }
+
+        const imagePath = path.join(OUTPUT_DIR, `${seedId}.png`);
+        if (fs.existsSync(imagePath) && !process.env.FORCE_REGENERATE) {
+            console.log(`[${i + 1}/${characters.length}] Skipping existing: ${name} (${seedId})`);
+            generatedImages.set(seedId, imagePath);
+            continue;
+        }
 
         console.log(`[${i + 1}/${characters.length}] Crafting recipe for: ${name} (${seedId})`);
 

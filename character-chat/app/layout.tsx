@@ -3,6 +3,7 @@ import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import AgeGate from "./components/AgeGate";
 import StructuredData from "./components/StructuredData";
+import AuthWrapper from "./components/AuthWrapper";
 import { generateMetadata as generateSEOMetadata } from "@/lib/seo/metadata";
 import { generateOrganizationSchema, generateWebSiteSchema } from "@/lib/seo/structured-data";
 
@@ -49,7 +50,9 @@ export default function RootLayout({
         <StructuredData data={organizationSchema} />
         <StructuredData data={websiteSchema} />
         <AgeGate>
-          {children}
+          <AuthWrapper>
+            {children}
+          </AuthWrapper>
         </AgeGate>
       </body>
     </html>

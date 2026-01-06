@@ -9,7 +9,7 @@ import {
   PlayCircle,
   Zap, Wand2, Loader2, Music,
   ChevronDown, BookOpen, Share2, Instagram, Twitter,
-  User, CreditCard, Sliders, VolumeX, ShieldCheck, DollarSign,
+  User, CreditCard, Sliders, VolumeX, Volume2, ShieldCheck, DollarSign,
   Globe, Moon, Sun, Monitor, Laptop, Check, X, ShieldAlert,
   Link, BarChart, Users, ThumbsUp, ThumbsDown, Bookmark,
   MoreHorizontal, Headphones, Smile, Heart, ZapOff, Info,
@@ -323,6 +323,8 @@ const ImmersiveChatView: React.FC<{
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [sidebarTab, setSidebarTab] = useState<'comments' | 'similar' | 'persona'>('comments');
+  const [autoPlayVoice, setAutoPlayVoice] = useState(true);
 
   const [conversationId] = useState(() => crypto.randomUUID());
 
@@ -369,8 +371,8 @@ const ImmersiveChatView: React.FC<{
         })
       });
       const data = await response.json();
-      if (data.audioContent) {
-        const audio = new Audio(`data:audio/mp3;base64,${data.audioContent}`);
+      if (data.audio) {
+        const audio = new Audio(`data:audio/mp3;base64,${data.audio}`);
         audio.play();
       }
     } catch (e) {
@@ -383,6 +385,14 @@ const ImmersiveChatView: React.FC<{
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Auto-send greeting on mount
+  useEffect(() => {
+    const greeting = character.greeting || `Hello! I'm ${character.name}. ${character.tagline || 'How can I help you today?'}`;
+    setMessages([{ role: 'model', text: greeting }]);
+    playVoice(greeting);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [character.id]);
 
   return (
     <div className="flex h-screen w-full bg-[#12100e] text-white overflow-hidden animate-fade-in">
@@ -431,11 +441,21 @@ const ImmersiveChatView: React.FC<{
                   <img src={character.avatarUrl} className="w-full h-full object-cover" />
                 </div>
               )}
-              <div className={`max-w-[85%] md:max-w-[70%] p-4 rounded-2xl text-[15px] leading-relaxed shadow-sm ${msg.role === 'user'
-                ? 'bg-[#fcf9f7] text-black rounded-tr-sm'
-                : 'bg-[#1c1816] border border-white/10 text-white/90 rounded-tl-sm'
-                }`}>
-                {msg.text}
+              <div className="flex flex-col gap-1">
+                {msg.role === 'model' && (
+                  <button
+                    onClick={() => playVoice(msg.text)}
+                    className="flex items-center gap-1.5 px-2.5 py-1 bg-[#2a2520] rounded-full text-[10px] text-white/70 hover:bg-[#3a3530] hover:text-white transition-colors self-start border border-white/10"
+                  >
+                    <Play size={10} fill="currentColor" /> <span className="text-white/50">2s</span>
+                  </button>
+                )}
+                <div className={`max-w-[85%] md:max-w-[70%] p-4 rounded-2xl text-[15px] leading-relaxed shadow-sm ${msg.role === 'user'
+                  ? 'bg-[#fcf9f7] text-black rounded-tr-sm'
+                  : 'bg-[#1c1816] border border-white/10 text-white/90 rounded-tl-sm'
+                  }`}>
+                  {msg.text}
+                </div>
               </div>
             </div>
           ))}
@@ -467,16 +487,24 @@ const ImmersiveChatView: React.FC<{
               className="flex-1 bg-transparent border-none outline-none text-white placeholder:text-white/20 py-3 max-h-32 resize-none scrollbar-hide font-sans text-sm"
               rows={1}
             />
-            <button
-              onClick={handleSend}
-              disabled={!input.trim()}
-              className={`p-3 rounded-full transition-all duration-300 ${input.trim()
-                ? 'bg-white text-black hover:scale-105 shadow-md'
-                : 'bg-white/5 text-white/20'
-                }`}
-            >
-              <Send size={18} fill={input.trim() ? "currentColor" : "none"} />
-            </button>
+            <div className="flex items-center gap-1">
+              <button className="p-2 rounded-full text-white/30 hover:text-white hover:bg-white/5 transition-colors">
+                <Sparkle size={18} />
+              </button>
+              <button className="p-2 rounded-full text-white/30 hover:text-white hover:bg-white/5 transition-colors">
+                <Settings size={18} />
+              </button>
+              <button
+                onClick={handleSend}
+                disabled={!input.trim()}
+                className={`p-3 rounded-full transition-all duration-300 ${input.trim()
+                  ? 'bg-white text-black hover:scale-105 shadow-md'
+                  : 'bg-white/5 text-white/20'
+                  }`}
+              >
+                <Send size={18} fill={input.trim() ? "currentColor" : "none"} />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -516,60 +544,105 @@ const ImmersiveChatView: React.FC<{
         <div className="h-[320px] flex flex-col bg-[#0c0c0c] border-t border-white/5 relative z-20">
           {/* Navigation Tabs */}
           <div className="flex border-b border-white/5">
-            <button className="flex-1 py-4 text-white border-b-2 border-white relative">
+            <button
+              onClick={() => setSidebarTab('comments')}
+              className={`flex-1 py-4 transition-colors relative ${sidebarTab === 'comments' ? 'text-white border-b-2 border-white' : 'text-white/30 hover:text-white'}`}
+            >
               <MessageSquare size={18} className="mx-auto" />
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-8 bg-white/10 blur-lg rounded-full"></span>
+              {sidebarTab === 'comments' && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-8 bg-white/10 blur-lg rounded-full"></span>}
             </button>
-            <button className="flex-1 py-4 text-white/30 hover:text-white transition-colors"><Sparkle size={18} className="mx-auto" /></button>
-            <button className="flex-1 py-4 text-white/30 hover:text-white transition-colors"><Settings size={18} className="mx-auto" /></button>
+            <button
+              onClick={() => setSidebarTab('similar')}
+              className={`flex-1 py-4 transition-colors relative ${sidebarTab === 'similar' ? 'text-white border-b-2 border-white' : 'text-white/30 hover:text-white'}`}
+            >
+              <Sparkle size={18} className="mx-auto" />
+              {sidebarTab === 'similar' && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-8 bg-white/10 blur-lg rounded-full"></span>}
+            </button>
+            <button
+              onClick={() => setSidebarTab('persona')}
+              className={`flex-1 py-4 transition-colors relative ${sidebarTab === 'persona' ? 'text-white border-b-2 border-white' : 'text-white/30 hover:text-white'}`}
+            >
+              <Settings size={18} className="mx-auto" />
+              {sidebarTab === 'persona' && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-8 bg-white/10 blur-lg rounded-full"></span>}
+            </button>
           </div>
 
-          {/* Comments Preview */}
+          {/* Tab Content */}
           <div className="flex-1 overflow-y-auto p-5 space-y-5 scrollbar-hide">
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] font-bold uppercase tracking-widest text-white/40">Comments <span className="text-white">567</span></div>
-              <ChevronRight size={14} className="text-white/20" />
-            </div>
+            {/* Comments Tab */}
+            {sidebarTab === 'comments' && (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="text-[11px] font-bold uppercase tracking-widest text-white/40">Comments <span className="text-white">0</span></div>
+                  <ChevronRight size={14} className="text-white/20" />
+                </div>
+                <div className="space-y-4">
+                  <p className="text-[11px] text-white/40 text-center py-4 italic">Be the first to comment!</p>
+                </div>
+              </>
+            )}
 
-            {/* Dummy Comments */}
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                <div className="w-7 h-7 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-[9px] font-bold border border-white/5 flex-shrink-0">D</div>
-                <div className="space-y-0.5">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[11px] font-bold text-white/90">Dreamer_99</span>
-                    <span className="text-[9px] text-white/30">2h</span>
-                  </div>
-                  <p className="text-[11px] text-white/60 leading-relaxed">The depth of this character is insane. I feel like I'm actually there.</p>
+            {/* Similar Talkies Tab */}
+            {sidebarTab === 'similar' && (
+              <>
+                <div className="text-[11px] font-bold uppercase tracking-widest text-white/40">Similar Talkies</div>
+                <div className="space-y-3">
+                  <p className="text-[11px] text-white/40 text-center py-4 italic">No similar characters found yet.</p>
                 </div>
-                <div className="ml-auto pt-1">
-                  <Heart size={10} className="text-white/20" />
-                </div>
-              </div>
+              </>
+            )}
 
-              <div className="flex gap-3">
-                <div className="w-7 h-7 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-[9px] font-bold border border-white/5 flex-shrink-0">A</div>
-                <div className="space-y-0.5">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[11px] font-bold text-white/90">AlexM</span>
-                    <span className="text-[9px] text-white/30">5h</span>
+            {/* Persona Card Tab */}
+            {sidebarTab === 'persona' && (
+              <>
+                <div className="text-[11px] font-bold uppercase tracking-widest text-white/40 mb-4">Persona Card</div>
+                <div className="bg-[#161616] rounded-xl border border-white/5 divide-y divide-white/5">
+                  <div className="flex items-center justify-between p-4">
+                    <div className="flex items-center gap-3">
+                      <img src={character.avatarUrl} className="w-8 h-8 rounded-full object-cover" />
+                      <span className="text-[11px] text-white/70">Customize Persona for this chat exclusively</span>
+                    </div>
+                    <ChevronRight size={14} className="text-white/20" />
                   </div>
-                  <p className="text-[11px] text-white/60 leading-relaxed">Wait, did you get the hidden dialogue option about the cafe?</p>
+                  <div className="flex justify-between p-4">
+                    <span className="text-[11px] text-white/50">Name</span>
+                    <span className="text-[11px] text-white/30">Set your nickname</span>
+                  </div>
+                  <div className="flex justify-between p-4">
+                    <span className="text-[11px] text-white/50">My Pronoun</span>
+                    <span className="text-[11px] text-white/30">Select your pronoun</span>
+                  </div>
+                  <div className="flex justify-between p-4">
+                    <span className="text-[11px] text-white/50">My Persona</span>
+                    <span className="text-[11px] text-white/30">Set your persona</span>
+                  </div>
                 </div>
-                <div className="ml-auto pt-1">
-                  <Heart size={10} className="text-white/20" />
+
+                <div className="text-[11px] font-bold uppercase tracking-widest text-white/40 mt-6 mb-4">Sound Settings</div>
+                <div className="bg-[#161616] rounded-xl border border-white/5 divide-y divide-white/5">
+                  <div className="flex justify-between items-center p-4">
+                    <span className="text-[11px] text-white/70">Auto-play dialogue voice</span>
+                    <button
+                      onClick={() => setAutoPlayVoice(!autoPlayVoice)}
+                      className={`w-10 h-5 rounded-full transition-colors relative ${autoPlayVoice ? 'bg-amber-400' : 'bg-white/20'}`}
+                    >
+                      <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${autoPlayVoice ? 'right-0.5' : 'left-0.5'}`}></span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
 
-          {/* Comment Input */}
-          <div className="p-4 border-t border-white/5">
-            <div className="flex items-center gap-3 bg-[#161616] rounded-full pl-2 pr-4 py-2 border border-white/5 focus-within:border-white/20 transition-colors">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-[9px] font-bold text-white shadow-md">Y</div>
-              <input type="text" placeholder="Type your comment..." className="bg-transparent border-none outline-none text-[12px] text-white flex-1 placeholder:text-white/20 font-sans" />
+          {/* Comment Input (only show on comments tab) */}
+          {sidebarTab === 'comments' && (
+            <div className="p-4 border-t border-white/5">
+              <div className="flex items-center gap-3 bg-[#161616] rounded-full pl-2 pr-4 py-2 border border-white/5 focus-within:border-white/20 transition-colors">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-[9px] font-bold text-white shadow-md">Y</div>
+                <input type="text" placeholder="Type your comment..." className="bg-transparent border-none outline-none text-[12px] text-white flex-1 placeholder:text-white/20 font-sans" />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -587,14 +660,93 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
+  // AI-powered features state
+  const [isAiLoading, setIsAiLoading] = useState<string | null>(null);
+  const [suggestedVoice, setSuggestedVoice] = useState<string | null>(null);
+
+  // Image Generation Modal State
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [imagePrompt, setImagePrompt] = useState('');
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [isGeneratingImages, setIsGeneratingImages] = useState(false);
+
+  // AI Generator function for persona/tagline/voice/greeting
+  const callAiGenerator = async (type: string) => {
+    setIsAiLoading(type);
+    try {
+      const response = await fetch('/api/generate-character-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, name, description, gender })
+      });
+      const data = await response.json();
+      if (!data.success) throw new Error(data.error);
+
+      if (type === 'expand_persona' && data.persona) setDescription(data.persona);
+      if (type === 'suggest_tagline' && data.tagline) setTagline(data.tagline);
+      if (type === 'suggest_voice' && data.suggestedVoice) setSuggestedVoice(data.suggestedVoice);
+      if (type === 'suggest_greeting' && data.greeting) setOpening(data.greeting);
+    } catch (e) {
+      console.error('AI generation failed:', e);
+    } finally {
+      setIsAiLoading(null);
+    }
+  };
+
+  // Open image modal with pre-filled prompt
+  const openImageModal = () => {
+    const defaultPrompt = name ? `${name}, ${gender}, anime character portrait` : 'anime character portrait';
+    setImagePrompt(defaultPrompt);
+    setGeneratedImages([]);
+    setShowImageModal(true);
+  };
+
+  // Generate 4 images using Gemini API (fallback since Pollinations moved)
+  const generateMultipleImages = async () => {
+    if (!imagePrompt.trim()) return;
+    setIsGeneratingImages(true);
+    setGeneratedImages([]);
+
+    const stylePrefix = 'High-quality anime style digital illustration, detailed character portrait, vibrant colors, visual novel art, expressive face, professional concept art';
+    const fullPrompt = `${stylePrefix}. ${imagePrompt}`;
+
+    try {
+      // Generate 4 images using Gemini
+      const imagePromises = Array.from({ length: 4 }, async (_, i) => {
+        const response = await fetch('/api/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: `${fullPrompt}, variation ${i + 1}` })
+        });
+        const data = await response.json();
+        if (data.data) {
+          return `data:${data.mimeType};base64,${data.data}`;
+        }
+        return null;
+      });
+
+      const results = await Promise.all(imagePromises);
+      setGeneratedImages(results.filter(Boolean) as string[]);
+    } catch (e) {
+      console.error('Image generation failed:', e);
+    } finally {
+      setIsGeneratingImages(false);
+    }
+  };
+
+  const selectImage = (url: string) => {
+    setAvatarUrl(url);
+    setShowImageModal(false);
+  };
+
   const generateAvatar = async () => {
     if (!description && !name) return;
     setIsGeneratingImage(true);
 
     try {
-      const prompt = `High-end semi-realistic digital illustration, cinematic visual novel art style. A detailed character portrait of a ${gender} named ${name}. 
+      const prompt = `Professional high-fidelity realistic digital illustration, cinematic concept art. A detailed character portrait of a ${gender} named ${name}. 
           Character Details: ${description}. 
-          Artistic Style: Painterly brush strokes, rich atmospheric background with environmental storytelling, dramatic cinematic lighting with rim lights and soft fill, expressive detailed facial features, textured clothing, vibrant yet sophisticated color palette. Masterwork quality, trending on ArtStation, 4k ultra-detailed. Close-up or waist-up composition.`;
+          Artistic Style: Highly detailed realistic facial features, expressive eyes, realistic skin textures (natural tones), professional studio lighting with rim lights and soft fill, rich atmospheric background, textured clothing. Masterwork quality, trending on ArtStation, 8k ultra-detailed. Realistic proportion and sophisticated palette. Close-up or waist-up composition.`;
 
       const response = await fetch('/api/generate-image', {
         method: 'POST',
@@ -738,7 +890,7 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                   {avatarUrl ? (
                     <div className="relative w-full aspect-square rounded-lg overflow-hidden group/img">
                       <img src={avatarUrl} className="w-full h-full object-cover" />
-                      <button onClick={generateAvatar} className="absolute inset-0 bg-black/60 flex items-center justify-center text-white opacity-0 group-hover/img:opacity-100 transition-opacity">
+                      <button onClick={(e) => { e.stopPropagation(); openImageModal(); }} className="absolute inset-0 bg-black/60 flex items-center justify-center text-white opacity-0 group-hover/img:opacity-100 transition-opacity">
                         <RotateCcw size={20} className="mr-2" /> Regenerate
                       </button>
                     </div>
@@ -747,11 +899,10 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                       <ImageIcon size={24} className="mb-2" />
                       <p className="text-xs text-white/40 mb-3">No image selected</p>
                       <button
-                        onClick={(e) => { e.stopPropagation(); generateAvatar(); }}
-                        disabled={isGeneratingImage}
-                        className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 disabled:opacity-50"
+                        onClick={(e) => { e.stopPropagation(); openImageModal(); }}
+                        className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-white/90"
                       >
-                        {isGeneratingImage ? <Loader2 size={12} className="animate-spin" /> : <Wand2 size={12} />}
+                        <Wand2 size={12} />
                         Generate with AI
                       </button>
                     </div>
@@ -839,17 +990,94 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           </div>
         </div>
       </div>
+
+      {/* Image Generation Modal */}
+      {showImageModal && (
+        <div className="fixed inset-0 bg-black/95 z-[100] flex animate-fade-in">
+          <div className="w-[220px] bg-[#0c0c0c] border-r border-white/10 p-5 flex flex-col gap-6">
+            <button onClick={() => setShowImageModal(false)} className="flex items-center gap-2 text-white/60 hover:text-white text-sm">
+              <ChevronLeft size={16} /> Back
+            </button>
+            <div className="space-y-3">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-white/40">Model Selection</h3>
+              <div className="flex items-center gap-2 p-3 bg-white/5 rounded-xl border border-white/10">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-xs font-bold text-white">AI</div>
+                <span className="text-xs text-white">Anime Model</span>
+              </div>
+            </div>
+            <p className="text-[10px] text-white/30 mt-auto">Powered by Pollinations.ai</p>
+          </div>
+          <div className="flex-1 flex flex-col p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white">Image Creation</h2>
+              <button onClick={() => setShowImageModal(false)} className="p-2 rounded-full hover:bg-white/10 text-white/60 hover:text-white"><X size={20} /></button>
+            </div>
+            <div className="mb-6">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/40 block mb-2">Prompt</span>
+              <div className="relative">
+                <textarea value={imagePrompt} onChange={(e) => setImagePrompt(e.target.value)} placeholder="Describe your character's appearance..." className="w-full h-24 bg-[#161616] border border-white/10 rounded-xl p-4 text-white text-sm resize-none outline-none focus:border-white/20" />
+                <button onClick={generateMultipleImages} disabled={!imagePrompt.trim() || isGeneratingImages} className="absolute right-3 bottom-3 px-5 py-2 bg-white text-black rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 disabled:opacity-50 flex items-center gap-2">
+                  {isGeneratingImages ? <Loader2 size={14} className="animate-spin" /> : null}Generate
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {generatedImages.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-white/40">{imagePrompt.substring(0, 50)}...</span>
+                    <button onClick={generateMultipleImages} className="flex items-center gap-1 text-[10px] text-white/60 hover:text-white"><RotateCcw size={12} /> Regenerate</button>
+                  </div>
+                  <div className="grid grid-cols-4 gap-4">
+                    {generatedImages.map((url, i) => (
+                      <button key={i} onClick={() => selectImage(url)} className="aspect-[3/4] rounded-xl overflow-hidden border-2 border-transparent hover:border-purple-500 transition-all group relative bg-[#1a1a1a]">
+                        <img src={url} className="w-full h-full object-cover" alt={`Generated ${i + 1}`} />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="text-white text-xs font-bold bg-black/50 px-3 py-1 rounded-full">Select</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {generatedImages.length === 0 && !isGeneratingImages && (
+                <div className="flex items-center justify-center h-64 text-white/20">
+                  <div className="text-center"><ImageIcon size={48} className="mx-auto mb-4 opacity-50" /><p className="text-sm">Enter a prompt and click Generate</p></div>
+                </div>
+              )}
+              {isGeneratingImages && (
+                <div className="flex items-center justify-center h-64">
+                  <div className="text-center"><Loader2 size={48} className="mx-auto mb-4 animate-spin text-purple-500" /><p className="text-sm text-white/60">Generating 4 variations...</p></div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 const RewardsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const [stats, setStats] = useState({ level: 12, credits: 450, chatHours: 1.2, customChars: 1, streak: 4, stories: 2 });
+
+  useEffect(() => {
+    // Load stats from localStorage if they exist
+    const savedStats = localStorage.getItem('agentwood_rewards_stats');
+    if (savedStats) {
+      setStats(JSON.parse(savedStats));
+    } else {
+      // Initialize with realistic dummy data
+      localStorage.setItem('agentwood_rewards_stats', JSON.stringify(stats));
+    }
+  }, []);
+
   const milestones = [
-    { level: 1, title: "First Whisper", desc: "Spend 1 hour talking to any character.", progress: 100, total: 100, completed: true, reward: "50 Credits", icon: <Clock size={20} /> },
-    { level: 2, title: "Storyteller", desc: "Create your first custom character.", progress: 1, total: 1, completed: true, reward: "New Voice Pack", icon: <PenTool size={20} /> },
-    { level: 3, title: "Deep Dive", desc: "Reach a 7-day streak.", progress: 4, total: 7, completed: false, reward: "Profile Badge", icon: <Trophy size={20} /> },
-    { level: 4, title: "World Builder", desc: "Craft 5 unique stories.", progress: 2, total: 5, completed: false, reward: "200 Credits", icon: <Map size={20} /> },
-    { level: 5, title: "Legend Status", desc: "Create a character that reaches 1,000 users within a month.", progress: 124, total: 1000, completed: false, reward: "Pro Subscription (1 Month)", icon: <Users size={20} /> },
+    { level: 1, title: "First Whisper", desc: "Spend 1 hour talking to any character.", progress: stats.chatHours * 60, total: 60, completed: stats.chatHours >= 1, reward: "50 Credits", icon: <Clock size={20} /> },
+    { level: 2, title: "Storyteller", desc: "Create your first custom character.", progress: stats.customChars, total: 1, completed: stats.customChars >= 1, reward: "New Voice Pack", icon: <PenTool size={20} /> },
+    { level: 3, title: "Deep Dive", desc: "Reach a 7-day streak.", progress: stats.streak, total: 7, completed: stats.streak >= 7, reward: "Profile Badge", icon: <Trophy size={20} /> },
+    { level: 4, title: "World Builder", desc: "Craft 5 unique stories.", progress: stats.stories, total: 5, completed: stats.stories >= 5, reward: "200 Credits", icon: <Map size={20} /> },
+    { level: 5, title: "Legend Status", desc: "Create a character that reaches 1,000 users.", progress: 124, total: 1000, completed: false, reward: "Pro (1 Month)", icon: <Users size={20} /> },
   ];
 
   return (
@@ -868,21 +1096,23 @@ const RewardsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <div className="h-12 w-12 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500"><Trophy size={24} /></div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Total Level</p>
-              <p className="text-3xl font-serif text-white">12</p>
+              <p className="text-3xl font-serif text-white">{stats.level}</p>
             </div>
           </div>
           <div className="bg-[#1c1816] border border-white/5 p-6 rounded-2xl flex items-center gap-4">
             <div className="h-12 w-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500"><Sparkle size={24} /></div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Credits Earned</p>
-              <p className="text-3xl font-serif text-white">450</p>
+              <p className="text-3xl font-serif text-white">{stats.credits}</p>
             </div>
           </div>
           <div className="bg-[#1c1816] border border-white/5 p-6 rounded-2xl flex items-center gap-4">
             <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-500"><Target size={24} /></div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Next Goal</p>
-              <p className="text-xl font-serif text-white">Deep Dive</p>
+              <p className="text-xl font-serif text-white">
+                {milestones.find(m => !m.completed)?.title || "Max Level"}
+              </p>
             </div>
           </div>
         </div>
@@ -1070,10 +1300,10 @@ interface World {
 }
 
 const WORLDS: World[] = [
-  { id: 'cyberpunk', name: 'Neon Synapse', description: 'A high-tech, low-life future where rain never stops and neon reflects off wet pavement.', image: 'https://images.unsplash.com/photo-1574169208507-84376194878d?auto=format&fit=crop&q=80&w=800' },
-  { id: 'fantasy', name: 'Ethereal Glade', description: 'Ancient magic permeates the mist-shrouded forests. Beasts and beauty coexist.', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=800' },
-  { id: 'noir', name: 'Velvet Shadows', description: '1920s aesthetic, jazz clubs, smoke, and secrets whispered in dark corners.', image: 'https://images.unsplash.com/photo-1565622359461-8974d0a33481?auto=format&fit=crop&q=80&w=800' },
-  { id: 'modern', name: 'Urban Loft', description: 'Contemporary city life. Coffee shops, art galleries, and modern romance.', image: 'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&q=80&w=800' },
+  { id: 'cyberpunk', name: 'Neon Synapse', description: 'A high-tech, low-life future where rain never stops and neon reflects off wet pavement.', image: '/worlds/cyberpunk.png' },
+  { id: 'fantasy', name: 'Ethereal Glade', description: 'Ancient magic permeates the mist-shrouded forests. Beasts and beauty coexist.', image: '/worlds/fantasy.png' },
+  { id: 'noir', name: 'Velvet Shadows', description: '1920s aesthetic, jazz clubs, smoke, and secrets whispered in dark corners.', image: '/worlds/noir.png' },
+  { id: 'modern', name: 'Urban Loft', description: 'Contemporary city life. Coffee shops, art galleries, and modern romance.', image: '/worlds/modern.png' },
 ];
 
 const CraftStoryView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
@@ -1353,10 +1583,8 @@ export default function MasterDashboard({ initialCharacters = [] }: { initialCha
           className="mb-8 flex items-center gap-3 cursor-pointer"
           onClick={() => setCurrentView('discover')}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black border border-white/10 shadow-lg">
-            <span className="text-2xl font-serif italic text-white leading-none">A</span>
-          </div>
-          <span className="text-2xl font-bold tracking-tight text-white font-sans">agentwood</span>
+          <img src="/logo.png" alt="AgentWood" className="w-10 h-10 object-contain shadow-lg" />
+          <span className="text-2xl font-serif italic text-white">AgentWood</span>
         </div>
 
         <button
