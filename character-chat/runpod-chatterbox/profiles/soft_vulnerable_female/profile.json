@@ -1,0 +1,25 @@
+{
+    "profile_id": "soft_vulnerable_female",
+    "base_archetype": "soft_vulnerable",
+    "conditioning": {
+        "pitch_shift": 0.5,
+        "speed": 0.85,
+        "energy": 0.3,
+        "emotion_bias": "sad",
+        "clarity": 0.8
+    },
+    "allowed_variation": {
+        "pitch_shift": [
+            0.0,
+            1.0
+        ],
+        "speed": [
+            0.7,
+            1.0
+        ],
+        "energy": [
+            0.2,
+            0.5
+        ]
+    }
+}

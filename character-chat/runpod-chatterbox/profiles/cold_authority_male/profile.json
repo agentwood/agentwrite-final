@@ -1,0 +1,25 @@
+{
+    "profile_id": "cold_authority_male",
+    "base_archetype": "cold_authority",
+    "conditioning": {
+        "pitch_shift": -1.5,
+        "speed": 0.9,
+        "energy": 0.6,
+        "emotion_bias": "neutral",
+        "clarity": 0.85
+    },
+    "allowed_variation": {
+        "pitch_shift": [
+            -2.5,
+            -0.5
+        ],
+        "speed": [
+            0.85,
+            1.0
+        ],
+        "energy": [
+            0.5,
+            0.7
+        ]
+    }
+}

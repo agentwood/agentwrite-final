@@ -1,0 +1,25 @@
+{
+    "profile_id": "sage_male",
+    "base_archetype": "sage",
+    "conditioning": {
+        "pitch_shift": -3.0,
+        "speed": 0.8,
+        "energy": 0.4,
+        "emotion_bias": "calm",
+        "clarity": 0.95
+    },
+    "allowed_variation": {
+        "pitch_shift": [
+            -4.0,
+            -2.0
+        ],
+        "speed": [
+            0.7,
+            0.9
+        ],
+        "energy": [
+            0.3,
+            0.6
+        ]
+    }
+}
