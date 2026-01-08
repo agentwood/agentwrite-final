@@ -17,10 +17,9 @@ RUN pip install --no-cache-dir \
     numpy \
     scipy
 
-# Copy handler and profiles from the subdirectory
-# RunPod runs this from the repo root, so we need to point to the subdirectory
-COPY character-chat/runpod-chatterbox/handler.py /app/handler.py
-COPY character-chat/runpod-chatterbox/profiles /app/profiles
+# Copy handler and profiles from root level
+COPY handler.py /app/handler.py
+COPY profiles /app/profiles
 
 ENV PYTHONUNBUFFERED=1
 

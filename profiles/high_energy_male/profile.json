@@ -1,0 +1,25 @@
+{
+    "profile_id": "high_energy_male",
+    "base_archetype": "high_energy",
+    "conditioning": {
+        "pitch_shift": 1.0,
+        "speed": 1.3,
+        "energy": 0.9,
+        "emotion_bias": "excited",
+        "clarity": 0.9
+    },
+    "allowed_variation": {
+        "pitch_shift": [
+            0.0,
+            2.0
+        ],
+        "speed": [
+            1.1,
+            1.5
+        ],
+        "energy": [
+            0.8,
+            1.0
+        ]
+    }
+}
