@@ -1,0 +1,27 @@
+FROM runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    libsndfile1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python dependencies
+RUN pip install --no-cache-dir \
+    runpod \
+    chatterbox-tts \
+    torch \
+    torchaudio \
+    numpy \
+    scipy
+
+# Copy handler and profiles from the subdirectory
+# RunPod runs this from the repo root, so we need to point to the subdirectory
+COPY character-chat/runpod-chatterbox/handler.py /app/handler.py
+COPY character-chat/runpod-chatterbox/profiles /app/profiles
+
+ENV PYTHONUNBUFFERED=1
+
+CMD ["python", "-u", "handler.py"]
