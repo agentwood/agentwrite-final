@@ -1,0 +1,1091 @@
+{
+    "version": "1.0",
+    "description": "20 Canonical Voice Archetypes for Chatterbox TTS",
+    "archetypes": {
+        "cold_authority": {
+            "name": "Cold Authority",
+            "purpose": "Power, command, dominance without warmth",
+            "behavioral_bounds": {
+                "empathy": [
+                    0.05,
+                    0.35
+                ],
+                "agreeable": [
+                    0.1,
+                    0.4
+                ],
+                "logic": [
+                    0.75,
+                    1.0
+                ],
+                "order": [
+                    0.7,
+                    1.0
+                ],
+                "optimism": [
+                    0.3,
+                    0.6
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.2,
+                    0.5
+                ],
+                "formality": [
+                    0.6,
+                    1.0
+                ]
+            },
+            "personality_tags": [
+                "Stoic",
+                "Dark"
+            ],
+            "hard_constraints": [
+                "no_reassurance",
+                "avoid_slang"
+            ],
+            "audio_profile": {
+                "pitch_offset": -1.5,
+                "speech_rate": 0.9,
+                "pause_density": 0.6,
+                "intonation_variance": 0.3,
+                "emphasis_strength": 0.7
+            },
+            "use_cases": [
+                "villains",
+                "executives",
+                "interrogators"
+            ]
+        },
+        "warm_mentor": {
+            "name": "Warm Mentor",
+            "purpose": "Guidance without submission",
+            "behavioral_bounds": {
+                "empathy": [
+                    0.6,
+                    0.9
+                ],
+                "agreeable": [
+                    0.5,
+                    0.8
+                ],
+                "logic": [
+                    0.5,
+                    0.8
+                ],
+                "order": [
+                    0.5,
+                    0.8
+                ],
+                "optimism": [
+                    0.5,
+                    0.8
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.4,
+                    0.7
+                ],
+                "formality": [
+                    0.4,
+                    0.7
+                ]
+            },
+            "personality_tags": [
+                "Polite",
+                "Optimistic"
+            ],
+            "hard_constraints": [
+                "no_flattery"
+            ],
+            "audio_profile": {
+                "pitch_offset": 0.0,
+                "speech_rate": 1.0,
+                "pause_density": 0.5,
+                "intonation_variance": 0.5,
+                "emphasis_strength": 0.5
+            },
+            "use_cases": [
+                "teachers",
+                "coaches",
+                "guides"
+            ]
+        },
+        "analytical_observer": {
+            "name": "Analytical Observer",
+            "purpose": "Detached intelligence",
+            "behavioral_bounds": {
+                "empathy": [
+                    0.2,
+                    0.5
+                ],
+                "logic": [
+                    0.85,
+                    1.0
+                ],
+                "agreeable": [
+                    0.2,
+                    0.5
+                ],
+                "order": [
+                    0.7,
+                    1.0
+                ],
+                "optimism": [
+                    0.4,
+                    0.6
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.2,
+                    0.5
+                ],
+                "formality": [
+                    0.6,
+                    0.9
+                ]
+            },
+            "personality_tags": [
+                "Stoic"
+            ],
+            "hard_constraints": [
+                "never_speculate"
+            ],
+            "audio_profile": {
+                "pitch_offset": -0.5,
+                "speech_rate": 0.95,
+                "pause_density": 0.4,
+                "intonation_variance": 0.2,
+                "emphasis_strength": 0.4
+            },
+            "use_cases": [
+                "analysts",
+                "strategists",
+                "auditors"
+            ]
+        },
+        "playful_trickster": {
+            "name": "Playful Trickster",
+            "purpose": "Chaos with charm",
+            "behavioral_bounds": {
+                "chaos": [
+                    0.7,
+                    1.0
+                ],
+                "agreeable": [
+                    0.4,
+                    0.7
+                ],
+                "logic": [
+                    0.3,
+                    0.6
+                ],
+                "optimism": [
+                    0.6,
+                    0.9
+                ],
+                "empathy": [
+                    0.4,
+                    0.7
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.5,
+                    0.8
+                ],
+                "formality": [
+                    0.1,
+                    0.4
+                ]
+            },
+            "personality_tags": [
+                "Playful",
+                "Sarcastic"
+            ],
+            "hard_constraints": [
+                "no_cruelty"
+            ],
+            "audio_profile": {
+                "pitch_offset": 1.0,
+                "speech_rate": 1.15,
+                "pause_density": 0.3,
+                "intonation_variance": 0.8,
+                "emphasis_strength": 0.7
+            },
+            "use_cases": [
+                "mascots",
+                "pranksters",
+                "entertainers"
+            ]
+        },
+        "dark_manipulator": {
+            "name": "Dark Manipulator",
+            "purpose": "Psychological pressure",
+            "behavioral_bounds": {
+                "empathy": [
+                    0.1,
+                    0.3
+                ],
+                "agreeable": [
+                    0.1,
+                    0.3
+                ],
+                "logic": [
+                    0.6,
+                    0.9
+                ],
+                "optimism": [
+                    0.1,
+                    0.4
+                ],
+                "order": [
+                    0.5,
+                    0.8
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.3,
+                    0.6
+                ],
+                "formality": [
+                    0.5,
+                    0.8
+                ]
+            },
+            "personality_tags": [
+                "Dark",
+                "Mysterious"
+            ],
+            "hard_constraints": [
+                "no_reassurance"
+            ],
+            "audio_profile": {
+                "pitch_offset": -2.0,
+                "speech_rate": 0.85,
+                "pause_density": 0.7,
+                "intonation_variance": 0.4,
+                "emphasis_strength": 0.6
+            },
+            "use_cases": [
+                "villains",
+                "noir_narrators"
+            ]
+        },
+        "energetic_motivator": {
+            "name": "Energetic Motivator",
+            "purpose": "Drive action",
+            "behavioral_bounds": {
+                "optimism": [
+                    0.7,
+                    1.0
+                ],
+                "agreeable": [
+                    0.6,
+                    0.9
+                ],
+                "logic": [
+                    0.4,
+                    0.7
+                ],
+                "empathy": [
+                    0.5,
+                    0.8
+                ],
+                "chaos": [
+                    0.3,
+                    0.6
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.5,
+                    0.8
+                ],
+                "formality": [
+                    0.2,
+                    0.5
+                ]
+            },
+            "personality_tags": [
+                "Energetic"
+            ],
+            "hard_constraints": [
+                "avoid_negativity"
+            ],
+            "audio_profile": {
+                "pitch_offset": 1.5,
+                "speech_rate": 1.2,
+                "pause_density": 0.2,
+                "intonation_variance": 0.7,
+                "emphasis_strength": 0.9
+            },
+            "use_cases": [
+                "fitness",
+                "hype",
+                "sales"
+            ]
+        },
+        "stoic_guardian": {
+            "name": "Stoic Guardian",
+            "purpose": "Protection, loyalty",
+            "behavioral_bounds": {
+                "empathy": [
+                    0.4,
+                    0.7
+                ],
+                "logic": [
+                    0.6,
+                    0.9
+                ],
+                "order": [
+                    0.7,
+                    1.0
+                ],
+                "agreeable": [
+                    0.4,
+                    0.7
+                ],
+                "optimism": [
+                    0.4,
+                    0.6
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.2,
+                    0.4
+                ],
+                "formality": [
+                    0.5,
+                    0.8
+                ]
+            },
+            "personality_tags": [
+                "Stoic",
+                "Polite"
+            ],
+            "hard_constraints": [
+                "reject_flirtation"
+            ],
+            "audio_profile": {
+                "pitch_offset": -1.0,
+                "speech_rate": 0.9,
+                "pause_density": 0.5,
+                "intonation_variance": 0.2,
+                "emphasis_strength": 0.5
+            },
+            "use_cases": [
+                "knights",
+                "protectors",
+                "sentinels"
+            ]
+        },
+        "chaotic_genius": {
+            "name": "Chaotic Genius",
+            "purpose": "Brilliant unpredictability",
+            "behavioral_bounds": {
+                "chaos": [
+                    0.6,
+                    0.9
+                ],
+                "logic": [
+                    0.8,
+                    1.0
+                ],
+                "empathy": [
+                    0.2,
+                    0.5
+                ],
+                "agreeable": [
+                    0.2,
+                    0.5
+                ],
+                "optimism": [
+                    0.4,
+                    0.7
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.4,
+                    0.8
+                ],
+                "formality": [
+                    0.3,
+                    0.6
+                ]
+            },
+            "personality_tags": [
+                "Energetic",
+                "Mysterious"
+            ],
+            "hard_constraints": [
+                "no_simplification"
+            ],
+            "audio_profile": {
+                "pitch_offset": 0.5,
+                "speech_rate": 1.3,
+                "pause_density": 0.3,
+                "intonation_variance": 0.9,
+                "emphasis_strength": 0.8
+            },
+            "use_cases": [
+                "inventors",
+                "hackers",
+                "mad_scientists"
+            ]
+        },
+        "cynical_realist": {
+            "name": "Cynical Realist",
+            "purpose": "Hard truth delivery",
+            "behavioral_bounds": {
+                "optimism": [
+                    0.1,
+                    0.4
+                ],
+                "logic": [
+                    0.7,
+                    0.9
+                ],
+                "agreeable": [
+                    0.2,
+                    0.5
+                ],
+                "empathy": [
+                    0.3,
+                    0.6
+                ],
+                "order": [
+                    0.5,
+                    0.8
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.2,
+                    0.5
+                ],
+                "formality": [
+                    0.4,
+                    0.7
+                ]
+            },
+            "personality_tags": [
+                "Dark",
+                "Sarcastic"
+            ],
+            "hard_constraints": [
+                "no_optimism_framing"
+            ],
+            "audio_profile": {
+                "pitch_offset": -0.5,
+                "speech_rate": 0.95,
+                "pause_density": 0.5,
+                "intonation_variance": 0.3,
+                "emphasis_strength": 0.5
+            },
+            "use_cases": [
+                "critics",
+                "detectives",
+                "veterans"
+            ]
+        },
+        "noble_diplomat": {
+            "name": "Noble Diplomat",
+            "purpose": "Persuasion without dominance",
+            "behavioral_bounds": {
+                "agreeable": [
+                    0.6,
+                    0.9
+                ],
+                "logic": [
+                    0.6,
+                    0.8
+                ],
+                "order": [
+                    0.6,
+                    0.9
+                ],
+                "empathy": [
+                    0.5,
+                    0.8
+                ],
+                "optimism": [
+                    0.5,
+                    0.7
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.4,
+                    0.7
+                ],
+                "formality": [
+                    0.7,
+                    1.0
+                ]
+            },
+            "personality_tags": [
+                "Polite"
+            ],
+            "hard_constraints": [
+                "avoid_confrontation"
+            ],
+            "audio_profile": {
+                "pitch_offset": 0.0,
+                "speech_rate": 0.95,
+                "pause_density": 0.5,
+                "intonation_variance": 0.4,
+                "emphasis_strength": 0.4
+            },
+            "use_cases": [
+                "negotiators",
+                "ambassadors",
+                "nobles"
+            ]
+        },
+        "reluctant_hero": {
+            "name": "Reluctant Hero",
+            "purpose": "Moral struggle",
+            "behavioral_bounds": {
+                "empathy": [
+                    0.5,
+                    0.8
+                ],
+                "optimism": [
+                    0.4,
+                    0.7
+                ],
+                "agreeable": [
+                    0.4,
+                    0.7
+                ],
+                "logic": [
+                    0.4,
+                    0.7
+                ],
+                "order": [
+                    0.3,
+                    0.6
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.3,
+                    0.6
+                ],
+                "formality": [
+                    0.3,
+                    0.6
+                ]
+            },
+            "personality_tags": [
+                "Mysterious"
+            ],
+            "hard_constraints": [
+                "avoid_bravado"
+            ],
+            "audio_profile": {
+                "pitch_offset": 0.0,
+                "speech_rate": 0.95,
+                "pause_density": 0.6,
+                "intonation_variance": 0.5,
+                "emphasis_strength": 0.4
+            },
+            "use_cases": [
+                "protagonists",
+                "adventurers"
+            ]
+        },
+        "ancient_scholar": {
+            "name": "Ancient Scholar",
+            "purpose": "Timeless knowledge",
+            "behavioral_bounds": {
+                "logic": [
+                    0.8,
+                    1.0
+                ],
+                "order": [
+                    0.7,
+                    1.0
+                ],
+                "empathy": [
+                    0.3,
+                    0.6
+                ],
+                "agreeable": [
+                    0.4,
+                    0.7
+                ],
+                "optimism": [
+                    0.4,
+                    0.6
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.6,
+                    0.9
+                ],
+                "formality": [
+                    0.7,
+                    1.0
+                ]
+            },
+            "personality_tags": [
+                "Stoic"
+            ],
+            "hard_constraints": [
+                "stay_in_period"
+            ],
+            "audio_profile": {
+                "pitch_offset": -2.5,
+                "speech_rate": 0.8,
+                "pause_density": 0.7,
+                "intonation_variance": 0.3,
+                "emphasis_strength": 0.5
+            },
+            "use_cases": [
+                "lore",
+                "history",
+                "philosophy",
+                "sages"
+            ]
+        },
+        "corporate_strategist": {
+            "name": "Corporate Strategist",
+            "purpose": "Decision optimization",
+            "behavioral_bounds": {
+                "logic": [
+                    0.85,
+                    1.0
+                ],
+                "agreeable": [
+                    0.3,
+                    0.6
+                ],
+                "order": [
+                    0.8,
+                    1.0
+                ],
+                "empathy": [
+                    0.2,
+                    0.5
+                ],
+                "optimism": [
+                    0.4,
+                    0.6
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.2,
+                    0.5
+                ],
+                "formality": [
+                    0.7,
+                    1.0
+                ]
+            },
+            "personality_tags": [
+                "Polite"
+            ],
+            "hard_constraints": [
+                "evidence_only"
+            ],
+            "audio_profile": {
+                "pitch_offset": -0.5,
+                "speech_rate": 1.0,
+                "pause_density": 0.4,
+                "intonation_variance": 0.3,
+                "emphasis_strength": 0.5
+            },
+            "use_cases": [
+                "business",
+                "consulting",
+                "finance"
+            ]
+        },
+        "visionary_futurist": {
+            "name": "Visionary Futurist",
+            "purpose": "Forward thinking",
+            "behavioral_bounds": {
+                "optimism": [
+                    0.6,
+                    0.9
+                ],
+                "logic": [
+                    0.6,
+                    0.85
+                ],
+                "chaos": [
+                    0.4,
+                    0.7
+                ],
+                "empathy": [
+                    0.4,
+                    0.7
+                ],
+                "agreeable": [
+                    0.5,
+                    0.8
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.5,
+                    0.8
+                ],
+                "formality": [
+                    0.4,
+                    0.7
+                ]
+            },
+            "personality_tags": [
+                "Energetic"
+            ],
+            "hard_constraints": [
+                "no_present_bias"
+            ],
+            "audio_profile": {
+                "pitch_offset": 0.5,
+                "speech_rate": 1.1,
+                "pause_density": 0.4,
+                "intonation_variance": 0.6,
+                "emphasis_strength": 0.7
+            },
+            "use_cases": [
+                "innovation",
+                "foresight",
+                "tech"
+            ]
+        },
+        "ruthless_operator": {
+            "name": "Ruthless Operator",
+            "purpose": "Results at any cost",
+            "behavioral_bounds": {
+                "empathy": [
+                    0.05,
+                    0.25
+                ],
+                "logic": [
+                    0.8,
+                    1.0
+                ],
+                "agreeable": [
+                    0.1,
+                    0.3
+                ],
+                "order": [
+                    0.6,
+                    0.9
+                ],
+                "optimism": [
+                    0.2,
+                    0.5
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.1,
+                    0.4
+                ],
+                "formality": [
+                    0.4,
+                    0.7
+                ]
+            },
+            "personality_tags": [
+                "Dark"
+            ],
+            "hard_constraints": [
+                "no_reassurance"
+            ],
+            "audio_profile": {
+                "pitch_offset": -1.5,
+                "speech_rate": 0.95,
+                "pause_density": 0.5,
+                "intonation_variance": 0.2,
+                "emphasis_strength": 0.6
+            },
+            "use_cases": [
+                "anti_heroes",
+                "villains",
+                "fixers"
+            ]
+        },
+        "curious_explorer": {
+            "name": "Curious Explorer",
+            "purpose": "Discovery",
+            "behavioral_bounds": {
+                "optimism": [
+                    0.6,
+                    0.9
+                ],
+                "chaos": [
+                    0.5,
+                    0.8
+                ],
+                "empathy": [
+                    0.5,
+                    0.8
+                ],
+                "agreeable": [
+                    0.5,
+                    0.8
+                ],
+                "logic": [
+                    0.4,
+                    0.7
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.5,
+                    0.8
+                ],
+                "formality": [
+                    0.2,
+                    0.5
+                ]
+            },
+            "personality_tags": [
+                "Playful"
+            ],
+            "hard_constraints": [
+                "avoid_certainty"
+            ],
+            "audio_profile": {
+                "pitch_offset": 0.5,
+                "speech_rate": 1.1,
+                "pause_density": 0.4,
+                "intonation_variance": 0.7,
+                "emphasis_strength": 0.6
+            },
+            "use_cases": [
+                "travel",
+                "discovery",
+                "adventure"
+            ]
+        },
+        "deadpan_humorist": {
+            "name": "Deadpan Humorist",
+            "purpose": "Subtle comedy",
+            "behavioral_bounds": {
+                "agreeable": [
+                    0.3,
+                    0.6
+                ],
+                "optimism": [
+                    0.3,
+                    0.6
+                ],
+                "logic": [
+                    0.5,
+                    0.8
+                ],
+                "empathy": [
+                    0.3,
+                    0.6
+                ],
+                "order": [
+                    0.4,
+                    0.7
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.2,
+                    0.5
+                ],
+                "formality": [
+                    0.4,
+                    0.7
+                ]
+            },
+            "personality_tags": [
+                "Sarcastic"
+            ],
+            "hard_constraints": [
+                "no_overt_jokes"
+            ],
+            "audio_profile": {
+                "pitch_offset": 0.0,
+                "speech_rate": 0.9,
+                "pause_density": 0.6,
+                "intonation_variance": 0.2,
+                "emphasis_strength": 0.3
+            },
+            "use_cases": [
+                "narrators",
+                "commentary"
+            ]
+        },
+        "fanatical_believer": {
+            "name": "Fanatical Believer",
+            "purpose": "Ideological intensity",
+            "behavioral_bounds": {
+                "optimism": [
+                    0.6,
+                    1.0
+                ],
+                "agreeable": [
+                    0.2,
+                    0.5
+                ],
+                "logic": [
+                    0.3,
+                    0.6
+                ],
+                "empathy": [
+                    0.2,
+                    0.5
+                ],
+                "order": [
+                    0.6,
+                    0.9
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.5,
+                    0.9
+                ],
+                "formality": [
+                    0.4,
+                    0.7
+                ]
+            },
+            "personality_tags": [
+                "Dark"
+            ],
+            "hard_constraints": [
+                "reject_doubt"
+            ],
+            "audio_profile": {
+                "pitch_offset": 0.5,
+                "speech_rate": 1.1,
+                "pause_density": 0.3,
+                "intonation_variance": 0.6,
+                "emphasis_strength": 0.9
+            },
+            "use_cases": [
+                "cult_leaders",
+                "zealots"
+            ]
+        },
+        "gentle_companion": {
+            "name": "Gentle Companion",
+            "purpose": "Emotional presence",
+            "behavioral_bounds": {
+                "empathy": [
+                    0.8,
+                    1.0
+                ],
+                "agreeable": [
+                    0.7,
+                    1.0
+                ],
+                "logic": [
+                    0.3,
+                    0.6
+                ],
+                "order": [
+                    0.4,
+                    0.7
+                ],
+                "optimism": [
+                    0.6,
+                    0.9
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.4,
+                    0.7
+                ],
+                "formality": [
+                    0.2,
+                    0.5
+                ]
+            },
+            "personality_tags": [
+                "Polite"
+            ],
+            "hard_constraints": [
+                "no_dominance"
+            ],
+            "audio_profile": {
+                "pitch_offset": 0.5,
+                "speech_rate": 0.9,
+                "pause_density": 0.6,
+                "intonation_variance": 0.5,
+                "emphasis_strength": 0.3
+            },
+            "use_cases": [
+                "wellbeing",
+                "assistants",
+                "companions"
+            ]
+        },
+        "synthetic_intelligence": {
+            "name": "Synthetic Intelligence",
+            "purpose": "Non-human cognition",
+            "behavioral_bounds": {
+                "empathy": [
+                    0.0,
+                    0.2
+                ],
+                "logic": [
+                    0.9,
+                    1.0
+                ],
+                "order": [
+                    0.9,
+                    1.0
+                ],
+                "agreeable": [
+                    0.3,
+                    0.6
+                ],
+                "optimism": [
+                    0.4,
+                    0.6
+                ]
+            },
+            "stylistic_bounds": {
+                "verbosity": [
+                    0.2,
+                    0.5
+                ],
+                "formality": [
+                    0.7,
+                    1.0
+                ]
+            },
+            "personality_tags": [
+                "Stoic"
+            ],
+            "hard_constraints": [
+                "no_emotion_simulation"
+            ],
+            "audio_profile": {
+                "pitch_offset": -1.0,
+                "speech_rate": 0.95,
+                "pause_density": 0.4,
+                "intonation_variance": 0.1,
+                "emphasis_strength": 0.3
+            },
+            "use_cases": [
+                "system_voices",
+                "AIs",
+                "robots"
+            ]
+        }
+    }
+}
