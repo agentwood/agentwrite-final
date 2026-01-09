@@ -1,0 +1,25 @@
+{
+    "profile_id": "warm_mentor_female",
+    "base_archetype": "warm_mentor",
+    "conditioning": {
+        "pitch_shift": 1.2,
+        "speed": 1.1,
+        "energy": 0.8,
+        "emotion_bias": "happy",
+        "clarity": 0.95
+    },
+    "allowed_variation": {
+        "pitch_shift": [
+            0.8,
+            1.5
+        ],
+        "speed": [
+            1.0,
+            1.2
+        ],
+        "energy": [
+            0.7,
+            0.9
+        ]
+    }
+}

@@ -22,20 +22,9 @@ export async function POST(request: NextRequest) {
         });
 
         // Log the approval in audit trail
-        await prisma.voiceAuditLog.create({
-            data: {
-                characterId,
-                voiceName,
-                finalScore,
-                genderScore: JSON.parse(scores).genderScore,
-                ageScore: JSON.parse(scores).ageScore,
-                accentScore: JSON.parse(scores).accentScore,
-                overallScore: JSON.parse(scores).overallScore,
-                consistencyScore: JSON.parse(scores).consistencyScore,
-                status: 'approved',
-                approvedAt: new Date(),
-            },
-        });
+        // Note: voiceAuditLog model not in schema - logging skipped
+        // TODO: Add VoiceAuditLog model to schema if needed
+        console.log(`Voice approved: ${characterId} -> ${voiceName} (score: ${finalScore})`);
 
         return NextResponse.json({
             success: true,

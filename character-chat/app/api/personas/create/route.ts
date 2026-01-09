@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { buildSystemPrompt } from '@/lib/prompts';
+import { indexCharacterPage } from '@/lib/seo/google-indexing';
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest) {
         archetype: characterData.archetype,
         tonePack: characterData.tonePack || 'conversational',
         scenarioSkin: characterData.scenarioSkin || 'modern',
+        voiceReady: true, // Fish Speech v1.5 ready
       },
     });
 
@@ -74,6 +76,14 @@ export async function POST(request: NextRequest) {
     } catch (auditError) {
       // Don't fail character creation if audit fails
       console.error('Voice audit trigger failed (non-critical):', auditError);
+    }
+
+    // 🚀 Automatically trigger Google Indexing
+    try {
+      await indexCharacterPage(persona.id);
+      console.log(`✅ Google Indexing triggered for: ${persona.id}`);
+    } catch (indexError) {
+      console.error('Google Indexing trigger failed (non-critical):', indexError);
     }
 
     return NextResponse.json({

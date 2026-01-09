@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Headphones, User, BookOpen, Sparkles, ChevronRight } from 'lucide-react';
+import { Headphones, User, BookOpen, Sparkles, ChevronRight, Download, Copy, Check } from 'lucide-react';
 
 interface StoryOutputProps {
     storyText: string;
@@ -52,6 +52,35 @@ export default function StoryOutput({
                     </button>
                 </div>
 
+                {/* Export Buttons */}
+                <div className="flex justify-center gap-4 mb-12">
+                    <button
+                        onClick={() => {
+                            const blob = new Blob([storyText], { type: 'text/plain' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'my-story.txt';
+                            a.click();
+                            URL.revokeObjectURL(url);
+                        }}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-semibold text-white transition-all border border-white/10"
+                    >
+                        <Download className="w-4 h-4" />
+                        Download Story
+                    </button>
+                    <button
+                        onClick={() => {
+                            navigator.clipboard.writeText(storyText);
+                            alert('Story copied to clipboard!');
+                        }}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-semibold text-white transition-all border border-white/10"
+                    >
+                        <Copy className="w-4 h-4" />
+                        Copy to Clipboard
+                    </button>
+                </div>
+
                 {/* Choice Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Character Card */}
@@ -66,8 +95,8 @@ export default function StoryOutput({
                                     key={i}
                                     onClick={() => handleSelect('character', option)}
                                     className={`w-full text-left p-3 rounded-xl text-sm transition-all ${selectedChoices.character === option
-                                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                                            : 'bg-[#0f0f0f] text-white/70 hover:bg-[#2a2a2a] border border-transparent'
+                                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                        : 'bg-[#0f0f0f] text-white/70 hover:bg-[#2a2a2a] border border-transparent'
                                         }`}
                                 >
                                     {option}
@@ -88,8 +117,8 @@ export default function StoryOutput({
                                     key={i}
                                     onClick={() => handleSelect('plot', option)}
                                     className={`w-full text-left p-3 rounded-xl text-sm transition-all ${selectedChoices.plot === option
-                                            ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                                            : 'bg-[#0f0f0f] text-white/70 hover:bg-[#2a2a2a] border border-transparent'
+                                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                                        : 'bg-[#0f0f0f] text-white/70 hover:bg-[#2a2a2a] border border-transparent'
                                         }`}
                                 >
                                     {option}
@@ -110,8 +139,8 @@ export default function StoryOutput({
                                     key={i}
                                     onClick={() => handleSelect('twist', option)}
                                     className={`w-full text-left p-3 rounded-xl text-sm transition-all ${selectedChoices.twist === option
-                                            ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                                            : 'bg-[#0f0f0f] text-white/70 hover:bg-[#2a2a2a] border border-transparent'
+                                        ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                                        : 'bg-[#0f0f0f] text-white/70 hover:bg-[#2a2a2a] border border-transparent'
                                         }`}
                                 >
                                     {option}

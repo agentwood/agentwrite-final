@@ -19,17 +19,32 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     }, []);
 
     useEffect(() => {
+        const checkAuth = () => {
+            // In development, never show the auth modal
+            if (process.env.NODE_ENV === 'development') {
+                setShowAuthModal(false);
+                return;
+            }
+
+            const isPublicRoute = PUBLIC_ROUTES.some(route =>
+                pathname === route || pathname.startsWith('/api/')
+            );
+
+            if (!isPublicRoute && !isAuthenticated()) {
+                setShowAuthModal(true);
+            } else {
+                setShowAuthModal(false);
+            }
+        };
+
         if (!isMounted) return;
 
-        const isPublicRoute = PUBLIC_ROUTES.some(route =>
-            pathname === route || pathname.startsWith('/api/')
-        );
+        checkAuth();
 
-        if (!isPublicRoute && !isAuthenticated()) {
-            setShowAuthModal(true);
-        } else {
-            setShowAuthModal(false);
-        }
+        const handleAuthChange = () => checkAuth();
+        window.addEventListener('agentwood-auth-change', handleAuthChange);
+
+        return () => window.removeEventListener('agentwood-auth-change', handleAuthChange);
     }, [pathname, isMounted]);
 
     if (!isMounted) return null;
@@ -49,12 +64,12 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     return (
         <>
             {children}
-            {showAuthModal && (
+            {/* {showAuthModal && (
                 <AuthModal
                     isOpen={showAuthModal}
                     onClose={handleClose}
                 />
-            )}
+            )} */}
         </>
     );
 }

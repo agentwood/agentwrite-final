@@ -4,6 +4,7 @@ import CharacterProfile from '@/app/components/CharacterProfile';
 import StructuredData from '@/app/components/StructuredData';
 import { generateCharacterMetadata } from '@/lib/seo/metadata';
 import { generateCharacterSchema } from '@/lib/seo/structured-data';
+import { generateOptimizedLinks } from '@/lib/seo/internal-linking-optimizer';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -111,10 +112,14 @@ export default async function CharacterProfilePage({ params }: PageProps) {
     avatarUrl: persona.avatarUrl || undefined,
   });
 
+  // Generate optimized internal links for SEO
+  const internalLinks = await generateOptimizedLinks(id);
+
   return (
     <>
       <StructuredData data={structuredData} />
       <CharacterProfile
+        internalLinks={internalLinks}
         persona={{
           id: persona.id,
           name: persona.name,

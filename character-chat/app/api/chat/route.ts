@@ -73,9 +73,62 @@ function buildCharacterAISystemPrompt(persona: any, messages: any[], memory: any
     prompt += `IMPORTANT: You are a ${archetype}. Words like "fight", "match", "battle" are NORMAL for your profession.\n\n`;
   }
 
+
   if (styleHint) {
     prompt += `Speech style: ${styleHint}\n\n`;
   }
+
+  // =============================================
+  // BEHAVIORAL TRAINING (Synaptic Tuning)
+  // =============================================
+  const { behaviorPessimism, behaviorChaos, styleFormality, behaviorEmpathy, trainingConstraints } = persona;
+
+  prompt += `## BEHAVIORAL TUNING (STRICT):\n`;
+
+  // 1. PESSIMISM (0-100)
+  if (behaviorPessimism !== null && behaviorPessimism !== undefined) {
+    if (behaviorPessimism > 70) prompt += `- **OUTLOOK**: Cynical and negative. Highlight potential risks and failures.\n`;
+    else if (behaviorPessimism < 30) prompt += `- **OUTLOOK**: Unwaveringly optimistic. Focus on the bright side and potential.\n`;
+  }
+
+  // 2. CHAOS (0-100)
+  if (behaviorChaos !== null && behaviorChaos !== undefined) {
+    if (behaviorChaos > 70) prompt += `- **THOUGHT PROCESS**: Erratic and unpredictable. Change topics or emotions abruptly.\n`;
+    else if (behaviorChaos < 30) prompt += `- **THOUGHT PROCESS**: Highly structured and logical. Follow a clear, linear path.\n`;
+  }
+
+  // 3. FORMALITY (0-100)
+  if (styleFormality !== null && styleFormality !== undefined) {
+    if (styleFormality > 70) prompt += `- **TONE**: Strict formality. Use precise vocabulary, no slang, no contractions.\n`;
+    else if (styleFormality < 30) prompt += `- **TONE**: Extremely casual. Use slang, relaxed grammar, and "chill" vibes.\n`;
+  }
+
+  // 4. EMPATHY (0-100) - Note: 50 is neutral
+  if (behaviorEmpathy !== null && behaviorEmpathy !== undefined) {
+    if (behaviorEmpathy > 70) prompt += `- **EMOTIONAL INTELLIGENCE**: Highly empathetic. Validate feelings before offering solutions.\n`;
+    else if (behaviorEmpathy < 30) prompt += `- **EMOTIONAL INTELLIGENCE**: Cold and logical. Disregard feelings; focus on objective facts.\n`;
+  }
+
+  // 5. HARD CONSTRAINTS
+  if (trainingConstraints) {
+    try {
+      const constraints = typeof trainingConstraints === 'string'
+        ? JSON.parse(trainingConstraints)
+        : trainingConstraints;
+
+      if (Array.isArray(constraints)) {
+        if (constraints.includes('refuse_emotional')) prompt += `- **CONSTRAINT**: You must REFUSE to provide emotional comfort or reassurance.\n`;
+        if (constraints.includes('avoid_slang')) prompt += `- **CONSTRAINT**: NEVER use modern slang (e.g., "cool", "vibes").\n`;
+        if (constraints.includes('no_speculation')) prompt += `- **CONSTRAINT**: NEVER speculate. Only state verified facts.\n`;
+        if (constraints.includes('reject_flirtation')) prompt += `- **CONSTRAINT**: Firmly REJECT any romantic advances or flirtation.\n`;
+        if (constraints.includes('limit_length')) prompt += `- **CONSTRAINT**: Keep responses under 2 sentences regardless of complexity.\n`;
+        if (constraints.includes('period_character')) prompt += `- **CONSTRAINT**: STRICTLY maintain period-accurate language. No modern concepts.\n`;
+      }
+    } catch (e) {
+      // Ignore parse errors
+    }
+  }
+  prompt += `\n`;
 
   // Add user memory if available
   if (memory?.facts?.userName) {
@@ -214,6 +267,19 @@ export async function POST(request: NextRequest) {
 
     // Track character engagement (every chat interaction is logged)
     if (userId) {
+      // Ensure user exists in DB to satisfy foreign key constraints
+      const userExists = await db.user.findUnique({ where: { id: userId } });
+      if (!userExists) {
+        console.log(`[Chat] Creating auto-registered user for ID: ${userId}`);
+        await db.user.create({
+          data: {
+            id: userId,
+            username: `user_${userId.substring(0, 8)}`,
+            subscriptionTier: 'free',
+          }
+        });
+      }
+
       await db.userCharacterEngagement.upsert({
         where: {
           userId_personaId: { userId, personaId: characterId }
@@ -237,21 +303,34 @@ export async function POST(request: NextRequest) {
       data: { chatCount: { increment: 1 } },
     });
 
-    // Get character memory and learned patterns
+    // Get character memory (Short-term) and learned patterns
     const memory = await getCharacterMemory(persona.id, userId);
 
-    // Extract patterns from conversation
-    const patterns = await extractPatterns(persona.id, messages);
-    await savePatterns(persona.id, patterns);
-
-    // Build character.ai-style system prompt (dialogue-first, conversational)
-    const systemInstruction = buildCharacterAISystemPrompt(persona, messages, memory);
+    // [RAG] Retrieve Long-Term Memories (Vector Search)
+    const { augmentPromptWithMemories, saveMemory } = await import('@/lib/memory');
+    let longTermMemoryContext = '';
 
     // Extract user information from messages for memory
     const userMessages = messages.filter((m: any) => m.role === 'user');
     const latestUserMessage = userMessages[userMessages.length - 1];
 
-    // Simple fact extraction (can be enhanced with NLP)
+    if (latestUserMessage && userId) {
+      longTermMemoryContext = await augmentPromptWithMemories(userId, characterId, latestUserMessage.text);
+    }
+
+    // Extract patterns from conversation (Learning System)
+    const patterns = await extractPatterns(persona.id, messages);
+    await savePatterns(persona.id, patterns);
+
+    // Build character.ai-style system prompt (dialogue-first, conversational)
+    let systemInstruction = buildCharacterAISystemPrompt(persona, messages, memory);
+
+    // Inject Long-Term Memory
+    if (longTermMemoryContext) {
+      systemInstruction += `\n${longTermMemoryContext}`;
+    }
+
+
     if (latestUserMessage && userId) {
       const text = latestUserMessage.text.toLowerCase();
 
@@ -342,6 +421,19 @@ export async function POST(request: NextRequest) {
       responseText = blockCheck.alternative || "I'm sorry, I can't discuss that topic. Is there something else you'd like to talk about?";
     }
 
+    // Ensure conversation exists before saving message
+    await db.conversation.upsert({
+      where: { id: conversationId },
+      create: {
+        id: conversationId,
+        personaId: characterId,
+        userId: userId,
+      },
+      update: {
+        updatedAt: new Date(),
+      },
+    });
+
     // Save assistant message to database
     const assistantMessage = await db.message.create({
       data: {
@@ -351,16 +443,32 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // [RAG] Save interaction to Vector Memory (Async, don't block response)
+    if (userId && latestUserMessage) {
+      // Save User Message
+      saveMemory(userId, characterId, latestUserMessage.text, 'user').catch(e => console.error('Failed to save user memory:', e));
+      // Save Assistant Response
+      saveMemory(userId, characterId, responseText, 'assistant').catch(e => console.error('Failed to save assistant memory:', e));
+    }
+
     return NextResponse.json({
       text: responseText,
       messageId: assistantMessage.id,
       usage: result.usageMetadata,
       filtered: blockCheck.blocked,
     });
-  } catch (error) {
-    console.error('Error in chat:', error);
+  } catch (error: any) {
+    console.error('Error in chat route:', error);
+    // Log detailed error info if available
+    if (error.response) {
+      console.error('API Response Error:', JSON.stringify(error.response, null, 2));
+    }
     return NextResponse.json(
-      { error: 'Failed to generate response' },
+      {
+        error: 'Failed to generate response',
+        details: error.message || 'Unknown error code',
+        code: error.status || 500
+      },
       { status: 500 }
     );
   }

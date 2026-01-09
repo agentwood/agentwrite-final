@@ -1,0 +1,16 @@
+{
+    "character_id": "raj_corner_store",
+    "archetype": "warm_mentor",
+    "gender": "male",
+    "personality": {
+        "dominance": 0.4,
+        "warmth": 0.95,
+        "emotional_range": 0.7
+    },
+    "script": "Need anything else? Lottery tickets, phone card? Listen, I've known you since you were yay-high.",
+    "voice_constraints": {
+        "pitch_bias": 0.1,
+        "speed_bias": 0.1,
+        "energy_bias": 0.1
+    }
+}

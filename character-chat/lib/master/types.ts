@@ -11,10 +11,14 @@ export interface CharacterProfile {
   avatarUrl: string;
   category: string;
   handle: string;
-  chatCount: string;
+  chatCount: number;
+  viewCount: number;
   isLive?: boolean;
   isOfficial?: boolean;
   chatStarters?: string[];
+  voiceName?: string;
+  styleHint?: string;
+  archetype?: string;
 }
 
 export type Category = "All" | "Play & Fun" | "Helper" | "Original" | "Anime & Game" | "Fiction & Media" | "Helpful" | "Icon" | "Romance" | "Educational" | "Fun";

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSubscriptionStatus, getPlanLimits } from '@/lib/subscription';
 import { db } from '@/lib/db';
+import { fishSpeechClient } from '@/lib/audio/fishSpeechClient';
 import { runpodChatterboxClient } from '@/lib/audio/runpodChatterboxClient';
 import { chatterboxArchetypeClient } from '@/lib/audio/chatterboxArchetypeClient';
 import { generateWithChatterbox, CHARACTER_ACCENT_MAP } from '@/lib/audio/chatterboxTTS';
@@ -162,6 +163,19 @@ export async function POST(request: NextRequest) {
     const characterId = rawCharacterId.toLowerCase().replace(/\s+/g, '-').replace(/\./g, '');
 
     console.log(`[TTS] Character lookup: seedId=${seedId}, characterName=${characterName}, resolved characterId=${characterId}`);
+
+    // Fetch persona template data (training, archetype, reference audio) early
+    const persona = await db.personaTemplate.findFirst({
+      where: {
+        OR: [
+          { seedId: characterId },
+          { id: characterId },
+          { name: characterName }
+        ]
+      }
+    });
+
+    const isDrVale = characterId.includes('dr_lucien_vale') || characterId.includes('dr-lucien-vale');
 
 
     // =============================================
@@ -417,23 +431,132 @@ export async function POST(request: NextRequest) {
       'default': { archetype: 'warm_mentor', gender: 'female' }
     };
 
-    // Get the character's archetype config
-    const eliteConfig = CHARACTER_ARCHETYPE_MAP[characterId] || CHARACTER_ARCHETYPE_MAP['default'];
+    const eliteConfig = {
+      archetype: persona?.archetype || (CHARACTER_ARCHETYPE_MAP[characterId]?.archetype) || CHARACTER_ARCHETYPE_MAP['default'].archetype,
+      gender: persona?.gender || (CHARACTER_ARCHETYPE_MAP[characterId]?.gender) || CHARACTER_ARCHETYPE_MAP['default'].gender
+    };
+
     console.log(`[TTS] Using archetype=${eliteConfig.archetype} for ${characterId}`);
 
+    // Get audio profile for this archetype (or use defaults)
+    const baseProfile = ARCHETYPE_AUDIO_PROFILES[eliteConfig.archetype] || {
+      pitch: 0.0, speed: 1.0, exaggeration: 0.5,
+      pause_density: 0.5, intonation_variance: 0.5, emphasis_strength: 0.5
+    };
+
+    // ---------------------------------------------------------
+    // DETECT UNIQUNESS: Apply Deterministic Variance
+    // ---------------------------------------------------------
+    const stringHash = (str: string) => {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return Math.abs(hash);
+    };
+
+    const seed = stringHash(characterId);
+    const rand = (offset: number) => ((seed + offset) % 1000) / 1000;
+
+    const pitchVar = (rand(1) * 0.8) - 0.4;     // +/- 0.4 semitones
+    const speedVar = (rand(2) * 0.1) - 0.05;    // +/- 5% speed
+    const exaggVar = (rand(3) * 0.1) - 0.05;    // +/- 5% exaggeration
+
+    // ---------------------------------------------------------
+    // TRAINING INTEGRATION (Phase 6)
+    // ---------------------------------------------------------
+    let trainingPitch = 0;
+    let trainingSpeed = 0;
+    let trainingExagg = 0;
+    let trainingIntonation = 0;
+    let trainingPause = 0;
+    let trainingEmphasis = 0;
+
+    if (persona) {
+      const pessimism = persona.behaviorPessimism ?? 50;
+      const chaos = persona.behaviorChaos ?? 50;
+      const formality = persona.styleFormality ?? 50;
+      const empathy = persona.behaviorEmpathy ?? 50;
+
+      trainingPitch = (50 - pessimism) / 50;
+      trainingSpeed = (50 - formality) / 250;
+      trainingEmphasis = (formality - 50) / 166;
+      trainingIntonation = (chaos - 50) / 125;
+      trainingExagg = (chaos - 50) / 250;
+      trainingPause = (empathy - 50) / 166;
+    }
+
+    // Calculate final combined parameters
+    const finalPitch = Number((baseProfile.pitch + pitchVar + trainingPitch).toFixed(2));
+    const finalSpeed = Number((baseProfile.speed + speedVar + trainingSpeed).toFixed(2));
+    const finalExagg = Number((baseProfile.exaggeration + exaggVar + trainingExagg).toFixed(2));
+
+    const finalPause = Number((baseProfile.pause_density + trainingPause).toFixed(2));
+    const finalIntonation = Number((baseProfile.intonation_variance + trainingIntonation).toFixed(2));
+    const finalEmphasis = Number((baseProfile.emphasis_strength + trainingEmphasis).toFixed(2));
+
+    const safeSpeed = Math.max(0.7, Math.min(1.5, finalSpeed));
+    const safeExagg = Math.max(0.0, Math.min(1.0, finalExagg));
+    const safePause = Math.max(0.0, Math.min(1.0, finalPause));
+    const safeIntonation = Math.max(0.0, Math.min(1.0, finalIntonation));
+    const safeEmphasis = Math.max(0.0, Math.min(1.0, finalEmphasis));
+
     // =============================================
-    // PRIORITY 1: Try RunPod Serverless Chatterbox
+    // PRIORITY 1: Fish Speech v1.5 (Tree-0 Engine)
+    // Benchmarks: Outperforms ElevenLabs & MiniMax
+    // =============================================
+    if (fishSpeechClient.isConfigured() && !isDrVale) {
+      try {
+        console.log(`[TTS] Using Fish Speech for ${characterId}`);
+
+        // Resolve reference audio
+        let refAudio: string | undefined = undefined;
+        if (persona?.referenceAudioBase64) {
+          refAudio = persona.referenceAudioBase64;
+        } else if (persona?.referenceAudioUrl) {
+          refAudio = await fishSpeechClient.loadReferenceAudio(persona.referenceAudioUrl);
+        } else {
+          // Fallback to archetype-specific reference
+          const archetypeRefUrl = `/reference-audio/archetypes/${eliteConfig.archetype}.wav`;
+          refAudio = await fishSpeechClient.loadReferenceAudio(archetypeRefUrl);
+        }
+
+        const audioBuffer = await fishSpeechClient.synthesize({
+          text: cleanedText,
+          referenceAudio: refAudio,
+          pitch: finalPitch,
+          speed: safeSpeed,
+          characterId: characterId,
+          archetype: eliteConfig.archetype,
+          pause_density: safePause,
+          intonation_variance: safeIntonation,
+          emphasis_strength: safeEmphasis
+        });
+
+        if (audioBuffer) {
+          return NextResponse.json({
+            audio: audioBuffer.toString('base64'),
+            format: 'wav',
+            contentType: 'audio/wav',
+            sampleRate: 24000,
+            voiceName: `fish-speech-${characterId}`,
+            engine: 'fish-speech-1.5',
+            archetype: eliteConfig.archetype,
+            usingDefaultVoice: false,
+          });
+        }
+      } catch (fishError) {
+        console.warn(`[TTS] Fish Speech failed for ${characterId}, falling back...`, fishError);
+      }
+    }
+
+    // =============================================
+    // PRIORITY 2: RunPod Serverless Chatterbox (Legacy)
     // =============================================
     if (runpodChatterboxClient.isConfigured()) {
-
-      // Get audio profile for this archetype (or use defaults)
-      const audioProfile = ARCHETYPE_AUDIO_PROFILES[eliteConfig.archetype] || {
-        pitch: 0.0, speed: 1.0, exaggeration: 0.5,
-        pause_density: 0.5, intonation_variance: 0.5, emphasis_strength: 0.5
-      };
-
-      console.log(`[TTS] Using RunPod for ${characterId}: archetype=${eliteConfig.archetype}, gender=${eliteConfig.gender}`);
-      console.log(`[TTS]   Audio: pitch=${audioProfile.pitch}, speed=${audioProfile.speed}, exaggeration=${audioProfile.exaggeration}`);
+      console.log(`[TTS] Using Chatterbox for ${characterId}: archetype=${eliteConfig.archetype}`);
 
       // Get character-specific accent settings (Legacy fallback)
       const charConfig = CHARACTER_ACCENT_MAP[characterId] || {
@@ -446,14 +569,14 @@ export async function POST(request: NextRequest) {
         accentHint: charConfig.accentHint,
         archetype: eliteConfig.archetype,  // Direct archetype name (20 canonical)
         gender: eliteConfig.gender,
-        exaggeration: audioProfile.exaggeration,
+        exaggeration: safeExagg,
         temperature: 0.8,
-        // Audio profile parameters
-        pitch: audioProfile.pitch,
-        speed: audioProfile.speed,
-        pause_density: audioProfile.pause_density,
-        intonation_variance: audioProfile.intonation_variance,
-        emphasis_strength: audioProfile.emphasis_strength
+        // Audio profile parameters with variance + training
+        pitch: finalPitch,
+        speed: safeSpeed,
+        pause_density: safePause,
+        intonation_variance: safeIntonation,
+        emphasis_strength: safeEmphasis
       });
 
       if (result) {

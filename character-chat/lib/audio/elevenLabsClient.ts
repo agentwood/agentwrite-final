@@ -28,6 +28,8 @@ export const ELEVENLABS_VOICE_MAP: Record<string, { voice_id: string; accent: st
     'viktor': { voice_id: 'N2lVS1w4EtoT3dr4eOWO', accent: 'Eastern European' }, // Callum
     'tomasz': { voice_id: 'N2lVS1w4EtoT3dr4eOWO', accent: 'Eastern European' }, // Callum
     'rajiv': { voice_id: 'TxGEqnHWrfWFTfGW9XjX', accent: 'American (styled)' },  // Josh
+    // Voice contract characters
+    'dr_lucien_vale': { voice_id: 'zYcjlYFOd3taleS0gkk3', accent: 'Cocky Male Villain' },
 };
 
 // Pre-made ElevenLabs voices with accents (use these initially before cloning)

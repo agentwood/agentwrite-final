@@ -1,0 +1,16 @@
+{
+    "id": "soft_vulnerable",
+    "name": "Soft Vulnerable",
+    "description": "Quiet, breathy, and emotional. Slower pace with hesitation.",
+    "base_profile": "soft_vulnerable_female",
+    "settings": {
+        "stability": 0.6,
+        "similarity_boost": 0.9,
+        "style": 0.2,
+        "use_speaker_boost": true
+    },
+    "runpod_config": {
+        "temperature": 0.6,
+        "exaggeration": 0.4
+    }
+}

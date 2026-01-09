@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import {
   Plus,
   Compass,
   Search,
   Heart,
-  Library,
+  Brain,
   Bell,
   Book,
   PenTool,
@@ -32,9 +33,23 @@ interface SidebarProps {
 export default function Sidebar({ recentCharacters = [] }: SidebarProps) {
   const router = useRouter();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  // Mock logged in state - replace with actual auth check
-  const isLoggedIn = true;
-  const userName = 'SparklyCamel';
+  // Auth State
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    supabase?.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+    });
+
+    const { data: { subscription } } = supabase?.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    }) ?? { data: { subscription: null } };
+
+    return () => subscription?.unsubscribe();
+  }, []);
+
+  const isLoggedIn = !!user;
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Guest';
   const userPlan = 'FREE PLAN';
 
   const SidebarLink = ({
@@ -116,7 +131,7 @@ export default function Sidebar({ recentCharacters = [] }: SidebarProps) {
             />
             <SidebarLink icon={<Search size={16} />} label="Search" href="/home" />
             <SidebarLink icon={<Heart size={16} />} label="Favorites" href="/home" />
-            <SidebarLink icon={<Library size={16} />} label="Memory" href="/home" />
+            <SidebarLink icon={<Brain size={16} />} label="Training & Data" href="/training" />
             <SidebarLink icon={<Bell size={16} />} label="Notification" href="/home" />
             <SidebarLink icon={<Book size={16} />} label="Blog" href="/home" />
           </div>
@@ -148,6 +163,11 @@ export default function Sidebar({ recentCharacters = [] }: SidebarProps) {
       </nav>
 
       <div className="mt-auto flex flex-col gap-3 border-t border-white/5 pt-5">
+        <SidebarLink
+          icon={<Book size={16} />}
+          label="About"
+          href="/about"
+        />
         <SidebarLink
           icon={<Settings size={16} />}
           label="Settings"
@@ -197,10 +217,11 @@ export default function Sidebar({ recentCharacters = [] }: SidebarProps) {
                     My Account
                   </Link>
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       setShowUserMenu(false);
-                      // TODO: Add actual logout logic
+                      await supabase?.auth.signOut();
                       router.push('/');
+                      router.refresh();
                     }}
                     className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-400 hover:bg-white/10 transition-colors border-t border-white/5"
                   >

@@ -13,10 +13,6 @@
 import fetch from 'node-fetch';
 import fs from 'fs';
 
-// Hugging Face Inference API endpoint for Chatterbox
-const CHATTERBOX_API = 'https://resemble-ai-chatterbox.hf.space/api/tts';
-const CHATTERBOX_GRADIO = 'https://resemble-ai-chatterbox.hf.space/call/generate';
-
 // Language codes for accents
 export const CHATTERBOX_LANGUAGES = {
     english: 'en',
@@ -71,80 +67,147 @@ export const CHARACTER_ACCENT_MAP: Record<string, {
         language: 'en',
         accentHint: 'Black American woman from Atlanta, smooth Southern accent'
     },
+    // New characters added
+    'dr_lucien_vale': {
+        language: 'en',
+        accentHint: 'British villain, cold calculating tone, menacing, slow deliberate speech'
+    },
+    'maya_chen': {
+        language: 'en',
+        accentHint: 'warm Asian-American woman, calm soothing, gentle encouraging tone'
+    },
+    'marcus_blaze': {
+        language: 'en',
+        accentHint: 'African-American man from Atlanta, high energy, motivational coach, powerful'
+    },
+    'eleanor_ashworth': {
+        language: 'en',
+        accentHint: 'British woman, Oxford professor, sharp precise, intellectual'
+    },
+    'jack_sterling': {
+        language: 'en',
+        accentHint: 'British man, pirate captain, charming roguish, adventurous swashbuckling'
+    },
 };
+
+// Correct HuggingFace Space URLs
+const CHATTERBOX_SPACE_URL = 'https://resembleai-chatterbox.hf.space';
+const CHATTERBOX_API_ENDPOINT = `${CHATTERBOX_SPACE_URL}/gradio_api/call/generate_tts_audio`;
 
 /**
  * Generate speech using Chatterbox via Hugging Face Gradio API
+ * Updated for Gradio 5.x API format
  */
 export async function generateWithChatterbox(
     text: string,
     characterId: string
 ): Promise<Buffer | null> {
     const config = CHARACTER_ACCENT_MAP[characterId];
-    if (!config) {
-        console.log(`[Chatterbox] No accent config for ${characterId}`);
-        return null;
-    }
 
-    console.log(`[Chatterbox] Generating for ${characterId}`);
-    console.log(`[Chatterbox] Language: ${config.language}, Accent: ${config.accentHint}`);
+    // Use default English config if no specific config exists
+    const accentConfig = config || {
+        language: 'en',
+        accentHint: 'neutral American English'
+    };
+
+    console.log(`[Chatterbox HF] Generating for ${characterId}`);
+    console.log(`[Chatterbox HF] Accent hint: ${accentConfig.accentHint}`);
 
     try {
-        // Chatterbox Gradio API format
-        const response = await fetch(CHATTERBOX_GRADIO, {
+        // Step 1: Submit request to Gradio API
+        // Parameters: text_input, audio_prompt_path_input, exaggeration_input, 
+        //             temperature_input, seed_num_input, cfgw_input, vad_trim_input
+        const submitResponse = await fetch(CHATTERBOX_API_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 data: [
-                    text, // Text to synthesize
-                    config.language, // Language code
-                    0.5, // CFG weight (0 = ignore reference accent, 0.5 = balanced)
-                    0.3, // Temperature
-                    null, // Reference audio (null for default)
+                    text.substring(0, 300), // text_input (max 300 chars)
+                    null,                    // audio_prompt_path_input (no reference audio)
+                    0.5,                     // exaggeration_input (neutral)
+                    0.8,                     // temperature_input
+                    0,                       // seed_num_input (random)
+                    0.5,                     // cfgw_input (pace)
+                    false,                   // vad_trim_input
                 ]
             }),
-            signal: AbortSignal.timeout(30000),
+            signal: AbortSignal.timeout(60000), // 60 second timeout for GPU processing
         });
 
-        if (!response.ok) {
-            console.error(`[Chatterbox] API error: ${response.status}`);
+        if (!submitResponse.ok) {
+            const errorText = await submitResponse.text();
+            console.error(`[Chatterbox HF] Submit error ${submitResponse.status}:`, errorText.substring(0, 200));
             return null;
         }
 
-        const result = await response.json() as any;
+        const submitResult = await submitResponse.json() as { event_id?: string };
 
-        // Get event ID for async result
-        if (result.event_id) {
-            // Poll for result
-            const pollUrl = `https://resemble-ai-chatterbox.hf.space/call/generate/${result.event_id}`;
-            const pollResponse = await fetch(pollUrl);
+        if (!submitResult.event_id) {
+            console.error(`[Chatterbox HF] No event_id in response`);
+            return null;
+        }
 
-            if (pollResponse.ok) {
-                const pollResult = await pollResponse.text();
-                // Parse Gradio SSE format
-                const lines = pollResult.split('\n');
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const data = JSON.parse(line.slice(6));
-                        if (data[0]?.url) {
-                            // Download audio from URL
-                            const audioResponse = await fetch(data[0].url);
+        console.log(`[Chatterbox HF] Processing with event_id: ${submitResult.event_id}`);
+
+        // Step 2: Poll for result (Gradio SSE format)
+        const pollUrl = `${CHATTERBOX_SPACE_URL}/gradio_api/call/generate_tts_audio/${submitResult.event_id}`;
+
+        // Wait a bit for processing to start
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        const pollResponse = await fetch(pollUrl, {
+            signal: AbortSignal.timeout(90000), // 90 second timeout
+        });
+
+        if (!pollResponse.ok) {
+            console.error(`[Chatterbox HF] Poll error ${pollResponse.status}`);
+            return null;
+        }
+
+        const pollResult = await pollResponse.text();
+
+        // Parse SSE format - look for "data:" line with URL
+        const lines = pollResult.split('\n');
+        for (const line of lines) {
+            if (line.startsWith('data: ')) {
+                try {
+                    const data = JSON.parse(line.slice(6));
+                    // Response should have an array with file data containing URL
+                    if (Array.isArray(data) && data.length > 0) {
+                        const fileData = data[0];
+                        const audioUrl = fileData?.url || fileData?.path;
+
+                        if (audioUrl) {
+                            console.log(`[Chatterbox HF] Downloading audio from: ${audioUrl}`);
+
+                            const audioResponse = await fetch(audioUrl, {
+                                signal: AbortSignal.timeout(30000),
+                            });
+
                             if (audioResponse.ok) {
                                 const audioBuffer = Buffer.from(await audioResponse.arrayBuffer());
-                                console.log(`[Chatterbox] ✅ Generated ${audioBuffer.length} bytes`);
+                                console.log(`[Chatterbox HF] ✅ Generated ${audioBuffer.length} bytes`);
                                 return audioBuffer;
                             }
                         }
                     }
+                } catch (parseError) {
+                    // Continue looking for valid data
                 }
             }
         }
 
+        console.error(`[Chatterbox HF] No audio URL found in response`);
         return null;
-    } catch (error) {
-        console.error('[Chatterbox] Error:', error);
+
+    } catch (error: any) {
+        if (error.name === 'AbortError' || error.name === 'TimeoutError') {
+            console.error('[Chatterbox HF] Request timed out - HuggingFace may be busy');
+        } else {
+            console.error('[Chatterbox HF] Error:', error.message || error);
+        }
         return null;
     }
 }

@@ -173,18 +173,27 @@ export default function ChatSidebar({
   const handleLike = async () => {
     setIsLiked(!isLiked);
     if (isDisliked) setIsDisliked(false);
-    // TODO: Send feedback to API
+    try {
+      await fetch(`/api/personas/${persona.id}/interaction`, {
+        method: 'POST',
+        body: JSON.stringify({ type: 'like' })
+      });
+    } catch (e) { console.error(e); }
   };
 
-  const handleDislike = () => {
+  const handleDislike = async () => {
     setIsDisliked(!isDisliked);
-    if (isLiked) {
-      setIsLiked(false);
-    }
-    // TODO: Send feedback to API
+    if (isLiked) setIsLiked(false);
+    try {
+      await fetch(`/api/personas/${persona.id}/interaction`, {
+        method: 'POST',
+        body: JSON.stringify({ type: 'dislike' })
+      });
+    } catch (e) { console.error(e); }
   };
 
   const loadCounters = async () => {
+    // ... same as before ...
     try {
       // Fetch persona with real counters
       const response = await fetch(`/api/personas/${persona.id}`);
@@ -200,6 +209,7 @@ export default function ChatSidebar({
   };
 
   const loadSaveStatus = async () => {
+    // ... same as before ...
     try {
       const response = await fetch(`/api/personas/${persona.id}/save`);
       if (response.ok) {
@@ -213,19 +223,19 @@ export default function ChatSidebar({
 
   const handleSave = async () => {
     try {
-      const method = isSaved ? 'DELETE' : 'POST';
-      const response = await fetch(`/api/personas/${persona.id}/save`, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const newSavedState = !isSaved;
+      setIsSaved(newSavedState);
+      setSaveCount(prev => newSavedState ? prev + 1 : Math.max(0, prev - 1));
 
-      if (response.ok) {
-        const data = await response.json();
-        setIsSaved(data.saved);
-        setSaveCount(prev => data.saved ? prev + 1 : Math.max(0, prev - 1));
-      }
+      // Call new interaction API for "save" as well, or the specific endpoint if it exists
+      await fetch(`/api/personas/${persona.id}/interaction`, {
+        method: 'POST',
+        body: JSON.stringify({ type: 'save' })
+      });
     } catch (error) {
       console.error('Error toggling save:', error);
+      // Revert optimistic update on error
+      setIsSaved(!isSaved);
     }
   };
 
@@ -319,8 +329,8 @@ export default function ChatSidebar({
               <button
                 onClick={handleSave}
                 className={`p-2.5 rounded-full transition-all ${isSaved
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-zinc-50 border border-zinc-100 text-zinc-500 hover:text-indigo-600'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-zinc-50 border border-zinc-100 text-zinc-500 hover:text-indigo-600'
                   }`}
                 title={isSaved ? 'Unsave' : 'Save'}
               >
@@ -329,8 +339,8 @@ export default function ChatSidebar({
               <button
                 onClick={handleFollow}
                 className={`p-2.5 rounded-full transition-all ${isFollowing
-                    ? 'bg-zinc-900 text-white'
-                    : 'bg-zinc-50 border border-zinc-100 text-zinc-500 hover:text-red-500'
+                  ? 'bg-zinc-900 text-white'
+                  : 'bg-zinc-50 border border-zinc-100 text-zinc-500 hover:text-red-500'
                   }`}
               >
                 <Heart className="w-4 h-4" fill={isFollowing ? 'currentColor' : 'none'} />

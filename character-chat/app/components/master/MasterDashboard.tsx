@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  Search, Bell, Plus, Compass, Library, PenTool,
+  Search, Bell, Plus, Compass, Brain, PenTool,
   Award, Settings, ChevronRight, Star,
   Sparkle, ChevronLeft,
   MessageSquare, Play, Send, Image as ImageIcon,
@@ -27,6 +27,8 @@ import { getShowcaseCharacters, FALLBACK_CHARACTERS } from '@/lib/master/geminiS
 import { CharacterProfile, Category, View } from '@/lib/master/types';
 import { LandingPage } from './LandingPage';
 import { Footer } from './Footer';
+import ChatWindow from '../ChatWindow';
+import { supabase } from '@/lib/supabaseClient';
 
 const SidebarLink: React.FC<{ active?: boolean; icon: React.ReactNode; label: string; badge?: string; onClick?: () => void }> = ({ active, icon, label, badge, onClick }) => (
   <button
@@ -46,12 +48,16 @@ const SidebarLink: React.FC<{ active?: boolean; icon: React.ReactNode; label: st
   </button>
 );
 
-const SearchView: React.FC<{ onSelectCharacter: (char: CharacterProfile) => void }> = ({ onSelectCharacter }) => {
+const SearchView: React.FC<{
+  onSelectCharacter: (char: CharacterProfile) => void;
+  characters: CharacterProfile[];
+}> = ({ onSelectCharacter, characters }) => {
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState('Trending');
   const tabs = ['Trending', 'Rising', 'New', 'Editors Choice'];
 
-  const results = FALLBACK_CHARACTERS.filter(c =>
+  // Filter based on query
+  const results = characters.filter(c =>
     c.name.toLowerCase().includes(query.toLowerCase()) ||
     c.tagline.toLowerCase().includes(query.toLowerCase())
   );
@@ -62,7 +68,7 @@ const SearchView: React.FC<{ onSelectCharacter: (char: CharacterProfile) => void
 
         {/* Header & Search Input */}
         <div className="flex flex-col items-center space-y-8 mb-12">
-          <h1 className="text-4xl md:text-5xl font-serif italic text-white text-center">Explore the Wood</h1>
+          <h1 className="text-4xl md:text-5xl font-serif italic text-white text-center">Explore the Woods</h1>
 
           <div className="relative group w-full max-w-2xl">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-2xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-700"></div>
@@ -136,7 +142,7 @@ const SearchView: React.FC<{ onSelectCharacter: (char: CharacterProfile) => void
                 <p className="text-white/40 text-[11px] line-clamp-1">{char.tagline}</p>
                 <div className="flex items-center gap-3 pt-1">
                   <span className="flex items-center gap-1 text-[9px] text-white/30 font-bold uppercase tracking-wider">
-                    <MessageSquare size={10} /> {char.chatCount}
+                    <Eye size={10} /> {char.viewCount >= 1000 ? `${(char.viewCount / 1000).toFixed(1)}k` : char.viewCount}
                   </span>
                 </div>
               </div>
@@ -154,21 +160,23 @@ const SearchView: React.FC<{ onSelectCharacter: (char: CharacterProfile) => void
 // ... BlogPage, CharacterProfileView, ImmersiveChatView, CreateView, RewardsView, SettingsView, CraftStoryView (ensure CraftStoryView is defined) ...
 
 const BlogPage = () => {
-  const categories = ["ALL", "WELLNESS", "STORYTELLING", "RELATIONSHIPS", "CULTURE"];
-  const featuredPost = {
-    title: "The Art of Auditory Intimacy: Why Voice Matters",
-    category: "STORYTELLING",
-    image: "https://images.unsplash.com/photo-1516062423079-7ca13cdc7f5a?auto=format&fit=crop&q=80&w=1200",
-    author: "Elena Vasquez",
-    date: "May 12, 2025"
-  };
+  const [posts, setPosts] = useState<any[]>([]);
+  const [categories, setCategories] = useState(["ALL", "WELLNESS", "STORYTELLING", "RELATIONSHIPS", "CULTURE"]);
+  const [featuredPost, setFeaturedPost] = useState<any>(null);
 
-  const posts = [
-    { title: "5 Ways to Rekindle the Spark with Shared Stories", category: "RELATIONSHIPS", image: "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&q=80&w=800" },
-    { title: "Deep Dive: The Psychology of the 'Slow Burn'", category: "CULTURE", image: "https://images.unsplash.com/photo-1490122417551-6ee9691429d0?auto=format&fit=crop&q=80&w=800" },
-    { title: "Nighttime Rituals for Better Sleep and Connection", category: "WELLNESS", image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800" },
-    { title: "Designing Characters with Heart and Soul", category: "STORYTELLING", image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800" }
-  ];
+  useEffect(() => {
+    fetch('/api/blog')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          setFeaturedPost(data[0]);
+          setPosts(data.slice(1));
+
+          // helper to map random categories if not present
+          // or ideally we use tags
+        }
+      });
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#0c0c0c] fade-in">
@@ -179,17 +187,19 @@ const BlogPage = () => {
         </div>
       </div>
 
-      <section className="px-16 mb-32">
-        <div className="relative rounded-[60px] overflow-hidden aspect-[21/9] border border-white/10 group cursor-pointer">
-          <img src={featuredPost.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-          <div className="absolute bottom-16 left-16 max-w-2xl space-y-6">
-            <span className="text-[11px] font-bold uppercase tracking-[0.4em] text-dipsea-accent">{featuredPost.category}</span>
-            <h2 className="text-7xl font-serif italic text-white leading-none">{featuredPost.title}</h2>
-            <p className="text-white/40 text-sm font-sans italic">By {featuredPost.author} — {featuredPost.date}</p>
+      {featuredPost && (
+        <section className="px-16 mb-32">
+          <div className="relative rounded-[60px] overflow-hidden aspect-[21/9] border border-white/10 group cursor-pointer">
+            <img src={featuredPost.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+            <div className="absolute bottom-16 left-16 max-w-2xl space-y-6">
+              <span className="text-[11px] font-bold uppercase tracking-[0.4em] text-dipsea-accent">{featuredPost.tags?.[0] || 'FEATURED'}</span>
+              <h2 className="text-7xl font-serif italic text-white leading-none">{featuredPost.title}</h2>
+              <p className="text-white/40 text-sm font-sans italic">By {featuredPost.author} — {featuredPost.date}</p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="px-16 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-24 mb-32">
         {posts.map((post, i) => (
@@ -228,10 +238,32 @@ const BlogPage = () => {
 const CharacterProfileView: React.FC<{
   character: CharacterProfile;
   onBack: () => void;
-  onChat: () => void;
+  onChat: (starterMessage?: string) => void;
   isFavorite: boolean;
   onToggleFavorite: (e: React.MouseEvent) => void;
 }> = ({ character, onBack, onChat, isFavorite, onToggleFavorite }) => {
+  // Generate voice description from character properties
+  const getVoiceDescription = () => {
+    const name = character.name.toLowerCase();
+    const category = character.category?.toLowerCase() || '';
+    const styleHint = character.styleHint || '';
+
+    // Character-specific voice descriptions
+    if (name.includes('victor') && name.includes('hale')) return 'Analytical & Detached';
+    if (name.includes('spongebob')) return 'Energetic & Cartoon';
+    if (name.includes('trap') || name.includes('dj')) return 'Deep & Hype';
+    if (name.includes('grandpa') || name.includes('winston')) return 'Warm & Wise';
+    if (name.includes('coach') || name.includes('boone')) return 'Commanding & Strong';
+    if (styleHint.includes('Japanese')) return 'Energetic & Clear';
+    if (styleHint.includes('Korean')) return 'Smooth & Dramatic';
+    if (styleHint.includes('French')) return 'Soft & Alluring';
+    if (styleHint.includes('Italian')) return 'Expressive & Warm';
+    if (styleHint.includes('British')) return 'Refined & Clear';
+    if (category.includes('romance')) return 'Sensual & Warm';
+    if (category.includes('fun') || category.includes('play')) return 'Playful & Bright';
+    if (category.includes('help')) return 'Calm & Supportive';
+    return 'Natural & Engaging';
+  };
   return (
     <div className="min-h-screen bg-[#0c0c0c] animate-fade-in-up">
       <div className="relative h-[60vh] w-full">
@@ -248,7 +280,7 @@ const CharacterProfileView: React.FC<{
             <div className="flex items-center gap-3 mb-4">
               <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-dipsea-accent">{character.category}</span>
               <div className="flex items-center gap-1 text-white/40 text-xs font-bold uppercase tracking-wider">
-                <MessageSquare size={12} /> {character.chatCount}
+                <Eye size={12} /> {character.viewCount >= 1000 ? `${(character.viewCount / 1000).toFixed(1)}k` : character.viewCount}
               </div>
             </div>
             <h1 className="text-6xl md:text-8xl font-serif italic text-white mb-2">{character.name}</h1>
@@ -260,7 +292,7 @@ const CharacterProfileView: React.FC<{
               <Heart size={24} className={isFavorite ? "fill-red-500 text-red-500" : ""} />
             </button>
             <button
-              onClick={onChat}
+              onClick={() => onChat()}
               className="px-10 py-4 bg-white text-black rounded-full font-bold text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_40px_rgba(255,255,255,0.2)] flex items-center gap-2"
             >
               <MessageSquare size={18} /> Start Chatting
@@ -281,7 +313,7 @@ const CharacterProfileView: React.FC<{
               <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-6">Conversation Starters</h3>
               <div className="grid gap-4">
                 {character.chatStarters?.map((starter, i) => (
-                  <button key={i} onClick={onChat} className="text-left p-6 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group">
+                  <button key={i} onClick={() => onChat(starter)} className="text-left p-6 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group">
                     <span className="text-lg font-serif italic text-white/80 group-hover:text-white transition-colors">"{starter}"</span>
                   </button>
                 ))}
@@ -299,7 +331,7 @@ const CharacterProfileView: React.FC<{
                 </div>
                 <div className="flex justify-between py-2 border-b border-white/5">
                   <span className="text-white/40 text-sm">Voice</span>
-                  <span className="text-white text-sm font-medium">Velvet & Deep</span>
+                  <span className="text-white text-sm font-medium">{getVoiceDescription()}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-white/5">
                   <span className="text-white/40 text-sm">Language</span>
@@ -522,8 +554,8 @@ const ImmersiveChatView: React.FC<{
             <div className="space-y-1">
               <h2 className="text-4xl font-serif italic text-white leading-none">{character.name}</h2>
               <div className="flex items-center gap-3 text-[10px] font-bold text-white/60 font-sans tracking-wide">
-                <span className="flex items-center gap-1"><Eye size={12} /> 59.2K</span>
-                <span className="flex items-center gap-1"><User size={12} /> 2.0K</span>
+                <span className="flex items-center gap-1"><Eye size={12} /> {character.viewCount >= 1000 ? `${(character.viewCount / 1000).toFixed(1)}k` : character.viewCount}</span>
+                <span className="flex items-center gap-1"><User size={12} /> {(character.chatCount >= 1000 ? (character.chatCount / 1000).toFixed(1) + 'k' : character.chatCount)}</span>
                 <span className="opacity-50">|</span>
                 <span>By {character.handle.replace('@', '')}</span>
               </div>
@@ -664,11 +696,45 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [isAiLoading, setIsAiLoading] = useState<string | null>(null);
   const [suggestedVoice, setSuggestedVoice] = useState<string | null>(null);
 
+  // Section expansion state
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({ Skill: false, Image: false, Voice: false });
+
+  // Skills state
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [showSkillModal, setShowSkillModal] = useState(false);
+
+  // Voice selection state
+  const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const [voicePreviewPlaying, setVoicePreviewPlaying] = useState<string | null>(null);
+
   // Image Generation Modal State
   const [showImageModal, setShowImageModal] = useState(false);
   const [imagePrompt, setImagePrompt] = useState('');
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [isGeneratingImages, setIsGeneratingImages] = useState(false);
+
+  // Available skills
+  const availableSkills = [
+    { id: 'image_gen', name: 'Image Generation', icon: '🎨', desc: 'Generate images during conversation' },
+    { id: 'song_creation', name: 'Song Creation', icon: '🎵', desc: 'Create music and songs' },
+    { id: 'code_assist', name: 'Code Assistant', icon: '💻', desc: 'Help with programming tasks' },
+    { id: 'roleplay', name: 'Advanced Roleplay', icon: '🎭', desc: 'Enhanced roleplay capabilities' },
+  ];
+
+  // Available voices
+  const availableVoices = [
+    { id: 'alloy', name: 'Alloy', gender: 'Neutral', preview: 'Modern and balanced' },
+    { id: 'echo', name: 'Echo', gender: 'Male', preview: 'Deep and resonant' },
+    { id: 'fable', name: 'Fable', gender: 'Female', preview: 'Warm and expressive' },
+    { id: 'onyx', name: 'Onyx', gender: 'Male', preview: 'Rich and authoritative' },
+    { id: 'nova', name: 'Nova', gender: 'Female', preview: 'Bright and energetic' },
+    { id: 'shimmer', name: 'Shimmer', gender: 'Female', preview: 'Soft and soothing' },
+  ];
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   // AI Generator function for persona/tagline/voice/greeting
   const callAiGenerator = async (type: string) => {
@@ -868,56 +934,116 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <div className="text-right text-[10px] text-white/20">{opening.length}/500</div>
           </div>
 
-          {['Skill', 'Image', 'Voice'].map((section) => (
-            <div key={section} className="p-5 rounded-2xl bg-[#161616] border border-white/5 hover:border-white/10 transition-colors cursor-pointer group">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <ChevronDown size={14} className="text-white/40" />
-                  <h3 className="text-sm font-bold text-white group-hover:text-white transition-colors">{section}</h3>
-                </div>
-                <button className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white border border-white/10 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-all">
-                  <Plus size={10} /> Add
-                </button>
+          {/* Skill Section */}
+          <div className="p-5 rounded-2xl bg-[#161616] border border-white/5 hover:border-white/10 transition-colors">
+            <div className="flex items-center justify-between mb-3 cursor-pointer" onClick={() => toggleSection('Skill')}>
+              <div className="flex items-center gap-2">
+                <ChevronDown size={14} className={`text-white/40 transition-transform ${expandedSections.Skill ? 'rotate-180' : ''}`} />
+                <h3 className="text-sm font-bold text-white">Skill</h3>
+                {selectedSkills.length > 0 && <span className="text-[10px] bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full">{selectedSkills.length} selected</span>}
               </div>
-              <p className="text-[11px] text-white/30 pl-6">
-                {section === 'Skill' && "Supports additional capabilities like Image Generation and Song Creation."}
-                {section === 'Image' && "Add image to make your Character more engaging."}
-                {section === 'Voice' && "Choose a voice for your Character."}
-              </p>
-
-              {section === 'Image' && (
-                <div className="mt-4 ml-6 p-4 bg-[#0c0c0c] border border-white/5 border-dashed rounded-xl flex flex-col items-center justify-center text-white/20 group-hover:text-white/40 transition-colors">
-                  {avatarUrl ? (
-                    <div className="relative w-full aspect-square rounded-lg overflow-hidden group/img">
-                      <img src={avatarUrl} className="w-full h-full object-cover" />
-                      <button onClick={(e) => { e.stopPropagation(); openImageModal(); }} className="absolute inset-0 bg-black/60 flex items-center justify-center text-white opacity-0 group-hover/img:opacity-100 transition-opacity">
-                        <RotateCcw size={20} className="mr-2" /> Regenerate
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-6 w-full">
-                      <ImageIcon size={24} className="mb-2" />
-                      <p className="text-xs text-white/40 mb-3">No image selected</p>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); openImageModal(); }}
-                        className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-white/90"
-                      >
-                        <Wand2 size={12} />
-                        Generate with AI
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {section !== 'Image' && (
-                <div className="mt-4 ml-6 h-20 bg-[#0c0c0c] border border-white/5 border-dashed rounded-xl flex items-center justify-center text-white/20 group-hover:text-white/40 transition-colors">
-                  {section === 'Skill' && <Sparkle size={20} />}
-                  {section === 'Voice' && <VolumeX size={20} />}
-                </div>
-              )}
+              <button onClick={(e) => { e.stopPropagation(); setShowSkillModal(true); }} className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white border border-white/10 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-all">
+                <Plus size={10} /> Add
+              </button>
             </div>
-          ))}
+            <p className="text-[11px] text-white/30 pl-6">Supports additional capabilities like Image Generation and Song Creation.</p>
+            {expandedSections.Skill && (
+              <div className="mt-4 ml-6 space-y-2">
+                {selectedSkills.length === 0 ? (
+                  <div className="h-20 bg-[#0c0c0c] border border-white/5 border-dashed rounded-xl flex items-center justify-center text-white/20">
+                    <Sparkle size={20} />
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedSkills.map(skillId => {
+                      const skill = availableSkills.find(s => s.id === skillId);
+                      return skill ? (
+                        <div key={skillId} className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-2 rounded-lg">
+                          <span>{skill.icon}</span>
+                          <span className="text-xs text-white">{skill.name}</span>
+                          <button onClick={() => setSelectedSkills(prev => prev.filter(s => s !== skillId))} className="text-white/40 hover:text-red-400"><X size={12} /></button>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Image Section */}
+          <div className="p-5 rounded-2xl bg-[#161616] border border-white/5 hover:border-white/10 transition-colors">
+            <div className="flex items-center justify-between mb-3 cursor-pointer" onClick={() => toggleSection('Image')}>
+              <div className="flex items-center gap-2">
+                <ChevronDown size={14} className={`text-white/40 transition-transform ${expandedSections.Image ? 'rotate-180' : ''}`} />
+                <h3 className="text-sm font-bold text-white">Image</h3>
+                {avatarUrl && <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">Added</span>}
+              </div>
+              <button onClick={(e) => { e.stopPropagation(); openImageModal(); }} className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white border border-white/10 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-all">
+                <Plus size={10} /> Add
+              </button>
+            </div>
+            <p className="text-[11px] text-white/30 pl-6">Add image to make your Character more engaging.</p>
+            {expandedSections.Image && (
+              <div className="mt-4 ml-6 p-4 bg-[#0c0c0c] border border-white/5 border-dashed rounded-xl flex flex-col items-center justify-center text-white/20">
+                {avatarUrl ? (
+                  <div className="relative w-full aspect-square rounded-lg overflow-hidden group/img">
+                    <img src={avatarUrl} className="w-full h-full object-cover" alt="Avatar" />
+                    <button onClick={(e) => { e.stopPropagation(); openImageModal(); }} className="absolute inset-0 bg-black/60 flex items-center justify-center text-white opacity-0 group-hover/img:opacity-100 transition-opacity">
+                      <RotateCcw size={20} className="mr-2" /> Regenerate
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-6 w-full">
+                    <ImageIcon size={24} className="mb-2" />
+                    <p className="text-xs text-white/40 mb-3">No image selected</p>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); openImageModal(); }}
+                      className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-white/90"
+                    >
+                      <Wand2 size={12} />
+                      Generate with AI
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Voice Section */}
+          <div className="p-5 rounded-2xl bg-[#161616] border border-white/5 hover:border-white/10 transition-colors">
+            <div className="flex items-center justify-between mb-3 cursor-pointer" onClick={() => toggleSection('Voice')}>
+              <div className="flex items-center gap-2">
+                <ChevronDown size={14} className={`text-white/40 transition-transform ${expandedSections.Voice ? 'rotate-180' : ''}`} />
+                <h3 className="text-sm font-bold text-white">Voice</h3>
+                {selectedVoice && <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">{availableVoices.find(v => v.id === selectedVoice)?.name}</span>}
+              </div>
+              <button onClick={(e) => { e.stopPropagation(); setShowVoiceModal(true); }} className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white border border-white/10 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-all">
+                <Plus size={10} /> Add
+              </button>
+            </div>
+            <p className="text-[11px] text-white/30 pl-6">Choose a voice for your Character.</p>
+            {expandedSections.Voice && (
+              <div className="mt-4 ml-6">
+                {!selectedVoice ? (
+                  <div className="h-20 bg-[#0c0c0c] border border-white/5 border-dashed rounded-xl flex items-center justify-center text-white/20">
+                    <VolumeX size={20} />
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-lg">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                      <Volume2 size={18} className="text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-white">{availableVoices.find(v => v.id === selectedVoice)?.name}</p>
+                      <p className="text-[10px] text-white/40">{availableVoices.find(v => v.id === selectedVoice)?.preview}</p>
+                    </div>
+                    <button onClick={() => setSelectedVoice(null)} className="text-white/40 hover:text-red-400"><X size={14} /></button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
         </div>
       </div>
@@ -1054,6 +1180,79 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           </div>
         </div>
       )}
+
+      {/* Skill Selection Modal */}
+      {showSkillModal && (
+        <div className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center animate-fade-in">
+          <div className="bg-[#161616] rounded-2xl border border-white/10 w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white">Add Skills</h2>
+              <button onClick={() => setShowSkillModal(false)} className="p-2 rounded-full hover:bg-white/10 text-white/60 hover:text-white"><X size={20} /></button>
+            </div>
+            <div className="space-y-3">
+              {availableSkills.map(skill => (
+                <button
+                  key={skill.id}
+                  onClick={() => {
+                    if (selectedSkills.includes(skill.id)) {
+                      setSelectedSkills(prev => prev.filter(s => s !== skill.id));
+                    } else {
+                      setSelectedSkills(prev => [...prev, skill.id]);
+                    }
+                  }}
+                  className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all ${selectedSkills.includes(skill.id) ? 'bg-purple-500/10 border-purple-500/50' : 'bg-white/5 border-white/10 hover:border-white/20'}`}
+                >
+                  <span className="text-2xl">{skill.icon}</span>
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-bold text-white">{skill.name}</p>
+                    <p className="text-[10px] text-white/40">{skill.desc}</p>
+                  </div>
+                  {selectedSkills.includes(skill.id) && <Check size={18} className="text-purple-400" />}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowSkillModal(false)}
+              className="w-full mt-6 py-3 bg-white text-black rounded-xl font-bold text-sm hover:bg-white/90 transition-colors"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Voice Selection Modal */}
+      {showVoiceModal && (
+        <div className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center animate-fade-in">
+          <div className="bg-[#161616] rounded-2xl border border-white/10 w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white">Choose Voice</h2>
+              <button onClick={() => setShowVoiceModal(false)} className="p-2 rounded-full hover:bg-white/10 text-white/60 hover:text-white"><X size={20} /></button>
+            </div>
+            <div className="space-y-2">
+              {availableVoices.map(voice => (
+                <button
+                  key={voice.id}
+                  onClick={() => {
+                    setSelectedVoice(voice.id);
+                    setShowVoiceModal(false);
+                  }}
+                  className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all ${selectedVoice === voice.id ? 'bg-blue-500/10 border-blue-500/50' : 'bg-white/5 border-white/10 hover:border-white/20'}`}
+                >
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                    <Volume2 size={18} className="text-white" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-bold text-white">{voice.name}</p>
+                    <p className="text-[10px] text-white/40">{voice.gender} • {voice.preview}</p>
+                  </div>
+                  {selectedVoice === voice.id && <Check size={18} className="text-blue-400" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -1062,14 +1261,32 @@ const RewardsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [stats, setStats] = useState({ level: 12, credits: 450, chatHours: 1.2, customChars: 1, streak: 4, stories: 2 });
 
   useEffect(() => {
-    // Load stats from localStorage if they exist
-    const savedStats = localStorage.getItem('agentwood_rewards_stats');
-    if (savedStats) {
-      setStats(JSON.parse(savedStats));
-    } else {
-      // Initialize with realistic dummy data
-      localStorage.setItem('agentwood_rewards_stats', JSON.stringify(stats));
-    }
+    // Load stats from API if user exists
+    const fetchStats = async () => {
+      // Get user from parent or auth
+      const { data } = await supabase?.auth.getUser() ?? { data: { user: null } };
+      const user = data.user;
+      if (user) {
+        try {
+          const res = await fetch(`/api/user/rewards?userId=${user.id}`);
+          if (res.ok) {
+            const data = await res.json();
+            setStats(data);
+            return;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // Fallback to local storage if API fails or no user
+      const savedStats = localStorage.getItem('agentwood_rewards_stats');
+      if (savedStats) {
+        setStats(JSON.parse(savedStats));
+      }
+    };
+
+    fetchStats();
   }, []);
 
   const milestones = [
@@ -1279,10 +1496,185 @@ const SettingsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
                 <h3 className="text-lg font-bold text-white mb-2">Email Address</h3>
                 <p className="text-white/40 text-sm mb-4">Your email is visible only to you.</p>
-                <input type="email" value="user@example.com" disabled className="bg-black/20 w-full p-3 rounded-lg text-white/60 border border-white/5" />
+                <input type="email" defaultValue="user@example.com" className="bg-black/20 w-full p-3 rounded-lg text-white border border-white/10 focus:border-white/30 outline-none" />
               </div>
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-2">Password</h3>
+                <p className="text-white/40 text-sm mb-4">Update your password for security.</p>
+                <input type="password" placeholder="••••••••" className="bg-black/20 w-full p-3 rounded-lg text-white border border-white/10 focus:border-white/30 outline-none" />
+              </div>
+              <button className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-white/90 rounded-xl transition-colors">
+                Save Changes
+              </button>
               <button className="w-full py-4 text-red-500 font-bold text-xs uppercase tracking-widest hover:bg-red-500/5 rounded-xl transition-colors border border-red-500/20">
                 Log Out
+              </button>
+            </div>
+          )}
+
+          {activeTab === 'Preferences' && (
+            <div className="space-y-6">
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4">Theme</h3>
+                <div className="flex gap-3">
+                  {['Dark', 'Light', 'System'].map(theme => (
+                    <button key={theme} className={`flex-1 py-3 rounded-xl border transition-all ${theme === 'Dark' ? 'bg-white/10 border-white/30 text-white' : 'border-white/10 text-white/40 hover:border-white/20'}`}>
+                      {theme}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4">Language</h3>
+                <select className="w-full bg-black/20 p-3 rounded-lg text-white border border-white/10 outline-none">
+                  <option value="en">English</option>
+                  <option value="es">Español</option>
+                  <option value="fr">Français</option>
+                  <option value="de">Deutsch</option>
+                  <option value="ja">日本語</option>
+                </select>
+              </div>
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Auto-play Voice</h3>
+                    <p className="text-white/40 text-sm">Automatically play character voices</p>
+                  </div>
+                  <button className="w-12 h-6 rounded-full bg-purple-500 relative">
+                    <span className="absolute right-1 top-1 w-4 h-4 rounded-full bg-white shadow"></span>
+                  </button>
+                </div>
+              </div>
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Notifications</h3>
+                    <p className="text-white/40 text-sm">Receive push notifications</p>
+                  </div>
+                  <button className="w-12 h-6 rounded-full bg-white/20 relative">
+                    <span className="absolute left-1 top-1 w-4 h-4 rounded-full bg-white shadow"></span>
+                  </button>
+                </div>
+              </div>
+              <button className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-white/90 rounded-xl transition-colors">
+                Save Preferences
+              </button>
+            </div>
+          )}
+
+          {activeTab === 'Muted words' && (
+            <div className="space-y-6">
+              <p className="text-white/40">Posts containing muted words won't appear in your timeline. Manage your muted words below.</p>
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4">Add Muted Word</h3>
+                <div className="flex gap-3">
+                  <input type="text" placeholder="Enter word or phrase..." className="flex-1 bg-black/20 p-3 rounded-lg text-white border border-white/10 focus:border-white/30 outline-none" />
+                  <button className="px-6 py-3 bg-white text-black font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-white/90">Add</button>
+                </div>
+              </div>
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4">Muted Words List</h3>
+                <div className="space-y-2">
+                  <p className="text-white/30 text-sm italic">No muted words yet. Add words above to filter content.</p>
+                </div>
+              </div>
+              <button className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-white/90 rounded-xl transition-colors">
+                Save Changes
+              </button>
+            </div>
+          )}
+
+          {activeTab === 'Parental Insights' && (
+            <div className="space-y-6">
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6">
+                <div className="flex items-start gap-4">
+                  <ShieldCheck size={24} className="text-amber-500 flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-2">Family Safety Features</h3>
+                    <p className="text-white/60 text-sm">Monitor and manage content access for a safer experience.</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Content Filter</h3>
+                    <p className="text-white/40 text-sm">Block mature or sensitive content</p>
+                  </div>
+                  <button className="w-12 h-6 rounded-full bg-purple-500 relative">
+                    <span className="absolute right-1 top-1 w-4 h-4 rounded-full bg-white shadow"></span>
+                  </button>
+                </div>
+              </div>
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4">Daily Time Limit</h3>
+                <select className="w-full bg-black/20 p-3 rounded-lg text-white border border-white/10 outline-none">
+                  <option value="none">No Limit</option>
+                  <option value="30">30 minutes</option>
+                  <option value="60">1 hour</option>
+                  <option value="120">2 hours</option>
+                  <option value="180">3 hours</option>
+                </select>
+              </div>
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-2">Usage Stats This Week</h3>
+                <div className="grid grid-cols-3 gap-4 mt-4">
+                  <div className="text-center p-4 bg-white/5 rounded-xl">
+                    <p className="text-2xl font-bold text-white">2.5h</p>
+                    <p className="text-[10px] text-white/40 uppercase tracking-wider">Total Time</p>
+                  </div>
+                  <div className="text-center p-4 bg-white/5 rounded-xl">
+                    <p className="text-2xl font-bold text-white">12</p>
+                    <p className="text-[10px] text-white/40 uppercase tracking-wider">Sessions</p>
+                  </div>
+                  <div className="text-center p-4 bg-white/5 rounded-xl">
+                    <p className="text-2xl font-bold text-white">5</p>
+                    <p className="text-[10px] text-white/40 uppercase tracking-wider">Characters</p>
+                  </div>
+                </div>
+              </div>
+              <button className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-white/90 rounded-xl transition-colors">
+                Save Parental Settings
+              </button>
+            </div>
+          )}
+
+          {activeTab === 'Advanced' && (
+            <div className="space-y-6">
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Developer Mode</h3>
+                    <p className="text-white/40 text-sm">Enable advanced debugging features</p>
+                  </div>
+                  <button className="w-12 h-6 rounded-full bg-white/20 relative">
+                    <span className="absolute left-1 top-1 w-4 h-4 rounded-full bg-white shadow"></span>
+                  </button>
+                </div>
+              </div>
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4">API Access</h3>
+                <div className="bg-black/20 p-3 rounded-lg font-mono text-sm text-white/60 break-all">
+                  sk-••••••••••••••••••••
+                </div>
+                <button className="mt-3 text-purple-400 text-xs font-bold uppercase tracking-wider hover:text-purple-300">Regenerate Key</button>
+              </div>
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4">Data Export</h3>
+                <p className="text-white/40 text-sm mb-4">Download all your data including chat history, preferences, and created characters.</p>
+                <button className="w-full py-3 border border-white/10 text-white font-bold text-xs uppercase tracking-widest hover:bg-white/5 rounded-lg transition-colors">
+                  Request Data Export
+                </button>
+              </div>
+              <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-red-400 mb-2">Danger Zone</h3>
+                <p className="text-white/40 text-sm mb-4">Permanently delete your account and all associated data. This action cannot be undone.</p>
+                <button className="w-full py-3 bg-red-500/20 text-red-400 font-bold text-xs uppercase tracking-widest hover:bg-red-500/30 rounded-lg transition-colors border border-red-500/30">
+                  Delete Account
+                </button>
+              </div>
+              <button className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-white/90 rounded-xl transition-colors">
+                Save Advanced Settings
               </button>
             </div>
           )}
@@ -1306,7 +1698,7 @@ const WORLDS: World[] = [
   { id: 'modern', name: 'Urban Loft', description: 'Contemporary city life. Coffee shops, art galleries, and modern romance.', image: '/worlds/modern.png' },
 ];
 
-const CraftStoryView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+const CraftStoryView: React.FC<{ onBack: () => void; characters: CharacterProfile[] }> = ({ onBack, characters }) => {
   const [selectedWorld, setSelectedWorld] = useState<World | null>(null);
   const [selectedCharacters, setSelectedCharacters] = useState<CharacterProfile[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -1449,7 +1841,7 @@ const CraftStoryView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               <History size={14} /> Recent Encounters
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {FALLBACK_CHARACTERS.slice(0, 6).map((char, i) => {
+              {characters.slice(0, 6).map((char, i) => {
                 const isSelected = selectedCharacters.find(c => c.name === char.name);
                 return (
                   <div
@@ -1493,15 +1885,27 @@ const CraftStoryView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   );
 };
 
-export default function MasterDashboard({ initialCharacters = [] }: { initialCharacters?: CharacterProfile[] }) {
+export default function MasterDashboard({ initialCharacters = [], user }: { initialCharacters?: CharacterProfile[], user?: any }) {
   const [characters, setCharacters] = useState<CharacterProfile[]>(initialCharacters.length > 0 ? initialCharacters : []);
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [loading, setLoading] = useState(initialCharacters.length === 0);
   const [currentView, setCurrentView] = useState<View>('discover');
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterProfile | null>(null);
+  const [initialMessage, setInitialMessage] = useState<string | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
   const [onboardingChar, setOnboardingChar] = useState<CharacterProfile | null>(null);
+
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Check auth on mount
+    const checkAuth = async () => {
+      const { data } = await supabase?.auth.getUser() ?? { data: { user: null } };
+      setCurrentUser(data.user);
+    };
+    checkAuth();
+  }, []);
 
   const [favorites, setFavorites] = useState<CharacterProfile[]>(() => {
     if (typeof window === 'undefined') return [];
@@ -1548,7 +1952,25 @@ export default function MasterDashboard({ initialCharacters = [] }: { initialCha
     fetchData();
   }, [activeCategory, initialCharacters]);
 
+  const logCharacterView = async (charId: string) => {
+    try {
+      await fetch('/api/character/view', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ characterId: charId })
+      });
+    } catch (e) {
+      console.error('Failed to log view:', e);
+    }
+  };
+
   const navigateToProfile = (char: CharacterProfile) => {
+    // Auth Check removed for dev/testing
+    // if (!currentUser) {
+    //   setIsAuthOpen(true);
+    //   return;
+    // }
+
     const hasSeenOnboarding = localStorage.getItem('agentwood_onboarding_seen');
     if (!hasSeenOnboarding) {
       setOnboardingChar(char);
@@ -1556,6 +1978,7 @@ export default function MasterDashboard({ initialCharacters = [] }: { initialCha
       setSelectedCharacter(char);
       setCurrentView('character');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      logCharacterView(char.id);
     }
   };
 
@@ -1569,10 +1992,12 @@ export default function MasterDashboard({ initialCharacters = [] }: { initialCha
     }
   };
 
-  const navigateToChat = (char: CharacterProfile) => {
+  const navigateToChat = (char: CharacterProfile, starterMessage?: string) => {
     setSelectedCharacter(char);
+    setInitialMessage(starterMessage || null);
     setCurrentView('chat');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    logCharacterView(char.id);
   };
 
   return (
@@ -1588,7 +2013,14 @@ export default function MasterDashboard({ initialCharacters = [] }: { initialCha
         </div>
 
         <button
-          onClick={() => { setSelectedCharacter(null); setCurrentView('create'); }}
+          onClick={() => {
+            // if (!currentUser) {
+            //   setIsAuthOpen(true);
+            //   return;
+            // }
+            setSelectedCharacter(null);
+            setCurrentView('create');
+          }}
           className="mb-8 flex w-full items-center justify-center gap-2 rounded-full bg-white py-3.5 text-[15px] font-bold text-black transition-all hover:bg-white/90 shadow-md font-sans"
         >
           <Plus size={18} />
@@ -1617,7 +2049,12 @@ export default function MasterDashboard({ initialCharacters = [] }: { initialCha
                 label="Favorites"
                 onClick={() => setCurrentView('favorites')}
               />
-              <SidebarLink icon={<Library size={18} />} label="Memory" />
+              <a href="/training" className="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-[13px] font-medium transition-all text-white/40 hover:text-white hover:bg-white/5">
+                <div className="flex items-center gap-3">
+                  <Brain size={18} />
+                  <span className="font-sans">Training & Data</span>
+                </div>
+              </a>
               <SidebarLink
                 active={currentView === 'blog'}
                 icon={<BookOpen size={18} />}
@@ -1634,14 +2071,26 @@ export default function MasterDashboard({ initialCharacters = [] }: { initialCha
                 active={currentView === 'craft'}
                 icon={<PenTool size={18} />}
                 label="Craft a Story"
-                onClick={() => setCurrentView('craft')}
+                onClick={() => {
+                  // if (!currentUser) {
+                  //   setIsAuthOpen(true);
+                  //   return;
+                  // }
+                  setCurrentView('craft');
+                }}
               />
               <SidebarLink
                 active={currentView === 'rewards'}
                 icon={<Award size={18} />}
                 label="Rewards"
                 badge="PRO"
-                onClick={() => setCurrentView('rewards')}
+                onClick={() => {
+                  // if (!currentUser) {
+                  //   setIsAuthOpen(true);
+                  //   return;
+                  // }
+                  setCurrentView('rewards');
+                }}
               />
             </div>
           </section>
@@ -1660,7 +2109,13 @@ export default function MasterDashboard({ initialCharacters = [] }: { initialCha
         </div>
 
         <div className="mt-auto pt-4 border-t border-white/5 space-y-4">
-          <SidebarLink icon={<Settings size={18} />} label="Settings" onClick={() => setCurrentView('settings')} />
+          <SidebarLink icon={<Settings size={18} />} label="Settings" onClick={() => {
+            // if (!currentUser) {
+            //   setIsAuthOpen(true);
+            //   return;
+            // }
+            setCurrentView('settings');
+          }} />
           <div
             onClick={() => setIsSubscriptionOpen(true)}
             className="p-4 rounded-2xl bg-[#1e1428] border border-white/5 group cursor-pointer relative overflow-hidden transition-transform hover:scale-[1.02]"
@@ -1729,18 +2184,29 @@ export default function MasterDashboard({ initialCharacters = [] }: { initialCha
           <CharacterProfileView
             character={selectedCharacter}
             onBack={() => setCurrentView('discover')}
-            onChat={() => navigateToChat(selectedCharacter)}
+            onChat={(starterMessage) => navigateToChat(selectedCharacter, starterMessage)}
             isFavorite={isFavorite(selectedCharacter)}
             onToggleFavorite={(e) => toggleFavorite(selectedCharacter, e)}
           />
         )}
 
         {currentView === 'chat' && selectedCharacter && (
-          <ImmersiveChatView
-            character={selectedCharacter}
-            onBack={() => setCurrentView('character')}
-            onUpgrade={() => { setIsSubscriptionOpen(true); }}
-          />
+          <div className="flex-1 flex flex-col min-h-0 animate-fade-in">
+            <ChatWindow
+              persona={{
+                ...selectedCharacter,
+                greeting: selectedCharacter.greeting || (
+                  selectedCharacter.tagline
+                    ? `Hello! I'm ${selectedCharacter.name}.`
+                    : `Hey there. I'm ${selectedCharacter.name}. What's on your mind?`
+                ),
+                voiceName: selectedCharacter.voiceName || 'puck'
+              }}
+              conversationId={`chat-${selectedCharacter.id}-${new Date().toDateString()}`}
+              onBack={() => setCurrentView('character')}
+              initialMessage={initialMessage || undefined}
+            />
+          </div>
         )}
 
         {currentView === 'create' && (
@@ -1751,12 +2217,12 @@ export default function MasterDashboard({ initialCharacters = [] }: { initialCha
 
         {currentView === 'settings' && <SettingsView onBack={() => setCurrentView('discover')} />}
 
-        {currentView === 'craft' && <CraftStoryView onBack={() => setCurrentView('discover')} />}
+        {currentView === 'craft' && <CraftStoryView onBack={() => setCurrentView('discover')} characters={characters} />}
 
-        {currentView === 'search' && <SearchView onSelectCharacter={navigateToProfile} />}
+        {currentView === 'search' && <SearchView onSelectCharacter={navigateToProfile} characters={characters.length > 0 ? characters : FALLBACK_CHARACTERS} />}
       </main>
 
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      {/* <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} /> */}
       <SubscriptionModal isOpen={isSubscriptionOpen} onClose={() => setIsSubscriptionOpen(false)} />
       <OnboardingModal
         character={onboardingChar}

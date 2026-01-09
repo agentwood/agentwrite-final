@@ -18,8 +18,9 @@ RUN pip install --no-cache-dir \
     numpy \
     scipy
 
-# Copy handler
+# Copy handler and profiles
 COPY handler.py /app/handler.py
+COPY profiles /app/profiles
 
 # Set environment
 ENV PYTHONUNBUFFERED=1

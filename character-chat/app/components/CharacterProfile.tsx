@@ -46,9 +46,10 @@ interface CharacterProfileProps {
     conversationStyle?: string;
   };
   similarCharacters?: SimilarCharacter[];
+  internalLinks?: Array<{ toUrl: string; anchorText: string; relevance: number }>;
 }
 
-export default function CharacterProfile({ persona, similarCharacters = [] }: CharacterProfileProps) {
+export default function CharacterProfile({ persona, similarCharacters = [], internalLinks = [] }: CharacterProfileProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'about' | 'starters' | 'similar'>('about');
   const [isFollowing, setIsFollowing] = useState(false);
@@ -107,15 +108,20 @@ export default function CharacterProfile({ persona, similarCharacters = [] }: Ch
 
   const handleFollow = async () => {
     try {
+      console.log(`[CharacterProfile] Toggling follow for ${persona.id}. Current: ${isFollowing}`);
       const response = await fetch(`/api/personas/${persona.id}/follow`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
 
+      console.log(`[CharacterProfile] Follow response status: ${response.status}`);
       if (response.ok) {
         const data = await response.json();
+        console.log(`[CharacterProfile] Follow success. New state:`, data);
         setIsFollowing(data.following);
         setFollowerCount(prev => data.following ? prev + 1 : prev - 1);
+      } else {
+        console.error(`[CharacterProfile] Follow failed:`, await response.text());
       }
     } catch (error) {
       console.error('Error toggling follow:', error);
@@ -124,15 +130,20 @@ export default function CharacterProfile({ persona, similarCharacters = [] }: Ch
 
   const handleSave = async () => {
     try {
+      console.log(`[CharacterProfile] Toggling save for ${persona.id}. Current: ${isSaved}`);
       const method = isSaved ? 'DELETE' : 'POST';
       const response = await fetch(`/api/personas/${persona.id}/save`, {
         method,
         headers: { 'Content-Type': 'application/json' },
       });
 
+      console.log(`[CharacterProfile] Save response status: ${response.status}`);
       if (response.ok) {
         const data = await response.json();
+        console.log(`[CharacterProfile] Save success. New state:`, data);
         setIsSaved(data.saved);
+      } else {
+        console.error(`[CharacterProfile] Save failed:`, await response.text());
       }
     } catch (error) {
       console.error('Error toggling save:', error);
@@ -457,6 +468,24 @@ export default function CharacterProfile({ persona, similarCharacters = [] }: Ch
                       "{persona.simplePleasures}"
                     </p>
                   </div>
+
+                  {/* SEO Internal Links */}
+                  {internalLinks.length > 0 && (
+                    <div className="pt-8 border-t border-white/5">
+                      <p className="text-xs font-bold text-white/40 uppercase tracking-widest mb-4">Discover More</p>
+                      <div className="flex flex-wrap gap-x-6 gap-y-3">
+                        {internalLinks.map((link, idx) => (
+                          <Link
+                            key={idx}
+                            href={link.toUrl}
+                            className="text-sm text-purple-400/60 hover:text-purple-400 transition-colors underline decoration-purple-500/20 underline-offset-4"
+                          >
+                            {link.anchorText}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

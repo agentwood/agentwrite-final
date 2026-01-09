@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { db } from '@/lib/db';
+import { getAllPostSlugs } from '@/lib/blog/service';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://agentwood.xyz';
 
@@ -54,6 +55,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.3,
     },
   ];
+
+  // Add blog posts
+  const blogSlugs = getAllPostSlugs();
+  const blogRoutes = blogSlugs.map((slug) => ({
+    url: `${SITE_URL}/blog/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+  routes.push(...blogRoutes);
 
   try {
     // Get ALL characters for maximum indexing (up to 100k)

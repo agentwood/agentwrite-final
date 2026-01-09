@@ -1,0 +1,16 @@
+{
+    "character_id": "sunny_sato",
+    "archetype": "high_energy",
+    "gender": "female",
+    "personality": {
+        "dominance": 0.6,
+        "warmth": 0.9,
+        "emotional_range": 0.8
+    },
+    "script": "Spinning the wheel... and YOUR next outfit theme is... 80s neon! Oh wow!",
+    "voice_constraints": {
+        "pitch_bias": 0.2,
+        "speed_bias": 0.15,
+        "energy_bias": 0.2
+    }
+}

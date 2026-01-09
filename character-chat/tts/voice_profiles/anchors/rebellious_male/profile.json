@@ -1,0 +1,26 @@
+{
+    "profile_id": "rebellious_male",
+    "base_archetype": "rebellious",
+    "gender": "male",
+    "conditioning": {
+        "pitch_shift": 1.0,
+        "speed": 1.2,
+        "energy": 0.85,
+        "emotion_bias": "playful",
+        "clarity": 0.8
+    },
+    "allowed_variation": {
+        "pitch_shift": [
+            0.0,
+            2.0
+        ],
+        "speed": [
+            1.0,
+            1.4
+        ],
+        "energy": [
+            0.7,
+            1.0
+        ]
+    }
+}

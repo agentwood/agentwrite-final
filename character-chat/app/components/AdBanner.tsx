@@ -48,28 +48,29 @@ export default function AdBanner({ variant = 'banner', className = '' }: AdBanne
 
   if (variant === 'banner') {
     return (
-      <div className={`bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 relative ${className}`}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-1">
-            <Sparkles className="w-5 h-5 flex-shrink-0" />
-            <div>
-              <p className="font-semibold text-sm">{content.title}</p>
-              <p className="text-xs text-indigo-100">{content.description}</p>
-            </div>
+      <div className={`bg-[#5865F2] text-white flex items-center justify-between border-b border-white/10 ${className}`}>
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Sparkles size={20} className="text-white animate-pulse" />
+            <span className="font-serif italic text-lg tracking-wide">
+              Unlock the full <span className="font-bold">Agentwood+</span> experience
+            </span>
           </div>
-          <Link
-            href={content.link}
-            className="px-4 py-2 bg-white text-indigo-600 rounded-lg font-semibold text-sm hover:bg-indigo-50 transition-colors whitespace-nowrap"
-          >
-            {content.cta}
-          </Link>
-          <button
-            onClick={() => setIsVisible(false)}
-            className="p-1 hover:bg-white/20 rounded transition-colors"
-            aria-label="Close ad"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-4">
+            <Link
+              href={content.link}
+              className="px-4 py-1.5 bg-white text-[#5865F2] rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-white/90 hover:scale-105 transition-all shadow-lg"
+            >
+              {content.cta}
+            </Link>
+            <button
+              onClick={() => setIsVisible(false)}
+              className="p-1 hover:bg-white/20 rounded transition-colors"
+              aria-label="Close ad"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -107,7 +108,3 @@ export default function AdBanner({ variant = 'banner', className = '' }: AdBanne
     </div>
   );
 }
-
-
-
-

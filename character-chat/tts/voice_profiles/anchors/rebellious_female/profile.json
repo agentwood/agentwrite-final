@@ -1,0 +1,25 @@
+{
+    "profile_id": "rebellious_female",
+    "base_archetype": "rebellious",
+    "conditioning": {
+        "pitch_shift": 0.0,
+        "speed": 1.1,
+        "energy": 0.85,
+        "emotion_bias": "angry",
+        "clarity": 0.85
+    },
+    "allowed_variation": {
+        "pitch_shift": [
+            -1.0,
+            1.0
+        ],
+        "speed": [
+            1.0,
+            1.3
+        ],
+        "energy": [
+            0.7,
+            0.95
+        ]
+    }
+}

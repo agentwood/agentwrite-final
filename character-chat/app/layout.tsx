@@ -7,12 +7,19 @@ import AuthWrapper from "./components/AuthWrapper";
 import { generateMetadata as generateSEOMetadata } from "@/lib/seo/metadata";
 import { generateOrganizationSchema, generateWebSiteSchema } from "@/lib/seo/structured-data";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  preload: true
+});
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
   style: "italic",
-  variable: "--font-instrument"
+  variable: "--font-instrument",
+  display: "swap",
+  preload: true
 });
 
 export const metadata: Metadata = generateSEOMetadata({

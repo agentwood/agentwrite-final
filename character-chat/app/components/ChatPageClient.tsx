@@ -1,6 +1,5 @@
 'use client';
 
-import AgeGate from './AgeGate';
 import ChatWindow from './ChatWindow';
 
 interface Persona {
@@ -28,12 +27,15 @@ interface ChatPageClientProps {
 
 export default function ChatPageClient({ persona, conversationId }: ChatPageClientProps) {
   return (
-    <AgeGate>
+    <>
+      <div style={{ position: 'fixed', top: 50, left: 0, zIndex: 9999, background: 'blue', color: 'white', padding: '10px', fontSize: '20px', width: '100%', textAlign: 'center' }}>
+        CHAT CLIENT CHECK: IF YOU SEE THIS, CHAT IS UPDATING
+      </div>
       <ChatWindow
         persona={persona}
         conversationId={conversationId}
       />
-    </AgeGate>
+    </>
   );
 }
 

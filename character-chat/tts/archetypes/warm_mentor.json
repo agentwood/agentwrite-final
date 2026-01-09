@@ -1,0 +1,16 @@
+{
+    "id": "warm_mentor",
+    "name": "Warm Mentor",
+    "description": "Encouraging, gentle, and trustworthy. Higher variability in pitch.",
+    "base_profile": "warm_mentor_female",
+    "settings": {
+        "stability": 0.4,
+        "similarity_boost": 0.6,
+        "style": 0.45,
+        "use_speaker_boost": true
+    },
+    "runpod_config": {
+        "temperature": 0.7,
+        "exaggeration": 0.6
+    }
+}

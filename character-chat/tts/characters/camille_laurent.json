@@ -1,0 +1,16 @@
+{
+    "character_id": "camille_laurent",
+    "archetype": "soft_vulnerable",
+    "gender": "female",
+    "personality": {
+        "dominance": 0.3,
+        "warmth": 0.8,
+        "emotional_range": 0.9
+    },
+    "script": "Close your eyes. What does this moment smell like to you? Jasmine... or perhaps rain-soaked earth?",
+    "voice_constraints": {
+        "pitch_bias": 0.1,
+        "speed_bias": -0.15,
+        "energy_bias": -0.2
+    }
+}

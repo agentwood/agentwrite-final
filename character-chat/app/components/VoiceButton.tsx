@@ -35,12 +35,35 @@ export default function VoiceButton({
 }: VoiceButtonProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingDuration, setLoadingDuration] = useState(0); // Track how long we've been loading
   const [audioData, setAudioData] = useState<string | null>(null);
   const [cachedPlaybackRate, setCachedPlaybackRate] = useState<number>(1.25); // Store playback rate with cached audio
   const [cachedSampleRate, setCachedSampleRate] = useState<number>(24000); // Store sample rate with cached audio
   const [cachedFormat, setCachedFormat] = useState<string | undefined>(undefined); // Store format (mp3, wav, pcm) with cached audio
   const abortControllerRef = useRef<AbortController | null>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const loadingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Track loading duration for cold start feedback
+  useEffect(() => {
+    if (isLoading) {
+      setLoadingDuration(0);
+      loadingTimerRef.current = setInterval(() => {
+        setLoadingDuration(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (loadingTimerRef.current) {
+        clearInterval(loadingTimerRef.current);
+        loadingTimerRef.current = null;
+      }
+      setLoadingDuration(0);
+    }
+    return () => {
+      if (loadingTimerRef.current) {
+        clearInterval(loadingTimerRef.current);
+      }
+    };
+  }, [isLoading]);
 
   // Extract dialogue for TTS by removing action descriptions (*actions*)
   // Character.AI style uses *asterisks* for actions/emotions, plain text for dialogue
@@ -50,6 +73,12 @@ export default function VoiceButton({
 
     // Clean up extra whitespace created by removing actions
     dialogueText = dialogueText.replace(/\s+/g, ' ').trim();
+
+    // If after stripping actions we have nothing, fall back to original text 
+    // (to avoid silence if the message was only actions or malformed)
+    if (!dialogueText) {
+      return text.trim();
+    }
 
     return dialogueText;
   };
@@ -321,7 +350,13 @@ export default function VoiceButton({
       {isLoading ? (
         <>
           <Loader2 size={iconSize} className="animate-spin" />
-          {!compact && <span>Loading...</span>}
+          {!compact && (
+            <span>
+              {loadingDuration >= 3
+                ? `Warming up... ${loadingDuration}s`
+                : 'Loading...'}
+            </span>
+          )}
         </>
       ) : isPlaying ? (
         <>

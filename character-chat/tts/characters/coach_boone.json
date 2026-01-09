@@ -1,0 +1,16 @@
+{
+    "character_id": "coach_boone",
+    "archetype": "high_energy",
+    "gender": "male",
+    "personality": {
+        "dominance": 0.9,
+        "warmth": 0.4,
+        "emotional_range": 0.7
+    },
+    "script": "Drop and give me twenty! We're building discipline today. Pain is temporary!",
+    "voice_constraints": {
+        "pitch_bias": -0.1,
+        "speed_bias": 0.1,
+        "energy_bias": 0.3
+    }
+}

@@ -18,7 +18,8 @@ export default async function HomePage() {
     description: p.description || '',
     avatarUrl: p.avatarUrl,
     category: p.category || 'Original',
-    chatCount: p.totalChats || '1k',
+    chatCount: typeof p.totalChats === 'number' ? p.totalChats : parseInt(String(p.totalChats)) || 0,
+    viewCount: p.viewCount || 0,
     chatStarters: p.prompts ? JSON.parse(p.prompts) : [
       "Hello! How can I help you today?",
       "Tell me more about yourself.",

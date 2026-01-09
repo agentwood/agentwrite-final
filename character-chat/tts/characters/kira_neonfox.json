@@ -1,0 +1,15 @@
+{
+    "character_id": "kira_neonfox",
+    "archetype": "rebellious",
+    "personality": {
+        "dominance": 0.7,
+        "warmth": 0.3,
+        "emotional_range": 0.6
+    },
+    "script": "Oh, wow. Did you figure that out all by yourself? The system is rigged, genius.",
+    "voice_constraints": {
+        "pitch_bias": -0.1,
+        "speed_bias": 0.05,
+        "energy_bias": 0.1
+    }
+}

@@ -52,6 +52,21 @@ model PersonaTemplate {
   featured             Boolean               @default(false)
   trending             Boolean               @default(false)
   voiceReady           Boolean               @default(false)
+  creationStatus       String?               // pending, generating_avatar, generating_personality, matching_voice, finalizing, ready, failed
+  creationProgress     Int?                  @default(0)
+  creationMessage      String?
+  creationError        String?
+  // Training configuration for Synaptic Tuning
+  trainingStatus       String?               @default("untrained") // untrained, training, trained
+  behaviorEmpathy      Float?                @default(50) // 0-100 (0=empathy, 100=logic)
+  behaviorAgreeable    Float?                @default(50) // 0-100 (0=agreeable, 100=challenging)
+  behaviorChaos        Float?                @default(50) // 0-100 (0=chaos, 100=order)
+  behaviorPessimism    Float?                @default(50) // 0-100 (0=pessimism, 100=optimism)
+  styleVerbosity       Float?                @default(50) // 0-100 (0=concise, 100=verbose)
+  styleFormality       Float?                @default(50) // 0-100 (0=casual, 100=formal)
+  trainingConstraints  String?               // JSON array of constraint IDs
+  personalityTags      String?               // JSON array of personality tags
+  knowledgeBaseUrl     String?               // URL to uploaded knowledge file
   lastRankedAt         DateTime?
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
@@ -517,3 +532,13 @@ model UserLoginStreak {
   @@index([userId])
 }
 
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  subscribedAt DateTime @default(now())
+  source    String   @default("landing_page")
+  isActive  Boolean  @default(true)
+
+  @@index([email])
+}

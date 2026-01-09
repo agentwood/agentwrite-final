@@ -1,0 +1,32 @@
+{
+    "id": "dr_lucien_vale",
+    "display_name": "Dr. Lucien Vale",
+    "archetype": "sophisticated_cartoon_villain",
+    "psych_profile": {
+        "dominance": 0.9,
+        "warmth": 0.2,
+        "emotional_variance": 0.1
+    },
+    "voice_requirements": {
+        "gender": "male",
+        "age_range": [
+            40,
+            55
+        ],
+        "pitch_range_hz": [
+            90,
+            130
+        ],
+        "max_pitch_variance": 30,
+        "max_tempo_bpm": 95,
+        "max_rms": 0.08
+    },
+    "forbidden_traits": [
+        "shouting",
+        "laughter",
+        "overt sarcasm"
+    ],
+    "test_script": "You're not making a mistake. You're simply choosing a future that benefits me.",
+    "description": "Ultra-sophisticated villain who never raises his voice. Every word is calculated, every pause deliberate. Control is his weapon.",
+    "notes": "Voice must sound like someone who has already won. No urgency, no desperation. Think Hannibal Lecter meets corporate CEO."
+}

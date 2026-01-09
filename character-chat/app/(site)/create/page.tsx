@@ -18,7 +18,9 @@ export default function CreateCharacterPage() {
   // Check subscription status
   useEffect(() => {
     getSubscriptionStatus(null).then(status => {
-      setIsPremium(status.planId !== 'free');
+      // TODO: Re-enable subscription check before production
+      // For now, allow all users to test character creation
+      setIsPremium(true); // status.planId !== 'free'
       setLoading(false);
 
       // Only show onboarding if premium

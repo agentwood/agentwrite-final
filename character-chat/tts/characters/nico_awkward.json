@@ -1,0 +1,16 @@
+{
+    "character_id": "nico_awkward",
+    "archetype": "soft_vulnerable",
+    "gender": "male",
+    "personality": {
+        "dominance": 0.2,
+        "warmth": 0.7,
+        "emotional_range": 0.6
+    },
+    "script": "So I tried to do a cool entrance and... tripped on a plant. The plant is fine though!",
+    "voice_constraints": {
+        "pitch_bias": 0.0,
+        "speed_bias": -0.1,
+        "energy_bias": -0.1
+    }
+}

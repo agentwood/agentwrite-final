@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ArrowLeft, Send, Loader2, Volume2, VolumeX, MoreVertical, RefreshCw, MessageCircle, Heart, Share2, Plus, Settings, ChevronRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, Send, Loader2, Volume2, VolumeX, MoreVertical, RefreshCw, MessageCircle, Heart, Share2, Plus, Settings, ChevronRight, Sparkles, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import ChatSidebar from './ChatSidebar';
 import VoiceButton from './VoiceButton';
@@ -40,12 +40,26 @@ interface Persona {
 interface ChatWindowProps {
   persona: Persona;
   conversationId: string;
+  initialMessages?: Message[];
+  initialMessage?: string; // Optional starter message to auto-send
+  onBack?: () => void;
 }
 
 export function extractDialogueForTTS(text: string): string {
-  // Multimodal Gemini can interpret *asterisks* (sighs, laughs)
-  // so we keep them to allow natural acting.
-  return text.trim();
+  // Remove action descriptions (text between asterisks like *smiles*)
+  // This ensures we ONLY read the spoken dialogue
+  let dialogueText = text.replace(/\*[^*]+\*/g, '');
+
+  // Clean up extra whitespace created by removing actions
+  dialogueText = dialogueText.replace(/\s+/g, ' ').trim();
+
+  // If after stripping actions we have nothing, fall back to original text 
+  // (to avoid silence if the message was only actions or malformed)
+  if (!dialogueText) {
+    return text.trim();
+  }
+
+  return dialogueText;
 }
 
 // Component to format messages with action descriptions and emphasis
@@ -122,7 +136,7 @@ function FormattedMessage({ text }: { text: string }) {
   );
 }
 
-export default function ChatWindow({ persona, conversationId }: ChatWindowProps) {
+export default function ChatWindow({ persona, conversationId, initialMessages = [], initialMessage, onBack }: ChatWindowProps) {
   // #region agent log
   if (typeof window !== 'undefined') {
     fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/components/ChatWindow.tsx:42', message: 'ChatWindow render - VOICE DEBUG', data: { personaId: persona?.id, personaName: persona?.name, conversationId, hasGreeting: !!persona?.greeting, hasVoiceName: !!persona?.voiceName, voiceNameReceived: persona?.voiceName, voiceNameType: typeof persona?.voiceName }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
@@ -135,6 +149,7 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
   const [voiceEnabled, setVoiceEnabled] = useState(true); // Default to enabled (speech-first)
   const [isMuted, setIsMuted] = useState(false);
   const [lastMessageId, setLastMessageId] = useState<string | null>(null);
+  const [isHistoryLoaded, setIsHistoryLoaded] = useState(false); // DEBUG: Track history load status
   const [quotaModal, setQuotaModal] = useState<{
     isOpen: boolean;
     type: 'messages' | 'tts' | 'calls';
@@ -149,6 +164,100 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
   const lastAutoPlayedMessageRef = useRef<string | null>(null);
   // Ref to prevent multiple simultaneous playVoiceForMessage calls
   const isPlayingVoiceRef = useRef<boolean>(false);
+
+  // Sidebar State
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followerCount, setFollowerCount] = useState(persona.followerCount || 0);
+  const [commentText, setCommentText] = useState('');
+  const [comments, setComments] = useState<{ id: number; user: string; time: string; text: string }[]>([
+    // Start empty to avoid dummy data confusion
+  ]);
+
+  useEffect(() => {
+    // Check follow status on load
+    const checkFollowStatus = async () => {
+      try {
+        const response = await fetch(`/api/personas/${persona.id}/follow/status`, {
+          headers: getAuthHeaders(),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setIsFollowing(data.following);
+        }
+      } catch (error) {
+        console.error('Error checking follow status:', error);
+      }
+    };
+    checkFollowStatus();
+  }, [persona.id]);
+
+  const handleFollow = async () => {
+    try {
+      // Optimistic update
+      const newStatus = !isFollowing;
+      setIsFollowing(newStatus);
+      setFollowerCount(prev => newStatus ? prev + 1 : prev - 1);
+
+      const response = await fetch(`/api/personas/${persona.id}/follow`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      });
+
+      if (!response.ok) {
+        // Revert on failure
+        setIsFollowing(!newStatus);
+        setFollowerCount(prev => !newStatus ? prev + 1 : prev - 1);
+        console.error('Follow failed');
+      }
+    } catch (error) {
+      console.error('Error toggling follow:', error);
+      // Revert on error
+      setIsFollowing(!isFollowing);
+    }
+  };
+
+  const handlePostComment = () => {
+    if (!commentText.trim()) return;
+
+    // Add comment locally
+    const newComment = {
+      id: Date.now(),
+      user: 'You',
+      time: 'Just now',
+      text: commentText.trim()
+    };
+
+    setComments(prev => [newComment, ...prev]);
+    setCommentText('');
+
+    // In a real app, we would POST to API here
+    // fetch(`/api/personas/${persona.id}/comments`, ...)
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const shareData = {
+      title: `Chat with ${persona.name}`,
+      text: `Check out this character: ${persona.name} - ${persona.tagline}`,
+      url: url,
+    };
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(url);
+        alert('Link copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
+
+
 
   // Auto-play voice for assistant messages (defined first so handleSendMessage can use it)
   const playVoiceForMessage = useCallback(async (text: string, messageId: string) => {
@@ -187,6 +296,12 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
     await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
+      // Show curating modal for first-time cold start masking
+      // Only if it's the first message and voice is enabled
+      // if (messages.length <= 1) {
+      //   setShowCuratingModal(true);
+      // }
+
       const requestBody = {
         text: dialogueText, // ONLY dialogue, not action descriptions
         voiceName: persona.voiceName, // HARD-CODED: Always use stored voiceName from database
@@ -209,63 +324,53 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
         body: JSON.stringify(requestBody),
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
 
-        // Check if audio data exists
-        if (!data.audio) {
-          console.error('No audio data in TTS response:', data);
-          // Show user-friendly error
-          alert('Audio error: No audio data returned from API. Please try again.');
+        // Check for specific error status codes
+        if (response.status === 429) {
+          setQuotaModal({
+            isOpen: true,
+            type: 'tts',
+            currentUsage: errorData.currentUsage || 0,
+            limit: errorData.limit || 0
+          });
+          isPlayingVoiceRef.current = false;
+          // setShowCuratingModal(false);
           return;
         }
 
-        const playbackRate = Math.max(0.8, Math.min(1.5, data.playbackRate || data.parameters?.speed || 1.0));
-
-        // Use shared audio manager to play audio (automatically stops any currently playing audio)
-        try {
-          await audioManager.playAudio(
-            data.audio,
-            data.sampleRate || 24000,
-            playbackRate,
-            messageId,
-            data.format // Pass format (mp3, wav, pcm) for proper playback handling
-          );
-        } catch (error) {
-          // Log but don't throw - audio errors shouldn't break the UI
-          console.error('Audio playback error:', error);
-          alert(`Audio error: ${error instanceof Error ? error.message : 'Failed to play audio'}`);
-        }
-      } else {
-        // Handle TTS quota errors gracefully
-        const errorData = await response.json().catch(() => ({}));
-        if (errorData.quotaExceeded || response.status === 429) {
-          // Show quota modal only once (use state to track)
-          if (!quotaModal?.isOpen) {
-            // If currentUsage is not provided, use limit as currentUsage (quota is exceeded)
-            const currentUsage = errorData.currentUsage !== undefined
-              ? errorData.currentUsage
-              : (errorData.limit || 0);
-            const limit = errorData.limit || 0;
-
-            setQuotaModal({
-              isOpen: true,
-              type: 'tts',
-              currentUsage: currentUsage,
-              limit: limit,
-            });
-          }
-        }
+        throw new Error(`TTS API error: ${response.status} ${response.statusText}`);
       }
+
+      const data = await response.json();
+
+      if (!data.audio) {
+        throw new Error('No audio data received from TTS API');
+      }
+
+      // Play audio using shared audio manager
+      // Hide modal right before starting playback for smooth transition
+      // setShowCuratingModal(false);
+
+      await audioManager.playAudio(
+        data.audio,
+        data.sampleRate || 24000,
+        1.0, // playbackRate
+        messageId,
+        data.format
+      );
+
     } catch (error: any) {
-      console.error('Error auto-playing voice:', error);
+      console.error('Error in playVoiceForMessage:', error);
+      // setShowCuratingModal(false);
       // Don't show alert for auto-play failures, just log
       // Audio manager will handle cleanup automatically
     } finally {
       // Always reset the playing flag
       isPlayingVoiceRef.current = false;
     }
-  }, [persona, isMuted]);
+  }, [persona, isMuted, messages.length]);
 
   // Generate unique message ID
   const generateMessageId = () => {
@@ -333,11 +438,11 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
           return;
         }
 
-        // Show user-friendly error message
+        // Show user-friendly error message - WITH DEBUG INFO for the user
         const errorMessage: Message = {
           id: generateMessageId(),
           role: 'assistant',
-          text: errorData.error || errorData.reason || "Sorry, I encountered an error. Please try again.",
+          text: `[SYSTEM ERROR] ${errorData.error || errorData.reason || "Unknown API Error"}`,
           timestamp: Date.now(),
         };
         setMessages((prev) => [...prev, errorMessage]);
@@ -384,11 +489,79 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
     }
   }, [conversationId, persona.id, messages, isLoading, isMuted, playVoiceForMessage]);
 
+  // Fetch conversation history on load
   useEffect(() => {
-    // Check for chat starter message from URL
+    const fetchHistory = async () => {
+      if (!conversationId) return;
+
+      try {
+        const response = await fetch(`/api/conversations/${conversationId}/history`, {
+          headers: getAuthHeaders(),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`[ChatWindow] History fetch successful. Found ${data.messages?.length || 0} messages.`);
+          if (data.messages && data.messages.length > 0) {
+            setMessages(data.messages);
+            setLastMessageId(data.messages[data.messages.length - 1].id);
+            // Mark greeting as played if there's history
+            greetingPlayedRef.current = true;
+          } else {
+            // No history, trigger greeting if available
+            triggerGreeting();
+          }
+          setIsHistoryLoaded(true);
+        } else {
+          console.error(`[ChatWindow] History fetch failed with status ${response.status}`);
+          // Fallback to greeting on error
+          triggerGreeting();
+          setIsHistoryLoaded(true);
+        }
+      } catch (error) {
+        console.error('Error fetching chat history:', error);
+        triggerGreeting();
+        setIsHistoryLoaded(true); // Ensure badge shows even on error
+      }
+    };
+
+    const triggerGreeting = () => {
+      console.log('triggerGreeting called', {
+        personaGreeting: persona.greeting,
+        messageCount: messages.length,
+        greetingPlayed: greetingPlayedRef.current,
+        initialMessage
+      });
+
+      // Don't auto-greet if there's a starter message pending
+      if (persona.greeting && messages.length === 0 && !greetingPlayedRef.current && !initialMessage) {
+        const greetingMessage: Message = {
+          id: 'greeting',
+          role: 'assistant',
+          text: persona.greeting,
+          timestamp: Date.now(),
+        };
+        setMessages([greetingMessage]);
+
+        // Auto-play greeting voice (speech-first)
+        if (persona.voiceName && !isMuted) {
+          greetingPlayedRef.current = true;
+          setTimeout(() => {
+            lastAutoPlayedMessageRef.current = 'greeting';
+            playVoiceForMessage(persona.greeting!, 'greeting');
+          }, 800);
+        }
+      }
+    };
+
+    fetchHistory();
+  }, [conversationId, persona.id]); // Run once when conversationId or persona Changes
+
+  useEffect(() => {
+    // Check for chat starter message from URL OR prop
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
-      const starterMessage = urlParams.get('message');
+      const starterMessage = urlParams.get('message') || initialMessage;
 
       if (starterMessage && messages.length === 0) {
         // Auto-send the chat starter message
@@ -398,35 +571,7 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
         return;
       }
     }
-
-    // Add greeting message and auto-play voice
-    if (persona.greeting && messages.length === 0) {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'ChatWindow.tsx:greetingEffect', message: 'Greeting effect triggered', data: { hasGreeting: !!persona.greeting, messagesLength: messages.length, isMuted, hasVoiceName: !!persona.voiceName, personaName: persona.name, alreadyPlayed: greetingPlayedRef.current }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
-      // #endregion
-
-      const greetingMessage: Message = {
-        id: 'greeting',
-        role: 'assistant',
-        text: persona.greeting,
-        timestamp: Date.now(),
-      };
-      setMessages([greetingMessage]);
-
-      // Auto-play greeting voice (speech-first) - ONLY if not already played (prevent Strict Mode double-fire)
-      if (persona.voiceName && !greetingPlayedRef.current) {
-        greetingPlayedRef.current = true; // Mark as played IMMEDIATELY to prevent double-fire
-
-        console.log(`[ChatWindow] Auto-playing greeting for ${persona.name}. isMuted: ${isMuted}`);
-
-        setTimeout(() => {
-          lastAutoPlayedMessageRef.current = 'greeting';
-          // Force play even if muted? No, respect muted state but playVoiceForMessage might handle it
-          playVoiceForMessage(persona.greeting!, 'greeting');
-        }, 800); // Slightly longer timeout to ensure audio context is ready
-      }
-    }
-  }, [persona.greeting, messages.length, handleSendMessage, isMuted, persona.voiceName, playVoiceForMessage]);
+  }, [messages.length, handleSendMessage, initialMessage]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -512,11 +657,21 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
       {/* Main Chat Content */}
       <div className="flex-1 flex flex-col relative">
         {/* Chat Header - Matches Screenshot 3 */}
-        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-white/5 bg-[#121212]/80 px-6 backdrop-blur-xl shrink-0">
+        {/* Ad Banner for Free Users - NOW AT TOP */}
+        <AdBanner variant="banner" className="sticky top-0 z-50" />
+
+        {/* Chat Header - Matches Screenshot 3 */}
+        <header className="sticky top-[52px] z-40 flex h-16 items-center justify-between border-b border-white/5 bg-[#121212]/80 px-6 backdrop-blur-xl shrink-0">
           <div className="flex items-center gap-4">
-            <Link href="/home" className="xl:hidden p-2 -ml-2 text-white/40 hover:text-white transition-colors">
-              <ArrowLeft size={20} />
-            </Link>
+            {onBack ? (
+              <button onClick={onBack} className="xl:hidden p-2 -ml-2 text-white/40 hover:text-white transition-colors">
+                <ArrowLeft size={20} />
+              </button>
+            ) : (
+              <Link href="/home" className="xl:hidden p-2 -ml-2 text-white/40 hover:text-white transition-colors">
+                <ArrowLeft size={20} />
+              </Link>
+            )}
             <div>
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
                 {persona.name}
@@ -524,7 +679,10 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
               </h2>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
-                <span className="text-[9px] font-black uppercase tracking-widest text-white/30">ONLINE</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-white/30">ONLINE (v1.3)</span>
+                {isHistoryLoaded && (
+                  <span className="ml-2 text-[8px] font-black text-purple-500 uppercase tracking-widest bg-purple-500/10 px-1 rounded">V1.2 HISTORY ACTIVE</span>
+                )}
               </div>
             </div>
           </div>
@@ -534,9 +692,6 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
             </button>
           </div>
         </header>
-
-        {/* Ad Banner for Free Users */}
-        <AdBanner variant="banner" className="sticky top-16 z-10" />
 
         {/* Chat Scroll Area */}
         <div className="flex-1 overflow-y-auto no-scrollbar pb-32 px-4 md:px-0 scroll-smooth">
@@ -653,10 +808,26 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
           <div className="w-full max-w-3xl flex items-center gap-3 pointer-events-auto">
             <div className="flex-1 relative">
               <div className="bg-[#1a1a1a] rounded-2xl p-1.5 pl-4 flex items-center gap-3 border border-white/5 shadow-2xl">
-                <button className="p-2 text-white/20 hover:text-white/40 transition-colors">
-                  <div className="w-5 h-5 border-2 border-current rounded-sm flex items-center justify-center relative">
-                    <div className="w-1.5 h-1.5 rounded-full border-2 border-current absolute top-0.5 right-0.5" />
-                  </div>
+                <input
+                  type="file"
+                  id="image-upload"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // TODO: Handle image upload - for now show alert
+                      alert(`Image upload coming soon! Selected: ${file.name}`);
+                      e.target.value = ''; // Reset input
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => document.getElementById('image-upload')?.click()}
+                  className="p-2 text-white/20 hover:text-white/40 transition-colors"
+                  title="Upload image"
+                >
+                  <ImageIcon size={20} />
                 </button>
                 <input
                   type="text"
@@ -696,6 +867,8 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
         />
       )}
 
+
+
       {/* Right Panel - Character Profile & Comments (Desktop only) */}
       <div className="hidden xl:flex flex-col w-[380px] h-full relative shrink-0 border-l border-white/5 bg-[#0a0a0a]">
         {/* Character Profile Section */}
@@ -716,11 +889,11 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
 
             <div className="flex items-center gap-6 mb-6">
               <div className="flex flex-col">
-                <span className="text-lg font-bold text-white leading-none">{(persona.viewCount || Math.floor(Math.random() * 50 + 10)).toFixed(1)}K</span>
+                <span className="text-lg font-bold text-white leading-none">{(persona.viewCount || 0).toFixed(1)}K</span>
                 <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">VIEWS</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-bold text-white leading-none">{(persona.saveCount || Math.floor(Math.random() * 5 + 1)).toFixed(1)}K</span>
+                <span className="text-lg font-bold text-white leading-none">{(persona.saveCount || 0).toFixed(1)}K</span>
                 <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">LIKES</span>
               </div>
             </div>
@@ -728,14 +901,20 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
             <div className="flex items-center justify-between mb-8">
               <div>
                 <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">CREATED BY</p>
-                <p className="text-xs font-bold text-white/60">@{persona.name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 15)}_creator</p>
+                <p className="text-xs font-bold text-white/60">@{persona.name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20)}</p>
               </div>
               <div className="flex items-center gap-3">
-                <button className="h-10 w-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-all">
+                <button
+                  onClick={handleShare}
+                  className="h-10 w-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-all"
+                >
                   <Share2 size={16} className="text-white/60" />
                 </button>
-                <button className="px-6 py-2.5 bg-white text-black rounded-full text-xs font-black uppercase tracking-widest hover:bg-white/90 transition-all">
-                  FOLLOW
+                <button
+                  onClick={handleFollow}
+                  className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all ${isFollowing ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-white text-black hover:bg-white/90'}`}
+                >
+                  {isFollowing ? 'FOLLOWING' : 'FOLLOW'}
                 </button>
               </div>
             </div>
@@ -745,10 +924,18 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
               <button className="flex-1 py-1.5 flex items-center justify-center rounded-full bg-white/10 text-white">
                 <MessageCircle size={16} />
               </button>
-              <button className="flex-1 py-1.5 flex items-center justify-center rounded-full text-white/40 hover:text-white transition-colors">
+              <button
+                onClick={() => window.location.href = '/create'}
+                className="flex-1 py-1.5 flex items-center justify-center rounded-full text-white/40 hover:text-white transition-colors"
+                title="Create new character"
+              >
                 <Plus size={16} />
               </button>
-              <button className="flex-1 py-1.5 flex items-center justify-center rounded-full text-white/40 hover:text-white transition-colors">
+              <button
+                onClick={() => alert('Settings coming soon! Use the mute button in the header to control audio.')}
+                className="flex-1 py-1.5 flex items-center justify-center rounded-full text-white/40 hover:text-white transition-colors"
+                title="Chat settings"
+              >
                 <Settings size={16} />
               </button>
             </div>
@@ -756,21 +943,21 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
             {/* Comments Section */}
             <div className="pb-10">
               <div className="flex items-center justify-between mb-6">
-                <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">COMMENTS (24)</h4>
+                <h4 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">COMMENTS ({comments.length})</h4>
                 <ChevronRight size={14} className="text-white/20" />
               </div>
 
               <div className="space-y-6">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex gap-4">
+                {comments.map((comment) => (
+                  <div key={comment.id} className="flex gap-4">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-white/10 flex-shrink-0" />
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-bold text-white/80">User_{i}04</span>
-                        <span className="text-[9px] font-medium text-white/20">2h ago</span>
+                        <span className="text-[11px] font-bold text-white/80">{comment.user}</span>
+                        <span className="text-[9px] font-medium text-white/20">{comment.time}</span>
                       </div>
                       <p className="text-xs text-white/50 leading-relaxed">
-                        This character is absolutely amazing! The voice is so realistic and the responses are so in character.
+                        {comment.text}
                       </p>
                     </div>
                   </div>
@@ -782,12 +969,22 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
 
         {/* Comment Input at Bottom */}
         <div className="p-4 border-t border-white/5 bg-[#0a0a0a]">
-          <div className="relative">
+          <div className="relative flex items-center gap-2">
             <input
               type="text"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handlePostComment()}
               placeholder="Add a comment..."
-              className="w-full bg-white/[0.03] border border-white/5 rounded-xl py-2.5 px-4 text-xs text-white placeholder-white/20 focus:outline-none focus:border-white/10"
+              className="flex-1 bg-white/[0.03] border border-white/5 rounded-xl py-2.5 px-4 text-xs text-white placeholder-white/20 focus:outline-none focus:border-white/10"
             />
+            <button
+              onClick={handlePostComment}
+              className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors disabled:opacity-50"
+              disabled={!commentText.trim()}
+            >
+              <Send size={14} />
+            </button>
           </div>
         </div>
       </div>
@@ -801,6 +998,6 @@ export default function ChatWindow({ persona, conversationId }: ChatWindowProps)
           setVoiceEnabled={setVoiceEnabled}
         />
       </div>
-    </div>
+    </div >
   );
 }

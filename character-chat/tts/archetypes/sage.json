@@ -1,0 +1,16 @@
+{
+    "id": "sage",
+    "name": "Sage",
+    "description": "Slow, gravelly, and wise. Low variability but deep resonance.",
+    "base_profile": "sage_male",
+    "settings": {
+        "stability": 0.9,
+        "similarity_boost": 0.85,
+        "style": 0.0,
+        "use_speaker_boost": true
+    },
+    "runpod_config": {
+        "temperature": 0.4,
+        "exaggeration": 0.1
+    }
+}

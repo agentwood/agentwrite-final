@@ -9,6 +9,20 @@ export async function POST(
     const { id: personaId } = await params;
     const userId = request.headers.get('x-user-id') || 'anonymous';
 
+    // Ensure user exists in DB
+    if (userId !== 'anonymous') {
+      const userExists = await db.user.findUnique({ where: { id: userId } });
+      if (!userExists) {
+        await db.user.create({
+          data: {
+            id: userId,
+            username: `user_${userId.substring(0, 8)}`,
+            subscriptionTier: 'free',
+          }
+        });
+      }
+    }
+
     // Check if already following
     const existing = await db.userFollow.findUnique({
       where: {

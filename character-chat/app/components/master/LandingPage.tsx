@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
+import Link from 'next/link';
 import {
   Search, Bell, Play, Star, MessageSquare, ChevronDown, Heart, ChevronRight
 } from 'lucide-react';
@@ -24,15 +25,22 @@ const LandingHero = () => (
   <section className="relative w-full min-h-[700px] md:min-h-[85vh] overflow-hidden bg-black flex items-center px-8 md:px-24">
     <div className="absolute inset-0 z-0">
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent z-10"></div>
-      <img
-        src="/hero.png"
-        className="w-full h-full object-cover opacity-60"
-        alt="Luxury Hearth"
-      />
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent z-10"></div>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover opacity-60"
+        >
+          <source src="/videos/fireplace.mp4" type="video/mp4" />
+        </video>
+      </div>
     </div>
     <div className="relative z-10 max-w-4xl animate-fade-in-up space-y-12">
       <h1 className="text-[70px] md:text-[120px] font-serif italic text-white leading-[0.85] tracking-tight">
-        Enter <br />The Wood
+        Enter <br />The Woods
       </h1>
 
       <div className="flex gap-8 items-start max-w-xl">
@@ -68,22 +76,84 @@ const CharacterPlayRow: React.FC<{ char: CharacterProfile, onClick: () => void }
   </div>
 );
 
-const TestimonialSection = () => (
-  <section className="plum-gradient py-24 px-8 md:px-12 text-center space-y-10 border-y border-white/5">
-    <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/40 font-sans">YOU DON'T HAVE TO TAKE OUR WORD FOR IT</p>
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex justify-center mb-6">
-        <span className="text-6xl text-dipsea-accent font-serif">“</span>
+const NewsletterSection = () => {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setStatus('loading');
+    try {
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'landing_page_footer' }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+
+      setStatus('success');
+      setMessage('Welcome to the woods. 🌲');
+      setEmail('');
+    } catch (error: any) {
+      setStatus('error');
+      setMessage(error.message);
+    }
+  };
+
+  return (
+    <section className="bg-[#0c0c0c] py-24 px-8 md:px-12 text-center space-y-10 border-y border-white/5 relative overflow-hidden">
+      {/* Background gradient effect */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent opacity-30 pointer-events-none"></div>
+
+      <div className="max-w-xl mx-auto space-y-8 relative z-10">
+        <h2 className="text-4xl md:text-6xl font-serif italic text-white leading-tight">
+          Join the wood.
+        </h2>
+        <p className="text-white/40 font-sans text-sm md:text-base max-w-md mx-auto leading-relaxed">
+          Get exclusive editorial insights, stories, and connection tips delivered to your inbox.
+        </p>
+
+        <form onSubmit={handleSubmit} className="relative max-w-sm mx-auto group">
+          <input
+            type="email"
+            placeholder="email@address.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={status === 'loading' || status === 'success'}
+            className="w-full bg-transparent border-b border-white/10 py-3 pr-12 text-center text-white placeholder:text-white/20 outline-none focus:border-white/40 transition-colors font-sans disabled:opacity-50"
+          />
+          <button
+            type="submit"
+            disabled={status === 'loading' || status === 'success'}
+            className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-dipsea-accent hover:text-white transition-colors disabled:opacity-50"
+          >
+            {status === 'loading' ? (
+              <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+            ) : status === 'success' ? (
+              <span className="text-green-500">✓</span>
+            ) : (
+              <ChevronRight size={20} />
+            )}
+          </button>
+        </form>
+
+        {message && (
+          <p className={`text-xs font-sans ${status === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+            {message}
+          </p>
+        )}
       </div>
-      <h2 className="text-3xl md:text-5xl font-serif italic text-white leading-tight">
-        Agentwood is unparalleled when it comes to the production value of their narratives. I love that they have deep, resonant voices for every part.
-      </h2>
-      <div className="flex justify-center gap-1.5 pt-6">
-        {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} fill="#c2956e" className="text-dipsea-accent" />)}
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export const LandingPage: React.FC<LandingPageProps> = ({
   characters,
@@ -106,9 +176,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <input readOnly type="text" placeholder="Search characters..." className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-xs outline-none focus:border-dipsea-accent transition-all font-sans text-white placeholder:text-white/20 cursor-pointer" />
         </div>
         <div className="flex items-center gap-8 ml-4">
-          <span className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-white/40 cursor-pointer hover:text-white transition-colors font-sans">AFFILIATES</span>
-          <Bell size={18} className="text-white/40 cursor-pointer hover:text-white transition-colors" />
-          <div className="h-9 w-9 rounded-full bg-purple-600 border border-white/20 flex items-center justify-center font-bold text-white text-xs">U</div>
+          <Link href="/affiliates" className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-white/40 cursor-pointer hover:text-white transition-colors font-sans">AFFILIATES</Link>
+          <Link href="/notifications">
+            <Bell size={18} className="text-white/40 cursor-pointer hover:text-white transition-colors" />
+          </Link>
+          <Link href="/settings" className="h-9 w-9 rounded-full bg-purple-600 border border-white/20 flex items-center justify-center font-bold text-white text-xs hover:border-white transition-colors">
+            U
+          </Link>
         </div>
       </div>
 
@@ -135,7 +209,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      <TestimonialSection />
+      <NewsletterSection />
 
       {/* Filter Section - Restored to match requested style */}
       <section className="sticky top-[89px] z-30 bg-[#0c0c0c]/95 backdrop-blur-xl border-b border-white/5 py-6 px-6 md:px-12">

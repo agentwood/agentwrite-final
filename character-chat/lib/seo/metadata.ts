@@ -34,18 +34,18 @@ export function generateMetadata({
   noindex = false,
   canonical,
 }: SEOParams): Metadata {
-  const fullTitle = title 
+  const fullTitle = title
     ? `${title} | ${SITE_NAME}`
     : `${SITE_NAME} - Chat with AI Characters | Character.ai Alternative`;
 
   const defaultDescription = 'Chat with thousands of AI characters, create your own, and discover unique personalities. Free AI character chat platform similar to Character.ai.';
   const metaDescription = description || defaultDescription;
 
-  const keywordsString = keywords.length > 0 
+  const keywordsString = keywords.length > 0
     ? keywords.join(', ')
     : 'AI characters, character chat, character.ai alternative, AI waifu, fantasy characters, AI chatbot, virtual characters, AI companion, chat with AI, character creator, AI roleplay';
 
-  const canonicalUrl = canonical || url || SITE_URL;
+  const canonicalUrl = canonical || (url ? (url.startsWith('http') ? url : `${SITE_URL}${url}`) : SITE_URL);
   const ogImage = image.startsWith('http') ? image : `${SITE_URL}${image}`;
 
   return {
@@ -71,7 +71,7 @@ export function generateMetadata({
     },
     openGraph: {
       type: type === 'article' ? 'article' : 'website',
-      url: url || canonicalUrl,
+      url: canonicalUrl,
       title: fullTitle,
       description: metaDescription,
       siteName: SITE_NAME,
@@ -101,6 +101,22 @@ export function generateMetadata({
       google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
     },
   };
+}
+
+/**
+ * Generate metadata for blog posts
+ */
+export function generateBlogMetadata(post: { slug: string, title: string, excerpt: string, image: string, author: string, date: string, tags: string[] }) {
+  return generateMetadata({
+    title: post.title,
+    description: post.excerpt,
+    keywords: post.tags,
+    image: post.image,
+    url: `/blog/${post.slug}`,
+    type: 'article',
+    author: post.author,
+    publishedTime: post.date,
+  });
 }
 
 /**
@@ -182,7 +198,7 @@ export async function generateCharacterMetadata(character: {
 export function generateCategoryMetadata(category: string, type: 'category' | 'archetype' = 'category') {
   const title = `${category.charAt(0).toUpperCase() + category.slice(1)} AI Characters`;
   const description = `Discover and chat with ${category} AI characters. Browse our collection of unique virtual personalities and start conversations.`;
-  
+
   const keywords = [
     `${category} AI characters`,
     `${category} chatbot`,

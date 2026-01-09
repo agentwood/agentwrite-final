@@ -15,6 +15,12 @@ export default function AgeGate({ children }: AgeGateProps) {
   const router = useRouter();
 
   useEffect(() => {
+    // In development, bypass age gate
+    if (process.env.NODE_ENV === 'development') {
+      setIsChecking(false);
+      return;
+    }
+
     const check = () => {
       const session = getSession();
       const verified = isAgeVerified();

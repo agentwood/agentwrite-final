@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://agentwood.ai';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://agentwood.xyz';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -10,17 +10,18 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: [
           '/api/',
-          '/admin/',
           '/settings/',
-          '/c/', // Chat pages (private conversations)
-          '/call/', // Video call pages (private)
-          '/test-voices/',
+          '/profile/',
           '/_next/',
+          '/static/',
         ],
+      },
+      {
+        userAgent: 'GPTBot',
+        disallow: '/',
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }
-
-

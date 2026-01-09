@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { CharacterProfile } from '@/lib/master/types';
-import { MessageSquare, Heart } from 'lucide-react';
+import { Eye, Heart } from 'lucide-react';
 
 interface CharacterCardProps {
   character: CharacterProfile;
@@ -56,8 +56,12 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, classNa
           {character.name}
         </h3>
         <div className="flex items-center gap-2 text-white/80 mb-1">
-          <MessageSquare size={14} className="opacity-60" />
-          <span className="text-[13px] font-sans font-medium">{character.chatCount}</span>
+          <Eye size={14} className="opacity-60" />
+          <span className="text-[13px] font-sans font-medium">
+            {character.viewCount >= 1000
+              ? `${(character.viewCount / 1000).toFixed(1)}k`
+              : character.viewCount}
+          </span>
         </div>
         <p className="text-[12px] text-white/40 font-sans tracking-wide">
           {character.handle}

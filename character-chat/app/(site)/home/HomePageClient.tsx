@@ -131,9 +131,15 @@ export default function HomePageClient({ characters, categories, heroStates, sta
     const [poolIndex, setPoolIndex] = useState(2);
     const [showComingSoon, setShowComingSoon] = useState(false);
 
-    const filteredCharacters = characters.filter(char =>
-        activeCategory === 'All' || char.category === activeCategory
-    );
+    const filteredCharacters = characters.filter(char => {
+        const matchesCategory = activeCategory === 'All' || char.category === activeCategory;
+        const matchesSearch = !searchQuery.trim() ||
+            char.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            char.handle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            char.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            char.seedId?.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
 
     // Filter featured characters based on emoji selection
     const emojiFilter = EMOJI_CATEGORIES[activeEmoji]?.filter || 'All';

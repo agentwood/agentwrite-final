@@ -13,9 +13,9 @@ export function playPCM(
   audioContext?: AudioContext // Optional: use existing audio context
 ): { stop: () => void; promise: Promise<void> } {
   // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/audio/playPcm.ts:9',message:'playPCM called',data:{sampleRate,playbackRate,hasAudioContext:!!audioContext,audioContextSampleRate:audioContext?.sampleRate},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+  fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'lib/audio/playPcm.ts:9', message: 'playPCM called', data: { sampleRate, playbackRate, hasAudioContext: !!audioContext, audioContextSampleRate: audioContext?.sampleRate }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'F' }) }).catch(() => { });
   // #endregion
-  
+
   // Use provided audioContext or create new one
   const ctx = audioContext || new (window.AudioContext || (window as any).webkitAudioContext)({
     sampleRate: sampleRate,
@@ -25,14 +25,14 @@ export function playPCM(
   const binaryString = atob(base64Audio);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
-  
+
   for (let i = 0; i < len; i++) {
     bytes[i] = binaryString.charCodeAt(i);
   }
 
   const int16Array = new Int16Array(bytes.buffer);
   const float32Array = new Float32Array(int16Array.length);
-  
+
   for (let i = 0; i < int16Array.length; i++) {
     float32Array[i] = int16Array[i] / 32768.0;
   }
@@ -44,16 +44,16 @@ export function playPCM(
   // Play audio with speed control
   const source = ctx.createBufferSource();
   source.buffer = audioBuffer;
-  
+
   // Set playback rate for speed control (1.0 = normal, 1.25 = 25% faster, etc.)
   // Clamp between 0.5x and 2.0x for safety
   const finalPlaybackRate = Math.max(0.5, Math.min(2.0, playbackRate));
   source.playbackRate.value = finalPlaybackRate;
-  
+
   // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/audio/playPcm.ts:46',message:'Audio source configured',data:{finalPlaybackRate,requestedPlaybackRate:playbackRate,bufferSampleRate:audioBuffer.sampleRate,audioContextSampleRate:ctx.sampleRate},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+  fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'lib/audio/playPcm.ts:46', message: 'Audio source configured', data: { finalPlaybackRate, requestedPlaybackRate: playbackRate, bufferSampleRate: audioBuffer.sampleRate, audioContextSampleRate: ctx.sampleRate }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G' }) }).catch(() => { });
   // #endregion
-  
+
   source.connect(ctx.destination);
 
   let isStopped = false;
@@ -61,7 +61,7 @@ export function playPCM(
   let rejectPromise: ((error: any) => void) | null = null;
   let hasResolved = false;
 
-  const playPromise = new Promise<void>((resolve, reject) => {
+  const playPromise = new Promise<void>(async (resolve, reject) => {
     resolvePromise = resolve;
     rejectPromise = reject;
 
@@ -73,7 +73,7 @@ export function playPCM(
         console.warn('Audio playback timeout - resolving promise as fallback');
         // Only close if we created the context
         if (!audioContext) {
-          ctx.close().catch(() => {});
+          ctx.close().catch(() => { });
         }
         resolve();
       }
@@ -85,26 +85,33 @@ export function playPCM(
         clearTimeout(timeoutId);
         // Only close if we created the context
         if (!audioContext) {
-          ctx.close().catch(() => {});
+          ctx.close().catch(() => { });
         }
         resolve();
       }
     };
-    
+
     source.addEventListener('error', (error: Event) => {
       if (!hasResolved && !isStopped) {
         hasResolved = true;
         clearTimeout(timeoutId);
         console.error('Audio source error:', error);
         if (!audioContext) {
-          ctx.close().catch(() => {});
+          ctx.close().catch(() => { });
         }
         // Resolve instead of reject to prevent unhandled promise rejection
         resolve();
       }
     });
-    
+
     try {
+      // Ensure audio context is running (browser auto-play safety)
+      console.log(`[playPcm] AudioContext status: ${ctx.state}. Attempting to start source...`);
+      if (ctx.state === 'suspended') {
+        console.log('[playPcm] Context is suspended, attempting to resume...');
+        await ctx.resume();
+        console.log(`[playPcm] Context resumed. Current state: ${ctx.state}`);
+      }
       source.start(0);
     } catch (startError) {
       clearTimeout(timeoutId);
@@ -112,7 +119,7 @@ export function playPCM(
         hasResolved = true;
         console.error('Failed to start audio source:', startError);
         if (!audioContext) {
-          ctx.close().catch(() => {});
+          ctx.close().catch(() => { });
         }
         resolve(); // Resolve instead of reject
       }
@@ -129,7 +136,7 @@ export function playPCM(
         // Source may already be stopped - this is fine
       }
       if (!audioContext) {
-        ctx.close().catch(() => {}); // Ignore errors
+        ctx.close().catch(() => { }); // Ignore errors
       }
       if (resolvePromise) {
         resolvePromise();

@@ -1,0 +1,16 @@
+{
+    "character_id": "marge_halloway",
+    "archetype": "cold_authority",
+    "gender": "female",
+    "personality": {
+        "dominance": 0.9,
+        "warmth": 0.2,
+        "emotional_range": 0.4
+    },
+    "script": "I measured your grass. It's 2.6 inches. The limit is 2.5. I'm drafting a letter.",
+    "voice_constraints": {
+        "pitch_bias": -0.05,
+        "speed_bias": 0.05,
+        "energy_bias": -0.1
+    }
+}

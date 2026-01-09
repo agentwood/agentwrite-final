@@ -1,0 +1,16 @@
+{
+    "id": "rebellious",
+    "name": "Rebellious",
+    "description": "Sarcastic, edgy, and modulated. Sharp attacks and fluctuating pitch.",
+    "base_profile": "rebellious_female",
+    "settings": {
+        "stability": 0.45,
+        "similarity_boost": 0.6,
+        "style": 0.7,
+        "use_speaker_boost": true
+    },
+    "runpod_config": {
+        "temperature": 0.85,
+        "exaggeration": 0.9
+    }
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "character": "dr_lucien_vale",
+    "name": "Dr. Lucien Vale",
+    "status": "failed",
+    "passed": false,
+    "score": 45,
+    "analysis": {
+      "fundamental_freq_hz": 158,
+      "pitch_variance_hz": 317,
+      "tempo_bpm": 145,
+      "rms": 0.038,
+      "duration_seconds": 4.13,
+      "detected_traits": [
+        "emotional"
+      ]
+    },
+    "violations": [
+      {
+        "code": "PITCH_OUT_OF_RANGE",
+        "severity": "major",
+        "message": "Fundamental frequency outside contract bounds",
+        "expected": "90-130Hz",
+        "actual": "158Hz"
+      },
+      {
+        "code": "PITCH_VARIANCE_EXCEEDED",
+        "severity": "major",
+        "message": "Too much pitch variation for controlled character",
+        "expected": "≤30Hz",
+        "actual": "317Hz"
+      },
+      {
+        "code": "TEMPO_EXCEEDED",
+        "severity": "minor",
+        "message": "Speaking rate too fast",
+        "expected": "≤95bpm",
+        "actual": "145bpm"
+      }
+    ]
+  }
+]

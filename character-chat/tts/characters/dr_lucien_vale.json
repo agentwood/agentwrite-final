@@ -1,0 +1,15 @@
+{
+    "character_id": "dr_lucien_vale",
+    "archetype": "cold_authority",
+    "personality": {
+        "dominance": 0.9,
+        "warmth": 0.2,
+        "emotional_range": 0.1
+    },
+    "script": "You're not making a mistake. You're simply choosing a future that benefits me.",
+    "voice_constraints": {
+        "pitch_bias": -0.3,
+        "speed_bias": -0.05,
+        "energy_bias": -0.1
+    }
+}

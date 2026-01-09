@@ -1,0 +1,240 @@
+{
+    "version": "1.1.0",
+    "description": "Archetype → Voice mapping. Primary: Chatterbox (self-hosted). Fallback: ElevenLabs.",
+    "_instructions": "reference_audio maps to files in public/reference_audio/. voice_id is ElevenLabs fallback.",
+    "_tts_priority": "1. Chatterbox (free, self-hosted) → 2. ElevenLabs (paid fallback)",
+    "archetypes": {
+        "cold_strategic_authority": {
+            "voice_id": "dG7SBJDxDoZkQUrwvqrD",
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "active",
+            "notes": "Dr. Lucien Vale's voice - sophisticated villain"
+        },
+        "low_dominance_intellectual": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need calm, measured male voice"
+        },
+        "warm_mentor": {
+            "voice_id": "Xb7hH8MSUJpSbSDYk0k2",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Maya Chen - warm empathetic life coach (Alice voice)"
+        },
+        "dry_technical_explainer": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need neutral, precise voice"
+        },
+        "fast_talking_operator": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need quick, street-smart voice"
+        },
+        "high_energy_motivator": {
+            "voice_id": "pNInz6obpgDQGcFmaJgB",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Marcus Blaze - energetic motivational coach (Adam voice)"
+        },
+        "shy_reserved_thinker": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need soft, hesitant voice"
+        },
+        "smooth_persuader": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need charming, flowing voice"
+        },
+        "gruff_enforcer": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need deep, rough voice"
+        },
+        "playful_trickster": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need playful, musical voice"
+        },
+        "calm_female_authority": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need steady, confident female voice"
+        },
+        "warm_female_guide": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need warm, empathetic female voice"
+        },
+        "sharp_female_intellectual": {
+            "voice_id": "XB0fDUnXU5powFXDhCwa",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Eleanor Ashworth - crisp British professor (Charlotte voice)"
+        },
+        "youthful_curious_voice": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need energetic, young voice"
+        },
+        "dark_narrator": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need slow, atmospheric voice"
+        },
+        "weathered_veteran": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need gravelly, experienced voice"
+        },
+        "noble_commander": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need regal, commanding voice"
+        },
+        "eccentric_genius": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need erratic, brilliant voice"
+        },
+        "serene_mystic": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need ethereal, calm voice"
+        },
+        "battle_hardened_warrior": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need fierce, strong voice"
+        },
+        "sassy_sidekick": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need witty, bold voice"
+        },
+        "stoic_protector": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need solid, minimal voice"
+        },
+        "charismatic_rogue": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need charming, roguish voice"
+        },
+        "anxious_neurotic": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need tense, worried voice"
+        },
+        "seductive_temptress": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need low, breathy voice"
+        },
+        "cheerful_optimist": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need bright, upbeat voice"
+        },
+        "cynical_realist": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need dry, sardonic voice"
+        },
+        "gentle_elder": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need soft, wise voice"
+        },
+        "fierce_rebel": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need passionate, defiant voice"
+        },
+        "clinical_professional": {
+            "voice_id": null,
+            "provider": "elevenlabs",
+            "model": "eleven_monolingual_v1",
+            "status": "pending",
+            "notes": "Need detached, precise voice"
+        }
+    },
+    "characters": {
+        "dr_lucien_vale": {
+            "archetype": "cold_strategic_authority",
+            "status": "mapped"
+        },
+        "maya_chen": {
+            "archetype": "warm_mentor",
+            "status": "mapped"
+        },
+        "marcus_blaze": {
+            "archetype": "high_energy_motivator",
+            "status": "mapped"
+        },
+        "eleanor_ashworth": {
+            "archetype": "sharp_female_intellectual",
+            "status": "mapped"
+        },
+        "jack_sterling": {
+            "archetype": "charismatic_rogue",
+            "status": "mapped"
+        }
+    }
+}
