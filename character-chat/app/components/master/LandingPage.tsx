@@ -22,16 +22,16 @@ interface LandingPageProps {
 }
 
 const AgentwoodDifference = () => (
-  <section className="bg-[#0c0c0c] px-8 md:px-24 py-12 border-b border-white/5">
+  <section className="bg-[#0c0c0c] px-6 md:px-24 py-8 border-b border-white/5">
     <div className="max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#C69C6D] mb-4">THE AGENTWOOD DIFFERENCE</h3>
+      <div className="mb-6">
+        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#C69C6D] mb-3">THE AGENTWOOD DIFFERENCE</h3>
         <h2 className="text-3xl md:text-5xl font-serif text-white max-w-3xl leading-tight">
           Communication, reimagined for the modern era.
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 border-t border-white/10 pt-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 border-t border-white/10 pt-8">
         {/* 01 */}
         <div className="space-y-4 group">
           <span className="text-[10px] font-bold text-white/30 block mb-4 group-hover:text-[#C69C6D] transition-colors">01</span>

@@ -43,6 +43,7 @@
     "scripts",
     "tts",
     "venv",
-    "runpod-fishspeech"
+    "runpod-fishspeech",
+    "prisma/deprecated"
   ]
 }

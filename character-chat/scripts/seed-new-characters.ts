@@ -292,7 +292,7 @@ async function seedCharacters() {
                     prompts: char.prompts,
                     systemPrompt: char.systemPrompt,
                     voiceReady: !!fishAudioModelId,
-                    avatarUrl: `https://api.dicebear.com/7.x/personas/svg?seed=${char.seedId}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf&radius=20`,
+                    avatarUrl: "/images/elena-whisper.png",
                 },
                 create: {
                     seedId: char.seedId,
@@ -307,7 +307,7 @@ async function seedCharacters() {
                     prompts: char.prompts,
                     systemPrompt: char.systemPrompt,
                     voiceReady: !!fishAudioModelId,
-                    avatarUrl: `https://api.dicebear.com/7.x/personas/svg?seed=${char.seedId}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf&radius=20`,
+                    avatarUrl: "/images/elena-whisper.png",
                 }
             });
 
