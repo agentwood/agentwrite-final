@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
             tone: true,
             energy: true,
             accent: true,
+            referenceText: true,
           }
         }
       }
