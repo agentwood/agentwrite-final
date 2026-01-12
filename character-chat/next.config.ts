@@ -58,7 +58,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@prisma/client'],
   },
-  // @ts-expect-error - Next.js types might differ, but this is the correct location per build logs
+  // Output file tracing excludes to reduce bundle size
   outputFileTracingExcludes: {
     '*': [
       './node_modules/@swc/core/**/*',
