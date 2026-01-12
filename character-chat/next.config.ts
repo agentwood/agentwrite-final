@@ -56,6 +56,15 @@ const nextConfig: NextConfig = {
   // Enable experimental features for better performance
   experimental: {
     optimizePackageImports: ['lucide-react', '@prisma/client'],
+    outputFileTracingExcludes: {
+      '*': [
+        './node_modules/@swc/core/**/*',
+        './node_modules/esbuild/**/*',
+        './node_modules/better-sqlite3/**/*',
+        './node_modules/@napi-rs/**/*',
+        './node_modules/canvas/**/*',
+      ],
+    },
   },
   // ISR (Incremental Static Regeneration) for programmatic pages
   // This allows us to generate pages at build time and regenerate on-demand
