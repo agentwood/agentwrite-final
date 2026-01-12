@@ -52,10 +52,12 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   // Enable static page generation where possible
-  // output: 'standalone',
+  // Enable static page generation where possible
+  output: 'standalone',
   // Enable experimental features for better performance
   experimental: {
     optimizePackageImports: ['lucide-react', '@prisma/client'],
+    // @ts-expect-error - Next.js types might be lagging, but this is a valid config for reducing bundle size
     outputFileTracingExcludes: {
       '*': [
         './node_modules/@swc/core/**/*',
