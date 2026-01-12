@@ -11,7 +11,7 @@ import VoiceSelector from '@/app/components/VoiceSelector';
 // Available archetypes for voice selection (DEPRECATED - Kept for reference if needed, but UI uses VoiceSelector)
 // const VOICE_ARCHETYPES = ... 
 
-const CATEGORIES = ['Helper', 'Original', 'Anime & Game', 'Fiction & Media', 'Roleplay', 'History'];
+const CATEGORIES = ['Helper', 'Original', 'Anime & Game', 'Fiction & Media', 'Roleplay', 'History', 'Relaxed', 'Intense', 'Romantic', 'Playful', 'Slow-Burn', 'Wholesome', 'Adventurous'];
 
 export default function CharacterCreator() {
   const router = useRouter();

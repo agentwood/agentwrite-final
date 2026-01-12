@@ -3,6 +3,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { SessionProvider } from 'next-auth/react';
 import { isAuthenticated } from '@/lib/auth';
 import AuthModal from './AuthModal';
 
@@ -62,7 +63,7 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     };
 
     return (
-        <>
+        <SessionProvider>
             {children}
             {showAuthModal && (
                 <AuthModal
@@ -70,6 +71,6 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
                     onClose={handleClose}
                 />
             )}
-        </>
+        </SessionProvider>
     );
 }

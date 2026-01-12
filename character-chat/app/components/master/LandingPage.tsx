@@ -21,43 +21,102 @@ interface LandingPageProps {
   onSearch: () => void;
 }
 
-const LandingHero = () => (
-  <section className="relative w-full min-h-[700px] md:min-h-[85vh] overflow-hidden bg-black flex items-center px-8 md:px-24">
-    <div className="absolute inset-0 z-0">
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent z-10"></div>
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent z-10"></div>
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover opacity-60"
-        >
-          <source src="/videos/fireplace.mp4" type="video/mp4" />
-        </video>
-      </div>
-    </div>
-    <div className="relative z-10 max-w-4xl animate-fade-in-up space-y-12">
-      <h1 className="text-[70px] md:text-[120px] font-serif italic text-white leading-[0.85] tracking-tight">
-        Enter <br />The Woods
-      </h1>
-
-      <div className="flex gap-8 items-start max-w-xl">
-        <div className="w-[1px] h-12 bg-white/40 mt-1 shrink-0"></div>
-        <p className="text-lg md:text-xl text-white/60 font-sans leading-relaxed">
-          Immersive audio stories and roleplay <br className="hidden md:block" />
-          companions designed to spark your imagination.
-        </p>
+const AgentwoodDifference = () => (
+  <section className="bg-[#0c0c0c] px-8 md:px-24 py-12 border-b border-white/5">
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-8">
+        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#C69C6D] mb-4">THE AGENTWOOD DIFFERENCE</h3>
+        <h2 className="text-3xl md:text-5xl font-serif text-white max-w-3xl leading-tight">
+          Communication, reimagined for the modern era.
+        </h2>
       </div>
 
-      <button className="group px-10 py-5 bg-white rounded-full text-[11px] font-bold uppercase tracking-[0.2em] text-black hover:bg-white/90 transition-all flex items-center gap-4 shadow-2xl">
-        Try Agentwood
-        <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-      </button>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 border-t border-white/10 pt-12">
+        {/* 01 */}
+        <div className="space-y-4 group">
+          <span className="text-[10px] font-bold text-white/30 block mb-4 group-hover:text-[#C69C6D] transition-colors">01</span>
+          <h4 className="text-xl font-serif text-white">Premium Immersion</h4>
+          <p className="text-sm text-white/50 leading-relaxed">
+            Experience narratives with unparalleled production value. Every voice, pause, and whisper is crafted for maximum realism and emotional depth.
+          </p>
+        </div>
+
+        {/* 02 */}
+        <div className="space-y-4 group">
+          <span className="text-[10px] font-bold text-white/30 block mb-4 group-hover:text-[#C69C6D] transition-colors">02</span>
+          <h4 className="text-xl font-serif text-white">Creator Economy</h4>
+          <p className="text-sm text-white/50 leading-relaxed">
+            The first platform where you can build, buy, and sell unique character personas. Your imagination is now a tangible, tradeable asset.
+          </p>
+        </div>
+
+        {/* 03 */}
+        <div className="space-y-4 group">
+          <span className="text-[10px] font-bold text-white/30 block mb-4 group-hover:text-[#C69C6D] transition-colors">03</span>
+          <h4 className="text-xl font-serif text-white">Active Memory</h4>
+          <p className="text-sm text-white/50 leading-relaxed">
+            Forget resetting. Our agents learn from every conversation, referencing past details to build a relationship that deepens and grows with you.
+          </p>
+        </div>
+
+        {/* 04 */}
+        <div className="space-y-4 group">
+          <span className="text-[10px] font-bold text-white/30 block mb-4 group-hover:text-[#C69C6D] transition-colors">04</span>
+          <h4 className="text-xl font-serif text-white">Story Generation</h4>
+          <p className="text-sm text-white/50 leading-relaxed">
+            Turn your chats into lasting artifacts. Create immersive audiobooks and written novels instantly from your roleplay history.
+          </p>
+        </div>
+      </div>
     </div>
   </section>
 );
+
+const LandingHero = () => {
+  const scrollToCharacters = () => {
+    const section = document.getElementById('characters');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <section className="relative w-full min-h-[700px] md:min-h-[85vh] overflow-hidden bg-black flex items-center px-8 md:px-24">
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent z-10"></div>
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent z-10"></div>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover opacity-60"
+          >
+            <source src="/videos/fireplace.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+      <div className="relative z-10 max-w-4xl animate-fade-in-up space-y-12">
+        <h1 className="text-[70px] md:text-[120px] font-serif italic text-white leading-[0.85] tracking-tight">
+          Enter <br />The Woods
+        </h1>
+
+        <div className="flex gap-8 items-start max-w-xl">
+          <div className="w-[1px] h-12 bg-white/40 mt-1 shrink-0"></div>
+          <p className="text-lg md:text-xl text-white/60 font-sans leading-relaxed">
+            Meet premium characters you can talk to, learn from and have fun with, from therapists to fantasy characters
+          </p>
+        </div>
+
+        <button onClick={scrollToCharacters} className="group px-10 py-5 bg-white rounded-full text-[11px] font-bold uppercase tracking-[0.2em] text-black hover:bg-white/90 transition-all flex items-center gap-4 shadow-2xl">
+          Try Agentwood
+          <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+        </button>
+      </div>
+    </section>
+  );
+};
 
 const CharacterPlayRow: React.FC<{ char: CharacterProfile, onClick: () => void }> = ({ char, onClick }) => (
   <div onClick={onClick} className="flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 cursor-pointer transition-all group">
@@ -100,7 +159,7 @@ const NewsletterSection = () => {
       }
 
       setStatus('success');
-      setMessage('Welcome to the woods. 🌲');
+      setMessage('Welcome to the inner circle.');
       setEmail('');
     } catch (error: any) {
       setStatus('error');
@@ -109,47 +168,25 @@ const NewsletterSection = () => {
   };
 
   return (
-    <section className="bg-[#0c0c0c] py-24 px-8 md:px-12 text-center space-y-10 border-y border-white/5 relative overflow-hidden">
-      {/* Background gradient effect */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent opacity-30 pointer-events-none"></div>
+    <section className="px-6 md:px-12 py-24 bg-[#0c0c0c] border-t border-white/5">
+      <div className="max-w-4xl mx-auto text-center space-y-8">
+        <h2 className="text-3xl md:text-5xl font-serif italic text-white">Join the Waitlist</h2>
+        <p className="text-white/60">Be the first to know when new characters arrive.</p>
 
-      <div className="max-w-xl mx-auto space-y-8 relative z-10">
-        <h2 className="text-4xl md:text-6xl font-serif italic text-white leading-tight">
-          Join the woods.
-        </h2>
-        <p className="text-white/40 font-sans text-sm md:text-base max-w-md mx-auto leading-relaxed">
-          Get exclusive editorial insights, stories, and connection tips delivered to your inbox.
-        </p>
-
-        <form onSubmit={handleSubmit} className="relative max-w-sm mx-auto group">
+        <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 justify-center max-w-md mx-auto">
           <input
             type="email"
-            placeholder="email@address.com"
+            placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={status === 'loading' || status === 'success'}
-            className="w-full bg-transparent border-b border-white/10 py-3 pr-12 text-center text-white placeholder:text-white/20 outline-none focus:border-white/40 transition-colors font-sans disabled:opacity-50"
+            className="bg-white/5 border border-white/10 rounded-full px-6 py-3 text-white focus:border-white/30 outline-none w-full"
+            required
           />
-          <button
-            type="submit"
-            disabled={status === 'loading' || status === 'success'}
-            className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-dipsea-accent hover:text-white transition-colors disabled:opacity-50"
-          >
-            {status === 'loading' ? (
-              <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-            ) : status === 'success' ? (
-              <span className="text-green-500">✓</span>
-            ) : (
-              <ChevronRight size={20} />
-            )}
+          <button disabled={status === 'loading'} className="bg-white text-black font-bold uppercase tracking-widest text-xs px-8 py-3 rounded-full hover:bg-white/90 transition-colors whitespace-nowrap">
+            {status === 'loading' ? 'Joining...' : 'Subscribe'}
           </button>
         </form>
-
-        {message && (
-          <p className={`text-xs font-sans ${status === 'success' ? 'text-green-400' : 'text-red-400'}`}>
-            {message}
-          </p>
-        )}
+        {message && <p className={`text-sm ${status === 'error' ? 'text-red-400' : 'text-green-400'}`}>{message}</p>}
       </div>
     </section>
   );
@@ -188,12 +225,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
       <LandingHero />
 
+      <AgentwoodDifference />
+
       {/* Trending Header */}
       <div className="px-6 md:px-12 pt-16 pb-4 bg-[#0c0c0c]">
         <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30 font-sans">TRENDING NOW</span>
       </div>
 
-      <section className="px-6 md:px-12 py-16 bg-[#0c0c0c]">
+      <section id="characters" className="px-6 md:px-12 py-16 bg-[#0c0c0c]">
         <div className="flex items-center justify-between mb-12">
           <h2 className="text-4xl md:text-5xl font-serif italic text-white tracking-tight">Meet our Characters</h2>
           <button className="text-[10px] font-bold uppercase tracking-widest text-dipsea-accent border-b border-dipsea-accent hover:text-white hover:border-white transition-all font-sans pb-1">SEE ALL</button>
@@ -211,32 +250,33 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
       <NewsletterSection />
 
-      {/* Filter Section - Restored to match requested style */}
-      <section className="sticky top-[89px] z-30 bg-[#0c0c0c]/95 backdrop-blur-xl border-b border-white/5 py-6 px-6 md:px-12">
+      {/* Filter Section - Matching Users Screenshot */}
+      <section className="sticky top-[86px] z-30 bg-[#0c0c0c]/95 backdrop-blur-xl border-b border-white/5 py-6 px-6 md:px-12">
         <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/20 font-sans flex-shrink-0">MOOD</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#5d5650] font-sans flex-shrink-0">MOOD</span>
           <div className="flex items-center gap-2">
             {moods.map(mood => (
               <button
                 key={mood}
                 onClick={() => {
                   setActiveMood(mood);
-                  // Map mood to existing categories for filtering
+                  // Determine broad category mapping for the URL/State, but we'll do refined filtering below
                   const moodMap: Record<string, Category> = {
                     'Helpful': 'Helpful',
                     'Relaxed': 'All',
-                    'Intense': 'All',
+                    'Intense': 'Anime & Game',
                     'Romantic': 'Romance',
                     'Playful': 'Play & Fun',
                     'Slow-Burn': 'Romance',
                     'Wholesome': 'Helpful',
                     'Adventurous': 'Fun'
                   };
+                  // We update the parent category for broad syncing, but local state drives the display
                   onCategoryChange(moodMap[mood] || 'All');
                 }}
-                className={`px-5 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border whitespace-nowrap ${activeMood === mood
-                  ? 'bg-dipsea-accent text-white border-dipsea-accent shadow-lg'
-                  : 'bg-[#1c1816] text-white/40 border-white/5 hover:border-white/20 hover:text-white'
+                className={`px-6 py-3 rounded-lg text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeMood === mood
+                  ? 'bg-[#C69C6D] text-white shadow-lg shadow-[#C69C6D]/20 transform scale-105'
+                  : 'bg-[#1c1816] text-[#6b645f] hover:bg-[#2A2420] hover:text-[#8b847f]'
                   }`}
               >
                 {mood}
@@ -253,8 +293,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           ) : (
             characters
               .filter(char => {
-                if (activeCategory === 'All') return true;
-                return char.category === activeCategory;
+                // 1. First Pass: Category Filter (if set strictly by parent, but we want mood to take precedence in this view)
+                // Actually, let's make MOOD the primary filter for this view.
+
+                if (activeMood === 'Relaxed') return true; // Show all for relaxed (discovery mode) or filter by 'calm' tags if we had them.
+                // For now, 'Relaxed' serves as 'All/Discover' 
+
+                if (activeMood === 'Helpful') return char.category === 'Helpful' || char.category === 'Helper' || char.category === 'Educational';
+                if (activeMood === 'Romantic') return char.category === 'Romance';
+                if (activeMood === 'Playful') return char.category === 'Play & Fun' || char.category === 'Fun';
+                if (activeMood === 'Intense') return char.category === 'Anime & Game' || char.description.toLowerCase().includes('villain') || char.description.toLowerCase().includes('power');
+                if (activeMood === 'Slow-Burn') return char.category === 'Romance' && (char.description.toLowerCase().includes('slow') || char.description.toLowerCase().includes('quiet'));
+                if (activeMood === 'Wholesome') return char.category === 'Helpful' || char.category === 'Icon';
+                if (activeMood === 'Adventurous') return char.category === 'Fun' || char.category === 'Fiction & Media';
+
+                return true;
               })
               .map((char, i) => (
                 <CharacterCard

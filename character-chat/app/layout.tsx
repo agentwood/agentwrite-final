@@ -4,6 +4,7 @@ import "./globals.css";
 import AgeGate from "./components/AgeGate";
 import StructuredData from "./components/StructuredData";
 import AuthWrapper from "./components/AuthWrapper";
+import CookieConsent from "./components/CookieConsent";
 import { generateMetadata as generateSEOMetadata } from "@/lib/seo/metadata";
 import { generateOrganizationSchema, generateWebSiteSchema } from "@/lib/seo/structured-data";
 
@@ -61,6 +62,7 @@ export default function RootLayout({
             {children}
           </AuthWrapper>
         </AgeGate>
+        <CookieConsent />
       </body>
     </html>
   );

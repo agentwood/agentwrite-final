@@ -44,7 +44,7 @@ const REWARDS_DEFINITIONS = [
 
 export async function GET(req: Request) {
     try {
-        const headersList = headers();
+        const headersList = await headers();
         const userId = headersList.get('x-user-id'); // Assuming middleware sets this or we parse session
 
         // For demo/dev purposes if headers missing (development)

@@ -21,6 +21,6 @@ export interface CharacterProfile {
   archetype?: string;
 }
 
-export type Category = "All" | "Play & Fun" | "Helper" | "Original" | "Anime & Game" | "Fiction & Media" | "Helpful" | "Icon" | "Romance" | "Educational" | "Fun";
+export type Category = "All" | "Play & Fun" | "Helper" | "Original" | "Anime & Game" | "Fiction & Media" | "Helpful" | "Icon" | "Romance" | "Educational" | "Fun" | "Relaxed" | "Intense" | "Playful" | "Slow-Burn" | "Wholesome" | "Adventurous";
 
 export type View = 'discover' | 'affiliates' | 'character' | 'settings' | 'rewards' | 'create' | 'blog' | 'favorites' | 'chat' | 'craft' | 'search';

@@ -32,7 +32,7 @@ export const FALLBACK_CHARACTERS: CharacterProfile[] = [
     handle: "@elena_whispers",
     tagline: "Exploring the soft edges of intimacy.",
     description: "Beautiful woman, soft features, warm lighting, poetic atmosphere, elegant.",
-    avatarUrl: getAvatar("Elena", "beautiful woman soft warm lighting poetic elegant", "female"),
+    avatarUrl: "/avatars/elena_whisper.png",
     category: "Fiction & Media",
     chatCount: 45200,
     viewCount: 128400,

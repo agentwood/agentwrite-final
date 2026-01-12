@@ -1381,8 +1381,88 @@ const RewardsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   );
 };
 
-const SettingsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+const SettingsView: React.FC<{ onBack: () => void; user: any; onUpdateUser: (u: any) => void }> = ({ onBack, user, onUpdateUser }) => {
   const [activeTab, setActiveTab] = useState('Public profile');
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Profile State
+  const [profile, setProfile] = useState({
+    username: user?.username || '',
+    displayName: user?.name || '',
+    bio: user?.bio || '',
+    avatar: user?.avatarUrl || '' // TODO: Handle file upload
+  });
+
+  // Preferences State
+  const [preferences, setPreferences] = useState({
+    autoPlayVoice: false, // Default off as requested
+    autoPlayMusic: true,
+    volume: 80,
+    theme: 'Dark'
+  });
+
+  // Load preferences from local storage on mount
+  useEffect(() => {
+    const savedAudio = localStorage.getItem('audio_settings');
+    if (savedAudio) {
+      setPreferences(p => ({ ...p, ...JSON.parse(savedAudio) }));
+    }
+  }, []);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Create a preview URL immediately
+      const url = URL.createObjectURL(file);
+      setProfile(p => ({ ...p, avatar: url }));
+
+      // In a real app, we'd upload this to S3/Supabase Storage here
+      // For now, we'll assume the API can accept a base64 string or we handle it in save
+      // We will just simulate success for the UI feedback
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: profile.username,
+          name: profile.displayName,
+          bio: profile.bio,
+          // avatarUrl: profile.avatar // We need a real upload endpoint for this
+        })
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        onUpdateUser({ ...user, ...updated }); // formatting might vary
+        alert("Profile updated!");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to save profile.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSavePreferences = () => {
+    localStorage.setItem('audio_settings', JSON.stringify({
+      autoPlayVoice: preferences.autoPlayVoice,
+      autoPlayMusic: preferences.autoPlayMusic,
+      volume: preferences.volume
+    }));
+    alert("Preferences saved!");
+  };
+
   const tabs = [
     'Public profile',
     'Account',
@@ -1441,10 +1521,21 @@ const SettingsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           {activeTab === 'Public profile' && (
             <div className="space-y-10">
               {/* Avatar */}
-              <div className="relative inline-block group cursor-pointer">
+              <div className="relative inline-block group cursor-pointer" onClick={handleAvatarClick}>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
                 <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#ffaa40] to-[#9c40ff] p-1">
                   <div className="w-full h-full rounded-full bg-[#1c1816] flex items-center justify-center relative overflow-hidden">
-                    <div className="text-6xl font-bold text-white">A</div>
+                    {profile.avatar ? (
+                      <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-6xl font-bold text-white">{profile.displayName?.[0] || 'A'}</div>
+                    )}
                     {/* Overlay on hover */}
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <Pencil size={24} className="text-white" />
@@ -1463,11 +1554,12 @@ const SettingsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-white/40 mb-1 group-focus-within:text-dipsea-accent transition-colors">Username</label>
                     <input
                       type="text"
-                      defaultValue="ArrogantLovebird5806"
+                      value={profile.username}
+                      onChange={(e) => setProfile({ ...profile, username: e.target.value })}
                       className="w-full bg-transparent border-none outline-none text-white font-sans text-base placeholder:text-white/20"
                     />
                   </div>
-                  <div className="text-right text-[10px] font-bold text-white/20">20/20</div>
+                  <div className="text-right text-[10px] font-bold text-white/20">{profile.username.length}/20</div>
                 </div>
 
                 <div className="space-y-1.5">
@@ -1475,23 +1567,34 @@ const SettingsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-white/40 mb-1 group-focus-within:text-dipsea-accent transition-colors">Display Name</label>
                     <input
                       type="text"
-                      defaultValue="ArrogantLovebird5806"
+                      value={profile.displayName}
+                      onChange={(e) => setProfile({ ...profile, displayName: e.target.value })}
                       className="w-full bg-transparent border-none outline-none text-white font-sans text-base placeholder:text-white/20"
                     />
                   </div>
-                  <div className="text-right text-[10px] font-bold text-white/20">20/20</div>
+                  <div className="text-right text-[10px] font-bold text-white/20">{profile.displayName.length}/20</div>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="bg-[#161616] border border-white/10 rounded-2xl p-4 focus-within:border-white/30 transition-colors group h-40">
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2 group-focus-within:text-dipsea-accent transition-colors">Description</label>
                     <textarea
+                      value={profile.bio}
+                      onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                       className="w-full h-[calc(100%-24px)] bg-transparent border-none outline-none text-white font-sans text-base resize-none placeholder:text-white/20"
                       placeholder="Tell us about yourself..."
                     />
                   </div>
-                  <div className="text-right text-[10px] font-bold text-white/20">0/500</div>
+                  <div className="text-right text-[10px] font-bold text-white/20">{profile.bio.length}/500</div>
                 </div>
+
+                <button
+                  onClick={handleSaveProfile}
+                  disabled={loading}
+                  className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-white/90 rounded-xl transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Saving...' : 'Save Profile'}
+                </button>
               </div>
             </div>
           )}
@@ -1501,7 +1604,7 @@ const SettingsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
                 <h3 className="text-lg font-bold text-white mb-2">Email Address</h3>
                 <p className="text-white/40 text-sm mb-4">Your email is visible only to you.</p>
-                <input type="email" defaultValue="user@example.com" className="bg-black/20 w-full p-3 rounded-lg text-white border border-white/10 focus:border-white/30 outline-none" />
+                <input type="email" defaultValue={user?.email || "user@example.com"} className="bg-black/20 w-full p-3 rounded-lg text-white border border-white/10 focus:border-white/30 outline-none" disabled />
               </div>
               <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
                 <h3 className="text-lg font-bold text-white mb-2">Password</h3>
@@ -1523,33 +1626,58 @@ const SettingsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 <h3 className="text-lg font-bold text-white mb-4">Theme</h3>
                 <div className="flex gap-3">
                   {['Dark', 'Light', 'System'].map(theme => (
-                    <button key={theme} className={`flex-1 py-3 rounded-xl border transition-all ${theme === 'Dark' ? 'bg-white/10 border-white/30 text-white' : 'border-white/10 text-white/40 hover:border-white/20'}`}>
+                    <button
+                      key={theme}
+                      onClick={() => setPreferences(p => ({ ...p, theme }))}
+                      className={`flex-1 py-3 rounded-xl border transition-all ${preferences.theme === theme ? 'bg-white/10 border-white/30 text-white' : 'border-white/10 text-white/40 hover:border-white/20'}`}
+                    >
                       {theme}
                     </button>
                   ))}
                 </div>
               </div>
+
+              {/* Sound Settings */}
               <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-4">Language</h3>
-                <select className="w-full bg-black/20 p-3 rounded-lg text-white border border-white/10 outline-none">
-                  <option value="en">English</option>
-                  <option value="es">Español</option>
-                  <option value="fr">Français</option>
-                  <option value="de">Deutsch</option>
-                  <option value="ja">日本語</option>
-                </select>
-              </div>
-              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
-                <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-white mb-4">Sound Settings</h3>
+
+                <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 className="text-lg font-bold text-white">Auto-play Voice</h3>
-                    <p className="text-white/40 text-sm">Automatically play character voices</p>
+                    <h3 className="text-base font-medium text-white">Auto-play dialogue voice</h3>
                   </div>
-                  <button className="w-12 h-6 rounded-full bg-purple-500 relative">
-                    <span className="absolute right-1 top-1 w-4 h-4 rounded-full bg-white shadow"></span>
+                  <button
+                    onClick={() => setPreferences(p => ({ ...p, autoPlayVoice: !p.autoPlayVoice }))}
+                    className={`w-12 h-6 rounded-full relative transition-colors ${preferences.autoPlayVoice ? 'bg-[#ffaa40]' : 'bg-white/20'}`}
+                  >
+                    <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${preferences.autoPlayVoice ? 'right-1' : 'left-1'}`}></span>
                   </button>
                 </div>
+
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-base font-medium text-white">Auto-play background music</h3>
+                  </div>
+                  <button
+                    onClick={() => setPreferences(p => ({ ...p, autoPlayMusic: !p.autoPlayMusic }))}
+                    className={`w-12 h-6 rounded-full relative transition-colors ${preferences.autoPlayMusic ? 'bg-[#ffaa40]' : 'bg-white/20'}`}
+                  >
+                    <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${preferences.autoPlayMusic ? 'right-1' : 'left-1'}`}></span>
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-white/60">Volume</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={preferences.volume}
+                    onChange={(e) => setPreferences(p => ({ ...p, volume: parseInt(e.target.value) }))}
+                    className="w-full accent-[#ffaa40] h-1 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
               </div>
+
               <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -1561,7 +1689,10 @@ const SettingsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                   </button>
                 </div>
               </div>
-              <button className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-white/90 rounded-xl transition-colors">
+              <button
+                onClick={handleSavePreferences}
+                className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-white/90 rounded-xl transition-colors"
+              >
                 Save Preferences
               </button>
             </div>
@@ -1705,12 +1836,15 @@ const WORLDS: World[] = [
   { id: 'modern', name: 'Urban Loft', description: 'Contemporary city life. Coffee shops, art galleries, and modern romance.', image: '/worlds/modern.png' },
 ];
 
-const CraftStoryView: React.FC<{ onBack: () => void; characters: CharacterProfile[] }> = ({ onBack, characters }) => {
+const CraftStoryView: React.FC<{ onBack: () => void; characters: CharacterProfile[]; onStartStory?: (data: any) => void }> = ({ onBack, characters, onStartStory }) => {
+  const [step, setStep] = useState(0); // 0: Selection, 1: Type, 2: Idea, 3: Ready
   const [selectedWorld, setSelectedWorld] = useState<World | null>(null);
   const [selectedCharacters, setSelectedCharacters] = useState<CharacterProfile[]>([]);
+  const [storyType, setStoryType] = useState<string | null>(null);
+  const [storyIdea, setStoryIdea] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedStory, setGeneratedStory] = useState<string | null>(null);
 
+  // Existing logic for connection
   const toggleCharacter = (char: CharacterProfile) => {
     if (selectedCharacters.find(c => c.name === char.name)) {
       setSelectedCharacters(prev => prev.filter(c => c.name !== char.name));
@@ -1721,85 +1855,185 @@ const CraftStoryView: React.FC<{ onBack: () => void; characters: CharacterProfil
     }
   };
 
-  const handleGenerate = async () => {
-    if (!selectedWorld || selectedCharacters.length === 0) return;
+  const handleNext = () => setStep(prev => prev + 1);
+  const handleBackStep = () => setStep(prev => prev - 1);
 
-    setIsGenerating(true);
-    try {
-      const response = await fetch('/api/generate-story', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          world: selectedWorld,
-          characters: selectedCharacters
-        })
+  const startStory = () => {
+    if (onStartStory) {
+      onStartStory({
+        world: selectedWorld,
+        characters: selectedCharacters,
+        type: storyType,
+        idea: storyIdea
       });
-
-      const data = await response.json();
-      setGeneratedStory(data.text || "The story fades before it begins...");
-    } catch (e) {
-      console.error(e);
-      setGeneratedStory("The ink has run dry. Please try again.");
-    } finally {
-      setIsGenerating(false);
+    } else {
+      // Fallback or todo
+      console.log("Start story:", { selectedWorld, selectedCharacters, storyType, storyIdea });
     }
   };
 
-  const reset = () => {
-    setGeneratedStory(null);
-    setSelectedWorld(null);
-    setSelectedCharacters([]);
-  }
+  const STORY_TYPES = [
+    { id: 'fun', emoji: '✨', label: 'Short fun story', color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+    { id: 'adventure', emoji: '⚔️', label: 'Fantasy adventure', color: 'text-red-400', bg: 'bg-red-400/10' },
+    { id: 'romance', emoji: '💕', label: 'Romance', color: 'text-pink-400', bg: 'bg-pink-400/10' },
+    { id: 'comedy', emoji: '😂', label: 'Comedy', color: 'text-orange-400', bg: 'bg-orange-400/10' },
+    { id: 'dark', emoji: '🌙', label: 'Dark / dramatic', color: 'text-purple-400', bg: 'bg-purple-400/10' },
+    { id: 'mystery', emoji: '🔍', label: 'Mystery', color: 'text-blue-400', bg: 'bg-blue-400/10' },
+  ];
 
-  if (isGenerating) {
-    return (
-      <div className="min-h-screen bg-[#0c0c0c] flex flex-col items-center justify-center animate-fade-in relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.1),transparent_70%)]"></div>
-        <Loader2 size={48} className="text-white animate-spin mb-6 relative z-10" />
-        <h2 className="text-4xl font-serif italic text-white mb-2 relative z-10">Weaving Fate Lines...</h2>
-        <p className="text-white/40 font-sans text-sm tracking-widest uppercase relative z-10">Constructing the world of {selectedWorld?.name}</p>
-      </div>
-    )
-  }
-
-  if (generatedStory) {
-    return (
-      <div className="min-h-screen bg-[#0c0c0c] p-8 md:p-16 animate-fade-in relative">
-        <div className="max-w-3xl mx-auto space-y-12 relative z-10">
-          <div className="flex items-center justify-between">
-            <button onClick={reset} className="flex items-center gap-2 text-white/40 hover:text-white transition-colors">
-              <ChevronLeft size={20} /> <span className="text-xs font-bold uppercase tracking-widest">Craft New Story</span>
-            </button>
-            <div className="flex gap-3">
-              <button className="p-3 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"><Share2 size={18} /></button>
-              <button className="px-6 py-3 bg-white text-black rounded-full font-bold text-xs uppercase tracking-widest hover:scale-105 transition-transform">Publish Story</button>
-            </div>
-          </div>
-
-          <div className="bg-[#161616] border border-white/5 rounded-[40px] p-10 md:p-16 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 blur-[80px] rounded-full pointer-events-none"></div>
-            <div className="relative z-10 space-y-8">
-              <div className="flex items-center gap-3 justify-center mb-8">
-                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-dipsea-accent">{selectedWorld?.name}</span>
-              </div>
-              <p className="text-xl md:text-2xl font-serif text-white/90 leading-relaxed indent-8 first-letter:text-5xl first-letter:font-serif first-letter:mr-1 first-letter:float-left">
-                {generatedStory}
-              </p>
-              <div className="pt-8 flex justify-center gap-4">
-                {selectedCharacters.map((c, i) => (
-                  <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/5">
-                    <div className="w-6 h-6 rounded-full overflow-hidden"><img src={c.avatarUrl} className="w-full h-full object-cover" /></div>
-                    <span className="text-xs text-white/60 font-medium">{c.name}</span>
+  // Helper to render steps
+  const renderStepContent = () => {
+    switch (step) {
+      case 0: // Selection (Existing)
+        return (
+          <div className="space-y-12 animate-fade-in">
+            <div className="space-y-6">
+              <h3 className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-dipsea-accent">
+                <Map size={14} /> Select a World
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {WORLDS.map((world) => (
+                  <div
+                    key={world.id}
+                    onClick={() => setSelectedWorld(world)}
+                    className={`group relative h-40 rounded-2xl overflow-hidden cursor-pointer border transition-all duration-300 ${selectedWorld?.id === world.id ? 'border-white ring-2 ring-white/20 scale-[1.02]' : 'border-white/5 hover:border-white/20'}`}
+                  >
+                    <img src={world.image} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                    <div className="absolute bottom-4 left-4">
+                      <h4 className="text-white font-serif italic text-xl">{world.name}</h4>
+                    </div>
+                    {selectedWorld?.id === world.id && (
+                      <div className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                        <Check size={14} className="text-black" />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
+
+            <div className="space-y-6">
+              <h3 className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-dipsea-accent">
+                <History size={14} /> Recent Encounters
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                {characters.slice(0, 6).map((char, i) => {
+                  const isSelected = selectedCharacters.find(c => c.name === char.name);
+                  return (
+                    <div
+                      key={i}
+                      onClick={() => toggleCharacter(char)}
+                      className={`relative aspect-[3/4] rounded-[24px] overflow-hidden cursor-pointer group transition-all duration-300 ${isSelected ? 'ring-2 ring-dipsea-accent scale-[1.02] shadow-2xl' : 'hover:scale-[1.02]'}`}
+                    >
+                      <img src={char.avatarUrl} className={`w-full h-full object-cover transition-all ${isSelected ? 'grayscale-0' : 'grayscale group-hover:grayscale-0'}`} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <p className="text-white font-serif text-lg leading-none">{char.name}</p>
+                      </div>
+                      {isSelected && (
+                        <div className="absolute top-3 right-3 w-6 h-6 bg-dipsea-accent rounded-full flex items-center justify-center shadow-lg">
+                          <Check size={14} className="text-white" />
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="mt-16 flex justify-center">
+              <button
+                onClick={handleNext}
+                disabled={!selectedWorld || selectedCharacters.length === 0}
+                className={`
+                    px-12 py-5 rounded-full font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-3 transition-all duration-500
+                    ${(!selectedWorld || selectedCharacters.length === 0)
+                    ? 'bg-white/5 text-white/20 cursor-not-allowed'
+                    : 'bg-white text-black hover:scale-105 shadow-[0_0_40px_rgba(255,255,255,0.2)]'}
+                `}
+              >
+                Choose Story Type <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 pointer-events-none"></div>
-      </div>
-    );
-  }
+        );
+
+      case 1: // Story Type
+        return (
+          <div className="max-w-4xl mx-auto animate-fade-in text-center">
+            <h2 className="text-4xl font-serif italic text-white mb-4">Choose a Story Type</h2>
+            <p className="text-white/40 mb-12">What kind of story do you want?</p>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              {STORY_TYPES.map(type => (
+                <button
+                  key={type.id}
+                  onClick={() => { setStoryType(type.id); handleNext(); }}
+                  className="flex flex-col items-center justify-center p-8 rounded-3xl bg-[#161616] border border-white/5 hover:border-white/20 hover:bg-[#1f1b19] transition-all group"
+                >
+                  <span className="text-4xl mb-6 group-hover:scale-110 transition-transform">{type.emoji}</span>
+                  <span className="text-white font-bold font-serif text-lg">{type.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <button onClick={handleBackStep} className="mt-12 text-white/20 hover:text-white text-xs uppercase tracking-widest font-bold">Back</button>
+          </div>
+        );
+
+      case 2: // Idea (Optional)
+        return (
+          <div className="max-w-2xl mx-auto animate-fade-in text-center">
+            <h2 className="text-4xl font-serif italic text-white mb-4">Add an Idea</h2>
+            <p className="text-white/40 mb-12">One sentence is enough — or skip this and we'll surprise you.</p>
+
+            <div className="bg-[#161616] border border-white/10 rounded-3xl p-6 focus-within:border-white/30 transition-colors mb-8">
+              <textarea
+                value={storyIdea}
+                onChange={(e) => setStoryIdea(e.target.value)}
+                placeholder="E.g. We go on a quest together..."
+                className="w-full bg-transparent border-none outline-none text-white text-lg placeholder:text-white/20 min-h-[150px] resize-none font-serif"
+              />
+            </div>
+
+            <div className="flex gap-4 justify-center">
+              <button onClick={handleNext} className="px-8 py-4 rounded-full bg-white/5 hover:bg-white/10 text-white text-xs uppercase tracking-widest font-bold transition-all">
+                Skip & Surprise Me
+              </button>
+              <button
+                onClick={handleNext}
+                disabled={!storyIdea.trim()}
+                className={`px-8 py-4 rounded-full text-black text-xs uppercase tracking-widest font-bold transition-all ${!storyIdea.trim() ? 'bg-white/10 text-white/20' : 'bg-white hover:scale-105'}`}
+              >
+                Create Story
+              </button>
+            </div>
+            <button onClick={handleBackStep} className="mt-12 text-white/20 hover:text-white text-xs uppercase tracking-widest font-bold">Back</button>
+          </div>
+        );
+
+      case 3: // Ready
+        return (
+          <div className="max-w-2xl mx-auto animate-fade-in text-center py-12">
+            <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-8 animate-pulse">
+              <BookOpen size={40} className="text-white" />
+            </div>
+            <h2 className="text-5xl font-serif italic text-white mb-6">Your story is ready.</h2>
+            <p className="text-white/60 mb-12 text-lg">
+              Read, interact naturally, or say <strong>"I want to be part of the story"</strong> to jump in effectively.
+            </p>
+
+            <button
+              onClick={startStory}
+              className="px-12 py-5 bg-white text-black rounded-full font-bold text-sm uppercase tracking-widest hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all"
+            >
+              Start Story
+            </button>
+          </div>
+        );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0c0c0c] p-8 md:p-12 animate-fade-in relative overflow-hidden">
@@ -1811,82 +2045,14 @@ const CraftStoryView: React.FC<{ onBack: () => void; characters: CharacterProfil
       </button>
 
       <div className="max-w-6xl mx-auto h-full flex flex-col justify-center min-h-[80vh]">
-        <div className="mb-16 space-y-4">
-          <h1 className="text-7xl font-serif italic text-white tracking-tighter">Craft a Story.</h1>
-          <p className="text-white/40 text-xl font-sans italic">Select characters to weave a new narrative.</p>
-        </div>
-
-        <div className="space-y-12">
-          <div className="space-y-6">
-            <h3 className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-dipsea-accent">
-              <Map size={14} /> Select a World
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {WORLDS.map((world) => (
-                <div
-                  key={world.id}
-                  onClick={() => setSelectedWorld(world)}
-                  className={`group relative h-40 rounded-2xl overflow-hidden cursor-pointer border transition-all duration-300 ${selectedWorld?.id === world.id ? 'border-white ring-2 ring-white/20 scale-[1.02]' : 'border-white/5 hover:border-white/20'}`}
-                >
-                  <img src={world.image} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-                  <div className="absolute bottom-4 left-4">
-                    <h4 className="text-white font-serif italic text-xl">{world.name}</h4>
-                  </div>
-                  {selectedWorld?.id === world.id && (
-                    <div className="absolute top-3 right-3 w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                      <Check size={14} className="text-black" />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+        {step === 0 && (
+          <div className="mb-16 space-y-4">
+            <h1 className="text-7xl font-serif italic text-white tracking-tighter">Craft a Story.</h1>
+            <p className="text-white/40 text-xl font-sans italic">Select characters to weave a new narrative.</p>
           </div>
+        )}
 
-          <div className="space-y-6">
-            <h3 className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-dipsea-accent">
-              <History size={14} /> Recent Encounters
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {characters.slice(0, 6).map((char, i) => {
-                const isSelected = selectedCharacters.find(c => c.name === char.name);
-                return (
-                  <div
-                    key={i}
-                    onClick={() => toggleCharacter(char)}
-                    className={`relative aspect-[3/4] rounded-[24px] overflow-hidden cursor-pointer group transition-all duration-300 ${isSelected ? 'ring-2 ring-dipsea-accent scale-[1.02] shadow-2xl' : 'hover:scale-[1.02]'}`}
-                  >
-                    <img src={char.avatarUrl} className={`w-full h-full object-cover transition-all ${isSelected ? 'grayscale-0' : 'grayscale group-hover:grayscale-0'}`} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <p className="text-white font-serif text-lg leading-none">{char.name}</p>
-                    </div>
-                    {isSelected && (
-                      <div className="absolute top-3 right-3 w-6 h-6 bg-dipsea-accent rounded-full flex items-center justify-center shadow-lg">
-                        <Check size={14} className="text-white" />
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-16 flex justify-center">
-          <button
-            onClick={handleGenerate}
-            disabled={!selectedWorld || selectedCharacters.length === 0}
-            className={`
-                            px-12 py-5 rounded-full font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-3 transition-all duration-500
-                            ${(!selectedWorld || selectedCharacters.length === 0)
-                ? 'bg-white/5 text-white/20 cursor-not-allowed'
-                : 'bg-white text-black hover:scale-105 shadow-[0_0_40px_rgba(255,255,255,0.2)]'}
-                        `}
-          >
-            <PenTool size={16} /> Create Story
-          </button>
-        </div>
+        {renderStepContent()}
       </div>
     </div>
   );
@@ -1904,6 +2070,43 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
   const [onboardingChar, setOnboardingChar] = useState<CharacterProfile | null>(null);
 
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+
+  const handleStoryStart = async (data: any) => {
+    // 1. Select the primary character (first one)
+    const primaryChar = data.characters[0];
+    if (!primaryChar) return;
+
+    setLoading(true);
+    try {
+      // 2. Call API to create conversation with context
+      const res = await fetch('/api/story/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (res.ok) {
+        const { conversationId, firstMessage, systemPrompt } = await res.json();
+
+        // 3. Set up the chat view
+        setSelectedCharacter({
+          ...primaryChar,
+          // Override greeting with the generated story opener
+          greeting: firstMessage
+        });
+        setActiveConversationId(conversationId);
+        setInitialMessage(null); // Clear any specific user started message
+        setCurrentView('chat');
+      } else {
+        console.error("Failed to start story");
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Check auth on mount
@@ -2209,7 +2412,7 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
                 ),
                 voiceName: selectedCharacter.voiceName || 'puck'
               }}
-              conversationId={`chat-${selectedCharacter.id}-${new Date().toDateString()}`}
+              conversationId={activeConversationId || `chat-${selectedCharacter.id}-${new Date().toDateString()}`}
               onBack={() => setCurrentView('character')}
               initialMessage={initialMessage || undefined}
             />
@@ -2222,9 +2425,9 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
 
         {currentView === 'rewards' && <RewardsView onBack={() => setCurrentView('discover')} />}
 
-        {currentView === 'settings' && <SettingsView onBack={() => setCurrentView('discover')} />}
+        {currentView === 'settings' && <SettingsView onBack={() => setCurrentView('discover')} user={currentUser} onUpdateUser={setCurrentUser} />}
 
-        {currentView === 'craft' && <CraftStoryView onBack={() => setCurrentView('discover')} characters={characters} />}
+        {currentView === 'craft' && <CraftStoryView onBack={() => setCurrentView('discover')} characters={characters} onStartStory={handleStoryStart} />}
 
         {currentView === 'search' && <SearchView onSelectCharacter={navigateToProfile} characters={characters.length > 0 ? characters : FALLBACK_CHARACTERS} />}
       </main>
