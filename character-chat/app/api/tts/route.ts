@@ -40,6 +40,8 @@ export async function POST(request: NextRequest) {
         id: true,
         name: true,
         voiceSeedId: true,
+        styleHint: true,
+        voiceSpeed: true,
         voiceSeed: {
           select: {
             id: true,
