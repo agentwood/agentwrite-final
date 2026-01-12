@@ -59,9 +59,7 @@ export async function GET(req: Request) {
 
         const user = await prisma.user.findUnique({
             where: { id: userId },
-            include: {
-                conversations: true
-            }
+            conversations: true
         });
 
         if (!user) {
