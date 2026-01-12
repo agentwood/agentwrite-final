@@ -18,15 +18,15 @@ export default function AgeVerificationWrapper({ children }: AgeVerificationWrap
     const checkAgeVerification = async () => {
       try {
         const session = getSession();
+        // Allow unauthenticated access - no redirect
         if (!session) {
-          // No session, redirect to landing
-          router.push('/');
+          setIsChecking(false);
           return;
         }
 
         // Check if age is verified
         const ageVerified = isAgeVerified();
-        
+
         if (!ageVerified) {
           // Show age verification modal
           setShowModal(true);

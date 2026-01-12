@@ -24,7 +24,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: "Agentwood - Chat with AI Characters | Character.ai Alternative",
+  title: "Agentwood - AI Characters",
   description: "Chat with thousands of AI characters, create your own, and discover unique personalities. Free AI character chat platform similar to Character.ai. Talk to AI waifus, fantasy characters, and real-world personas.",
   keywords: [
     "AI characters",
