@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db as prisma } from '@/lib/db';
-import { generateText } from '@/lib/llm/gemini'; // Assuming we have this or similar helper
+import { generateText } from '@/lib/geminiClient';
 
 export async function POST(req: Request) {
     try {
