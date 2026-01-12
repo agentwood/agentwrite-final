@@ -7,7 +7,6 @@ import {
   BarChart3, Activity, Eye, Heart,
   ArrowUp, ArrowDown, Calendar, Filter
 } from 'lucide-react';
-import { db } from '@/lib/db';
 
 interface AdminStats {
   totalUsers: number;

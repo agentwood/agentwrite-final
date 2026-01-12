@@ -115,7 +115,7 @@ const NewsletterSection = () => {
 
       <div className="max-w-xl mx-auto space-y-8 relative z-10">
         <h2 className="text-4xl md:text-6xl font-serif italic text-white leading-tight">
-          Join the wood.
+          Join the woods.
         </h2>
         <p className="text-white/40 font-sans text-sm md:text-base max-w-md mx-auto leading-relaxed">
           Get exclusive editorial insights, stories, and connection tips delivered to your inbox.
@@ -224,12 +224,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   // Map mood to existing categories for filtering
                   const moodMap: Record<string, Category> = {
                     'Helpful': 'Helpful',
-                    'Relaxed': 'Helpful',
-                    'Intense': 'Icon',
+                    'Relaxed': 'All',
+                    'Intense': 'All',
                     'Romantic': 'Romance',
                     'Playful': 'Play & Fun',
-                    'Slow-Burn': 'Fiction & Media',
-                    'Wholesome': 'Educational',
+                    'Slow-Burn': 'Romance',
+                    'Wholesome': 'Helpful',
                     'Adventurous': 'Fun'
                   };
                   onCategoryChange(moodMap[mood] || 'All');

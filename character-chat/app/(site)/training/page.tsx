@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, Plus, Info, Lock } from 'lucide-react';
+import { ChevronLeft, Plus, Info, Lock, Eye, Users, MessageSquare, TrendingUp } from 'lucide-react';
 import { getSubscriptionStatus } from '@/lib/subscription';
 
 interface Character {
@@ -12,16 +12,26 @@ interface Character {
     trainingStatus: string | null;
 }
 
+interface Analytics {
+    totalViews: number;
+    totalInteractions: number;
+    totalFollowers: number;
+    messagesThisWeek: number;
+    dailyActiveUsers: number;
+    topCharacter: { id: string; name: string; interactions: number } | null;
+}
+
 export default function TrainingPage() {
     const [characters, setCharacters] = useState<Character[]>([]);
     const [loading, setLoading] = useState(true);
     const [isPro, setIsPro] = useState(false);
     const [checkingAccess, setCheckingAccess] = useState(true);
+    const [analytics, setAnalytics] = useState<Analytics | null>(null);
 
     // Check PRO subscription
     useEffect(() => {
         getSubscriptionStatus(null).then(status => {
-            setIsPro(status.planId === 'pro' || status.planId === 'enterprise');
+            setIsPro(status.planId === 'pro');
             setCheckingAccess(false);
         });
     }, []);
@@ -29,14 +39,26 @@ export default function TrainingPage() {
     useEffect(() => {
         if (!isPro && !checkingAccess) return;
 
-        // Fetch user's characters
-        fetch('/api/personas?limit=20')
+        // Fetch user's characters using the correct endpoint
+        fetch('/api/characters?limit=20')
             .then(res => res.json())
             .then(data => {
                 setCharacters(data.personas || []);
                 setLoading(false);
             })
             .catch(() => setLoading(false));
+
+        // Fetch analytics for creator
+        fetch('/api/training/analytics', {
+            headers: { 'x-user-id': localStorage.getItem('agentwood_user_id') || '' },
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.error) {
+                    setAnalytics(data);
+                }
+            })
+            .catch(err => console.error('Failed to fetch analytics:', err));
     }, [isPro, checkingAccess]);
 
     if (checkingAccess) {
@@ -102,6 +124,45 @@ export default function TrainingPage() {
 
             {/* Main Content */}
             <main className="max-w-5xl mx-auto px-6 py-16">
+                {/* Analytics Dashboard */}
+                {analytics && (
+                    <div className="mb-12">
+                        <h3 className="text-xs font-bold text-white/30 uppercase tracking-widest mb-4">Your Analytics</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="bg-[#1a1a1a] border border-white/5 rounded-xl p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Eye size={16} className="text-purple-400" />
+                                    <span className="text-xs text-white/40 uppercase">Total Views</span>
+                                </div>
+                                <p className="text-2xl font-bold text-white">{analytics.totalViews.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-[#1a1a1a] border border-white/5 rounded-xl p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Users size={16} className="text-blue-400" />
+                                    <span className="text-xs text-white/40 uppercase">Daily Users</span>
+                                </div>
+                                <p className="text-2xl font-bold text-white">{analytics.dailyActiveUsers.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-[#1a1a1a] border border-white/5 rounded-xl p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <MessageSquare size={16} className="text-green-400" />
+                                    <span className="text-xs text-white/40 uppercase">Messages (Week)</span>
+                                </div>
+                                <p className="text-2xl font-bold text-white">{analytics.messagesThisWeek.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-[#1a1a1a] border border-white/5 rounded-xl p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <TrendingUp size={16} className="text-amber-400" />
+                                    <span className="text-xs text-white/40 uppercase">Top Character</span>
+                                </div>
+                                <p className="text-lg font-bold text-white truncate">
+                                    {analytics.topCharacter?.name || 'None yet'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="text-center mb-12">
                     <h2 className="text-4xl font-serif italic text-[#e8dcc8] mb-4">
                         Select a Neural Core

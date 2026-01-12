@@ -99,7 +99,7 @@ export default function SynapticTuningPage() {
     // Check PRO subscription
     useEffect(() => {
         getSubscriptionStatus(null).then(status => {
-            setIsPro(status.planId === 'pro' || status.planId === 'enterprise');
+            setIsPro(status.planId === 'pro');
             setCheckingAccess(false);
         });
     }, []);
@@ -286,8 +286,8 @@ export default function SynapticTuningPage() {
                                     key={tag}
                                     onClick={() => togglePersonalityTag(tag)}
                                     className={`px-4 py-2 rounded-full text-sm border transition-all ${personalityTags.includes(tag)
-                                            ? 'bg-white/10 border-white/30 text-white'
-                                            : 'border-white/10 text-white/50 hover:border-white/20 hover:text-white/70'
+                                        ? 'bg-white/10 border-white/30 text-white'
+                                        : 'border-white/10 text-white/50 hover:border-white/20 hover:text-white/70'
                                         }`}
                                 >
                                     <span className="mr-1.5 opacity-50">◇</span>
@@ -322,14 +322,14 @@ export default function SynapticTuningPage() {
                                 key={constraint.id}
                                 onClick={() => toggleConstraint(constraint.id)}
                                 className={`flex items-center gap-3 p-4 rounded-xl border transition-all text-left ${constraints.includes(constraint.id)
-                                        ? 'bg-white/5 border-white/20'
-                                        : 'bg-white/[0.02] border-white/10 hover:border-white/20'
+                                    ? 'bg-white/5 border-white/20'
+                                    : 'bg-white/[0.02] border-white/10 hover:border-white/20'
                                     }`}
                             >
                                 <div
                                     className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${constraints.includes(constraint.id)
-                                            ? 'bg-white border-white'
-                                            : 'border-white/30'
+                                        ? 'bg-white border-white'
+                                        : 'border-white/30'
                                         }`}
                                 >
                                     {constraints.includes(constraint.id) && (

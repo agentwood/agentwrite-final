@@ -64,12 +64,12 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
     return (
         <>
             {children}
-            {/* {showAuthModal && (
+            {showAuthModal && (
                 <AuthModal
                     isOpen={showAuthModal}
                     onClose={handleClose}
                 />
-            )} */}
+            )}
         </>
     );
 }

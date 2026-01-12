@@ -1,28 +1,43 @@
-FROM runpod/pytorch:2.2.0-py3.11-cuda12.1.1-devel-ubuntu22.04
+# Using a slightly newer base image that works well with PyTorch 2.1
+FROM runpod/pytorch:2.2.0-py3.10-cuda12.1.1-devel-ubuntu22.04
 
 WORKDIR /app
 
 # System dependencies
 RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
     ffmpeg \
     git \
+    libsndfile1 \
+    portaudio19-dev \
+    libportaudio2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Python dependencies
-RUN pip install --no-cache-dir \
-    runpod \
-    torch==2.2.0 \
-    torchaudio==2.2.0 \
-    transformers \
-    accelerate \
-    fish-speech
+# Copy requirements first to leverage caching
+COPY requirements.txt .
 
-# Download Fish Speech models (cached in image)
-RUN python -c "from fish_speech.models.text_to_semantic import TextToSemantic; TextToSemantic.from_pretrained('fishaudio/fish-speech-1.5')"
-RUN python -c "from fish_speech.models.vqgan import VQGAN; VQGAN.from_pretrained('fishaudio/fish-speech-1.5-vqgan')"
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy handler
+# Install Fish Speech manually from source
+RUN git clone https://github.com/fishaudio/fish-speech.git /app/fish-speech
+
+# Install dependencies from our own requirements.txt (which includes core deps)
+# We skip installing from repo since it lacks requirements.txt
+
+
+# Add to PYTHONPATH
+ENV PYTHONPATH="/app/fish-speech:/app"
+
+# Copy application code
 COPY handler.py .
+COPY profiles /app/profiles
+COPY test_imports.py .
+
+# Verify installation during build
+RUN python test_imports.py
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \

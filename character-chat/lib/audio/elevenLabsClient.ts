@@ -43,14 +43,17 @@ export const ELEVENLABS_PREMADE_VOICES: Record<string, string> = {
 };
 
 export class ElevenLabsClient {
-    private apiKey: string;
+    private _apiKey: string | null = null;
     private baseUrl = 'https://api.elevenlabs.io/v1';
 
-    constructor() {
-        this.apiKey = process.env.ELEVENLABS_API_KEY || '';
-        if (!this.apiKey) {
-            console.warn('[ElevenLabs] API key not configured - accent TTS will fall back to Gemini');
+    private get apiKey(): string {
+        if (this._apiKey === null) {
+            this._apiKey = process.env.ELEVENLABS_API_KEY || '';
+            if (!this._apiKey) {
+                console.warn('[ElevenLabs] API key not configured - accent TTS will fall back');
+            }
         }
+        return this._apiKey;
     }
 
     isConfigured(): boolean {
@@ -63,11 +66,14 @@ export class ElevenLabsClient {
     async synthesize(
         text: string,
         voiceId: string,
-        options: ElevenLabsSynthesisOptions = {}
+        options: ElevenLabsSynthesisOptions & { format?: 'mp3' | 'wav' } = {}
     ): Promise<{ audio: ArrayBuffer; contentType: string } | null> {
         if (!this.apiKey) {
             return null;
         }
+
+        const format = options.format === 'wav' ? 'wav' : 'mpeg';
+        const contentType = `audio/${format}`;
 
         try {
             const response = await fetch(
@@ -75,7 +81,7 @@ export class ElevenLabsClient {
                 {
                     method: 'POST',
                     headers: {
-                        'Accept': 'audio/mpeg',
+                        'Accept': contentType,
                         'Content-Type': 'application/json',
                         'xi-api-key': this.apiKey,
                     },

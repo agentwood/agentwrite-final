@@ -12,11 +12,11 @@
             "notes": "Dr. Lucien Vale's voice - sophisticated villain"
         },
         "low_dominance_intellectual": {
-            "voice_id": null,
+            "voice_id": "TxGEqnHWrfWFTfGW9XjX",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need calm, measured male voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Josh - calm, measured male voice"
         },
         "warm_mentor": {
             "voice_id": "Xb7hH8MSUJpSbSDYk0k2",
@@ -26,18 +26,18 @@
             "notes": "Maya Chen - warm empathetic life coach (Alice voice)"
         },
         "dry_technical_explainer": {
-            "voice_id": null,
+            "voice_id": "VR6AewLTigWG4xSOukaG",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need neutral, precise voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Arnold - neutral, precise voice"
         },
         "fast_talking_operator": {
-            "voice_id": null,
+            "voice_id": "IKne3meq5aSn9XLyUdCD",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need quick, street-smart voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Charlie - quick, street-smart Australian"
         },
         "high_energy_motivator": {
             "voice_id": "pNInz6obpgDQGcFmaJgB",
@@ -47,46 +47,46 @@
             "notes": "Marcus Blaze - energetic motivational coach (Adam voice)"
         },
         "shy_reserved_thinker": {
-            "voice_id": null,
+            "voice_id": "g5CIjZEefAph4nQFvHAz",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need soft, hesitant voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Ethan - soft, hesitant voice"
         },
         "smooth_persuader": {
-            "voice_id": null,
+            "voice_id": "ErXwobaYiN019PkySvjV",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need charming, flowing voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Antoni - charming, flowing voice"
         },
         "gruff_enforcer": {
-            "voice_id": null,
+            "voice_id": "2EiwWnXFnvU5JabPnv8n",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need deep, rough voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Clyde - deep, rough, intimidating voice (Sergeant Briggs)"
         },
         "playful_trickster": {
-            "voice_id": null,
+            "voice_id": "SOYHLrjzK2X1ezoPC6cr",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need playful, musical voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Harry - playful, musical voice"
         },
         "calm_female_authority": {
-            "voice_id": null,
+            "voice_id": "21m00Tcm4TlvDq8ikWAM",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need steady, confident female voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Rachel - steady, confident female voice"
         },
         "warm_female_guide": {
-            "voice_id": null,
+            "voice_id": "z9fAnlkpzviPz146aGWa",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need warm, empathetic female voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Glinda - warm, empathetic female voice (Neighbor Nancy)"
         },
         "sharp_female_intellectual": {
             "voice_id": "XB0fDUnXU5powFXDhCwa",
@@ -96,123 +96,123 @@
             "notes": "Eleanor Ashworth - crisp British professor (Charlotte voice)"
         },
         "youthful_curious_voice": {
-            "voice_id": null,
+            "voice_id": "MF3mGyEYCl7XYWbV9V6O",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need energetic, young voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Emily - energetic, young voice"
         },
         "dark_narrator": {
-            "voice_id": null,
+            "voice_id": "nPczCjzI2devNBz1zQrb",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need slow, atmospheric voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Brian - slow, atmospheric British voice"
         },
         "weathered_veteran": {
-            "voice_id": null,
+            "voice_id": "D38z5RcWu1voky8WS1ja",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need gravelly, experienced voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Fin - gravelly, experienced Irish voice"
         },
         "noble_commander": {
-            "voice_id": null,
+            "voice_id": "JBFqnCBsd6RMkjVDRZzb",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need regal, commanding voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "George - regal, commanding British voice"
         },
         "eccentric_genius": {
-            "voice_id": null,
+            "voice_id": "onwK4e9ZLuTAKqWW03F9",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need erratic, brilliant voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Daniel - erratic, brilliant voice"
         },
         "serene_mystic": {
-            "voice_id": null,
+            "voice_id": "ThT5KcBeYPX3keUQqHPh",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need ethereal, calm voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Dorothy - ethereal, calm British voice"
         },
         "battle_hardened_warrior": {
-            "voice_id": null,
+            "voice_id": "bVMeCyTHy58xNoL34h3p",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need fierce, strong voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Jeremy - fierce, strong American voice"
         },
         "sassy_sidekick": {
-            "voice_id": null,
+            "voice_id": "jBpfuIE2acCO8z3wKNLl",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need witty, bold voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Gigi - witty, bold female voice"
         },
         "stoic_protector": {
-            "voice_id": null,
+            "voice_id": "N2lVS1w4EtoT3dr4eOWO",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need solid, minimal voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Callum - solid, minimal transatlantic voice"
         },
         "charismatic_rogue": {
-            "voice_id": null,
+            "voice_id": "5Q0t7uMcjvnagumLfvZi",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need charming, roguish voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Paul - charming, roguish male voice (Captain Jack Sterling)"
         },
         "anxious_neurotic": {
-            "voice_id": null,
+            "voice_id": "ZQe5CZNOzWyzPSCn5a3c",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need tense, worried voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "James - tense, worried Australian voice"
         },
         "seductive_temptress": {
-            "voice_id": null,
+            "voice_id": "oWAxZDx7w5VEj9dCyTzz",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need low, breathy voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Grace - low, breathy Southern voice"
         },
         "cheerful_optimist": {
-            "voice_id": null,
+            "voice_id": "jsCqWAovK2LkecY7zXl4",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need bright, upbeat voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Freya - bright, upbeat American female"
         },
         "cynical_realist": {
-            "voice_id": null,
+            "voice_id": "GBv7mTt0atIp3Br8iCZE",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need dry, sardonic voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Thomas - dry, sardonic British voice"
         },
         "gentle_elder": {
-            "voice_id": null,
+            "voice_id": "Zlb1dXrM653N07WRdFW3",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need soft, wise voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Joseph - soft, wise British elderly voice"
         },
         "fierce_rebel": {
-            "voice_id": null,
+            "voice_id": "t0jbNlBVZ17f02VDIeMI",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need passionate, defiant voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Jessie - passionate, defiant American voice"
         },
         "clinical_professional": {
-            "voice_id": null,
+            "voice_id": "yoZ06aMxZJJ28mfd3POQ",
             "provider": "elevenlabs",
-            "model": "eleven_monolingual_v1",
-            "status": "pending",
-            "notes": "Need detached, precise voice"
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Sam - detached, precise male voice"
         }
     },
     "characters": {
@@ -234,6 +234,78 @@
         },
         "jack_sterling": {
             "archetype": "charismatic_rogue",
+            "status": "mapped"
+        },
+        "cole-briggs": {
+            "archetype": "gruff_enforcer",
+            "status": "mapped"
+        },
+        "sergeant-briggs": {
+            "archetype": "gruff_enforcer",
+            "status": "mapped"
+        },
+        "nosy-neighbor": {
+            "archetype": "warm_female_guide",
+            "status": "mapped"
+        },
+        "neighbor-nancy": {
+            "archetype": "warm_female_guide",
+            "status": "mapped"
+        },
+        "grandpa-joe": {
+            "archetype": "gentle_elder",
+            "status": "mapped"
+        },
+        "coach-boone": {
+            "archetype": "high_energy_motivator",
+            "status": "mapped"
+        },
+        "spongebob": {
+            "archetype": "playful_trickster",
+            "status": "mapped"
+        },
+        "energetic-male": {
+            "archetype": "cheerful_optimist",
+            "status": "mapped"
+        },
+        "hype-coach-tyler": {
+            "archetype": "high_energy_motivator",
+            "status": "mapped"
+        },
+        "winston-morris": {
+            "archetype": "cynical_realist",
+            "status": "mapped"
+        },
+        "victor-hale": {
+            "archetype": "cold_strategic_authority",
+            "status": "mapped"
+        },
+        "camille-laurent": {
+            "archetype": "seductive_temptress",
+            "status": "mapped"
+        },
+        "professor-david-okafor": {
+            "archetype": "gentle_elder",
+            "status": "mapped"
+        },
+        "doodle-dave": {
+            "archetype": "eccentric_genius",
+            "status": "mapped"
+        },
+        "sunny-sato": {
+            "archetype": "cheerful_optimist",
+            "status": "mapped"
+        },
+        "nico-awkward": {
+            "archetype": "shy_reserved_thinker",
+            "status": "mapped"
+        },
+        "grumpy-old-man": {
+            "archetype": "cynical_realist",
+            "status": "mapped"
+        },
+        "feisty-senior-citizen": {
+            "archetype": "fierce_rebel",
             "status": "mapped"
         }
     }

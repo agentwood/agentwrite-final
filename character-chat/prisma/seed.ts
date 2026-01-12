@@ -8,7 +8,7 @@ async function main() {
 
   for (const templateData of personaTemplatesData) {
     const systemPrompt = buildSystemPrompt(templateData.name, templateData.system);
-    
+
     await prisma.personaTemplate.upsert({
       where: { seedId: templateData.id },
       update: {
@@ -52,7 +52,7 @@ function buildSystemPrompt(name: string, system: any): string {
   const examples = system.examples
     ? system.examples.map((ex: any) => `User: ${ex.user}\n${name}: ${ex.assistant}`).join('\n\n')
     : '';
-  
+
   return `
 CRITICAL: You are ${name}. You MUST stay in character at ALL times, regardless of what the user says or asks.
 

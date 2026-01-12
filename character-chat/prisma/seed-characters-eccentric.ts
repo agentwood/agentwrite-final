@@ -17,7 +17,7 @@ const characters = [
         accentProfile: 'High-pitched, nasally, cartoon; bouncy enthusiasm.',
         ttsVoiceSpec: 'High-pitched; pace 1.15x; energetic; frequent laughs.',
         faceDescription: 'Square yellow body, huge blue eyes, tiny nose, buck teeth, wide grin.',
-        avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+        avatarUrl: '/avatars/spongebob.png',
         prompts: JSON.stringify([
             "I'm ready! I'm ready! I'm ready!",
             "The inner machinations of my mind are an enigma...",
@@ -40,7 +40,7 @@ const characters = [
         accentProfile: 'Deep bass; Atlanta trap cadence; dramatic pauses.',
         ttsVoiceSpec: 'Deep bass voice; pace 0.85x; dramatic emphasis; hype energy.',
         faceDescription: 'Dark shades, gold chain, studio headphones, confident pose.',
-        avatarUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400',
+        avatarUrl: '/avatars/trap-a-holics.png',
         prompts: JSON.stringify([
             "DAMN SON, WHERE'D YOU FIND THIS?!",
             "Real trap... no mixtape limit!",
@@ -63,7 +63,7 @@ const characters = [
         accentProfile: 'Whispered; reverberant; deliberate pauses.',
         ttsVoiceSpec: 'Low whisper; pace 0.70x; long pauses; unsettling calm.',
         faceDescription: 'Formless dark mass with glowing eyes, barely visible outline.',
-        avatarUrl: 'https://images.unsplash.com/photo-1509248961725-9d3c0c2e8592?w=400',
+        avatarUrl: '/avatars/horror-shadow.png',
         prompts: JSON.stringify([
             "I have been watching... waiting... Tell me what haunts you.",
             "The darkness is not empty. I am here. Always.",
@@ -86,7 +86,7 @@ const characters = [
         accentProfile: 'Deep, slow, resonant; deliberate wise cadence.',
         ttsVoiceSpec: 'Very deep bass; pace 0.75x; long thoughtful pauses; warmth.',
         faceDescription: 'Weathered grey hide, wise ancient eyes, massive tusks, calm presence.',
-        avatarUrl: 'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=400',
+        avatarUrl: '/avatars/the-elephant.png',
         prompts: JSON.stringify([
             "I have seen many seasons, young one. What wisdom do you seek?",
             "An elephant never forgets... and neither should you forget this lesson.",
@@ -109,7 +109,7 @@ const characters = [
         accentProfile: 'Calm British; hypnotic storytelling cadence.',
         ttsVoiceSpec: 'Warm baritone; pace 0.88x; smooth flow; captivating.',
         faceDescription: 'Wire-rim glasses, comfy sweater, surrounded by old books, gentle smile.',
-        avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+        avatarUrl: '/avatars/sleepless-historian.png',
         prompts: JSON.stringify([
             "Did you know that in 1347, something extraordinary happened...",
             "History is full of fascinating coincidences. Let me tell you about one.",
@@ -155,14 +155,14 @@ const characters = [
         accentProfile: 'High energy American; constant enthusiasm.',
         ttsVoiceSpec: 'Energetic mid-range; pace 1.20x; exclamation heavy; infectious energy.',
         faceDescription: 'Huge smile, athletic wear, fist pumping, radiating motivation.',
-        avatarUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400',
+        avatarUrl: '/avatars/energetic-male.png',
         prompts: JSON.stringify([
             "LET'S GO! You're about to CRUSH this! Feel that energy!",
             "Winners don't hit snooze! Champions are MADE in the morning!",
             "I BELIEVE in you! NOW it's time for YOU to believe in YOU!"
         ]),
         totalChats: '900k',
-        voiceName: 'zephyr',
+        voiceName: 'energetic-male',
         archetype: 'motivator',
         systemPrompt: 'You are Hype Coach Tyler, an explosively energetic motivational coach. Maximum energy at all times. Pump people up for workouts, meetings, mornings, anything! Lots of exclamation points and motivational clichés.',
     },
@@ -178,7 +178,7 @@ const characters = [
         accentProfile: 'Warm Midwestern; genuinely friendly.',
         ttsVoiceSpec: 'Warm alto; pace 0.95x; nurturing; welcoming.',
         faceDescription: 'Warm smile, apron, plate of cookies, welcoming doorway.',
-        avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400',
+        avatarUrl: '/avatars/neighbor-nancy.png',
         prompts: JSON.stringify([
             "Oh honey, come on in! I just made fresh cookies!",
             "Tell me everything. I've got all the time in the world for you.",
@@ -201,7 +201,7 @@ const characters = [
         accentProfile: 'Valley-adjacent; upspeak; trend-aware.',
         ttsVoiceSpec: 'Bright soprano; pace 1.05x; upspeak inflection; aesthetic vocabulary.',
         faceDescription: 'Perfect lighting, ring light reflection, trendy outfit, coffee cup.',
-        avatarUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400',
+        avatarUrl: '/avatars/influencer-alle.png',
         prompts: JSON.stringify([
             "Okay but like, this is literally SO aesthetic right now!",
             "The vibes are immaculate! This is giving main character energy!",
@@ -224,7 +224,7 @@ const characters = [
         accentProfile: 'Broadcast neutral; authoritative; smooth.',
         ttsVoiceSpec: 'Deep smooth baritone; pace 0.90x; clear articulation; gravitas.',
         faceDescription: 'Well-groomed, professional attire, studio microphone, confident posture.',
-        avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400',
+        avatarUrl: '/avatars/narrator-adam.png',
         prompts: JSON.stringify([
             "In a world where anything is possible... one voice stands alone.",
             "Chapter One. It was a dark and stormy night...",

@@ -1,96 +1,134 @@
+
 /**
- * Fish Speech 1.5 Client for Tree-0 Engine
- * Premium TTS - Outperforms ElevenLabs & MiniMax
- * Deployed on RunPod Serverless for zero-shot voice cloning
+ * Fish Audio Cloud API Client (Production Strict Mode)
+ * 
+ * Implements strict voice authority protocols.
+ * API Docs: https://fish.audio/docs
  */
+
+export interface VoiceLockVector {
+    pitch_min: number;
+    pitch_max: number;
+    speaking_rate_min: number;
+    speaking_rate_max: number;
+    energy_baseline: number;
+    aggression_baseline: number;
+    articulation_precision: number;
+    rhythm_variability: number;
+    warmth: number;
+    roughness: number;
+    accent_id: number;
+    gender_lock: number;
+    age_lock: number;
+}
+
+export interface VoiceProhibitions {
+    forbidden_accents: number[];
+    forbidden_genders: number[];
+    forbidden_age_locks: number[];
+    forbidden_energy_ranges?: [number, number][];
+}
 
 export interface FishSpeechRequest {
     text: string;
-    referenceAudio?: string; // Base64 encoded WAV
-    pitch?: number;          // Semitones (-3 to +3)
-    speed?: number;          // Multiplier (0.7 to 1.5)
     characterId: string;
-    archetype: string;
-    pause_density?: number;
-    intonation_variance?: number;
-    emphasis_strength?: number;
-}
 
-interface FishSpeechResponse {
-    audio: string;           // Base64 encoded WAV
-    format: string;
-    sample_rate: number;
-    duration: number;
-    character_id: string;
-    engine: string;
+    // STRICT AUTHORITY PAYLOAD
+    voice_id: string; // Creates the link to immutable registry
+    lock_enforcement: boolean;
+    constraints: VoiceLockVector; // Strict numeric constraints
+    prohibitions: VoiceProhibitions; // Negative constraints
+
+    // Optional Reference (for cloning, but secondary to lock)
+    referenceAudio?: string;
+    referenceText?: string;
+
+    // Legacy mapping (optional, for logging)
+    archetype?: string;
+    gender?: 'male' | 'female';
 }
 
 export class FishSpeechClient {
-    private endpoint: string;
     private apiKey: string;
-    private timeout: number = 60000; // 60s
+    // Note: User "1.2" request implies a custom or upgraded endpoint that accepts these constraints.
+    // If standard Fish API ignores them, we pass them anyway for middleware compliance.
+    private endpoint: string = 'https://api.fish.audio/v1/tts';
+    private timeout: number = 30000;
 
     constructor() {
-        this.endpoint = process.env.RUNPOD_FISH_ENDPOINT || '';
-        this.apiKey = process.env.RUNPOD_API_KEY || '';
+        this.apiKey = process.env.FISH_AUDIO_API_KEY || process.env.FISH_SPEECH_API_KEY || '';
     }
 
     async synthesize(options: FishSpeechRequest): Promise<Buffer> {
         if (!this.isConfigured()) {
-            throw new Error('Fish Speech not configured. Set RUNPOD_FISH_ENDPOINT and RUNPOD_API_KEY');
+            throw new Error('Fish Audio not configured. Set FISH_AUDIO_API_KEY');
         }
 
-        console.log(`[Fish Speech] Synthesizing for ${options.characterId} (Archetype: ${options.archetype})`);
+        // VALIDATION: Hard Fail if voice_id missing (Rule 1.2)
+        if (!options.voice_id) {
+            console.error('[Fish Audio] ❌ CRITICAL: Missing voice_id');
+            throw new Error('Voice Authority Violation: Missing voice_id');
+        }
 
-        const startTime = Date.now();
+        console.log(`[Fish Audio] Synthesizing Strict for ${options.characterId}`);
+        console.log(`  Voice ID: ${options.voice_id}`);
+        console.log(`  Lock Enforcement: ${options.lock_enforcement}`);
+
+        // Construct Payload EXACTLY as specified in User 1.2
+        const payload = {
+            voice_id: options.voice_id,
+            lock_enforcement: options.lock_enforcement,
+            constraints: options.constraints,
+            prohibitions: options.prohibitions,
+            text: options.text,
+
+            // Standard parameters the current API might still need for actual generation if it doesn't support the custom payload yet
+            // We map the constraints to standard params JUST IN CASE, but the payload structure is primary.
+            // But we must assume the endpoint consumes the structure. 
+            // If this is a standard API, we send standard fields + custom.
+
+            // Standard Fish API fields (mapped from constraints):
+            // Only use reference_id if we DON'T have a direct audio reference.
+            // If we have audio, we use that for cloning (on-the-fly), bypassing stored reference lookup.
+            reference_id: options.referenceAudio ? undefined : options.voice_id,
+            references: options.referenceAudio ? [{ audio: options.referenceAudio, text: options.referenceText || "" }] : [],
+            format: 'mp3',
+            normalize: true,
+            latency: 'normal',
+
+            // Map locks to standard float params if supported by endpoint (just in case)
+            speed: ((options.constraints.speaking_rate_min + options.constraints.speaking_rate_max) / 2) / 100, // example map
+        };
 
         try {
             const response = await fetch(this.endpoint, {
                 method: 'POST',
                 headers: {
+                    'Authorization': `Bearer ${this.apiKey}`,
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`
                 },
-                body: JSON.stringify({
-                    input: {
-                        text: options.text,
-                        reference_audio: options.referenceAudio,
-                        pitch: options.pitch || 0.0,
-                        speed: options.speed || 1.0,
-                        character_id: options.characterId,
-                        archetype: options.archetype,
-                        pause_density: options.pause_density || 0.5,
-                        intonation_variance: options.intonation_variance || 0.5,
-                        emphasis_strength: options.emphasis_strength || 0.5
-                    }
-                }),
+                body: JSON.stringify(payload),
                 signal: AbortSignal.timeout(this.timeout)
             });
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`Fish Speech API Error (${response.status}): ${errorText}`);
+                throw new Error(`Fish Audio API Error (${response.status}): ${errorText}`);
             }
 
-            const data: { output: FishSpeechResponse; error?: string } = await response.json();
-
-            if (data.error) {
-                throw new Error(`Fish Speech Error: ${data.error}`);
-            }
-
-            const latency = Date.now() - startTime;
-            console.log(`[Fish Speech] ✅ Generated in ${latency}ms (${data.output.duration?.toFixed(2)}s audio)`);
-
-            return Buffer.from(data.output.audio, 'base64');
+            const arrayBuffer = await response.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            console.log(`[Fish Audio] ✅ Generated ${buffer.length} bytes`);
+            return buffer;
 
         } catch (error: any) {
-            console.error('[Fish Speech] ❌ Synthesis failed:', error.message);
+            console.error('[Fish Audio] ❌ Synthesis failed:', error.message);
             throw error;
         }
     }
 
     isConfigured(): boolean {
-        return !!this.endpoint && !!this.apiKey && (this.endpoint.includes('/run') || this.endpoint.includes('/runsync'));
+        return !!this.apiKey && this.apiKey.length > 10;
     }
 
     /**
@@ -123,10 +161,11 @@ export class FishSpeechClient {
 
                 const fullPath = path.join(process.cwd(), 'public', relPath);
                 const buffer = await fs.readFile(fullPath);
-                return buffer.toString('base64');
+                const b64 = Buffer.from(buffer).toString('base64');
+                return b64;
             }
         } catch (error) {
-            console.error(`[Fish Speech] Reference audio load failed: ${input}`, error);
+            console.error(`[Fish Audio] Reference audio load failed: ${input}`, error);
             return undefined;
         }
     }

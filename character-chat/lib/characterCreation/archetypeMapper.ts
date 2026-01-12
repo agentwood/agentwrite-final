@@ -37,7 +37,7 @@ const VOICE_PROFILES: Record<string, { male: string; female: string; neutral: st
     cold_authority: { male: 'cold_authority_male', female: 'cold_authority_female', neutral: 'cold_authority_male' },
     rebellious: { male: 'rebellious_male', female: 'rebellious_female', neutral: 'rebellious_male' },
     soft_vulnerable: { male: 'soft_vulnerable_male', female: 'soft_vulnerable_female', neutral: 'soft_vulnerable_female' },
-    sage: { male: 'sage_male', female: 'sage_male', neutral: 'sage_male' }, // Same voice for all
+    sage: { male: 'sage_male', female: 'warm_mentor_female', neutral: 'sage_male' }, // Fixed female mapping
     entertainer: { male: 'high_energy_male', female: 'high_energy_female', neutral: 'high_energy_male' },
     hero: { male: 'warm_mentor_male', female: 'warm_mentor_female', neutral: 'warm_mentor_male' },
     villain: { male: 'cold_authority_male', female: 'cold_authority_female', neutral: 'cold_authority_male' },
@@ -55,7 +55,7 @@ export function detectGender(description: string): 'M' | 'F' | 'NB' {
     const text = description.toLowerCase();
 
     const femaleIndicators = ['she', 'her', 'woman', 'female', 'girl', 'lady', 'queen', 'princess', 'mother', 'sister', 'aunt', 'grandmother', 'goddess'];
-    const maleIndicators = ['he', 'him', 'man', 'male', 'boy', 'guy', 'king', 'prince', 'father', 'brother', 'uncle', 'grandfather', 'god'];
+    const maleIndicators = ['he', 'him', 'man', 'male', 'boy', 'guy', 'king', 'prince', 'father', 'brother', 'uncle', 'grandfather', 'god', 'patriarch'];
 
     let femaleScore = 0;
     let maleScore = 0;
@@ -73,6 +73,28 @@ export function detectGender(description: string): 'M' | 'F' | 'NB' {
     if (femaleScore > maleScore) return 'F';
     if (maleScore > femaleScore) return 'M';
     return 'NB';
+}
+
+/**
+ * Detects potential accent/origin from text
+ */
+function detectAccent(text: string): string | null {
+    const t = text.toLowerCase();
+    if (t.includes('british') || t.includes('uk') || t.includes('english')) return 'British accent';
+    if (t.includes('american') || t.includes('usa')) return 'American accent';
+    if (t.includes('french') || t.includes('france')) return 'French accent';
+    if (t.includes('german') || t.includes('germany')) return 'German accent';
+    if (t.includes('italian') || t.includes('italy')) return 'Italian accent';
+    if (t.includes('spanish') || t.includes('spain') || t.includes('latino') || t.includes('mexican')) return 'Spanish accent';
+    if (t.includes('australian') || t.includes('aussie')) return 'Australian accent';
+    if (t.includes('indian')) return 'Indian accent';
+    if (t.includes('japanese')) return 'Japanese accent';
+    if (t.includes('chinese') || t.includes('asian')) return 'Asian accent';
+    if (t.includes('russian')) return 'Russian accent';
+    if (t.includes('middle eastern') || t.includes('arab') || t.includes('arabic')) return 'Middle Eastern accent';
+    if (t.includes('african') || t.includes('nigerian')) return 'African accent';
+    if (t.includes('southern') || t.includes('cowboy')) return 'Southern US accent';
+    return null;
 }
 
 /**
@@ -120,7 +142,7 @@ export function matchArchetype(description: string, keywords: string = '', expli
 /**
  * Generates a TTS voice spec based on archetype and gender
  */
-export function generateTTSVoiceSpec(archetype: string, gender: 'M' | 'F' | 'NB'): string {
+export function generateTTSVoiceSpec(archetype: string, gender: 'M' | 'F' | 'NB', descriptionContext?: string): string {
     const specs: Record<string, Record<string, string>> = {
         warm_mentor: {
             M: 'Rich baritone; pace 0.95x; warm resonance; gentle inflections; encouraging tone; slight pauses for emphasis.',
@@ -160,7 +182,17 @@ export function generateTTSVoiceSpec(archetype: string, gender: 'M' | 'F' | 'NB'
     };
 
     const genderKey = gender === 'M' ? 'M' : gender === 'F' ? 'F' : 'NB';
-    return specs[archetype]?.[genderKey] || specs.warm_mentor[genderKey];
+    let baseSpec = specs[archetype]?.[genderKey] || specs.warm_mentor[genderKey];
+
+    // Append accent if detected
+    if (descriptionContext) {
+        const accent = detectAccent(descriptionContext);
+        if (accent) {
+            baseSpec += ` ${accent}.`;
+        }
+    }
+
+    return baseSpec;
 }
 
 export const AVAILABLE_ARCHETYPES = Object.keys(ARCHETYPE_KEYWORDS);

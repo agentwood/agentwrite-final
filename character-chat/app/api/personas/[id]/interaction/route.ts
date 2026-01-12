@@ -5,8 +5,9 @@ import { supabase } from '@/lib/supabaseClient';
 // POST /api/personas/[id]/interaction
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
+    const params = await context.params;
     try {
         const { type } = await request.json(); // type: 'like' | 'dislike' | 'save'
         const headers = request.headers;

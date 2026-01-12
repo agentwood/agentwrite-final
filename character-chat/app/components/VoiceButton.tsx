@@ -274,8 +274,8 @@ export default function VoiceButton({
         setAudioData(data.audio);
 
         // Calculate playback rate and clamp to reasonable range (0.8x to 1.5x to prevent squeaky sounds)
-        const rawPlaybackRate = data.playbackRate || data.parameters?.speed || 1.25;
-        const playbackRate = Math.max(0.8, Math.min(1.5, rawPlaybackRate)); // Clamp between 0.8x and 1.5x
+        // F5-TTS generates natural speech - enforce 1.0x playback rate
+        const playbackRate = 1.0;
         const sampleRate = data.sampleRate || 24000;
 
         // Store playback rate, sample rate, and format with cached audio
@@ -284,7 +284,7 @@ export default function VoiceButton({
         setCachedFormat(data.format);
 
         // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/components/VoiceButton.tsx:163', message: 'TTS response received (first play)', data: { hasAudio: !!data.audio, sampleRate, rawPlaybackRate, clampedPlaybackRate: playbackRate, voiceUsed: data.voiceUsed, format: data.format }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
+        fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/components/VoiceButton.tsx:163', message: 'TTS response received (first play)', data: { hasAudio: !!data.audio, sampleRate, playbackRate, voiceUsed: data.voiceUsed, format: data.format }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
         // #endregion
 
         // Use shared audio manager to play audio (automatically stops any currently playing audio)

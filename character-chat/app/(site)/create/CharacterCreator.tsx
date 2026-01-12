@@ -4,20 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, Info, Image as ImageIcon, Volume2, Plus, Sparkles, Loader2 } from 'lucide-react';
 import CreatingCharacterModal from '@/app/components/CreatingCharacterModal';
+import VoiceSelector from '@/app/components/VoiceSelector';
 
-// Available archetypes for voice selection
-const VOICE_ARCHETYPES = [
-  { id: 'warm_mentor', name: 'Warm Mentor', desc: 'Kind, supportive, wise' },
-  { id: 'high_energy', name: 'High Energy', desc: 'Energetic, enthusiastic, hype' },
-  { id: 'cold_authority', name: 'Cold Authority', desc: 'Stern, professional, commanding' },
-  { id: 'rebellious', name: 'Rebellious', desc: 'Edgy, sarcastic, defiant' },
-  { id: 'soft_vulnerable', name: 'Soft & Gentle', desc: 'Soft, sensitive, innocent' },
-  { id: 'sage', name: 'Sage', desc: 'Wisdom, ancient, philosophical' },
-  { id: 'entertainer', name: 'Entertainer', desc: 'Funny, witty, playful' },
-  { id: 'hero', name: 'Heroic', desc: 'Brave, noble, courageous' },
-  { id: 'villain', name: 'Villain', desc: 'Dark, menacing, cunning' },
-  { id: 'trickster', name: 'Trickster', desc: 'Mischievous, cunning, clever' },
-];
+// ... (keep creating character modal import)
+
+// Available archetypes for voice selection (DEPRECATED - Kept for reference if needed, but UI uses VoiceSelector)
+// const VOICE_ARCHETYPES = ... 
 
 const CATEGORIES = ['Helper', 'Original', 'Anime & Game', 'Fiction & Media', 'Roleplay', 'History'];
 
@@ -32,7 +24,8 @@ export default function CharacterCreator() {
     tagline: '', // Intro / Hook
     greeting: '', // Opening
     category: 'Original',
-    voiceArchetype: 'warm_mentor',
+    voiceSeedId: '', // NEW: Selected Voice Seed ID
+    voiceName: '',   // NEW: For UI display
     avatarUrl: '',
     keywords: '', // Hidden field for API compatibility if needed
   });
@@ -44,6 +37,11 @@ export default function CharacterCreator() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name) return;
+
+    if (!formData.voiceSeedId) {
+      alert('Please select a voice for your character.');
+      return;
+    }
 
     setIsSaving(true);
 
@@ -58,7 +56,7 @@ export default function CharacterCreator() {
           tagline: formData.tagline,
           greeting: formData.greeting,
           category: formData.category,
-          archetype: formData.voiceArchetype,
+          voiceSeedId: formData.voiceSeedId, // SENDING NEW FIELD
           // Use description/tagline as keywords fallback if empty
           keywords: formData.keywords || `${formData.description} ${formData.tagline}`.slice(0, 100),
           avatarUrl: formData.avatarUrl || undefined,
@@ -229,32 +227,10 @@ export default function CharacterCreator() {
 
             {/* Voice */}
             <div className="bg-[#1a1a1a] rounded-xl p-4 border border-white/5">
-              <label className="text-xs font-bold text-white/50 uppercase tracking-wider mb-4 block">Voice</label>
-              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
-                {VOICE_ARCHETYPES.map(voice => (
-                  <button
-                    key={voice.id}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, voiceArchetype: voice.id })}
-                    className={`w-full text-left p-3 rounded-lg border transition-all ${formData.voiceArchetype === voice.id
-                        ? 'bg-purple-500/10 border-purple-500/50'
-                        : 'bg-black/20 border-white/5 hover:border-white/10'
-                      }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-full ${formData.voiceArchetype === voice.id ? 'bg-purple-500 text-white' : 'bg-white/5 text-white/30'}`}>
-                        <Volume2 size={14} />
-                      </div>
-                      <div>
-                        <div className={`text-sm font-medium ${formData.voiceArchetype === voice.id ? 'text-purple-400' : 'text-white/70'}`}>
-                          {voice.name}
-                        </div>
-                        <div className="text-[10px] text-white/30">{voice.desc}</div>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              <VoiceSelector
+                selectedId={formData.voiceSeedId}
+                onSelect={(id, name) => setFormData({ ...formData, voiceSeedId: id, voiceName: name })}
+              />
             </div>
           </div>
 

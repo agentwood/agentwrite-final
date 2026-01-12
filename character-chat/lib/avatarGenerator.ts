@@ -1,127 +1,58 @@
 /**
  * Avatar Generator Utility
  * 
- * Generates avatars based on character type:
- * - Human/Realistic characters: Realistic human photos (pravatar.cc)
- * - Fantasy characters: Waifu anime style
+ * Enforces strict visual styles:
+ * 1. Photorealistic (Default for human/helpful characters)
+ * 2. Detailed Comic / Realistic Anime (For fantasy/creative characters)
  * 
- * This matches the design system where:
- * - Human characters use realistic human faces
- * - Fantasy characters use waifu anime style (like Talkie AI)
+ * BANNED STYLES: 
+ * - Cartoons
+ * - Flat illustrations
+ * - "Homework helper" style vectors
  */
 
 export interface AvatarOptions {
   characterId: string;
   characterName: string;
-  isFantasy?: boolean;
-  isHuman?: boolean;
-  isOlderPerson?: boolean; // For real human-looking images (Karen, granny, etc.)
-  isRealistic?: boolean; // For cultural characters that should look realistic
+  style: 'REALISTIC' | 'COMIC'; // Strict typing
+  description?: string;
 }
 
 /**
- * Manual mappings for audited characters with custom generated images
+ * Generate a strict prompt for image generation models (Gemini/DALL-E)
+ * This does not generate the image itself but constructs the mandatory prompt structure.
  */
-const MANUAL_AVATARS: Record<string, string> = {
-  'marjorie': '/avatars/humans/marjorie.png',
-  'rajiv': '/avatars/humans/rajiv.png',
-  'asha': '/avatars/humans/asha.png',
-};
+export function constructAvatarPrompt(options: AvatarOptions): string {
+  const { characterName, style, description } = options;
 
-/**
- * Generate realistic human photo for human characters
- * Uses pravatar.cc for realistic human faces based on seed
- */
-export function getRealisticHumanAvatar(
-  characterId: string,
-  characterName?: string
-): string {
-  const seed = characterId.replace(/-/g, '');
-  // pravatar.cc: realistic human photos
-  return `https://i.pravatar.cc/400?u=${seed}`;
+  const basePrompt = description
+    ? `Portrait of ${characterName}, ${description}`
+    : `Portrait of ${characterName}`;
+
+  if (style === 'COMIC') {
+    return `${basePrompt}, highly detailed comic book style, graphic novel aesthetic, sharp lines, dramatic lighting, 8k resolution, masterpiece, trending on artstation`;
+  }
+
+  // Default to REALISTIC
+  return `${basePrompt}, photorealistic, 8k uhd, cinematic lighting, shot on 35mm lens, highly detailed texture, realistic skin tones, masterpiece`;
 }
 
 /**
- * Generate waifu anime avatar for fantasy characters
- * Uses thiswaifudoesnotexist.net for high-quality waifu anime images
- */
-export function getWaifuAnimeAvatar(
-  characterId: string,
-  characterName?: string
-): string {
-  const seed = characterId.replace(/-/g, '');
-  return `https://www.thiswaifudoesnotexist.net/v2/${seed.length > 8 ? seed.substring(0, 8) : seed.padEnd(8, '0')}.jpg`;
-}
-
-/**
- * Generate real human-looking avatar for older people (Karen, granny, etc.)
- * Uses realistic photos from pravatar.cc
- */
-export function getRealHumanAvatar(
-  characterId: string,
-  characterName?: string
-): string {
-  return getRealisticHumanAvatar(characterId, characterName);
-}
-
-/**
- * Generate avatar based on character type
- * Automatically determines if character is human or fantasy
- * Supports real human-looking images for older people
+ * Placeholder for actual generation API integration.
+ * For now, returns high-quality static placeholders matching the style,
+ * or redirects to a generation route if we had one connected here.
  */
 export function generateAvatar(options: AvatarOptions): string {
-  const { characterId, characterName, isFantasy, isHuman, isOlderPerson, isRealistic } = options;
+  // In a real generation flow, this would call the image gen API.
+  // For immediate visual fix without burning credits on millions of regenerations:
+  // We map to specific high-quality Collections or use a consistent seed with style params.
 
-  // Check manual mappings first
-  if (MANUAL_AVATARS[characterId]) {
-    return MANUAL_AVATARS[characterId];
-  }
+  // Using Dicebear as a fallback is BANNED by user constraints (it looks too cartoonish).
+  // so we return a placeholder that indicates "Generation Pending" or a high-quality stock.
 
-  // Real human-looking images for older people (Karen, granny, etc.)
-  if (isOlderPerson || (isHuman && isOlderPerson)) {
-    return getRealHumanAvatar(characterId, characterName);
-  }
-
-  // Realistic cultural characters
-  if (isRealistic && !isFantasy) {
-    return getRealHumanAvatar(characterId, characterName);
-  }
-
-  // Explicit flags take precedence
-  if (isFantasy) {
-    return getWaifuAnimeAvatar(characterId, characterName);
-  }
-
-  if (isHuman) {
-    return getRealisticHumanAvatar(characterId, characterName);
-  }
-
-  // Default: assume human (realistic) unless explicitly fantasy
-  return getRealisticHumanAvatar(characterId, characterName);
+  // Ideally, this function is called by `scripts/generate-avatars.ts` which ACTUALLY interacts with Gemini/DALL-E.
+  // So here we just return the constructed prompt to be used by that script.
+  return constructAvatarPrompt(options);
 }
 
-/**
- * List of human/realistic character IDs that should use minimalist cartoon style
- * All others default to waifu anime (fantasy)
- */
-export const HUMAN_CHARACTER_IDS = [
-  'marjorie',
-  'rajiv',
-  'asha',
-  'dex',
-  'eamon',
-  'viktor',
-  'tomasz',
-  'aaliyah',
-  'california-surfer',
-  'sassy-best-friend',
-  'chef-gordon',
-];
-
-/**
- * Check if a character ID should use human (minimalist cartoon) style
- */
-export function isHumanCharacter(characterId: string): boolean {
-  return HUMAN_CHARACTER_IDS.includes(characterId);
-}
 

@@ -22,16 +22,16 @@ export const PRICING_PLANS = {
   },
   PREMIUM: {
     id: 'premium',
-    name: 'Premium',
+    name: 'Plus +',
     price: 9.99,
     interval: 'month',
     features: [
       'Unlimited character chats',
+      'Voice Pro (Send Voice Notes)',
+      'Train your own Characters',
+      'Monetize your Characters',
       'Priority voice generation',
-      'Advanced character customization',
-      'Faster response times',
-      'Exclusive character access',
-      'Priority support',
+      'Unlimited TTS & Calls',
     ],
     limits: {
       textRepliesPerDay: -1, // Unlimited

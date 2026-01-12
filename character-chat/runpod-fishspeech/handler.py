@@ -1,32 +1,37 @@
 """
-Fish Speech 1.5 Handler for RunPod Serverless
-Tree-0 Voice Engine - Premium TTS
-Benchmarks: Outperforms ElevenLabs & MiniMax on naturalness
+Tree-0 Voice Engine Handler for RunPod Serverless
+Premium Neural TTS with Synaptic Tuning (Fish Speech v1.5 adapter)
 """
 
 import runpod
 import torch
-import torchaudio
 import io
 import base64
 import os
-from pathlib import Path
+import sys
+import numpy as np
 
-# Import Fish Speech (will be installed in Docker)
+# Ensure repo is in path
+sys.path.append("/app/fish-speech")
+
+# Import Engine Core
 try:
-    from fish_speech.models.text_to_semantic import TextToSemantic
-    from fish_speech.models.vqgan import VQGAN
-    import fish_speech
-except ImportError:
-    print("⚠️ Fish Speech not installed. Installing...")
-    os.system("pip install fish-speech-1.5")
-    from fish_speech.models.text_to_semantic import TextToSemantic
-    from fish_speech.models.vqgan import VQGAN
+    from fish_speech.inference_engine import TTSInferenceEngine
+    from fish_speech.models.dac.inference import load_model as load_decoder_model
+    from fish_speech.models.text2semantic.inference import launch_thread_safe_queue
+    from fish_speech.utils.schema import ServeTTSRequest
+    import soundfile as sf
+except ImportError as e:
+    print(f"❌ Failed to import Fish Speech models: {e}")
+    print("Listing files in current directory:")
+    import os
+    os.system("ls -R .")
+    raise e
 
 # Global model load (cached across requests)
-print("[Fish Speech] Loading models...")
+print("[Tree-0] Loading neural engine...")
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"[Fish Speech] Using device: {device}")
+print(f"[Tree-0] Using accelerator: {device}")
 
 # Load models
 text_to_semantic = TextToSemantic.from_pretrained(
@@ -38,7 +43,7 @@ vqgan = VQGAN.from_pretrained(
     device=device
 )
 
-print("[Fish Speech] Models loaded successfully ✅")
+print("[Tree-0] Engine loaded successfully ✅")
 
 
 def decode_audio(base64_str: str):
@@ -79,48 +84,84 @@ def apply_speed_change(audio: torch.Tensor, speed: float, sr: int = 24000):
 
 def handler(event):
     """
-    RunPod handler for Fish Speech synthesis
-    
-    Expected input:
-    {
-      "text": "Hello world",
-      "reference_audio": "base64_encoded_audio",  # Optional (10s max)
-      "pitch": 0.0,         # Semitones (-3 to +3)
-      "speed": 1.0,         # Multiplier (0.7 to 1.5)
-      "character_id": "dr_lucien_vale",
-      "archetype": "dark_manipulator"
-    }
+    RunPod handler for Tree-0 synthesis
+    Full parameter support for unique character voices
     """
     try:
         input_data = event.get("input", {})
         
-        # Extract parameters
+        # Core parameters
         text = input_data.get("text", "Hello!")
         reference_audio_b64 = input_data.get("reference_audio")
-        pitch_offset = float(input_data.get("pitch", 0.0))
-        speech_rate = float(input_data.get("speed", 1.0))
         character_id = input_data.get("character_id", "unknown")
         archetype = input_data.get("archetype", "neutral")
+        
+        # Voice parameters
+        pitch_offset = float(input_data.get("pitch", 0.0))
+        speech_rate = float(input_data.get("speed", 1.0))
+        
+        # Prosody control
+        pause_density = float(input_data.get("pause_density", 0.5))
+        intonation_variance = float(input_data.get("intonation_variance", 0.5))
+        emphasis_strength = float(input_data.get("emphasis_strength", 0.5))
+        
+        # Character expression
+        emotion = input_data.get("emotion", "neutral")
+        energy = float(input_data.get("energy", 0.5))
+        warmth = float(input_data.get("warmth", 0.5))
+        
+        # Diction & Language
+        diction_style = input_data.get("diction_style", "neutral")
+        language = input_data.get("language", "en")
+        accent_hint = input_data.get("accent_hint", "")
+        
+        # Voice gender
+        gender = input_data.get("gender", "male")
         
         # Limit text length
         if len(text) > 500:
             text = text[:500]
         
-        print(f"\n[Fish Speech] Synthesizing for {character_id}")
-        print(f"  Archetype: {archetype}")
+        print(f"\n[Tree-0] Synthesizing for {character_id}")
+        print(f"  Archetype: {archetype} | Gender: {gender}")
+        print(f"  Emotion: {emotion} | Energy: {energy:.2f} | Warmth: {warmth:.2f}")
+        print(f"  Pitch: {pitch_offset:+.2f} | Speed: {speech_rate:.2f}x")
+        print(f"  Diction: {diction_style} | Language: {language}")
         print(f"  Text: '{text[:60]}...'")
-        print(f"  Params: pitch={pitch_offset:.2f}, speed={speech_rate:.2f}")
+        print(f"  Params: intonation={intonation_variance:.2f}, emphasis={emphasis_strength:.2f}, pauses={pause_density:.2f}")
         
         # === ZERO-SHOT SYNTHESIS ===
         reference_audio = None
         
-        if reference_audio_b64:
+        # Try loading from disk profile first
+        voice_profile = input_data.get("voice_profile", character_id)
+        profile_dir = Path("/app/profiles") / voice_profile
+        
+        if profile_dir.exists() and profile_dir.is_dir():
+            # Load first available sample
+            for sample_file in profile_dir.glob("sample_*.wav"):
+                try:
+                    reference_audio, sr = torchaudio.load(str(sample_file))
+                    if sr != 24000:
+                        resampler = torchaudio.transforms.Resample(sr, 24000)
+                        reference_audio = resampler(reference_audio)
+                    reference_audio = reference_audio.to(device)
+                    print(f"  Profile loaded from disk: {voice_profile}/{sample_file.name}")
+                    break
+                except Exception as e:
+                    print(f"  ⚠️ Failed to load {sample_file}: {e}")
+        
+        # Fall back to base64 reference if no profile loaded
+        if reference_audio is None and reference_audio_b64:
             try:
                 reference_audio = decode_audio(reference_audio_b64)
-                print(f"  Reference audio loaded: {reference_audio.shape}")
+                print(f"  Reference audio loaded from base64: {reference_audio.shape}")
             except Exception as e:
                 print(f"  ⚠️ Reference audio decode failed: {e}")
                 reference_audio = None
+        
+        if reference_audio is None:
+            print(f"  ⚠️ No reference audio - using zero-shot synthesis")
         
         # Generate semantic tokens from text
         with torch.no_grad():
@@ -168,7 +209,7 @@ def handler(event):
             "sample_rate": 24000,
             "duration": audio_length,
             "character_id": character_id,
-            "engine": "fish-speech-1.5"
+            "engine": "tree-0-v1"
         }
         
     except Exception as e:
@@ -183,6 +224,6 @@ def handler(event):
 
 # Start RunPod serverless worker
 if __name__ == "__main__":
-    print("\n🐟 Fish Speech 1.5 - Tree-0 Engine")
+    print("\n🌲 Tree-0 Voice Engine - Active")
     print("=" * 50)
     runpod.serverless.start({"handler": handler})

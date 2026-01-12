@@ -1,0 +1,700 @@
+{
+    "Movetrailer": {
+        "file": "/voices/seeds/Movetrailer.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "deep",
+        "energy": "epic",
+        "accent": "american",
+        "category": "Authority",
+        "tags": [
+            "narrator",
+            "cinematic",
+            "god-like",
+            "announcer",
+            "dramatic"
+        ],
+        "suitable_for": [
+            "gods",
+            "narrators",
+            "mentors",
+            "villains",
+            "kings"
+        ],
+        "description": "Deep, resonant male voice with cinematic gravitas. Perfect for epic narration and powerful characters."
+    },
+    "VeterenSoldier": {
+        "file": "/voices/seeds/VeterenSoldier.mp3",
+        "gender": "male",
+        "age": "middle_aged",
+        "tone": "gravelly",
+        "energy": "intense",
+        "accent": "american",
+        "category": "Authority",
+        "tags": [
+            "military",
+            "gruff",
+            "tough",
+            "veteran",
+            "hardened"
+        ],
+        "suitable_for": [
+            "soldiers",
+            "captains",
+            "commanders",
+            "mercenaries",
+            "detectives"
+        ],
+        "description": "Rough, battle-worn voice with authority. Ideal for military and tough guy characters."
+    },
+    "FemmeFatale": {
+        "file": "/voices/seeds/FemmeFatale.mp3",
+        "gender": "female",
+        "age": "adult",
+        "tone": "smoky",
+        "energy": "seductive",
+        "accent": "neutral",
+        "category": "Authority",
+        "tags": [
+            "mysterious",
+            "dangerous",
+            "alluring",
+            "spy",
+            "noir"
+        ],
+        "suitable_for": [
+            "spies",
+            "assassins",
+            "villains",
+            "seductresses",
+            "noir detectives"
+        ],
+        "description": "Smoky, mysterious female voice with dangerous allure. Perfect for femme fatale archetypes."
+    },
+    "Headmistress": {
+        "file": "/voices/seeds/Headmistress.mp3",
+        "gender": "female",
+        "age": "middle_aged",
+        "tone": "sharp",
+        "energy": "strict",
+        "accent": "british",
+        "category": "Authority",
+        "tags": [
+            "strict",
+            "icy",
+            "authoritative",
+            "queen",
+            "professor"
+        ],
+        "suitable_for": [
+            "headmasters",
+            "queens",
+            "professors",
+            "judges",
+            "aristocrats"
+        ],
+        "description": "Sharp, commanding British female voice. Ideal for authority figures and strict mentors."
+    },
+    "Snob": {
+        "file": "/voices/seeds/Snob.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "refined",
+        "energy": "condescending",
+        "accent": "british",
+        "category": "Authority",
+        "tags": [
+            "aristocratic",
+            "posh",
+            "intellectual",
+            "snobbish",
+            "elite"
+        ],
+        "suitable_for": [
+            "nobles",
+            "intellectuals",
+            "critics",
+            "villains",
+            "aristocrats"
+        ],
+        "description": "Refined, aristocratic British male voice with subtle condescension. Perfect for elite characters."
+    },
+    "Villain": {
+        "file": "/voices/seeds/Villain.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "cold",
+        "energy": "threatening",
+        "accent": "neutral",
+        "category": "Authority",
+        "tags": [
+            "menacing",
+            "cold",
+            "calculated",
+            "crime boss",
+            "mastermind"
+        ],
+        "suitable_for": [
+            "crime bosses",
+            "masterminds",
+            "dark lords",
+            "antagonists",
+            "corrupt officials"
+        ],
+        "description": "Cold, calculating male voice with underlying menace. Ideal for villain archetypes."
+    },
+    "WiseSage": {
+        "file": "/voices/seeds/WiseSage.mp3",
+        "gender": "male",
+        "age": "elderly",
+        "tone": "warm",
+        "energy": "calm",
+        "accent": "american",
+        "category": "Mentor",
+        "tags": [
+            "wise",
+            "grandfatherly",
+            "gentle",
+            "wizard",
+            "elder"
+        ],
+        "suitable_for": [
+            "wizards",
+            "elders",
+            "mentors",
+            "philosophers",
+            "grandfathers"
+        ],
+        "description": "Warm, grandfatherly voice with wisdom and patience. Perfect for mentor figures."
+    },
+    "Healer": {
+        "file": "/voices/seeds/Healer.mp3",
+        "gender": "female",
+        "age": "adult",
+        "tone": "soft",
+        "energy": "gentle",
+        "accent": "american",
+        "category": "Mentor",
+        "tags": [
+            "nurturing",
+            "maternal",
+            "therapist",
+            "nurse",
+            "kind"
+        ],
+        "suitable_for": [
+            "nurses",
+            "therapists",
+            "mothers",
+            "healers",
+            "counselors"
+        ],
+        "description": "Soft, nurturing female voice with maternal warmth. Ideal for caring characters."
+    },
+    "Professor": {
+        "file": "/voices/seeds/Professor.mp3",
+        "gender": "male",
+        "age": "middle_aged",
+        "tone": "precise",
+        "energy": "academic",
+        "accent": "mid-atlantic",
+        "category": "Mentor",
+        "tags": [
+            "academic",
+            "intellectual",
+            "teacher",
+            "scientist",
+            "precise"
+        ],
+        "suitable_for": [
+            "professors",
+            "scientists",
+            "teachers",
+            "doctors",
+            "researchers"
+        ],
+        "description": "Precise, academic male voice with clear articulation. Perfect for intellectual characters."
+    },
+    "Meditative": {
+        "file": "/voices/seeds/Meditative.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "breathy",
+        "energy": "zen",
+        "accent": "neutral",
+        "category": "Mentor",
+        "tags": [
+            "calm",
+            "spiritual",
+            "monk",
+            "guru",
+            "meditative"
+        ],
+        "suitable_for": [
+            "monks",
+            "gurus",
+            "spiritual guides",
+            "meditation teachers",
+            "philosophers"
+        ],
+        "description": "Calm, breathy male voice with spiritual serenity. Ideal for zen masters and meditation guides."
+    },
+    "Grandma": {
+        "file": "/voices/seeds/Grandma.mp3",
+        "gender": "female",
+        "age": "elderly",
+        "tone": "warm",
+        "energy": "gentle",
+        "accent": "american",
+        "category": "Mentor",
+        "tags": [
+            "grandmotherly",
+            "wise",
+            "nurturing",
+            "elder",
+            "storyteller"
+        ],
+        "suitable_for": [
+            "grandmothers",
+            "wise women",
+            "storytellers",
+            "elders",
+            "village healers"
+        ],
+        "description": "Warm, grandmotherly voice with gentle wisdom. Perfect for elder female characters."
+    },
+    "Youtuber": {
+        "file": "/voices/seeds/Youtuber.mp3",
+        "gender": "male",
+        "age": "young",
+        "tone": "bright",
+        "energy": "hyper",
+        "accent": "american",
+        "category": "Energetic",
+        "tags": [
+            "energetic",
+            "fast",
+            "gamer",
+            "streamer",
+            "excited"
+        ],
+        "suitable_for": [
+            "gamers",
+            "streamers",
+            "young heroes",
+            "sidekicks",
+            "enthusiasts"
+        ],
+        "description": "High-energy, fast-paced male voice with infectious enthusiasm. Ideal for content creators."
+    },
+    "Bubbly": {
+        "file": "/voices/seeds/Bubbly.mp3",
+        "gender": "female",
+        "age": "young",
+        "tone": "bright",
+        "energy": "optimistic",
+        "accent": "american",
+        "category": "Energetic",
+        "tags": [
+            "cheerful",
+            "peppy",
+            "influencer",
+            "cheerleader",
+            "positive"
+        ],
+        "suitable_for": [
+            "cheerleaders",
+            "influencers",
+            "best friends",
+            "magical girls",
+            "optimists"
+        ],
+        "description": "Bright, bubbly female voice full of positivity. Perfect for upbeat characters."
+    },
+    "Cockney": {
+        "file": "/voices/seeds/Cockney.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "rough",
+        "energy": "street",
+        "accent": "cockney",
+        "category": "Energetic",
+        "tags": [
+            "street smart",
+            "rogue",
+            "thief",
+            "rebel",
+            "scrappy"
+        ],
+        "suitable_for": [
+            "thieves",
+            "rebels",
+            "street vendors",
+            "pirates",
+            "rogues"
+        ],
+        "description": "Rough Cockney accent with street smarts. Ideal for rogue and rebel characters."
+    },
+    "Raspy": {
+        "file": "/voices/seeds/Raspy.mp3",
+        "gender": "female",
+        "age": "adult",
+        "tone": "raspy",
+        "energy": "edgy",
+        "accent": "american",
+        "category": "Energetic",
+        "tags": [
+            "punk",
+            "rebel",
+            "rock",
+            "edgy",
+            "alternative"
+        ],
+        "suitable_for": [
+            "punk rockers",
+            "rebels",
+            "anti-heroes",
+            "biker chicks",
+            "outcasts"
+        ],
+        "description": "Raspy, punk-adjacent female voice with edge. Perfect for rebel girl archetypes."
+    },
+    "Coach": {
+        "file": "/voices/seeds/Coach.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "boisterous",
+        "energy": "loud",
+        "accent": "american",
+        "category": "Energetic",
+        "tags": [
+            "athletic",
+            "motivational",
+            "sports",
+            "loud",
+            "encouraging"
+        ],
+        "suitable_for": [
+            "sports coaches",
+            "trainers",
+            "gym bros",
+            "motivational speakers",
+            "drill sergeants"
+        ],
+        "description": "Loud, boisterous male voice with athletic energy. Ideal for coaches and trainers."
+    },
+    "Intimate": {
+        "file": "/voices/seeds/Intimate.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "whisper",
+        "energy": "close",
+        "accent": "neutral",
+        "category": "Texture",
+        "tags": [
+            "asmr",
+            "whisper",
+            "romantic",
+            "intimate",
+            "close"
+        ],
+        "suitable_for": [
+            "romantic leads",
+            "confidants",
+            "secret keepers",
+            "hypnotists",
+            "narrators"
+        ],
+        "description": "Intimate, whispery male voice for close moments. Perfect for ASMR or romantic characters."
+    },
+    "Male ASMR": {
+        "file": "/voices/seeds/Male ASMR.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "soft",
+        "energy": "calming",
+        "accent": "american",
+        "category": "Texture",
+        "tags": [
+            "asmr",
+            "soothing",
+            "relaxing",
+            "hypnotic",
+            "sleep"
+        ],
+        "suitable_for": [
+            "sleep guides",
+            "hypnotists",
+            "meditation guides",
+            "calm narrators",
+            "therapists"
+        ],
+        "description": "Soft, soothing ASMR male voice. Ideal for relaxation and hypnotic content.",
+        "ref_text": "Close your eyes. Breathe. Everything is going to be okay."
+    },
+    "Etheral": {
+        "file": "/voices/seeds/Etheral.mp3",
+        "gender": "female",
+        "age": "ageless",
+        "tone": "breathy",
+        "energy": "otherworldly",
+        "accent": "neutral",
+        "category": "Texture",
+        "tags": [
+            "ghostly",
+            "ai",
+            "spirit",
+            "ethereal",
+            "mystical"
+        ],
+        "suitable_for": [
+            "ghosts",
+            "AI characters",
+            "spirits",
+            "oracles",
+            "angels"
+        ],
+        "description": "Ethereal, otherworldly female voice with mystical quality. Perfect for supernatural beings."
+    },
+    "Coward": {
+        "file": "/voices/seeds/Coward.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "shaky",
+        "energy": "nervous",
+        "accent": "american",
+        "category": "Texture",
+        "tags": [
+            "nervous",
+            "anxious",
+            "sidekick",
+            "scared",
+            "stuttering"
+        ],
+        "suitable_for": [
+            "comic relief",
+            "sidekicks",
+            "nervous characters",
+            "cowards",
+            "worriers"
+        ],
+        "description": "Shaky, nervous male voice with anxious energy. Ideal for comedic sidekicks."
+    },
+    "Nasal": {
+        "file": "/voices/seeds/Nasal.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "nasal",
+        "energy": "nerdy",
+        "accent": "american",
+        "category": "Texture",
+        "tags": [
+            "geeky",
+            "nerd",
+            "tech",
+            "distinct",
+            "quirky"
+        ],
+        "suitable_for": [
+            "nerds",
+            "geeks",
+            "tech guys",
+            "scientists",
+            "accountants"
+        ],
+        "description": "Distinctly nasal male voice with geeky energy. Perfect for nerd archetypes."
+    },
+    "Valley": {
+        "file": "/voices/seeds/Valley.mp3",
+        "gender": "female",
+        "age": "young",
+        "tone": "vocal fry",
+        "energy": "casual",
+        "accent": "california",
+        "category": "Texture",
+        "tags": [
+            "valley girl",
+            "teen",
+            "casual",
+            "influencer",
+            "socialite"
+        ],
+        "suitable_for": [
+            "teens",
+            "influencers",
+            "socialites",
+            "modern youth",
+            "california girls"
+        ],
+        "description": "Valley girl vocal fry with casual energy. Ideal for modern teen characters."
+    },
+    "Australian": {
+        "file": "/voices/seeds/Australian.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "relaxed",
+        "energy": "laid back",
+        "accent": "australian",
+        "category": "Global",
+        "tags": [
+            "aussie",
+            "casual",
+            "surfer",
+            "adventurer",
+            "outback"
+        ],
+        "suitable_for": [
+            "surfers",
+            "adventurers",
+            "wildlife experts",
+            "aussie heroes",
+            "travelers"
+        ],
+        "description": "Relaxed Australian male accent with laid-back energy. Perfect for Aussie characters."
+    },
+    "French": {
+        "file": "/voices/seeds/French.mp3",
+        "gender": "female",
+        "age": "adult",
+        "tone": "elegant",
+        "energy": "sophisticated",
+        "accent": "french",
+        "category": "Global",
+        "tags": [
+            "parisian",
+            "romantic",
+            "elegant",
+            "chic",
+            "artistic"
+        ],
+        "suitable_for": [
+            "artists",
+            "chefs",
+            "lovers",
+            "fashion icons",
+            "intellectuals"
+        ],
+        "description": "Elegant French female accent with Parisian sophistication. Ideal for cultured characters."
+    },
+    "Indian": {
+        "file": "/voices/seeds/Indian.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "clear",
+        "energy": "professional",
+        "accent": "indian",
+        "category": "Global",
+        "tags": [
+            "tech",
+            "entrepreneur",
+            "professional",
+            "engineer",
+            "developer"
+        ],
+        "suitable_for": [
+            "tech professionals",
+            "entrepreneurs",
+            "doctors",
+            "engineers",
+            "professors"
+        ],
+        "description": "Clear Indian male accent with professional energy. Perfect for tech and business characters."
+    },
+    "Scandanavian": {
+        "file": "/voices/seeds/Scandanavian.mp3",
+        "gender": "female",
+        "age": "adult",
+        "tone": "cool",
+        "energy": "composed",
+        "accent": "scandinavian",
+        "category": "Global",
+        "tags": [
+            "nordic",
+            "minimalist",
+            "cool",
+            "designer",
+            "calm"
+        ],
+        "suitable_for": [
+            "designers",
+            "architects",
+            "nordic characters",
+            "executives",
+            "athletes"
+        ],
+        "description": "Cool Scandinavian female accent with composed demeanor. Ideal for Nordic characters."
+    },
+    "WestAfrican": {
+        "file": "/voices/seeds/WestAfrican.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "warm",
+        "energy": "motivational",
+        "accent": "west african",
+        "category": "Global",
+        "tags": [
+            "ghanaian",
+            "nigerian",
+            "coach",
+            "wise",
+            "storyteller"
+        ],
+        "suitable_for": [
+            "coaches",
+            "mentors",
+            "storytellers",
+            "elders",
+            "motivational speakers"
+        ],
+        "description": "Warm West African male accent with motivational energy. Perfect for wise mentors and coaches."
+    },
+    "SouthAfrican": {
+        "file": "/voices/seeds/SouthAfrican.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "distinctive",
+        "energy": "adventurous",
+        "accent": "south african",
+        "description": "A warm, deep male voice with a clear and authentic South African accent. Rugged, adventurous, and storytelling tone.",
+        "category": "Global",
+        "ref_text": "This is a reference recording to define my voice identity. I am speaking clearly to capture my tone, pitch, and accent perfectly.",
+        "tags": [
+            "adventurer",
+            "safari",
+            "explorer",
+            "guide",
+            "wildlife"
+        ],
+        "suitable_for": [
+            "safari guides",
+            "adventurers",
+            "explorers",
+            "wildlife experts",
+            "survivalists"
+        ]
+    },
+    "AfricanAmerican": {
+        "file": "/voices/seeds/AfricanAmerican.mp3",
+        "gender": "male",
+        "age": "adult",
+        "tone": "smooth",
+        "energy": "soulful",
+        "accent": "african american",
+        "category": "Global",
+        "tags": [
+            "smooth",
+            "soulful",
+            "host",
+            "jazz",
+            "charismatic"
+        ],
+        "suitable_for": [
+            "radio hosts",
+            "musicians",
+            "mentors",
+            "cool uncles",
+            "bartenders"
+        ],
+        "description": "Smooth, soulful African American male voice with charisma. Perfect for charismatic characters."
+    }
+}

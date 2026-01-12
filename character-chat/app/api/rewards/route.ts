@@ -1,187 +1,141 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { headers } from 'next/headers';
 
-// Reward definitions
-const REWARDS = [
+// Define the rewards structure matching the user's design
+const REWARDS_DEFINITIONS = [
     {
-        id: 'first-chat',
-        title: 'First Conversation',
-        description: 'Start your first chat with any character',
+        id: 'first-whisper',
+        title: 'First Whisper',
+        description: 'Spend 1 hour talking to any character.',
+        target: 60, // Using 60 messages as proxy for 1 hour
         rewardAmount: 50,
-        rewardType: 'credits',
+        type: 'credits',
+        icon: 'message-circle'
+    },
+    {
+        id: 'storyteller',
+        title: 'Storyteller',
+        description: 'Create your first custom character.',
         target: 1,
-        icon: 'star',
+        rewardAmount: 0, // Unlock new voice pack
+        type: 'voice-pack',
+        icon: 'check-circle'
     },
     {
-        id: 'chat-10',
-        title: 'Social Butterfly',
-        description: 'Chat with 10 different characters',
-        rewardAmount: 150,
-        rewardType: 'credits',
-        target: 10,
-        icon: 'users',
-    },
-    {
-        id: 'messages-100',
-        title: 'Chatterer',
-        description: 'Send 100 messages across all chats',
-        rewardAmount: 200,
-        rewardType: 'credits',
-        target: 100,
-        icon: 'zap',
-    },
-    {
-        id: 'create-char',
-        title: 'Creator',
-        description: 'Create your first custom character',
-        rewardAmount: 100,
-        rewardType: 'credits',
-        target: 1,
-        icon: 'pen',
-    },
-    {
-        id: 'daily-login-7',
-        title: 'Dedicated Fan',
-        description: 'Log in 7 days in a row',
-        rewardAmount: 300,
-        rewardType: 'credits',
+        id: 'deep-dive',
+        title: 'Deep Dive',
+        description: 'Reach a 7-day streak.',
         target: 7,
-        icon: 'trophy',
+        rewardAmount: 0, // Profile Badge
+        type: 'badge',
+        icon: 'zap'
     },
     {
-        id: 'referral',
-        title: 'Friend Finder',
-        description: 'Refer a friend who signs up',
-        rewardAmount: 500,
-        rewardType: 'credits',
-        target: 1,
-        icon: 'gift',
-    },
+        id: 'world-builder',
+        title: 'World Builder',
+        description: 'Craft 5 unique stories.',
+        target: 5, // 5 created characters or 5 conversations started
+        rewardAmount: 200,
+        type: 'credits',
+        icon: 'globe'
+    }
 ];
 
-/**
- * GET /api/rewards - Fetch user's real reward progress
- */
-export async function GET(request: NextRequest) {
+export async function GET(req: Request) {
     try {
-        const userId = request.headers.get('x-user-id');
+        const headersList = headers();
+        const userId = headersList.get('x-user-id'); // Assuming middleware sets this or we parse session
 
+        // For demo/dev purposes if headers missing (development)
+        // In production this should be stricter
         if (!userId) {
-            return NextResponse.json(
-                { error: 'User ID required' },
-                { status: 401 }
-            );
+            return NextResponse.json({
+                rewards: REWARDS_DEFINITIONS.map(r => ({ ...r, progress: 0, claimed: false })),
+                creditsBalance: 0,
+                level: 1
+            });
         }
 
-        // Get user data
-        const user = await db.user.findUnique({
+        const user = await prisma.user.findUnique({
             where: { id: userId },
-            select: {
-                id: true,
-                creditsBalance: true,
-                referralCount: true,
-                createdAt: true,
-            },
+            include: {
+                conversations: true,
+                createdPersonas: true,
+                _count: {
+                    select: { messages: true }
+                }
+            }
         });
 
         if (!user) {
-            return NextResponse.json(
-                { error: 'User not found' },
-                { status: 404 }
-            );
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        // Calculate real progress for each reward
-
-        // 1. First chat - count conversations
-        const conversationCount = await db.conversation.count({
-            where: { userId },
+        // 1. Calculate Stats
+        // First Whisper: Usage > 60 messages (approx 1 hr)
+        const totalMessages = await prisma.message.count({
+            where: { role: 'user', conversation: { userId: user.id } }
         });
 
-        // 2. Chat with 10 characters - unique characters
-        const uniqueCharacters = await db.userCharacterEngagement.count({
-            where: { userId },
+        // Storyteller: Created 1 character
+        const createdCount = await prisma.persona.count({
+            where: { creatorId: user.id } // All created by user
         });
 
-        // 3. Messages sent - total messages
-        const totalMessages = await db.message.count({
-            where: {
-                conversation: { userId },
-                role: 'user',
-            },
+        // Deep Dive: Login Streak
+        // Using a simple calculation or placeholder if streak tracking isn't fully robust yet
+        // For now assuming 1 if no data, or using dates if we tracked them.
+        const currentProgress = 1;
+
+        // World Builder: 5 conversations
+        const uniqueStories = user.conversations.length;
+
+        // Fetch claimed status
+        const userProgress = await prisma.userRewardProgress.findMany({
+            where: { userId: user.id }
         });
 
-        // 4. Created characters (if we have a createdBy field)
-        // For now, set to 0 as we don't track character creation
-        const createdCharacters = 0;
-
-        // 5. Login streak
-        const loginStreak = await db.userLoginStreak.findUnique({
-            where: { userId },
-        });
-
-        // 6. Referrals
-        const referralCount = user.referralCount || 0;
-
-        // Get claimed rewards
-        const claimedRewards = await db.userRewardProgress.findMany({
-            where: { userId, claimed: true },
-            select: { rewardId: true },
-        });
-        const claimedIds = new Set(claimedRewards.map(r => r.rewardId));
-
-        // Build reward progress
-        const rewardsWithProgress = REWARDS.map(reward => {
-            let progress = 0;
+        const rewardsData = REWARDS_DEFINITIONS.map(reward => {
+            let calcProgress = 0;
 
             switch (reward.id) {
-                case 'first-chat':
-                    progress = Math.min(conversationCount, reward.target);
+                case 'first-whisper':
+                    calcProgress = totalMessages;
                     break;
-                case 'chat-10':
-                    progress = Math.min(uniqueCharacters, reward.target);
+                case 'storyteller':
+                    calcProgress = createdCount;
                     break;
-                case 'messages-100':
-                    progress = Math.min(totalMessages, reward.target);
+                case 'deep-dive':
+                    calcProgress = currentProgress; // TODO: Implement real streak
                     break;
-                case 'create-char':
-                    progress = Math.min(createdCharacters, reward.target);
-                    break;
-                case 'daily-login-7':
-                    progress = Math.min(loginStreak?.currentStreak || 0, reward.target);
-                    break;
-                case 'referral':
-                    progress = Math.min(referralCount, reward.target);
+                case 'world-builder':
+                    calcProgress = uniqueStories;
                     break;
             }
 
+            // Cap progress at target
+            const cappedProgress = Math.min(calcProgress, reward.target);
+
+            const claimedState = userProgress.find(p => p.rewardId === reward.id);
+
             return {
                 ...reward,
-                progress,
-                claimed: claimedIds.has(reward.id),
+                progress: cappedProgress,
+                claimed: claimedState?.claimed || false,
+                readyToClaim: cappedProgress >= reward.target && !claimedState?.claimed
             };
         });
 
-        // Calculate totals
-        const totalEarned = rewardsWithProgress
-            .filter(r => r.claimed)
-            .reduce((sum, r) => sum + r.rewardAmount, 0);
-
-        const totalAvailable = rewardsWithProgress
-            .filter(r => r.progress >= r.target && !r.claimed)
-            .reduce((sum, r) => sum + r.rewardAmount, 0);
-
         return NextResponse.json({
-            rewards: rewardsWithProgress,
-            totalEarned,
-            totalAvailable,
+            rewards: rewardsData,
             creditsBalance: user.creditsBalance,
+            level: Math.floor(totalMessages / 50) + 1, // Simple level calc
+            nextGoal: rewardsData.find(r => r.progress < r.target)?.title || 'Maxed Out'
         });
+
     } catch (error) {
         console.error('Error fetching rewards:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch rewards' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

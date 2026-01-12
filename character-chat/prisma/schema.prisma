@@ -7,9 +7,125 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// =============================================
+// VOICE-FIRST ARCHITECTURE (Rule Zero)
+// Voices are first-class objects. Characters are derived.
+// =============================================
+
+// =============================================
+// VOICE SEED (Elite Voice Pool - 29 Base Voices)
+// These are the immutable source assets. Characters select from this pool.
+// =============================================
+model VoiceSeed {
+  id           String   @id @default(cuid())
+  name         String   @unique  // "Movetrailer", "WiseSage", etc.
+  filePath     String              // "/voices/seeds/Movetrailer.mp3"
+  gender       String              // "male", "female", "neutral"
+  age          String              // "young", "adult", "middle_aged", "elderly", "ageless"
+  tone         String              // "deep", "bright", "raspy", "soft", "warm", etc.
+  energy       String              // "calm", "epic", "chaotic", "intimate", "zen", etc.
+  accent       String              // "american", "british", "french", "australian", etc.
+  category     String              // "Authority", "Mentor", "Energetic", "Texture", "Global"
+  tags         String              // JSON array: ["narrator", "villain", "comedy"]
+  suitableFor  String              // JSON array: ["villains", "mentors", "heroes"]
+  description  String?             // Human-readable description
+  referenceText String?            // Transcript of the reference audio (Prevents double-talk)
+  
+  // Relations
+  characters   PersonaTemplate[]   @relation("VoiceSeedCharacters")
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@map("voice_seeds")
+  @@index([gender])
+  @@index([category])
+  @@index([accent])
+}
+
+model VoiceIdentity {
+  id              String   @id @default(cuid())
+  voiceId         String   @unique  // Immutable: e.g., "voice_oxford_female_01"
+  
+  // === Layer 1: VOICE IDENTITY (Human-Readable, Immutable) ===
+  gender          String   // male | female
+  ageBand         String   // young | adult | middle-aged | elderly
+  originRegion    String   // e.g., west_africa, england_oxford
+  accent          String   // african_english | british-rp | etc.
+  ethnicityAnchor String?  // black | white | asian | etc.
+  authorityLevel  String?  // soft | neutral | commanding | dominant
+  
+  // === Layer 2: NUMERIC VOICE LOCK (TTS-Enforced) ===
+  // Pitch (Hz or relative scale)
+  pitchMin        Int      @default(100)
+  pitchMax        Int      @default(200)
+  
+  // Speed (Words per minute or scalar * 100)
+  speakingRateMin Int      @default(90)
+  speakingRateMax Int      @default(110)
+  
+  // Dynamics (0-100)
+  energyBaseline  Int      @default(50)
+  aggressionBaseline Int   @default(0)
+  
+  // Timbre & Texture (0-100)
+  articulationPrecision Int @default(50)
+  rhythmVariability     Int @default(50)
+  warmth               Int  @default(50)
+  roughness            Int  @default(10)
+  
+  // Internal Locks
+  accentId             Int  @default(0)
+  genderLock           Int  @default(0) // 0=female, 1=male
+  ageLock              Int  @default(1) // 0=young, 1=adult, 2=middle, 3=elderly
+  
+  // === Layer 3: NEGATIVE CONSTRAINTS (Crucial) ===
+  voiceProhibitions    String  @default("{}") // JSON string: { forbidden_accents: [], forbidden_genders: [] }
+  
+  // Legacy / Compatibility Fields (To be phased out or mapped)
+  language        String   @default("en") 
+  socialRegister  String?
+  timbre          String?
+  energyLevel     String?
+  aggressionLevel String?
+  speakingRate    Float    @default(1.0)
+  pitchBaselineHz Int      @default(150)
+  pitchVariance   String?
+  cadenceStyle    String?
+  
+  // v2 Fields
+  expressivenessLevel  String   @default("controlled")
+  emotionalLeakage     String   @default("none")
+  articulationStyle    String   @default("precise")
+  confidenceStability  String   @default("steady")
+  breathiness          String   @default("none")
+  quirkTag             String?
+
+  villainCapable  Boolean  @default(false)
+  
+  // Reference Audio
+  referenceAudioPath String
+  referenceText      String?
+  
+  // Metadata
+  displayName     String?
+  description     String?
+  voiceDescription String? // Natural language prompt
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relation to characters
+  characters      PersonaTemplate[]
+  
+  @@map("voice_identities")
+  @@index([gender])
+  @@index([accent])
+}
+
 model PersonaTemplate {
-  id                   String                @id @default(cuid())
-  seedId               String?               @unique
+  id                   String                    @id @default(cuid())
+  seedId               String?                   @unique
   name                 String
   handle               String?
   tagline              String?
@@ -42,34 +158,42 @@ model PersonaTemplate {
   sourceDescription    String?
   characterKeywords    String?
   mappingConfidence    Float?
-  viewCount            Int                   @default(0)
-  chatCount            Int                   @default(0)
-  followerCount        Int                   @default(0)
-  interactionCount     Int                   @default(0)
-  saveCount            Int                   @default(0)
-  commentCount         Int                   @default(0)
-  retentionScore       Float                 @default(0.0)
-  featured             Boolean               @default(false)
-  trending             Boolean               @default(false)
-  voiceReady           Boolean               @default(false)
-  creationStatus       String?               // pending, generating_avatar, generating_personality, matching_voice, finalizing, ready, failed
-  creationProgress     Int?                  @default(0)
-  creationMessage      String?
-  creationError        String?
-  // Training configuration for Synaptic Tuning
-  trainingStatus       String?               @default("untrained") // untrained, training, trained
-  behaviorEmpathy      Float?                @default(50) // 0-100 (0=empathy, 100=logic)
-  behaviorAgreeable    Float?                @default(50) // 0-100 (0=agreeable, 100=challenging)
-  behaviorChaos        Float?                @default(50) // 0-100 (0=chaos, 100=order)
-  behaviorPessimism    Float?                @default(50) // 0-100 (0=pessimism, 100=optimism)
-  styleVerbosity       Float?                @default(50) // 0-100 (0=concise, 100=verbose)
-  styleFormality       Float?                @default(50) // 0-100 (0=casual, 100=formal)
-  trainingConstraints  String?               // JSON array of constraint IDs
-  personalityTags      String?               // JSON array of personality tags
-  knowledgeBaseUrl     String?               // URL to uploaded knowledge file
+  viewCount            Int                       @default(0)
+  chatCount            Int                       @default(0)
+  followerCount        Int                       @default(0)
+  interactionCount     Int                       @default(0)
+  saveCount            Int                       @default(0)
+  commentCount         Int                       @default(0)
+  retentionScore       Float                     @default(0.0)
+  featured             Boolean                   @default(false)
+  trending             Boolean                   @default(false)
+  voiceReady           Boolean                   @default(false)
   lastRankedAt         DateTime?
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
+  creationError        String?
+  creationMessage      String?
+  creationProgress     Int?                      @default(0)
+  creationStatus       String?
+  behaviorAgreeable    Float?                    @default(50)
+  behaviorEmpathy      Float?                    @default(50)
+  knowledgeBaseUrl     String?
+  styleFormality       Float?                    @default(50)
+  styleVerbosity       Float?                    @default(50)
+  trainingConstraints  String?
+  trainingStatus       String?                   @default("untrained")
+  behaviorChaos        Float?                    @default(50)
+  behaviorPessimism    Float?                    @default(50)
+  personalityTags      String?
+  
+  // VOICE-FIRST: Link to canonical voice identity
+  voiceIdentityId      String?
+  voiceIdentity        VoiceIdentity?            @relation(fields: [voiceIdentityId], references: [id])
+  
+  // VOICE POOL: Link to Elite Voice Seed (29 base voices)
+  voiceSeedId          String?
+  voiceSeed            VoiceSeed?                @relation("VoiceSeedCharacters", fields: [voiceSeedId], references: [id])
+  
   comments             CharacterComment[]
   evolutions           CharacterEvolution[]
   memories             CharacterMemory[]
@@ -77,10 +201,10 @@ model PersonaTemplate {
   conversations        Conversation[]
   patterns             ConversationPattern[]
   views                PersonaView[]
+  engagements          UserCharacterEngagement[]
   followers            UserFollow[]
   voiceParameters      VoiceParameters[]
   voicePerformances    VoicePerformance[]
-  engagements          UserCharacterEngagement[]
 
   @@index([category])
   @@index([seedId])
@@ -88,6 +212,8 @@ model PersonaTemplate {
   @@index([retentionScore])
   @@index([featured])
   @@index([trending])
+  @@index([voiceIdentityId])
+  @@index([voiceSeedId])
 }
 
 model Conversation {
@@ -216,28 +342,29 @@ model Subscription {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  email              String?             @unique
-  username           String?             @unique
+  id                 String                    @id @default(cuid())
+  email              String?                   @unique
+  username           String?                   @unique
   displayName        String?
+  bio                String?
   avatarUrl          String?
   dateOfBirth        DateTime?
-  ageVerified        Boolean             @default(false)
+  ageVerified        Boolean                   @default(false)
   ageVerifiedAt      DateTime?
-  subscriptionTier   String              @default("free")
-  stripeCustomerId   String?             @unique
-  subscriptionId     String?             @unique
+  subscriptionTier   String                    @default("free")
+  stripeCustomerId   String?                   @unique
+  subscriptionId     String?                   @unique
   subscriptionStatus String?
-  creditsBalance     Int                 @default(100)
-  referralCode       String?             @unique
+  creditsBalance     Int                       @default(100)
+  referralCode       String?                   @unique
   referredBy         String?
-  referralCount      Int                 @default(0)
-  referralClicks     Int                 @default(0)
-  affiliateEarnings  Float               @default(0)
-  unpaidEarnings     Float               @default(0)
+  referralCount      Int                       @default(0)
+  referralClicks     Int                       @default(0)
+  affiliateEarnings  Float                     @default(0)
+  unpaidEarnings     Float                     @default(0)
   stripeConnectId    String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
   characterComments  CharacterComment[]
   savedCharacters    CharacterSave[]
   conversations      Conversation[]
@@ -248,11 +375,11 @@ model User {
   views              PersonaView[]
   pinnedMessages     PinnedMessage[]
   referralPurchases  ReferralPurchase[]
+  engagements        UserCharacterEngagement[]
   following          UserFollow[]
-  voiceFeedback        VoiceFeedback[]
-  rewardProgress       UserRewardProgress[]
-  engagements          UserCharacterEngagement[]
-  loginStreak          UserLoginStreak?
+  loginStreak        UserLoginStreak?
+  rewardProgress     UserRewardProgress[]
+  voiceFeedback      VoiceFeedback[]
 
   @@index([username])
   @@index([email])
@@ -485,7 +612,6 @@ model Payout {
   @@index([createdAt])
 }
 
-// User reward progress tracking - no more dummy data
 model UserRewardProgress {
   id        String    @id @default(cuid())
   userId    String
@@ -501,7 +627,6 @@ model UserRewardProgress {
   @@index([userId])
 }
 
-// Character engagement tracking - logs every interaction
 model UserCharacterEngagement {
   id            String          @id @default(cuid())
   userId        String
@@ -511,15 +636,14 @@ model UserCharacterEngagement {
   totalChatTime Int             @default(0)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
-  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   persona       PersonaTemplate @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, personaId])
   @@index([userId])
   @@index([personaId])
 }
 
-// Daily login streak tracking
 model UserLoginStreak {
   id            String   @id @default(cuid())
   userId        String   @unique
@@ -532,13 +656,12 @@ model UserLoginStreak {
   @@index([userId])
 }
 
-
 model NewsletterSubscriber {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id           String   @id @default(cuid())
+  email        String   @unique
   subscribedAt DateTime @default(now())
-  source    String   @default("landing_page")
-  isActive  Boolean  @default(true)
+  source       String   @default("landing_page")
+  isActive     Boolean  @default(true)
 
   @@index([email])
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   User, CreditCard, Settings as SettingsIcon, Volume2, Shield,
   ChevronRight, ExternalLink, Moon, Sun, Monitor, Bell, DollarSign,
@@ -30,6 +30,12 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<PlanId>('free');
   const [isPremium, setIsPremium] = useState(false);
+  const [subscriptionDetails, setSubscriptionDetails] = useState<{
+    currentPeriodEnd: string | null;
+    cancelAtPeriodEnd: boolean;
+    status: string;
+  }>({ currentPeriodEnd: null, cancelAtPeriodEnd: false, status: 'free' });
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   // Muted Words State
   const [mutedWordInput, setMutedWordInput] = useState('');
@@ -41,9 +47,28 @@ export default function SettingsPage() {
   const [customReason, setCustomReason] = useState('');
 
   // Form States
-  const [username, setUsername] = useState('SparklyCamel8370');
-  const [displayName, setDisplayName] = useState('SparklyCamel8370');
+  const [username, setUsername] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [bio, setBio] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Fetch user profile
+    fetch('/api/user/profile', {
+      headers: { 'x-user-id': localStorage.getItem('agentwood_user_id') || '' },
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data && !data.error) {
+          setUsername(data.username || '');
+          setDisplayName(data.displayName || '');
+          setAvatarUrl(data.avatarUrl || '');
+          setBio(data.bio || '');
+        }
+      })
+      .catch(err => console.error('Failed to fetch profile:', err));
+  }, []);
 
   useEffect(() => {
     // Fetch user subscription status
@@ -51,16 +76,67 @@ export default function SettingsPage() {
       setCurrentPlan(status.planId);
       setIsPremium(status.planId !== 'free');
     });
+
+    // Fetch detailed subscription info from Stripe
+    fetch('/api/user/subscription', {
+      headers: { 'x-user-id': localStorage.getItem('agentwood_user_id') || '' },
+    })
+      .then(res => res.json())
+      .then(data => {
+        setSubscriptionDetails({
+          currentPeriodEnd: data.currentPeriodEnd,
+          cancelAtPeriodEnd: data.cancelAtPeriodEnd || false,
+          status: data.status || 'free',
+        });
+      })
+      .catch(err => console.error('Failed to fetch subscription details:', err));
   }, []);
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        alert("Image too large. Please select an image under 5MB.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = async (section: string) => {
+    if (section !== 'profile') return; // Only implement profile save for now
+
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      // In a real app, this would be an API call
-      console.log(`Saved ${section} settings`);
-    } catch (error) {
+      const response = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': localStorage.getItem('agentwood_user_id') || ''
+        },
+        body: JSON.stringify({
+          username,
+          displayName,
+          avatarUrl,
+          bio
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save');
+      }
+
+      alert('Profile updated successfully!');
+    } catch (error: any) {
       console.error('Failed to save settings', error);
+      alert(error.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -230,13 +306,36 @@ export default function SettingsPage() {
 
               <div className="flex flex-col gap-3">
                 <button
-                  onClick={() => {
-                    alert("Subscription cancelled (Mock)");
-                    setCancelStep(0);
+                  onClick={async () => {
+                    setCancelLoading(true);
+                    try {
+                      const response = await fetch('/api/stripe/cancel-subscription', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'x-user-id': localStorage.getItem('agentwood_user_id') || '',
+                        },
+                        body: JSON.stringify({ reason: cancelReason, customReason }),
+                      });
+                      const data = await response.json();
+                      if (data.success) {
+                        setSubscriptionDetails(prev => ({ ...prev, cancelAtPeriodEnd: true }));
+                        alert(`Subscription will end on ${new Date(data.cancelAt).toLocaleDateString()}`);
+                      } else {
+                        alert(data.error || 'Failed to cancel subscription');
+                      }
+                    } catch (error) {
+                      console.error('Cancel error:', error);
+                      alert('Failed to cancel subscription. Please try again.');
+                    } finally {
+                      setCancelLoading(false);
+                      setCancelStep(0);
+                    }
                   }}
-                  className="w-full bg-red-600 text-white py-4 rounded-2xl font-bold text-sm hover:bg-red-700 transition-all shadow-lg shadow-red-100"
+                  disabled={cancelLoading}
+                  className="w-full bg-red-600 text-white py-4 rounded-2xl font-bold text-sm hover:bg-red-700 transition-all shadow-lg shadow-red-100 disabled:opacity-50"
                 >
-                  Confirm Cancellation
+                  {cancelLoading ? 'Cancelling...' : 'Confirm Cancellation'}
                 </button>
                 <button
                   onClick={() => setCancelStep(0)}
@@ -270,11 +369,26 @@ export default function SettingsPage() {
             </div>
 
             <div className="mb-10 flex items-center gap-6">
-              <div className="relative inline-block group cursor-pointer">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                accept="image/*"
+                className="hidden"
+              />
+              <div
+                className="relative inline-block group cursor-pointer"
+                onClick={() => fileInputRef.current?.click()}
+              >
                 <div className="w-28 h-28 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-1">
                   <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-4xl font-bold text-gray-900 overflow-hidden relative">
-                    <SafeImage src="" alt="S" className="w-full h-full object-cover opacity-0" />
-                    <span className="absolute inset-0 flex items-center justify-center bg-gray-100">S</span>
+                    {avatarUrl ? (
+                      <SafeImage src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-400">
+                        {displayName?.[0]?.toUpperCase() || 'U'}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="absolute bottom-1 right-1 bg-white rounded-full p-2.5 shadow-xl border border-gray-100 group-hover:scale-110 transition-transform">
@@ -347,7 +461,12 @@ export default function SettingsPage() {
                   </button>
                 </div>
                 <div className="pt-6 border-t border-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-sm">
-                  <span className="text-gray-500 font-medium">Next billing cycle starts on Jan 27th, 2026</span>
+                  <span className="text-gray-500 font-medium">
+                    {subscriptionDetails.cancelAtPeriodEnd
+                      ? `Subscription ends on ${subscriptionDetails.currentPeriodEnd ? new Date(subscriptionDetails.currentPeriodEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'end of period'}`
+                      : `Next billing cycle starts on ${subscriptionDetails.currentPeriodEnd ? new Date(subscriptionDetails.currentPeriodEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}`
+                    }
+                  </span>
                   <div className="flex items-center gap-1 font-bold text-gray-900">
                     $9.99 / mo <ChevronDown size={14} className="text-gray-400 ml-1" />
                   </div>

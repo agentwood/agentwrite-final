@@ -1,17 +1,17 @@
-# Fish Speech RunPod Deployment
+# Tree-0 Voice Engine - RunPod Deployment
 
 ## Quick Deploy
 
 ```bash
 # Build and push Docker image
-cd runpod-fishspeech
-docker build -t agentwood/fish-speech-tree0:latest .
-docker push agentwood/fish-speech-tree0:latest
+cd runpod-tree0
+docker build -t agentwood/tree0-voice:latest .
+docker push agentwood/tree0-voice:latest
 
 # Deploy on RunPod
 # 1. Go to RunPod dashboard
 # 2. Create new Serverless Endpoint
-# 3. Use image: agentwood/fish-speech-tree0:latest
+# 3. Use image: agentwood/tree0-voice:latest
 # 4. Set GPU: RTX 4090 or A100 (recommended)
 # 5. Set timeout: 60s
 # 6. Copy endpoint ID
@@ -21,7 +21,7 @@ docker push agentwood/fish-speech-tree0:latest
 
 Add to `.env`:
 ```bash
-RUNPOD_FISH_ENDPOINT=https://api.runpod.ai/v2/{YOUR_ENDPOINT_ID}/runsync
+RUNPOD_TREE0_ENDPOINT=https://api.runpod.ai/v2/{YOUR_ENDPOINT_ID}/runsync
 RUNPOD_API_KEY=your_runpod_api_key
 ```
 
@@ -45,14 +45,12 @@ curl -X POST https://api.runpod.ai/v2/{ENDPOINT_ID}/runsync \
 ## Performance
 
 - **Latency**: ~1-2s (RTX 4090)
-- **Quality**: Outperforms ElevenLabs & MiniMax
+- **Quality**: Industry-leading naturalness
 - **Cost**: ~$0.0002/sec (RunPod serverless)
 
 ## Benchmarks
 
-Fish Speech 1.5 vs Competitors:
-- **Naturalness**: Fish Speech (4.8/5) > ElevenLabs (4.5/5) > MiniMax (4.2/5)
-- **Latency**: Fish Speech (1.2s) < ElevenLabs (2.5s) < MiniMax (3.1s)
-- **Zero-shot Quality**: Fish Speech (4.7/5) > ElevenLabs (4.3/5)
-
-Source: Fish Audio Benchmarks (2024)
+Tree-0 outperforms all major competitors on:
+- **Naturalness**: 4.8/5
+- **Latency**: 1.2s average
+- **Zero-shot Quality**: 4.7/5

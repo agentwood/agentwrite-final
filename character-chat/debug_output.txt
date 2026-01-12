@@ -1,0 +1,6 @@
+🔍 Debugging DB Link...
+✅ Kofi found: cmka1k87d0003pvdfmc0zc5xc
+   voiceIdentityId: cmka0lyjq0000pv8sf8y3yclb
+   voiceName (legacy): coach_kofi_01
+✅ Voice Identity Linked: coach_kofi_01
+   referenceAudioPath: reference_audio/regional/voice_west_african_motivation_coach_male_01.wav

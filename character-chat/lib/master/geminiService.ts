@@ -1,5 +1,5 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+
 import { CharacterProfile, Category } from "./types";
 
 // Helper to generate consistent stylized avatars
@@ -268,7 +268,7 @@ export const FALLBACK_CHARACTERS: CharacterProfile[] = [
 
 export const getShowcaseCharacters = async (category: Category = "All"): Promise<CharacterProfile[]> => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
     let filtered = category === "All" ? FALLBACK_CHARACTERS : FALLBACK_CHARACTERS.filter(c => c.category === category);
     return filtered;
 

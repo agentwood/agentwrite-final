@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ArrowLeft, Send, Loader2, Volume2, VolumeX, MoreVertical, RefreshCw, MessageCircle, Heart, Share2, Plus, Settings, ChevronRight, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Send, Loader2, Volume2, VolumeX, MoreVertical, RefreshCw, MessageCircle, Heart, Share2, Plus, Settings, ChevronRight, Sparkles, Image as ImageIcon, Mic } from 'lucide-react';
 import Link from 'next/link';
 import ChatSidebar from './ChatSidebar';
 import VoiceButton from './VoiceButton';
 import VoiceFeedbackButton from './VoiceFeedbackButton';
 import QuotaExceededModal from './QuotaExceededModal';
+import CuratingModal from './CuratingModal';
 import AdBanner from './AdBanner';
 import SafeImage from './SafeImage';
 import { getAuthHeaders } from '@/lib/auth';
@@ -145,6 +146,7 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showCuratingModal, setShowCuratingModal] = useState(false);
   const [inputText, setInputText] = useState('');
   const [voiceEnabled, setVoiceEnabled] = useState(true); // Default to enabled (speech-first)
   const [isMuted, setIsMuted] = useState(false);
@@ -157,6 +159,74 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
     limit: number;
   } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Voice Input State
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        setIsRecording(false);
+        setIsTranscribing(true);
+
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop());
+
+        try {
+          const formData = new FormData();
+          formData.append('file', audioBlob, 'recording.webm');
+
+          const response = await fetch('/api/stt', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error('Transcription failed');
+          }
+
+          const data = await response.json();
+          if (data.text) {
+            // Auto-send the transcribed text
+            handleSendMessage(data.text);
+          }
+        } catch (error) {
+          console.error('STT Error:', error);
+          alert('Failed to process voice input. Please try again.');
+        } finally {
+          setIsTranscribing(false);
+        }
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      alert('Could not access microphone. Please ensure permissions are granted.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+    }
+  };
 
   // Ref to prevent double-fire of greeting auto-play (React Strict Mode)
   const greetingPlayedRef = useRef<boolean>(false);
@@ -219,22 +289,39 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
     }
   };
 
-  const handlePostComment = () => {
+  const handlePostComment = async () => {
     if (!commentText.trim()) return;
 
-    // Add comment locally
+    const newCommentText = commentText.trim();
+    setCommentText(''); // Clear input immediately
+
+    // Optimistic update
+    const tempId = Date.now();
     const newComment = {
-      id: Date.now(),
+      id: tempId,
       user: 'You',
       time: 'Just now',
-      text: commentText.trim()
+      text: newCommentText
     };
 
     setComments(prev => [newComment, ...prev]);
-    setCommentText('');
 
-    // In a real app, we would POST to API here
-    // fetch(`/api/personas/${persona.id}/comments`, ...)
+    try {
+      const response = await fetch(`/api/personas/${persona.id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: newCommentText }),
+      });
+
+      if (!response.ok) throw new Error('Failed to post comment');
+
+      // Ideally replace temp ID with real ID from response, but for now this is fine
+    } catch (error) {
+      console.error('Error posting comment:', error);
+      // Revert optimistic update
+      setComments(prev => prev.filter(c => c.id !== tempId));
+      alert('Failed to post comment. Please try again.');
+    }
   };
 
   const handleShare = async () => {
@@ -249,15 +336,28 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
       if (typeof navigator !== 'undefined' && navigator.share) {
         await navigator.share(shareData);
       } else {
+        // Fallback to clipboard
         await navigator.clipboard.writeText(url);
         alert('Link copied to clipboard!');
       }
-    } catch (err) {
-      console.error('Error sharing:', err);
+    } catch (error) {
+      console.error('Error sharing:', error);
     }
   };
 
 
+
+  // Safety timeout: Ensure modal never stays open more than 5 minutes (cold start protection)
+  // RunPod F5-TTS can take 2-3 mins to spin up from cold
+  useEffect(() => {
+    if (showCuratingModal) {
+      const timer = setTimeout(() => {
+        console.log('[ChatWindow] Curating modal safety timeout (5 min) - voice generation may have failed');
+        setShowCuratingModal(false);
+      }, 300000); // 5 minutes max for cold start scenarios
+      return () => clearTimeout(timer);
+    }
+  }, [showCuratingModal]);
 
   // Auto-play voice for assistant messages (defined first so handleSendMessage can use it)
   const playVoiceForMessage = useCallback(async (text: string, messageId: string) => {
@@ -298,9 +398,9 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
     try {
       // Show curating modal for first-time cold start masking
       // Only if it's the first message and voice is enabled
-      // if (messages.length <= 1) {
-      //   setShowCuratingModal(true);
-      // }
+      if (messages.length <= 1) {
+        setShowCuratingModal(true);
+      }
 
       const requestBody = {
         text: dialogueText, // ONLY dialogue, not action descriptions
@@ -336,7 +436,7 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
             limit: errorData.limit || 0
           });
           isPlayingVoiceRef.current = false;
-          // setShowCuratingModal(false);
+          setShowCuratingModal(false);
           return;
         }
 
@@ -351,7 +451,7 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
 
       // Play audio using shared audio manager
       // Hide modal right before starting playback for smooth transition
-      // setShowCuratingModal(false);
+      setShowCuratingModal(false);
 
       await audioManager.playAudio(
         data.audio,
@@ -362,10 +462,10 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
       );
 
     } catch (error: any) {
-      console.error('Error in playVoiceForMessage:', error);
-      // setShowCuratingModal(false);
-      // Don't show alert for auto-play failures, just log
-      // Audio manager will handle cleanup automatically
+      console.error('[TTS] Voice generation failed:', error);
+      setShowCuratingModal(false);
+      // NO FALLBACKS: Silence is better than robotic voices
+      // User requested: if the voice fails, better there is no voice than a generic one
     } finally {
       // Always reset the playing flag
       isPlayingVoiceRef.current = false;
@@ -660,6 +760,14 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
         {/* Ad Banner for Free Users - NOW AT TOP */}
         <AdBanner variant="banner" className="sticky top-0 z-50" />
 
+        {/* Curating/Waiting Modal */}
+        {showCuratingModal && (
+          <CuratingModal
+            isOpen={showCuratingModal}
+            characterName={persona.name}
+          />
+        )}
+
         {/* Chat Header - Matches Screenshot 3 */}
         <header className="sticky top-[52px] z-40 flex h-16 items-center justify-between border-b border-white/5 bg-[#121212]/80 px-6 backdrop-blur-xl shrink-0">
           <div className="flex items-center gap-4">
@@ -829,18 +937,46 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
                 >
                   <ImageIcon size={20} />
                 </button>
+
+                {/* Voice Input Button */}
+                <button
+                  onMouseDown={startRecording}
+                  onMouseUp={stopRecording}
+                  onMouseLeave={isRecording ? stopRecording : undefined}
+                  disabled={isLoading || isTranscribing}
+                  className={`p-2 transition-all duration-200 rounded-full ${isRecording
+                    ? 'bg-red-500/20 text-red-500 scale-110 animate-pulse'
+                    : isTranscribing
+                      ? 'text-white/40 animate-spin'
+                      : 'text-white/20 hover:text-white/60'
+                    }`}
+                  title="Hold to Speak"
+                >
+                  {isTranscribing ? (
+                    <Loader2 size={20} />
+                  ) : (
+                    <div className="relative">
+                      <Mic size={20} className={isRecording ? "fill-current" : ""} />
+                      {isRecording && (
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping" />
+                      )}
+                    </div>
+                  )}
+                </button>
+
                 <input
                   type="text"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                  placeholder="Type message..."
+                  placeholder={isRecording ? "Listening..." : "Type message..."}
                   className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-white placeholder-white/10 text-sm py-3"
                   autoComplete="off"
+                  disabled={isRecording || isTranscribing}
                 />
                 <button
                   onClick={handleSend}
-                  disabled={!inputText.trim() || isLoading}
+                  disabled={!inputText.trim() || isLoading || isRecording}
                   className={`p-3 rounded-xl transition-all ${inputText.trim() && !isLoading ? 'bg-white text-black hover:bg-white/90' : 'text-white/10 bg-white/5'}`}
                 >
                   {isLoading ? <Loader2 size={18} className="animate-spin" /> : (

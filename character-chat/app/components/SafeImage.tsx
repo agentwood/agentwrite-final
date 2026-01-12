@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface SafeImageProps {
   src: string;
@@ -12,8 +13,9 @@ interface SafeImageProps {
 export default function SafeImage({ src, alt, className = '', fallback }: SafeImageProps) {
   // Generate default fallback for empty/null src
   const getDefaultFallback = () => {
-    const seed = alt?.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20) || 'default';
-    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf&radius=20`;
+    // Use UI Avatars (Initials) for a cleaner, non-cartoon look as requested
+    const name = alt || 'AI';
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=27272a&color=ffffff&size=128&bold=true`;
   };
 
   // Use fallback or default if src is empty/null
@@ -39,15 +41,28 @@ export default function SafeImage({ src, alt, className = '', fallback }: SafeIm
   }
 
   return (
-    <img
-      src={imgSrc}
-      alt={alt || 'Image'}
-      className={className}
-      onError={handleError}
-    />
+    <div className={`relative overflow-hidden ${className}`}>
+      <Image
+        src={isValidUrl(imgSrc) ? imgSrc : getDefaultFallback()}
+        alt={alt || 'Character'}
+        fill
+        className="object-cover transition-opacity duration-300"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        onError={handleError}
+        unoptimized={!isValidUrl(imgSrc)}
+        priority={false}
+      />
+    </div>
   );
 }
 
-
-
-
+function isValidUrl(url: string) {
+  if (!url) return false;
+  if (url.startsWith('/')) return true; // Allow local paths
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}

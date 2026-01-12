@@ -6,11 +6,20 @@
  * Characters are mapped to archetypes, not individual voice IDs.
  * 
  * COST: ~$50-100/mo GPU server vs ~$2,000+/mo ElevenLabs
+ * 
+ * NOTE: This module is SERVER-ONLY due to fs usage
  */
 
-import fs from 'fs';
-import path from 'path';
 import { getChatterboxClient, ChatterboxClient } from './chatterbox-client';
+
+// Dynamic imports for server-only modules
+let fs: typeof import('fs') | null = null;
+let path: typeof import('path') | null = null;
+
+if (typeof window === 'undefined') {
+    fs = require('fs');
+    path = require('path');
+}
 
 // Types
 interface ArchetypeDefinition {
@@ -48,9 +57,9 @@ interface ArchetypesFile {
     archetypes: Record<string, ArchetypeDefinition>;
 }
 
-// Paths to config files
-const ARCHETYPES_PATH = path.join(process.cwd(), 'lib/voices/archetypes.json');
-const REGISTRY_PATH = path.join(process.cwd(), 'lib/voices/registry.json');
+// Paths to config files (computed lazily since path is server-only)
+const getArchetypesPath = () => path ? path.join(process.cwd(), 'lib/voices/archetypes.json') : '';
+const getRegistryPath = () => path ? path.join(process.cwd(), 'lib/voices/registry.json') : '';
 
 // Emotion settings per emotional range
 // Chatterbox uses emotion 0.0-1.0 (higher = more expressive)
@@ -107,6 +116,12 @@ export class ChatterboxArchetypeClient {
      * Load archetype definitions and registry
      */
     private loadConfigs(): void {
+        // Skip loading if fs/path not available (client-side)
+        if (!fs || !path) return;
+
+        const ARCHETYPES_PATH = getArchetypesPath();
+        const REGISTRY_PATH = getRegistryPath();
+
         try {
             if (fs.existsSync(ARCHETYPES_PATH)) {
                 const archetypesFile: ArchetypesFile = JSON.parse(

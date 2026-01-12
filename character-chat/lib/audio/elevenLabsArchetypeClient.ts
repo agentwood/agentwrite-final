@@ -118,8 +118,9 @@ const ARCHETYPE_VOICE_OVERRIDES: Record<string, {
     },
 };
 
-// Default voice ID if no archetype mapping exists
-const DEFAULT_VOICE_ID = 'EXAVITQu4vr4xnSDxMaL'; // Rachel - neutral female voice
+// Default voice IDs by gender if no archetype mapping exists
+const DEFAULT_VOICE_ID_MALE = 'pNInz6obpgDQGcFmaJgB';   // Adam - standard male voice
+const DEFAULT_VOICE_ID_FEMALE = 'EXAVITQu4vr4xnSDxMaL'; // Rachel - neutral female voice
 
 export class ElevenLabsArchetypeClient {
     private apiKey: string;
@@ -250,6 +251,48 @@ export class ElevenLabsArchetypeClient {
     }
 
     /**
+     * Infer gender from character profile (name, description, etc.)
+     */
+    private inferGenderFromProfile(profile?: {
+        name?: string;
+        description?: string;
+        category?: string;
+        tagline?: string;
+    }): 'male' | 'female' {
+        if (!profile) return 'female'; // Default fallback
+
+        const text = `${profile.name || ''} ${profile.description || ''} ${profile.tagline || ''}`.toLowerCase();
+
+        // Male indicators
+        const maleIndicators = [
+            'he ', 'him ', 'his ', 'himself', 'man', 'male', 'guy', 'boy',
+            'captain', 'sergeant', 'dr.', 'mr.', 'sir', 'lord', 'king', 'prince',
+            'jack', 'john', 'james', 'michael', 'david', 'chris', 'paul', 'mark',
+            'coach', 'soldier', 'pirate', 'knight', 'warrior', 'samurai', 'viking',
+            'father', 'grandfather', 'grandpa', 'dad', 'uncle', 'brother', 'nephew'
+        ];
+
+        // Female indicators
+        const femaleIndicators = [
+            'she ', 'her ', 'herself', 'woman', 'female', 'girl', 'lady',
+            'mrs.', 'ms.', 'miss', 'queen', 'princess', 'duchess',
+            'mother', 'grandmother', 'grandma', 'mom', 'aunt', 'sister', 'niece'
+        ];
+
+        let maleScore = 0;
+        let femaleScore = 0;
+
+        for (const indicator of maleIndicators) {
+            if (text.includes(indicator)) maleScore++;
+        }
+        for (const indicator of femaleIndicators) {
+            if (text.includes(indicator)) femaleScore++;
+        }
+
+        return maleScore > femaleScore ? 'male' : 'female';
+    }
+
+    /**
      * Synthesize speech using ElevenLabs
      */
     async synthesize(
@@ -260,6 +303,7 @@ export class ElevenLabsArchetypeClient {
             description?: string;
             category?: string;
             tagline?: string;
+            gender?: string;  // 'male' or 'female' to determine fallback voice
         }
     ): Promise<{ audio: ArrayBuffer; contentType: string; archetype: string } | null> {
         if (!this.apiKey) {
@@ -284,10 +328,12 @@ export class ElevenLabsArchetypeClient {
             voiceId = this.getVoiceIdForArchetype(archetypeId);
         }
 
-        // Step 4: Use default if no voice found
+        // Step 4: Use gender-appropriate default if no voice found
         if (!voiceId) {
-            console.warn(`[ElevenLabs Archetype] No voice mapping for ${characterId}/${archetypeId}, using default`);
-            voiceId = DEFAULT_VOICE_ID;
+            const inferredGender = characterProfile?.gender?.toLowerCase() ||
+                this.inferGenderFromProfile(characterProfile);
+            voiceId = inferredGender === 'male' ? DEFAULT_VOICE_ID_MALE : DEFAULT_VOICE_ID_FEMALE;
+            console.warn(`[ElevenLabs Archetype] No voice for ${characterId}/${archetypeId}, using ${inferredGender} default`);
             archetypeId = 'default';
         }
 

@@ -112,7 +112,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             Welcome.
                         </h1>
                         <p className="text-xl text-dipsea-accent/80 font-serif italic mb-12 leading-relaxed">
-                            Join the wood for exclusive stories and intimate connections.
+                            Join the woods for exclusive stories and intimate connections.
                         </p>
 
                         <div className="space-y-4 mb-8">

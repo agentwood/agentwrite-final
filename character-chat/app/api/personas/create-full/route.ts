@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { matchArchetype, generateTTSVoiceSpec } from '@/lib/characterCreation/archetypeMapper';
 import { buildSystemPrompt } from '@/lib/prompts';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { generateAvatar as generateAvatarUtil } from '@/lib/avatarGenerator';
 
-const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 interface CreateFullRequest {
     name: string;
@@ -112,8 +113,8 @@ async function processCharacterCreation(characterId: string, body: CreateFullReq
         await updateStatus(characterId, 'finalizing', 85, 'Finalizing character...');
         const systemPrompt = buildSystemPrompt(
             profile.description,
-            'Keep responses appropriate and engaging.',
-            'conversational',
+            ['Keep responses appropriate and engaging.'],
+            ['conversational'],
             [],
             body.name
         );
@@ -153,4 +154,72 @@ async function processCharacterCreation(characterId: string, body: CreateFullReq
             error.message || 'Unknown error'
         );
     }
+}
+
+// Helper functions (Implementation)
+async function updateStatus(id: string, status: string, progress: number, message: string, error?: string) {
+    await db.personaTemplate.update({
+        where: { id },
+        data: {
+            creationStatus: status,
+            creationProgress: progress,
+            creationMessage: message,
+        }
+    });
+}
+
+async function generateAvatar(name: string, keywords: string, gender: string) {
+    // Utilize the strict visual style generator we updated
+    return generateAvatarUtil({
+        characterId: name.toLowerCase().replace(/\s+/g, '-'),
+        characterName: name,
+        style: 'REALISTIC', // Default to realistic
+        description: keywords
+    });
+}
+
+async function generateProfile(name: string, keywords: string, gender: string) {
+    try {
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+        const prompt = `Create a rich, immersive character profile for an AI companion app.
+        
+        Name: ${name}
+        Keywords/Context: ${keywords}
+        Gender: ${gender}
+        
+        Generate a JSON object with:
+        1. description: A shorter setting/background (under 300 chars) establishing who they are.
+        2. greeting: A catchy, in-character opening line (NOT "Hello I am..."). It should show, not tell. Action *asterisks* allowed.
+        3. tagline: A short hook (under 50 chars).
+        4. personality: A comma-separated list of traits.
+        
+        Return JSON ONLY.`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+
+        // Extract JSON
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            const data = JSON.parse(jsonMatch[0]);
+            return {
+                description: data.description || `A unique character named ${name}.`,
+                greeting: data.greeting || `*smiles* Hi there.`,
+                tagline: data.tagline || `${name} - AI Companion`,
+                personality: data.personality || keywords
+            };
+        }
+    } catch (error) {
+        console.error('LLM Profile Generation failed:', error);
+    }
+
+    // Fallback if LLM fails (Better than "Hello I am name")
+    return {
+        description: `A unique character named ${name} known for ${keywords}.`,
+        greeting: `*looks at you with interest* Greetings.`,
+        tagline: `${name} - ${keywords}`,
+        personality: keywords
+    };
 }

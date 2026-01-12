@@ -1,0 +1,34 @@
+🔒 Starting Strict Voice Authority Transformation Verification
+
+🧪 Testing Coach Kofi (Voice: coach_kofi_01)...
+   Text: "This is a strict voice authority test. We do not fallback."
+❌ FAILED: Request failed unexpectedly (Status: 500).
+   Response: {
+  "error": "Voice Generation Failed. No fallback permitted.",
+  "details": "Fish Audio API Error (400): {\"message\":\"Reference not found\",\"status\":400}",
+  "debug": {
+    "loadedAudio": false,
+    "voiceId": "coach_kofi_01"
+  }
+}
+
+🧪 Testing Eleanor Ashworth (Voice: eleanor_ashworth_01)...
+   Text: "History is strictly recorded."
+❌ FAILED: Request failed unexpectedly (Status: 500).
+   Response: {
+  "error": "Voice Generation Failed. No fallback permitted.",
+  "details": "Fish Audio API Error (400): {\"message\":\"Reference not found\",\"status\":400}",
+  "debug": {
+    "loadedAudio": false,
+    "voiceId": "eleanor_ashworth_01"
+  }
+}
+
+🧪 Testing Drift Attempt (Voice: random_drift_voice_01)...
+   Text: "This request should fail immediately."
+✅ SUCCESS: Request failed as expected (Status: 500).
+   Response: {
+  "error": "Voice Authority Violation: Voice ID 'random_drift_voice_01' is not authorized."
+}
+
+✨ Verification Complete.

@@ -34,21 +34,21 @@ interface CharacterIssue {
  */
 function extractGenderFromPrompt(systemPrompt: string): 'male' | 'female' | 'unknown' {
   const promptLower = systemPrompt.toLowerCase();
-  
-  // Check for explicit gender indicators
-  if (promptLower.includes('man') || promptLower.includes('male') || promptLower.includes('he/him') || promptLower.includes('his')) {
-    return 'male';
-  }
+
+  // Check for explicit gender indicators - check female first to avoid substring match issues
   if (promptLower.includes('woman') || promptLower.includes('female') || promptLower.includes('she/her') || promptLower.includes('hers')) {
     return 'female';
   }
-  
+  if (promptLower.includes('man') || promptLower.includes('male') || promptLower.includes('he/him') || promptLower.includes('his')) {
+    return 'male';
+  }
+
   // Check for age with gender context
   const ageMatch = promptLower.match(/(\d+)[-\s]year[-\s]old\s+(man|woman|male|female)/);
   if (ageMatch) {
     return ageMatch[2].includes('man') || ageMatch[2].includes('male') ? 'male' : 'female';
   }
-  
+
   return 'unknown';
 }
 
@@ -68,36 +68,57 @@ function extractAgeFromPrompt(systemPrompt: string): number | null {
  */
 function detectGenderFromName(name: string): 'male' | 'female' | 'neutral' {
   const nameLower = name.toLowerCase();
-  
+
+  if (nameLower.startsWith('lady ') || nameLower.startsWith('miss ') || nameLower.startsWith('mrs ') || nameLower.startsWith('madame ') || nameLower.includes('queen')) {
+    return 'female';
+  }
+  if (nameLower.startsWith('sir ') || nameLower.startsWith('mr ') || nameLower.startsWith('lord ') || nameLower.includes('king')) {
+    return 'male';
+  }
+
+  // Common female name stems (highest priority)
+  const femaleNames = [
+    'maria', 'sophia', 'emily', 'sarah', 'anna', 'lisa', 'jennifer', 'elizabeth',
+    'michelle', 'jessica', 'mina', 'yumi', 'akina', 'rin', 'eleanor', 'isabella',
+    'sofia', 'fuka', 'hoshi', 'mana', 'adelie', 'camille', 'elena', 'victoria',
+    'catherine', 'yuki', 'amy', 'claire', 'nina', 'olivia', 'chloe', 'zoe', 'akane', 'miyuki', 'sakura'
+  ];
+
+  const maleNames = [
+    'michael', 'john', 'david', 'james', 'robert', 'william', 'richard',
+    'joseph', 'thomas', 'charles', 'darius', 'marco', 'viktor', 'tomasz',
+    'hector', 'jun', 'spongebob', 'bernard', 'liam', 'winston', 'edmund',
+    'taesung', 'jin-woo', 'marcus', 'alex', 'rajiv', 'dex', 'eamon', 'ryuk',
+    'levi', 'pete', 'zorg', 'dave', 'tony', 'viktor', 'vladimir', 'igor'
+  ];
+
+  for (const f of femaleNames) {
+    if (nameLower.includes(f)) return 'female';
+  }
+
+  for (const m of maleNames) {
+    if (nameLower.includes(m)) return 'male';
+  }
+
   // Common female endings
-  const femaleEndings = ['a', 'ia', 'ina', 'ella', 'ette', 'elle', 'ana', 'ena'];
+  const femaleEndings = ['a', 'ia', 'ina', 'ella', 'ette', 'elle', 'ana', 'ena', 'mi', 'ko', 'ka', 'na', 'ne', 'ie', 'y'];
   // Common male endings
-  const maleEndings = ['o', 'io', 'us', 'er', 'or', 'an', 'en', 'on', 'el', 'al'];
-  
+  const maleEndings = ['o', 'io', 'us', 'er', 'or', 'an', 'en', 'on', 'el', 'al', 'tor', 'ard', 'os', 'as'];
+
   for (const ending of femaleEndings) {
     if (nameLower.endsWith(ending) && nameLower.length > 3) {
       return 'female';
     }
   }
-  
+
   for (const ending of maleEndings) {
     if (nameLower.endsWith(ending) && nameLower.length > 3) {
+      // Special case for names ending in 'on' that might be female
+      if (nameLower.endsWith('sharon')) return 'female';
       return 'male';
     }
   }
-  
-  // Common name patterns
-  const femaleNames = ['maria', 'sophia', 'emily', 'sarah', 'anna', 'lisa', 'jennifer', 'elizabeth', 'michelle', 'jessica'];
-  const maleNames = ['michael', 'john', 'david', 'james', 'robert', 'william', 'richard', 'joseph', 'thomas', 'charles', 'darius', 'marco', 'robert'];
-  
-  for (const name of femaleNames) {
-    if (nameLower.includes(name)) return 'female';
-  }
-  
-  for (const name of maleNames) {
-    if (nameLower.includes(name)) return 'male';
-  }
-  
+
   return 'neutral';
 }
 
@@ -116,16 +137,16 @@ function getAgeCategory(age: number | null): 'young' | 'middle' | 'old' {
  */
 function findBestVoice(gender: 'male' | 'female' | 'neutral', age: 'young' | 'middle' | 'old', description: string): string {
   const descLower = description.toLowerCase();
-  
+
   // Get voices matching gender
   const genderVoices = getVoicesByGender(gender === 'neutral' ? 'male' : gender);
-  
+
   // Filter by age
   const ageVoices = getVoicesByAge(age);
-  
+
   // Find intersection
   const matchingVoices = genderVoices.filter(v => ageVoices.some(av => av.name === v.name));
-  
+
   if (matchingVoices.length > 0) {
     // Prefer voices that match description traits
     if (descLower.includes('deep') || descLower.includes('low') || descLower.includes('baritone')) {
@@ -138,14 +159,14 @@ function findBestVoice(gender: 'male' | 'female' | 'neutral', age: 'young' | 'mi
     }
     return matchingVoices[0].name;
   }
-  
+
   // Fallback: use gender-appropriate voice
   if (gender === 'female') {
-    return age === 'old' ? 'schedar' : age === 'young' ? 'autonoe' : 'aoede';
+    return age === 'old' ? 'aoede' : age === 'young' ? 'autonoe' : 'aoede';
   } else if (gender === 'male') {
     return age === 'old' ? 'charon' : age === 'young' ? 'puck' : 'fenrir';
   }
-  
+
   return 'kore'; // Neutral fallback
 }
 
@@ -154,7 +175,7 @@ function findBestVoice(gender: 'male' | 'female' | 'neutral', age: 'young' | 'mi
  */
 async function validateAndFixAll() {
   console.log('🔍 Validating all characters for voice-gender-age mismatches...\n');
-  
+
   const allCharacters = await db.personaTemplate.findMany({
     select: {
       id: true,
@@ -164,27 +185,33 @@ async function validateAndFixAll() {
       systemPrompt: true,
       category: true,
       archetype: true,
+      gender: true,
     },
   });
-  
+
   const issues: CharacterIssue[] = [];
-  
+
   for (const char of allCharacters) {
     if (!char.voiceName) continue;
-    
+
     // Extract gender and age from multiple sources
     const nameGender = detectGenderFromName(char.name);
     const promptGender = extractGenderFromPrompt(char.systemPrompt || '');
     const promptAge = extractAgeFromPrompt(char.systemPrompt || '');
     const ageCategory = getAgeCategory(promptAge);
-    
-    // Use prompt gender if available, otherwise use name detection
-    const finalGender = promptGender !== 'unknown' ? promptGender : (nameGender === 'neutral' ? 'male' : nameGender);
-    
+
+    // Priority: DB Gender > Prompt Gender > Name Gender
+    let finalGender: 'male' | 'female' | 'neutral' = 'neutral';
+    if (char.gender === 'F' || char.gender === 'female' || char.gender === 'Female') finalGender = 'female';
+    else if (char.gender === 'M' || char.gender === 'male' || char.gender === 'Male') finalGender = 'male';
+    else if (promptGender !== 'unknown') finalGender = promptGender;
+    else finalGender = (nameGender === 'neutral' ? 'male' : nameGender);
+
     // Get current voice metadata
     const currentVoiceMeta = getVoiceMetadata(char.voiceName);
-    
+
     if (!currentVoiceMeta) {
+      const recommendedVoice = findBestVoice(finalGender, ageCategory, char.description || '');
       issues.push({
         id: char.id,
         name: char.name,
@@ -194,23 +221,24 @@ async function validateAndFixAll() {
         systemPromptGender: promptGender,
         systemPromptAge: promptAge || undefined,
         issue: `Invalid voice name: ${char.voiceName}`,
+        recommendedVoice,
       });
       continue;
     }
-    
+
     // Check gender mismatch
-    const genderMismatch = 
+    const genderMismatch =
       (finalGender === 'male' && currentVoiceMeta.gender === 'female') ||
       (finalGender === 'female' && currentVoiceMeta.gender === 'male');
-    
+
     // Check age mismatch (less strict - allow some flexibility)
-    const ageMismatch = 
+    const ageMismatch =
       (ageCategory === 'old' && currentVoiceMeta.age === 'young') ||
       (ageCategory === 'young' && currentVoiceMeta.age === 'old');
-    
+
     if (genderMismatch || ageMismatch) {
       const recommendedVoice = findBestVoice(finalGender, ageCategory, char.description || '');
-      
+
       issues.push({
         id: char.id,
         name: char.name,
@@ -219,16 +247,16 @@ async function validateAndFixAll() {
         detectedAge: ageCategory,
         systemPromptGender: promptGender,
         systemPromptAge: promptAge || undefined,
-        issue: genderMismatch 
+        issue: genderMismatch
           ? `Gender mismatch: ${finalGender} character has ${currentVoiceMeta.gender} voice`
           : `Age mismatch: ${ageCategory} character has ${currentVoiceMeta.age} voice`,
         recommendedVoice,
       });
     }
   }
-  
+
   console.log(`Found ${issues.length} characters with mismatches:\n`);
-  
+
   // Show top 20 issues
   issues.slice(0, 20).forEach((issue, idx) => {
     console.log(`${idx + 1}. ${issue.name}`);
@@ -237,15 +265,15 @@ async function validateAndFixAll() {
     console.log(`   Recommended: ${issue.recommendedVoice}`);
     console.log(`   Issue: ${issue.issue}\n`);
   });
-  
+
   if (issues.length > 20) {
     console.log(`... and ${issues.length - 20} more\n`);
   }
-  
+
   // Ask for confirmation before fixing
   console.log(`\n🔧 Ready to fix ${issues.length} characters.`);
   console.log('This will update voiceName in the database to match gender and age.\n');
-  
+
   // Auto-fix all issues
   let fixed = 0;
   for (const issue of issues) {
@@ -262,38 +290,38 @@ async function validateAndFixAll() {
       }
     }
   }
-  
+
   console.log(`\n✅ Fixed ${fixed} out of ${issues.length} characters.`);
-  
+
   // Also fix system prompts to ensure correct pronouns
   console.log('\n🔧 Fixing system prompts to ensure correct pronouns...\n');
-  
+
   let promptFixed = 0;
   for (const char of allCharacters) {
     if (!char.systemPrompt) continue;
-    
+
     const promptGender = extractGenderFromPrompt(char.systemPrompt);
     const nameGender = detectGenderFromName(char.name);
     const finalGender = promptGender !== 'unknown' ? promptGender : (nameGender === 'neutral' ? 'male' : nameGender);
-    
+
     // Check if pronouns are correct
-    const hasCorrectPronouns = 
+    const hasCorrectPronouns =
       (finalGender === 'male' && (char.systemPrompt.includes('he/him') || char.systemPrompt.includes('he') || char.systemPrompt.includes('his'))) ||
       (finalGender === 'female' && (char.systemPrompt.includes('she/her') || char.systemPrompt.includes('she') || char.systemPrompt.includes('hers')));
-    
+
     if (!hasCorrectPronouns) {
       // Update system prompt with correct pronouns
-      const pronounSection = finalGender === 'male' 
+      const pronounSection = finalGender === 'male'
         ? 'Use your CORRECT GENDER PRONOUNS (he/him/his) in third person descriptions'
         : 'Use your CORRECT GENDER PRONOUNS (she/her/hers) in third person descriptions';
-      
+
       // Check if pronoun section exists and update it
       if (char.systemPrompt.includes('PRONOUN RULES')) {
         const updatedPrompt = char.systemPrompt.replace(
           /Use your CORRECT GENDER PRONOUNS[^]*?in third person descriptions/g,
           pronounSection
         );
-        
+
         if (updatedPrompt !== char.systemPrompt) {
           try {
             await db.personaTemplate.update({
@@ -309,7 +337,7 @@ async function validateAndFixAll() {
       }
     }
   }
-  
+
   console.log(`\n✅ Fixed pronouns for ${promptFixed} characters.`);
 }
 

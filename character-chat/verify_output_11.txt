@@ -1,0 +1,36 @@
+🔒 Starting Strict Voice Authority Transformation Verification
+
+🧪 Testing Coach Kofi (Voice: coach_kofi_01)...
+   Text: "This is a strict voice authority test. We do not fallback."
+❌ FAILED: Request failed unexpectedly (Status: 500).
+   Response: {
+  "error": "Voice Generation Failed. No fallback permitted.",
+  "details": "Fish Audio API Error (500): {\"message\":\"Failed to encode references\",\"status\":500}",
+  "debug": {
+    "referenceAudioPath": "reference_audio/regional/clean_kofi.wav",
+    "loadedAudio": true,
+    "voiceId": "coach_kofi_01"
+  }
+}
+
+🧪 Testing Eleanor Ashworth (Voice: eleanor_ashworth_01)...
+   Text: "History is strictly recorded."
+❌ FAILED: Request failed unexpectedly (Status: 500).
+   Response: {
+  "error": "Voice Generation Failed. No fallback permitted.",
+  "details": "Fish Audio API Error (500): {\"message\":\"Failed to encode references\",\"status\":500}",
+  "debug": {
+    "referenceAudioPath": "voice-samples/sleepless-historian/sample_1.wav",
+    "loadedAudio": true,
+    "voiceId": "eleanor_ashworth_01"
+  }
+}
+
+🧪 Testing Drift Attempt (Voice: random_drift_voice_01)...
+   Text: "This request should fail immediately."
+✅ SUCCESS: Request failed as expected (Status: 500).
+   Response: {
+  "error": "Voice Authority Violation: Voice ID 'random_drift_voice_01' is not authorized."
+}
+
+✨ Verification Complete.

@@ -28,6 +28,7 @@ import { CharacterProfile, Category, View } from '@/lib/master/types';
 import { LandingPage } from './LandingPage';
 import { Footer } from './Footer';
 import ChatWindow from '../ChatWindow';
+import SafeImage from '../SafeImage';
 import { supabase } from '@/lib/supabaseClient';
 
 const SidebarLink: React.FC<{ active?: boolean; icon: React.ReactNode; label: string; badge?: string; onClick?: () => void }> = ({ active, icon, label, badge, onClick }) => (
@@ -127,7 +128,7 @@ const SearchView: React.FC<{
 
               {/* Avatar */}
               <div className="h-16 w-16 rounded-xl overflow-hidden flex-shrink-0 border border-white/10 relative z-10 group-hover:scale-105 transition-transform duration-500">
-                <img src={char.avatarUrl} className="w-full h-full object-cover" />
+                <SafeImage src={char.avatarUrl} alt={char.name} className="w-full h-full" />
                 {index < 3 && (
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                 )}
@@ -219,7 +220,7 @@ const BlogPage = () => {
       <section className="px-16 mb-32">
         <div className="bg-[#1a1a1a] rounded-[80px] p-32 text-center space-y-10 border border-white/5 relative overflow-hidden">
           <div className="relative z-10 space-y-6">
-            <h2 className="text-6xl font-serif italic text-white">Join the wood.</h2>
+            <h2 className="text-6xl font-serif italic text-white">Join the woods.</h2>
             <p className="text-white/30 text-xl font-sans italic max-w-xl mx-auto">Get exclusive editorial insights, stories, and connection tips delivered to your inbox.</p>
             <div className="max-w-md mx-auto relative mt-12">
               <input type="email" placeholder="email@address.com" className="w-full bg-transparent border-b border-white/10 py-5 px-4 text-2xl italic outline-none focus:border-dipsea-accent transition-colors font-sans text-white" />
@@ -247,13 +248,17 @@ const CharacterProfileView: React.FC<{
     const name = character.name.toLowerCase();
     const category = character.category?.toLowerCase() || '';
     const styleHint = character.styleHint || '';
+    const description = character.description?.toLowerCase() || '';
 
-    // Character-specific voice descriptions
+    // Character-specific voice descriptions - PRIORITY CHECKS FIRST
+    if (name.includes('sergeant') || name.includes('briggs') || name.includes('drill')) return 'Commanding & Intense';
     if (name.includes('victor') && name.includes('hale')) return 'Analytical & Detached';
     if (name.includes('spongebob')) return 'Energetic & Cartoon';
     if (name.includes('trap') || name.includes('dj')) return 'Deep & Hype';
     if (name.includes('grandpa') || name.includes('winston')) return 'Warm & Wise';
-    if (name.includes('coach') || name.includes('boone')) return 'Commanding & Strong';
+    if (name.includes('coach') || name.includes('boone') || name.includes('tyler')) return 'Commanding & Strong';
+    if (name.includes('hype')) return 'Energetic & Motivating';
+    if (description.includes('military') || description.includes('trainer') || description.includes('discipline')) return 'Commanding & Direct';
     if (styleHint.includes('Japanese')) return 'Energetic & Clear';
     if (styleHint.includes('Korean')) return 'Smooth & Dramatic';
     if (styleHint.includes('French')) return 'Soft & Alluring';
@@ -1652,12 +1657,14 @@ const SettingsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                   </button>
                 </div>
               </div>
-              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-4">API Access</h3>
-                <div className="bg-black/20 p-3 rounded-lg font-mono text-sm text-white/60 break-all">
-                  sk-••••••••••••••••••••
+              <div className="bg-[#161616] border border-white/10 rounded-2xl p-6 opacity-60">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold text-white">API Access</h3>
+                  <span className="bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Coming Soon</span>
                 </div>
-                <button className="mt-3 text-purple-400 text-xs font-bold uppercase tracking-wider hover:text-purple-300">Regenerate Key</button>
+                <p className="text-white/40 text-sm">
+                  Developer API access and key management will be available in a future update.
+                </p>
               </div>
               <div className="bg-[#161616] border border-white/10 rounded-2xl p-6">
                 <h3 className="text-lg font-bold text-white mb-4">Data Export</h3>

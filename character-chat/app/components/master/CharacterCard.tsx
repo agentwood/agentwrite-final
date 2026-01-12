@@ -3,6 +3,7 @@
 import React from 'react';
 import { CharacterProfile } from '@/lib/master/types';
 import { Eye, Heart } from 'lucide-react';
+import SafeImage from '../SafeImage';
 
 interface CharacterCardProps {
   character: CharacterProfile;
@@ -20,10 +21,10 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, classNa
     >
       {/* Background Image with Scale Animation */}
       <div className="absolute inset-0 overflow-hidden rounded-[32px]">
-        <img
+        <SafeImage
           src={character.avatarUrl}
           alt={character.name}
-          className="h-full w-full object-cover transition-transform duration-[1500ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-110"
+          className="h-full w-full"
         />
       </div>
 
@@ -51,35 +52,35 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, classNa
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-700"></div>
 
       {/* Default Content (Bottom Overlay) */}
-      <div className="absolute bottom-0 left-0 right-0 p-8 text-white z-10 transition-all duration-700 group-hover:translate-y-2 group-hover:opacity-0">
-        <h3 className="text-2xl font-bold font-sans leading-tight mb-1">
+      <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-10 transition-all duration-700 group-hover:translate-y-2 group-hover:opacity-0">
+        <h3 className="text-lg font-bold font-sans leading-tight mb-1">
           {character.name}
         </h3>
         <div className="flex items-center gap-2 text-white/80 mb-1">
-          <Eye size={14} className="opacity-60" />
-          <span className="text-[13px] font-sans font-medium">
+          <Eye size={12} className="opacity-60" />
+          <span className="text-[11px] font-sans font-medium">
             {character.viewCount >= 1000
               ? `${(character.viewCount / 1000).toFixed(1)}k`
               : character.viewCount}
           </span>
         </div>
-        <p className="text-[12px] text-white/40 font-sans tracking-wide">
+        <p className="text-[10px] text-white/40 font-sans tracking-wide">
           {character.handle}
         </p>
       </div>
 
       {/* Hover State: Glassy Overlay */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-8 text-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-20">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-20">
         <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
-          <div className="w-16 h-16 rounded-full border-2 border-white/20 mb-6 overflow-hidden shadow-2xl mx-auto">
-            <img src={character.avatarUrl} className="w-full h-full object-cover" />
+          <div className="w-12 h-12 rounded-full border-2 border-white/20 mb-4 overflow-hidden shadow-2xl mx-auto">
+            <SafeImage src={character.avatarUrl} alt={character.name} className="w-full h-full" />
           </div>
 
-          <p className="text-sm font-sans text-white/90 leading-relaxed mb-8 italic line-clamp-3">
+          <p className="text-xs font-sans text-white/90 leading-relaxed mb-6 italic line-clamp-3">
             "{character.description}"
           </p>
 
-          <button className="px-6 py-3 bg-white text-black rounded-full flex items-center justify-center gap-2 font-bold text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-105 transition-all">
+          <button className="px-5 py-2.5 bg-white text-black rounded-full flex items-center justify-center gap-2 font-bold text-[9px] uppercase tracking-widest shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-105 transition-all">
             Start Chatting
           </button>
         </div>

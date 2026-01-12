@@ -1,0 +1,10 @@
+🔍 Debugging Fish Audio Encoding...
+
+📂 Loading Reference: reference_audio/regional/clean_kofi.wav
+[Fish Audio] Loaded Base64 (First 50): UklGRkarCQBXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAATE...
+✅ Loaded Base64 Length: 844904
+
+🚀 Attempting Synthesis with Base64 payload...
+
+❌ Synthesis Failed:
+Fish Audio not configured. Set FISH_AUDIO_API_KEY

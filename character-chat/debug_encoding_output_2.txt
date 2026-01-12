@@ -1,0 +1,10 @@
+🔍 Debugging Fish Audio Encoding...
+
+📂 Loading Reference: reference_audio/regional/voice_west_african_motivation_coach_male_01.wav
+[Fish Audio] Loaded Base64 (First 50): SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAA...
+✅ Loaded Base64 Length: 153312
+
+🚀 Attempting Synthesis with Base64 payload...
+
+❌ Synthesis Failed:
+Fish Audio not configured. Set FISH_AUDIO_API_KEY

@@ -1,0 +1,1426 @@
+════════════════════════════════════════════════════════════════════════════════
+                    COMPREHENSIVE CHARACTER VOICE AUDIT
+════════════════════════════════════════════════════════════════════════════════
+
+Total characters: 180
+
+────────────────────────────────────────────────────────────────────────────────
+DETAILED CHARACTER AUDIT
+────────────────────────────────────────────────────────────────────────────────
+
+🟢 Adélie Moreau (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (empathetic)
+   Score: 10/10
+      ✓ Good emotion: empathetic
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Aeliana Lightbringer (F)
+   Type: GENERAL_HELPER | Archetype: innocent
+   Voice: 59e9dc1c... | Signature: (neutral) (keen)
+   Score: 8/10
+      ○ Generally positive emotion: keen
+      ✓ Good tone: neutral
+
+🟢 Aeliana Thornwood (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (sincere)
+   Score: 10/10
+      ✓ Good emotion: sincere
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Alex 'The Hype' Martinez (M)
+   Type: ENERGETIC_FUN | Archetype: high_energy
+   Voice: 802e3bc2... | Signature: (amused)
+   Score: 10/10
+      ✓ Good emotion: amused
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Alex Kim (M)
+   Type: WISE_SCHOLAR | Archetype: soft_vulnerable
+   Voice: 802e3bc2... | Signature: (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Alien Zorg (M)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (empathetic)
+   Score: 7/10
+      ○ Neutral emotion: empathetic
+      ✓ Good tone: neutral
+
+🟢 Angry Dex (M)
+   Type: AGGRESSIVE_AUTHORITY | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (shouting) (impatient)
+   Score: 10/10
+      ✓ Good emotion: impatient
+      ✓ Good tone: shouting
+      ★ Perfect voice-character match!
+
+🟡 Bernard Quinn (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (in a hurry tone) (astonished)
+   Score: 7/10
+      ✓ Good emotion: astonished
+
+🟢 Big Tom (M)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (amused)
+   Score: 10/10
+      ✓ Good emotion: amused
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Brave Tomasz (M)
+   Type: ENERGETIC_FUN | Archetype: caregiver
+   Voice: 802e3bc2... | Signature: (shouting) (joyful)
+   Score: 10/10
+      ✓ Good emotion: joyful
+      ✓ Good tone: shouting
+      ★ Perfect voice-character match!
+
+🟢 Camille Beaumont (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (empathetic)
+   Score: 10/10
+      ✓ Good emotion: empathetic
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Captain Bucky (M)
+   Type: AGGRESSIVE_AUTHORITY | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (serious) (disdainful)
+   Score: 7/10
+      ✓ Good emotion: disdainful
+
+🟢 Captain Jack Sterling (M)
+   Type: AGGRESSIVE_AUTHORITY | Archetype: entertainer
+   Voice: 802e3bc2... | Signature: (shouting) (angry)
+   Score: 10/10
+      ✓ Good emotion: angry
+      ✓ Good tone: shouting
+      ★ Perfect voice-character match!
+
+🟢 Captain Rhea Stone (F)
+   Type: AGGRESSIVE_AUTHORITY | Archetype: creator
+   Voice: 59e9dc1c... | Signature: (in a hurry tone) (furious)
+   Score: 10/10
+      ✓ Good emotion: furious
+      ✓ Good tone: in a hurry tone
+      ★ Perfect voice-character match!
+
+🟢 Carlos Mendez (M)
+   Type: GENERAL_HELPER | Archetype: Madrid taxi driver with stories to tell
+   Voice: 802e3bc2... | Signature: (grateful)
+   Score: 10/10
+      ✓ Good emotion: grateful
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Catherine Brooks (F)
+   Type: GENERAL_HELPER | Archetype: Evening network news presenter
+   Voice: 59e9dc1c... | Signature: (screaming) (empathetic)
+   Score: 7/10
+      ✓ Good emotion: empathetic
+
+🟢 Celeste Nightshade (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Chef Antonio Rossi (M)
+   Type: ENERGETIC_FUN | Archetype: high_energy
+   Voice: 802e3bc2... | Signature: (excited)
+   Score: 10/10
+      ✓ Good emotion: excited
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Chippy the Squirrel (M)
+   Type: ENERGETIC_FUN | Archetype: high_energy
+   Voice: 802e3bc2... | Signature: (curious)
+   Score: 10/10
+      ✓ Good emotion: curious
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Coach Marcus (M)
+   Type: AGGRESSIVE_AUTHORITY | Archetype: high_energy
+   Voice: 802e3bc2... | Signature: (in a hurry tone) (serious)
+   Score: 10/10
+      ✓ Good emotion: serious
+      ✓ Good tone: in a hurry tone
+      ★ Perfect voice-character match!
+
+🟢 Comfort Teddy (M)
+   Type: GENERAL_HELPER | Archetype: soft_vulnerable
+   Voice: 802e3bc2... | Signature: (empathetic)
+   Score: 10/10
+      ✓ Good emotion: empathetic
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Confident Aaliyah (F)
+   Type: GENERAL_HELPER | Archetype: cold_authority
+   Voice: 59e9dc1c... | Signature: (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Cyrus Starfire (M)
+   Type: WISE_SCHOLAR | Archetype: sage
+   Voice: f8dfe9c8... | Signature: (empathetic)
+   Score: 7/10
+      ○ Neutral emotion: empathetic
+      ✓ Good tone: neutral
+
+🟢 DJ Kira Brooks (F)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (excited)
+   Score: 10/10
+      ✓ Good emotion: excited
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 DJ Trap-A-Holics (M)
+   Type: ENERGETIC_FUN | Archetype: high_energy
+   Voice: 802e3bc2... | Signature: (joyful)
+   Score: 10/10
+      ✓ Good emotion: joyful
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Daily Art Snack (M)
+   Type: GENERAL_HELPER | Archetype: creator
+   Voice: 802e3bc2... | Signature: (shouting) (curious)
+   Score: 10/10
+      ✓ Good emotion: curious
+      ✓ Good tone: shouting
+      ★ Perfect voice-character match!
+
+🟢 David Davis (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (sincere)
+   Score: 10/10
+      ✓ Good emotion: sincere
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 David Jones (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (curious)
+   Score: 10/10
+      ✓ Good emotion: curious
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 David Kim (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (sincere)
+   Score: 10/10
+      ✓ Good emotion: sincere
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 David Martinez (M)
+   Type: WISE_SCHOLAR | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (soft tone) (sincere)
+   Score: 10/10
+      ✓ Good emotion: sincere
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 David Park (M)
+   Type: GENERAL_HELPER | Archetype: soft_vulnerable
+   Voice: 802e3bc2... | Signature: (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Detective Jack Donnelly (M)
+   Type: GENERAL_HELPER | Archetype: Noir-influenced American detective
+   Voice: 802e3bc2... | Signature: (whispering) (interested)
+   Score: 7/10
+      ✓ Good emotion: interested
+
+🟢 Detective Jun Park (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (soft tone) (empathetic)
+   Score: 10/10
+      ✓ Good emotion: empathetic
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Detective Mittens (M)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (curious)
+   Score: 10/10
+      ✓ Good emotion: curious
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Disco Dave (M)
+   Type: ENERGETIC_FUN | Archetype: explorer
+   Voice: 802e3bc2... | Signature: (excited)
+   Score: 10/10
+      ✓ Good emotion: excited
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Doodle Dave (M)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (curious)
+   Score: 10/10
+      ✓ Good emotion: curious
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Dr. Chen Academic Speaker (M)
+   Type: GENERAL_HELPER | Archetype: cold_authority
+   Voice: 728f6ff2... | Signature: (guilty)
+   Score: 7/10
+      ○ Neutral emotion: guilty
+      ✓ Good tone: neutral
+
+🟢 Dr. Elena Vasquez (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (interested)
+   Score: 10/10
+      ✓ Good emotion: interested
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Dr. Harold Whitcombe (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (in a hurry tone) (empathetic)
+   Score: 7/10
+      ✓ Good emotion: empathetic
+
+🟡 Dr. Lucien Vale (M)
+   Type: VILLAIN | Archetype: villain
+   Voice: ef9c79b6... | Signature: (conciliative)
+   Score: 7/10
+      ○ Neutral emotion: conciliative
+      ✓ Good tone: neutral
+
+🟡 Dr. Marcus Sterling (M)
+   Type: GENERAL_HELPER | Archetype: Average American medical drama physician
+   Voice: 802e3bc2... | Signature: (depressed)
+   Score: 7/10
+      ○ Neutral emotion: depressed
+      ✓ Good tone: neutral
+
+🟡 Dr. Victoria Ashworth (F)
+   Type: GENERAL_HELPER | Archetype: British NHS consultant physician
+   Voice: 59e9dc1c... | Signature: (depressed)
+   Score: 7/10
+      ○ Neutral emotion: depressed
+      ✓ Good tone: neutral
+
+🟡 Draven Darkbane (M)
+   Type: VILLAIN | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (whispering) (indifferent)
+   Score: 7/10
+      ○ Neutral emotion: indifferent
+      ✓ Good tone: whispering
+
+🟢 Draven Shadowweaver (M)
+   Type: VILLAIN | Archetype: sage
+   Voice: f8dfe9c8... | Signature: (sneering)
+   Score: 10/10
+      ✓ Good emotion: sneering
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Elara Darkbane (F)
+   Type: VILLAIN | Archetype: trickster
+   Voice: 59e9dc1c... | Signature: (scornful)
+   Score: 10/10
+      ✓ Good emotion: scornful
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Elara Moonwhisper (F)
+   Type: HEROIC | Archetype: hero
+   Voice: 59e9dc1c... | Signature: (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Elena Morales (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (grateful)
+   Score: 10/10
+      ✓ Good emotion: grateful
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Elena Rodriguez (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (astonished)
+   Score: 10/10
+      ✓ Good emotion: astonished
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Emily Jones (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (screaming) (empathetic)
+   Score: 7/10
+      ✓ Good emotion: empathetic
+
+🟡 Emma KnowItAll (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (in a hurry tone) (grateful)
+   Score: 7/10
+      ✓ Good emotion: grateful
+
+🟡 Erza Titania (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (whispering) (proud)
+   Score: 7/10
+      ✓ Good emotion: proud
+
+🟡 Fearless Asha (F)
+   Type: ENERGETIC_FUN | Archetype: high_energy
+   Voice: 59e9dc1c... | Signature: (satisfied)
+   Score: 7/10
+      ○ Neutral emotion: satisfied
+      ✓ Good tone: neutral
+
+🟢 Fenrir Crystalheart (M)
+   Type: WISE_SCHOLAR | Archetype: sage
+   Voice: f8dfe9c8... | Signature: (soft tone) (relaxed)
+   Score: 10/10
+      ✓ Good emotion: relaxed
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Fenrir Frostwind (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (empathetic)
+   Score: 10/10
+      ✓ Good emotion: empathetic
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Friendly Rajiv (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (grateful)
+   Score: 10/10
+      ✓ Good emotion: grateful
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Fuka Shimizu (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (shouting) (serious)
+   Score: 10/10
+      ✓ Good emotion: serious
+      ✓ Good tone: shouting
+      ★ Perfect voice-character match!
+
+🟢 Gamer Eamon (M)
+   Type: ENERGETIC_FUN | Archetype: soft_vulnerable
+   Voice: 802e3bc2... | Signature: (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Grandpa Joe (M)
+   Type: CARING_THERAPIST | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (whispering) (curious)
+   Score: 7/10
+      ○ Neutral emotion: curious
+      ✓ Good tone: whispering
+
+🟢 Grill Master Bob (M)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Hector "Money Map" Alvarez (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (shouting) (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: shouting
+      ★ Perfect voice-character match!
+
+🟢 Hinata Moonlight (F)
+   Type: GENERAL_HELPER | Archetype: soft_vulnerable
+   Voice: 59e9dc1c... | Signature: (soft tone) (gentle)
+   Score: 10/10
+      ✓ Good emotion: gentle
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Hoshi Kim (M)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (joyful)
+   Score: 10/10
+      ✓ Good emotion: joyful
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Hype Coach Tyler (M)
+   Type: AGGRESSIVE_AUTHORITY | Archetype: high_energy
+   Voice: 802e3bc2... | Signature: (serious) (furious)
+   Score: 7/10
+      ✓ Good emotion: furious
+
+🟢 Influencer Allé (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (excited)
+   Score: 10/10
+      ✓ Good emotion: excited
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Inspector Laurent Moreau (M)
+   Type: GENERAL_HELPER | Archetype: Parisian intellectual detective
+   Voice: 802e3bc2... | Signature: (screaming) (confident)
+   Score: 7/10
+      ✓ Good emotion: confident
+
+🟡 Iris Frostwind (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (screaming) (serious)
+   Score: 7/10
+      ✓ Good emotion: serious
+
+🟡 Isabella Reyes (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (in a hurry tone) (astonished)
+   Score: 7/10
+      ✓ Good emotion: astonished
+
+🟢 James Anderson (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (empathetic)
+   Score: 10/10
+      ✓ Good emotion: empathetic
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 James Williams (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (empathetic)
+   Score: 10/10
+      ✓ Good emotion: empathetic
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Jasper Bloom (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Jennifer Kim (F)
+   Type: ENERGETIC_FUN | Archetype: entertainer
+   Voice: 59e9dc1c... | Signature: (joyful)
+   Score: 10/10
+      ✓ Good emotion: joyful
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Jennifer Smith (F)
+   Type: ROMANTIC | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (sincere)
+   Score: 10/10
+      ✓ Good emotion: sincere
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Jennifer White (F)
+   Type: WISE_SCHOLAR | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (sincere)
+   Score: 10/10
+      ✓ Good emotion: sincere
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Jennifer Williams (F)
+   Type: ROMANTIC | Archetype: soft_vulnerable
+   Voice: 59e9dc1c... | Signature: (soft tone) (interested)
+   Score: 10/10
+      ✓ Good emotion: interested
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟡 Jin-woo Park (M)
+   Type: ROMANTIC | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (astonished)
+   Score: 7/10
+      ○ Neutral emotion: astonished
+      ✓ Good tone: neutral
+
+🟢 Julia Chen (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (grateful)
+   Score: 10/10
+      ✓ Good emotion: grateful
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Justice Sterling (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (whispering) (proud)
+   Score: 7/10
+      ✓ Good emotion: proud
+
+🟡 Kael Dawnbreaker (M)
+   Type: HEROIC | Archetype: hero
+   Voice: 728f6ff2... | Signature: (soft tone) (proud)
+   Score: 7/10
+      ✓ Good emotion: proud
+
+🟢 Kael Silverblade (M)
+   Type: HEROIC | Archetype: hero
+   Voice: 728f6ff2... | Signature: (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Kevin Nguyen (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Levi Steel-Wind (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (whispering) (astonished)
+   Score: 7/10
+      ✓ Good emotion: astonished
+
+🟡 Liam Ashford (M)
+   Type: ENERGETIC_FUN | Archetype: entertainer
+   Voice: 802e3bc2... | Signature: (hesitating)
+   Score: 7/10
+      ○ Neutral emotion: hesitating
+      ✓ Good tone: neutral
+
+🟢 Lisa Anderson (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Luna the Stargazer (F)
+   Type: CARING_THERAPIST | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (whispering) (curious)
+   Score: 10/10
+      ✓ Good emotion: curious
+      ✓ Good tone: whispering
+      ★ Perfect voice-character match!
+
+🟡 Madame Noir (F)
+   Type: GENERAL_HELPER | Archetype: Bond-style femme fatale villain
+   Voice: 59e9dc1c... | Signature: (anxious)
+   Score: 7/10
+      ○ Neutral emotion: anxious
+      ✓ Good tone: neutral
+
+🟡 Madame Éloïse Durand (F)
+   Type: GENERAL_HELPER | Archetype: cold_authority
+   Voice: 59e9dc1c... | Signature: (scornful)
+   Score: 7/10
+      ○ Neutral emotion: scornful
+      ✓ Good tone: neutral
+
+🟢 Mana Hayashi (M)
+   Type: GENERAL_HELPER | Archetype: innocent
+   Voice: 802e3bc2... | Signature: (soft tone) (joyful)
+   Score: 8/10
+      ○ Generally positive emotion: joyful
+      ✓ Good tone: soft tone
+
+🟢 Marco Rossi (M)
+   Type: ENERGETIC_FUN | Archetype: high_energy
+   Voice: 802e3bc2... | Signature: (joyful)
+   Score: 10/10
+      ✓ Good emotion: joyful
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Marcus "Blaze" Thompson (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (screaming) (proud)
+   Score: 7/10
+      ✓ Good emotion: proud
+
+🟢 Marcus Chen (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Maria Johnson (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (grateful)
+   Score: 10/10
+      ✓ Good emotion: grateful
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Maria Jones (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (soft tone) (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Maria Smith (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (serious)
+   Score: 10/10
+      ✓ Good emotion: serious
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Maria Williams (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (soft tone) (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Mark Johnson (M)
+   Type: WISE_SCHOLAR | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Maya Chen (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (whispering) (grateful)
+   Score: 7/10
+      ✓ Good emotion: grateful
+
+🟡 Maya Patel (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (in a hurry tone) (astonished)
+   Score: 7/10
+      ✓ Good emotion: astonished
+
+🟡 Michael Chen (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (whispering) (interested)
+   Score: 7/10
+      ✓ Good emotion: interested
+
+🟢 Michael Jones (M)
+   Type: ROMANTIC | Archetype: rebellious
+   Voice: 802e3bc2... | Signature: (interested)
+   Score: 10/10
+      ✓ Good emotion: interested
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Michael Zhang (M)
+   Type: WISE_SCHOLAR | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (soft tone) (sincere)
+   Score: 10/10
+      ✓ Good emotion: sincere
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Mikasa Storm (F)
+   Type: GENERAL_HELPER | Archetype: cold_authority
+   Voice: 59e9dc1c... | Signature: (soft tone) (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Mina "Plot Twist" Kwon (F)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (delighted)
+   Score: 10/10
+      ✓ Good emotion: delighted
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Mina Kwon (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (curious)
+   Score: 10/10
+      ✓ Good emotion: curious
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Narrator Adam (M)
+   Type: GENERAL_HELPER | Archetype: cold_authority
+   Voice: 728f6ff2... | Signature: (denying)
+   Score: 7/10
+      ○ Neutral emotion: denying
+      ✓ Good tone: neutral
+
+🟢 Neighbor Nancy (F)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Nico (M)
+   Type: ENERGETIC_FUN | Archetype: entertainer
+   Voice: 802e3bc2... | Signature: (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Nora Feld (F)
+   Type: GENERAL_HELPER | Archetype: cold_authority
+   Voice: 59e9dc1c... | Signature: (soft tone) (guilty)
+   Score: 7/10
+      ○ Neutral emotion: guilty
+      ✓ Good tone: soft tone
+
+🟢 Nova Ironforge (F)
+   Type: HEROIC | Archetype: sage
+   Voice: b545c585... | Signature: (shouting) (wise)
+   Score: 10/10
+      ✓ Good emotion: wise
+      ✓ Good tone: shouting
+      ★ Perfect voice-character match!
+
+🟡 Nova Shadowweaver (F)
+   Type: VILLAIN | Archetype: hero
+   Voice: 59e9dc1c... | Signature: (interested)
+   Score: 7/10
+      ○ Neutral emotion: interested
+      ✓ Good tone: neutral
+
+🟡 Nyx Dawnbreaker (F)
+   Type: WISE_SCHOLAR | Archetype: sage
+   Voice: b545c585... | Signature: (in a hurry tone) (relaxed)
+   Score: 7/10
+      ✓ Good emotion: relaxed
+
+🟡 Nyx Frostwind (F)
+   Type: WISE_SCHOLAR | Archetype: sage
+   Voice: b545c585... | Signature: (in a hurry tone) (relaxed)
+   Score: 7/10
+      ✓ Good emotion: relaxed
+
+🟢 Nyx Shadowweaver (F)
+   Type: VILLAIN | Archetype: hero
+   Voice: 59e9dc1c... | Signature: (whispering) (scornful)
+   Score: 10/10
+      ✓ Good emotion: scornful
+      ✓ Good tone: whispering
+      ★ Perfect voice-character match!
+
+🟢 Oliver Finch (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (soft tone) (serious)
+   Score: 10/10
+      ✓ Good emotion: serious
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟡 Orion Silverblade (M)
+   Type: GENERAL_HELPER | Archetype: explorer
+   Voice: 802e3bc2... | Signature: (whispering) (confident)
+   Score: 7/10
+      ✓ Good emotion: confident
+
+🟢 Penny Clarke (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (serious)
+   Score: 10/10
+      ✓ Good emotion: serious
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Plato (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (in a hurry tone) (serious)
+   Score: 7/10
+      ✓ Good emotion: serious
+
+🟡 Professor Chaos (M)
+   Type: VILLAIN | Archetype: Saturday morning cartoon antagonist
+   Voice: 802e3bc2... | Signature: (soft tone) (confident)
+   Score: 7/10
+      ○ Neutral emotion: confident
+      ✓ Good tone: soft tone
+
+🟢 Professor David Okafor (M)
+   Type: WISE_SCHOLAR | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (relaxed)
+   Score: 10/10
+      ✓ Good emotion: relaxed
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Professor Edmund Blackwell (M)
+   Type: WISE_SCHOLAR | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (relaxed)
+   Score: 10/10
+      ✓ Good emotion: relaxed
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Professor Eleanor Ashworth (F)
+   Type: ENERGETIC_FUN | Archetype: high_energy
+   Voice: 59e9dc1c... | Signature: (curious)
+   Score: 10/10
+      ✓ Good emotion: curious
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Professor Harold Whitmore (M)
+   Type: WISE_SCHOLAR | Archetype: Traditional American academic lecturer
+   Voice: 802e3bc2... | Signature: (soft tone) (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Professor Liam (M)
+   Type: WISE_SCHOLAR | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (soft tone) (interested)
+   Score: 10/10
+      ✓ Good emotion: interested
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟡 Professor Monotone (M)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (interested)
+   Score: 7/10
+      ○ Neutral emotion: interested
+      ✓ Good tone: neutral
+
+🟢 Raven Emberheart (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Raven Ironforge (F)
+   Type: VILLAIN | Archetype: villain
+   Voice: ef9c79b6... | Signature: (sarcastic)
+   Score: 10/10
+      ✓ Good emotion: sarcastic
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Raven Thornwood (F)
+   Type: WISE_SCHOLAR | Archetype: sage
+   Voice: b545c585... | Signature: (empathetic)
+   Score: 7/10
+      ○ Neutral emotion: empathetic
+      ✓ Good tone: neutral
+
+🟡 Real Life Sim (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (in a hurry tone) (serious)
+   Score: 7/10
+      ✓ Good emotion: serious
+
+🟡 Rei Tanaka (F)
+   Type: ENERGETIC_FUN | Archetype: high_energy
+   Voice: 59e9dc1c... | Signature: (in a hurry tone) (excited)
+   Score: 7/10
+      ✓ Good emotion: excited
+
+🟢 Riven Dawnbreaker (M)
+   Type: HEROIC | Archetype: hero
+   Voice: 728f6ff2... | Signature: (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Riven Moonwhisper (M)
+   Type: HEROIC | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Riven Sunstrider (M)
+   Type: HEROIC | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (shouting) (sincere)
+   Score: 10/10
+      ✓ Good emotion: sincere
+      ✓ Good tone: shouting
+      ★ Perfect voice-character match!
+
+🟢 Robert Davis (M)
+   Type: ROMANTIC | Archetype: explorer
+   Voice: 802e3bc2... | Signature: (interested)
+   Score: 10/10
+      ✓ Good emotion: interested
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Robert Garcia (M)
+   Type: ROMANTIC | Archetype: rebellious
+   Voice: 802e3bc2... | Signature: (soft tone) (comforting)
+   Score: 10/10
+      ✓ Good emotion: comforting
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Robert Miller (M)
+   Type: ROMANTIC | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (comforting)
+   Score: 10/10
+      ✓ Good emotion: comforting
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Robert Thompson (M)
+   Type: WISE_SCHOLAR | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (sincere)
+   Score: 10/10
+      ✓ Good emotion: sincere
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Rowan Pike (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (soft tone) (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟡 Ryuk the Deceiver (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (scornful)
+   Score: 7/10
+      ○ Neutral emotion: scornful
+      ✓ Good tone: neutral
+
+🟡 Salty Marjorie (F)
+   Type: GENERAL_HELPER | Archetype: cold_authority
+   Voice: 59e9dc1c... | Signature: (scornful)
+   Score: 7/10
+      ○ Neutral emotion: scornful
+      ✓ Good tone: neutral
+
+🟡 Samir Haddad (M)
+   Type: GENERAL_HELPER | Archetype: cold_authority
+   Voice: 728f6ff2... | Signature: (guilty)
+   Score: 7/10
+      ○ Neutral emotion: guilty
+      ✓ Good tone: neutral
+
+🟢 Sarah Davis (F)
+   Type: GENERAL_HELPER | Archetype: explorer
+   Voice: 59e9dc1c... | Signature: (soft tone) (curious)
+   Score: 10/10
+      ✓ Good emotion: curious
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Sarah Johnson (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (curious)
+   Score: 10/10
+      ✓ Good emotion: curious
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Sarah Martinez (F)
+   Type: WISE_SCHOLAR | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (soft tone) (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Sarah Polyglot (F)
+   Type: ENERGETIC_FUN | Archetype: high_energy
+   Voice: 59e9dc1c... | Signature: (sincere)
+   Score: 8/10
+      ○ Generally positive emotion: sincere
+      ✓ Good tone: neutral
+
+🔴 Sarah Wheeler (F)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (soft tone) (delighted)
+   Score: 5/10
+      ✓ Good emotion: delighted
+      ✗ Bad tone for ENERGETIC_FUN: soft tone
+
+🟢 Sarah Williams (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (sincere)
+   Score: 10/10
+      ✓ Good emotion: sincere
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Sergeant Cole Briggs (M)
+   Type: AGGRESSIVE_AUTHORITY | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (in a hurry tone) (angry)
+   Score: 10/10
+      ✓ Good emotion: angry
+      ✓ Good tone: in a hurry tone
+      ★ Perfect voice-character match!
+
+🟢 Sir Prance-a-Lot (M)
+   Type: ENERGETIC_FUN | Archetype: hero
+   Voice: 728f6ff2... | Signature: (excited)
+   Score: 10/10
+      ✓ Good emotion: excited
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Sofía Vega (F)
+   Type: GENERAL_HELPER | Archetype: cold_authority
+   Voice: 59e9dc1c... | Signature: (serious)
+   Score: 10/10
+      ✓ Good emotion: serious
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Sophia Language Tutor (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (interested)
+   Score: 10/10
+      ✓ Good emotion: interested
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Sophie Chen (F)
+   Type: WISE_SCHOLAR | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Sophie Laurent (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (interested)
+   Score: 10/10
+      ✓ Good emotion: interested
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 SpongeBob SquarePants (M)
+   Type: ENERGETIC_FUN | Archetype: innocent
+   Voice: 802e3bc2... | Signature: (confused)
+   Score: 7/10
+      ○ Neutral emotion: confused
+      ✓ Good tone: neutral
+
+🟡 Stern Viktor (M)
+   Type: GENERAL_HELPER | Archetype: cold_authority
+   Voice: 728f6ff2... | Signature: (soft tone) (disdainful)
+   Score: 7/10
+      ○ Neutral emotion: disdainful
+      ✓ Good tone: soft tone
+
+🟢 Sunny Sato (F)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (curious)
+   Score: 10/10
+      ✓ Good emotion: curious
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Sylas Moonwhisper (M)
+   Type: HEROIC | Archetype: hero
+   Voice: 728f6ff2... | Signature: (in a hurry tone) (confident)
+   Score: 7/10
+      ✓ Good emotion: confident
+
+🟡 Sylas Stormcaller (M)
+   Type: WISE_SCHOLAR | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (empathetic)
+   Score: 7/10
+      ○ Neutral emotion: empathetic
+      ✓ Good tone: neutral
+
+🟡 Taesung 'Story' Lee (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (in a hurry tone) (grateful)
+   Score: 7/10
+      ✓ Good emotion: grateful
+
+🟢 The Shadow (M)
+   Type: VILLAIN | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (whispering) (scornful)
+   Score: 10/10
+      ✓ Good emotion: scornful
+      ✓ Good tone: whispering
+      ★ Perfect voice-character match!
+
+🟢 The Sleepless Historian (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (astonished)
+   Score: 10/10
+      ✓ Good emotion: astonished
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 The Wise Elephant (M)
+   Type: WISE_SCHOLAR | Archetype: sage
+   Voice: f8dfe9c8... | Signature: (soft tone) (sincere)
+   Score: 10/10
+      ✓ Good emotion: sincere
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟡 Theo Nguyen (M)
+   Type: ENERGETIC_FUN | Archetype: high_energy
+   Voice: 802e3bc2... | Signature: (embarrassed)
+   Score: 7/10
+      ○ Neutral emotion: embarrassed
+      ✓ Good tone: neutral
+
+🟡 Thorin Lightbringer (M)
+   Type: HEROIC | Archetype: innocent
+   Voice: 802e3bc2... | Signature: (screaming) (confident)
+   Score: 7/10
+      ✓ Good emotion: confident
+
+🟢 Time Traveler Tina (M)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (confident)
+   Score: 10/10
+      ✓ Good emotion: confident
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Tony the Mechanic (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (shouting) (astonished)
+   Score: 10/10
+      ✓ Good emotion: astonished
+      ✓ Good tone: shouting
+      ★ Perfect voice-character match!
+
+🟢 Valentina Russo (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (soft tone) (grateful)
+   Score: 10/10
+      ✓ Good emotion: grateful
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Valentino Estrada (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (astonished)
+   Score: 10/10
+      ✓ Good emotion: astonished
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Vex Bloodmoon (F)
+   Type: WISE_SCHOLAR | Archetype: sage
+   Voice: b545c585... | Signature: (empathetic)
+   Score: 7/10
+      ○ Neutral emotion: empathetic
+      ✓ Good tone: neutral
+
+🟢 Vex Frostwind (F)
+   Type: HEROIC | Archetype: hero
+   Voice: 59e9dc1c... | Signature: (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟢 Vex Ironforge (F)
+   Type: WISE_SCHOLAR | Archetype: sage
+   Voice: b545c585... | Signature: (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Vex Skyward (F)
+   Type: HEROIC | Archetype: hero
+   Voice: 59e9dc1c... | Signature: (negative)
+   Score: 7/10
+      ○ Neutral emotion: negative
+      ✓ Good tone: neutral
+
+🟡 Victor Hale (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (whispering) (proud)
+   Score: 7/10
+      ✓ Good emotion: proud
+
+🟢 Wendy Hughes (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (soft tone) (astonished)
+   Score: 10/10
+      ✓ Good emotion: astonished
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Winston 'Grandpa' Morris (M)
+   Type: CARING_THERAPIST | Archetype: cold_authority
+   Voice: 728f6ff2... | Signature: (whispering) (empathetic)
+   Score: 10/10
+      ✓ Good emotion: empathetic
+      ✓ Good tone: whispering
+      ★ Perfect voice-character match!
+
+🟢 Yuki Tanaka (F)
+   Type: GENERAL_HELPER | Archetype: Traditional Japanese store owner
+   Voice: 59e9dc1c... | Signature: (soft tone) (gentle)
+   Score: 10/10
+      ✓ Good emotion: gentle
+      ✓ Good tone: soft tone
+      ★ Perfect voice-character match!
+
+🟢 Yumi Nakamura (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (shouting) (grateful)
+   Score: 10/10
+      ✓ Good emotion: grateful
+      ✓ Good tone: shouting
+      ★ Perfect voice-character match!
+
+🟢 Zara Emberheart (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (proud)
+   Score: 10/10
+      ✓ Good emotion: proud
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Zara Okonkwo (F)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: b545c585... | Signature: (whispering) (serious)
+   Score: 7/10
+      ✓ Good emotion: serious
+
+🟡 Zara Skyward (F)
+   Type: VILLAIN | Archetype: villain
+   Voice: ef9c79b6... | Signature: (shouting) (conciliative)
+   Score: 7/10
+      ○ Neutral emotion: conciliative
+      ✓ Good tone: shouting
+
+🟢 Zephyr Dawnbreaker (M)
+   Type: GENERAL_HELPER | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (grateful)
+   Score: 10/10
+      ✓ Good emotion: grateful
+      ✓ Good tone: neutral
+      ★ Perfect voice-character match!
+
+🟡 Zombie Pete (M)
+   Type: ENERGETIC_FUN | Archetype: warm_mentor
+   Voice: 802e3bc2... | Signature: (empathetic)
+   Score: 7/10
+      ○ Neutral emotion: empathetic
+      ✓ Good tone: neutral
+
+════════════════════════════════════════════════════════════════════════════════
+UNIQUENESS ANALYSIS
+════════════════════════════════════════════════════════════════════════════════
+
+Unique voice signatures: 115
+Characters with same signature: 98
+
+⚠️  CHARACTERS WITH IDENTICAL VOICE SIGNATURES:
+   b545c585-(empathetic): Adélie Moreau, Camille Beaumont, Raven Thornwood, Vex Bloodmoon
+   b545c585-(sincere): Aeliana Thornwood, Jennifer Smith, Jennifer White, Sarah Williams
+   802e3bc2-(amused): Alex 'The Hype' Martinez, Big Tom
+   802e3bc2-(confident): Alex Kim, David Park, Gamer Eamon, Grill Master Bob, Mark Johnson, Nico, Time Traveler Tina
+   802e3bc2-(empathetic): Alien Zorg, Comfort Teddy, Fenrir Frostwind, James Anderson, James Williams, Sylas Stormcaller, Zombie Pete
+   802e3bc2-(grateful): Carlos Mendez, Friendly Rajiv, Zephyr Dawnbreaker
+   b545c585-(proud): Celeste Nightshade, Raven Emberheart, Vex Ironforge, Zara Emberheart
+   802e3bc2-(excited): Chef Antonio Rossi, Disco Dave, Influencer Allé
+   802e3bc2-(curious): Chippy the Squirrel, David Jones, Detective Mittens, Doodle Dave
+   802e3bc2-(in a hurry tone) (serious): Coach Marcus, Plato, Real Life Sim
+   59e9dc1c-(proud): Confident Aaliyah, Vex Frostwind
+   802e3bc2-(joyful): DJ Trap-A-Holics, Hoshi Kim, Marco Rossi
+   802e3bc2-(sincere): David Davis, David Kim, Robert Thompson
+   802e3bc2-(soft tone) (sincere): David Martinez, Michael Zhang
+   802e3bc2-(whispering) (interested): Detective Jack Donnelly, Michael Chen
+   728f6ff2-(guilty): Dr. Chen Academic Speaker, Samir Haddad
+   b545c585-(interested): Dr. Elena Vasquez, Sophia Language Tutor, Sophie Laurent
+   59e9dc1c-(scornful): Elara Darkbane, Madame Éloïse Durand, Salty Marjorie
+   b545c585-(grateful): Elena Morales, Julia Chen, Maria Johnson
+   59e9dc1c-(soft tone) (gentle): Hinata Moonlight, Yuki Tanaka
+   802e3bc2-(screaming) (confident): Inspector Laurent Moreau, Thorin Lightbringer
+   b545c585-(in a hurry tone) (astonished): Isabella Reyes, Maya Patel
+   802e3bc2-(proud): Jasper Bloom, Kevin Nguyen, Marcus Chen, Riven Moonwhisper
+   802e3bc2-(astonished): Jin-woo Park, The Sleepless Historian, Valentino Estrada
+   802e3bc2-(whispering) (proud): Justice Sterling, Victor Hale
+   b545c585-(confident): Lisa Anderson, Neighbor Nancy, Sophie Chen
+   b545c585-(soft tone) (proud): Maria Jones, Maria Williams
+   b545c585-(serious): Maria Smith, Penny Clarke
+   802e3bc2-(interested): Michael Jones, Professor Monotone, Robert Davis
+   b545c585-(curious): Mina Kwon, Sarah Johnson, Sunny Sato
+   b545c585-(in a hurry tone) (relaxed): Nyx Dawnbreaker, Nyx Frostwind
+   802e3bc2-(soft tone) (confident): Professor Chaos, Professor Harold Whitmore
+   802e3bc2-(relaxed): Professor David Okafor, Professor Edmund Blackwell
+
+════════════════════════════════════════════════════════════════════════════════
+SCORE DISTRIBUTION
+════════════════════════════════════════════════════════════════════════════════
+
+🟢 10/10: ██████████████████████████████████████████████████████████ (116 characters)
+🟢 9/10:  (0 characters)
+🟢 8/10: ██ (3 characters)
+🟡 7/10: ██████████████████████████████ (60 characters)
+🟡 6/10:  (0 characters)
+🔴 5/10: █ (1 characters)
+🔴 4/10:  (0 characters)
+🔴 3/10:  (0 characters)
+🔴 2/10:  (0 characters)
+🔴 1/10:  (0 characters)
+
+════════════════════════════════════════════════════════════════════════════════
+FINAL SUMMARY
+════════════════════════════════════════════════════════════════════════════════
+
+Total Characters: 180
+Average Score: 8.9/10
+Excellent (8-10): 119 characters (66.1%)
+Good (6-7): 60 characters (33.3%)
+Needs Work (<6): 1 characters (0.6%)
+Unique Signatures: 115 / 180
+
+⚠️  CHARACTERS NEEDING VOICE ADJUSTMENT (Bottom 20):
+   - Sarah Wheeler: 5/10 (ENERGETIC_FUN, got delighted)

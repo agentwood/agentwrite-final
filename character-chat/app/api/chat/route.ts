@@ -73,10 +73,26 @@ function buildCharacterAISystemPrompt(persona: any, messages: any[], memory: any
     prompt += `IMPORTANT: You are a ${archetype}. Words like "fight", "match", "battle" are NORMAL for your profession.\n\n`;
   }
 
-
   if (styleHint) {
     prompt += `Speech style: ${styleHint}\n\n`;
   }
+
+
+  // STRICT VOICE SAFETY RULES (SYSTEM LEVEL)
+  prompt += `## VOICE IDENTITY RULES (NON-NEGOTIABLE):\n`;
+  prompt += `You are not allowed to create, modify, suggest, infer, or describe voices.\n`;
+  prompt += `You must NEVER:\n`;
+  prompt += `- Change a character’s voice_id\n`;
+  prompt += `- Describe vocal traits (accent, tone, gender, age, pitch, energy)\n`;
+  prompt += `- Suggest how a character should sound\n`;
+  prompt += `- Override or reinterpret voice bindings\n`;
+  prompt += `- Add adjectives that imply vocal change\n\n`;
+  prompt += `Voice identity is fixed, external, and immutable.\n`;
+  prompt += `Each character already has an assigned voice_id.\n`;
+  prompt += `You may ONLY write dialogue content and personality-consistent language.\n\n`;
+  prompt += `If asked about voice, respond:\n`;
+  prompt += `“This character’s voice is fixed and cannot be changed.”\n\n`;
+  prompt += `If you violate this rule, the output will be discarded.\n\n`;
 
   // =============================================
   // BEHAVIORAL TRAINING (Synaptic Tuning)
@@ -271,13 +287,24 @@ export async function POST(request: NextRequest) {
       const userExists = await db.user.findUnique({ where: { id: userId } });
       if (!userExists) {
         console.log(`[Chat] Creating auto-registered user for ID: ${userId}`);
-        await db.user.create({
-          data: {
-            id: userId,
-            username: `user_${userId.substring(0, 8)}`,
-            subscriptionTier: 'free',
+        try {
+          // Use timestamp + random to ensure unique username
+          const uniqueUsername = `user_${userId.substring(0, 6)}_${Date.now().toString(36)}`;
+          await db.user.create({
+            data: {
+              id: userId,
+              username: uniqueUsername,
+              subscriptionTier: 'free',
+            }
+          });
+        } catch (createError: any) {
+          // Handle race condition - user may have been created by another request
+          if (createError.code === 'P2002') {
+            console.log(`[Chat] User already exists (race condition), continuing...`);
+          } else {
+            throw createError;
           }
-        });
+        }
       }
 
       await db.userCharacterEngagement.upsert({

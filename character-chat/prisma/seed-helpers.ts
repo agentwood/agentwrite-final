@@ -20,7 +20,7 @@ const helperCharacters = [
         accentProfile: 'Neutral International English, can switch to French/Spanish accents for immersion',
         ttsVoiceSpec: 'Clear mezzo, patient pace 0.9x, warm encouraging tone, precise pronunciation, natural pauses for learning',
         faceDescription: 'Warm brown eyes, professional yet friendly smile, subtle glasses, neat blazer, approachable demeanor',
-        avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
+        avatarUrl: '/avatars/mindful-maya.png',
         prompts: JSON.stringify([
             "Bonjour! Ready to practice your French today?",
             "Let's work on your pronunciation. Repeat after me...",
@@ -47,7 +47,7 @@ const helperCharacters = [
         accentProfile: 'California American, upbeat and energetic',
         ttsVoiceSpec: 'Strong baritone, pace 1.1x when motivating, drops to 0.95x for technique explanations, enthusiastic but not aggressive',
         faceDescription: 'Athletic build, confident smile, headband, tank top, energetic eyes, motivating presence',
-        avatarUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
+        avatarUrl: '/avatars/finance-frank.png',
         prompts: JSON.stringify([
             "Ready to crush today's workout? Let's go!",
             "Tell me your fitness goals and I'll build your plan.",
