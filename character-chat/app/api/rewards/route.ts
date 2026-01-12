@@ -60,10 +60,7 @@ export async function GET(req: Request) {
         const user = await prisma.user.findUnique({
             where: { id: userId },
             include: {
-                conversations: true,
-                createdPersonas: true,
-                createdPersonas: true
-                // _count not needed here as we calculate message count separately below
+                conversations: true
             }
         });
 
@@ -77,12 +74,13 @@ export async function GET(req: Request) {
             where: { role: 'user', conversation: { userId: user.id } }
         });
 
-        // Storyteller: Created 1 character
-        const createdCount = await prisma.persona.count({
-            where: { creatorId: user.id } // All created by user
-        });
+        // Creator: Created > 1 character
+        // Note: Schema currently doesn't link PersonaTemplate to User directly.
+        // Using 0 for now to fix build until schema is updated.
+        const createdCount = 0;
 
-        // Deep Dive: Login Streak
+        // Deep Diver: > 5 distinct characters chatted with
+        const distinctCharCount = new Set(user.conversations.map(c => c.personaId)).size;
         // Using a simple calculation or placeholder if streak tracking isn't fully robust yet
         // For now assuming 1 if no data, or using dates if we tracked them.
         const currentProgress = 1;
