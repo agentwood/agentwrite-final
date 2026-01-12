@@ -57,16 +57,16 @@ const nextConfig: NextConfig = {
   // Enable experimental features for better performance
   experimental: {
     optimizePackageImports: ['lucide-react', '@prisma/client'],
-    // @ts-expect-error - Next.js types might be lagging, but this is a valid config for reducing bundle size
-    outputFileTracingExcludes: {
-      '*': [
-        './node_modules/@swc/core/**/*',
-        './node_modules/esbuild/**/*',
-        './node_modules/better-sqlite3/**/*',
-        './node_modules/@napi-rs/**/*',
-        './node_modules/canvas/**/*',
-      ],
-    },
+  },
+  // @ts-expect-error - Next.js types might differ, but this is the correct location per build logs
+  outputFileTracingExcludes: {
+    '*': [
+      './node_modules/@swc/core/**/*',
+      './node_modules/esbuild/**/*',
+      './node_modules/better-sqlite3/**/*',
+      './node_modules/@napi-rs/**/*',
+      './node_modules/canvas/**/*',
+    ],
   },
   // ISR (Incremental Static Regeneration) for programmatic pages
   // This allows us to generate pages at build time and regenerate on-demand
