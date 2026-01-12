@@ -87,8 +87,7 @@ export async function POST(req: Request) {
             data: {
                 conversationId: conversation.id,
                 role: 'assistant',
-                text: firstMessage,
-                userId: userId!
+                text: firstMessage
             }
         });
 
