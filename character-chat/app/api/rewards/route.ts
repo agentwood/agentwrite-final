@@ -62,9 +62,8 @@ export async function GET(req: Request) {
             include: {
                 conversations: true,
                 createdPersonas: true,
-                _count: {
-                    select: { messages: true }
-                }
+                createdPersonas: true
+                // _count not needed here as we calculate message count separately below
             }
         });
 
