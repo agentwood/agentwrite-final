@@ -36,7 +36,6 @@
     "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^6.19.1",
     "@supabase/supabase-js": "^2.89.0",
-    "better-sqlite3": "^12.5.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.25.0",
     "gray-matter": "^4.0.3",
@@ -53,6 +52,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
+    "better-sqlite3": "^12.5.0",
     "@playwright/test": "^1.57.0",
     "@tailwindcss/postcss": "^4",
     "@types/better-sqlite3": "^7.6.13",
