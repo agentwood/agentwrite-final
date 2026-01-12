@@ -65,6 +65,7 @@ export async function POST(req: Request) {
                     description: primaryChar.tagline,
                     avatarUrl: primaryChar.avatarUrl,
                     category: 'Story',
+                    archetype: 'Character', // Required field
                     systemPrompt: storyContext, // Store the story context here!
                     voiceName: 'puck', // Default
                 }
