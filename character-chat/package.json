@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma migrate deploy && prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "db:push": "prisma db push",
@@ -24,7 +24,6 @@
     "test-features": "tsx scripts/test-new-features.ts",
     "map-characters": "tsx scripts/map-characters.ts",
     "enhance-profiles": "tsx scripts/enhance-character-profiles.ts",
-    "generate-avatars": "tsx scripts/generate-avatars.ts",
     "generate-avatars": "tsx scripts/generate-avatars.ts",
     "update-avatar-urls": "tsx scripts/update-avatar-urls.ts",
     "generate-blog": "tsx scripts/generate-blog.ts"
