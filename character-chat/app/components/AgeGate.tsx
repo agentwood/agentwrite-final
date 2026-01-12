@@ -15,21 +15,16 @@ export default function AgeGate({ children }: AgeGateProps) {
   const router = useRouter();
 
   useEffect(() => {
-    // In development, bypass age gate
-    if (process.env.NODE_ENV === 'development') {
-      setIsChecking(false);
-      return;
-    }
-
     const check = () => {
+      // Allow guests to proceed (gating handled by AuthWrapper)
       const session = getSession();
-      const verified = isAgeVerified();
-
       if (!session) {
-        router.push('/');
+        setIsChecking(false);
         return;
       }
 
+      // If user is logged in, check verification
+      const verified = isAgeVerified();
       if (!verified) {
         setShowModal(true);
       }
