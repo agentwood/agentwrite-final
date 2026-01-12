@@ -51,6 +51,7 @@ const nextConfig: NextConfig = {
   // Performance optimizations
   compress: true,
   poweredByHeader: false,
+  productionBrowserSourceMaps: false,
   // Enable static page generation where possible
   // Enable static page generation where possible
   output: 'standalone',
@@ -66,6 +67,11 @@ const nextConfig: NextConfig = {
       './node_modules/better-sqlite3/**/*',
       './node_modules/@napi-rs/**/*',
       './node_modules/canvas/**/*',
+      './node_modules/playwright-core/**/*',
+      '**/*.map',
+      '**/*.md',
+      '**/*.test.js',
+      '**/*.test.ts',
     ],
   },
   // ISR (Incremental Static Regeneration) for programmatic pages
