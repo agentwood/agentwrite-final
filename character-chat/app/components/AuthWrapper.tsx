@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { isAuthenticated } from '@/lib/auth';
 import AuthModal from './AuthModal';
 
-const PUBLIC_ROUTES = ['/', '/home', '/login', '/signup', '/api', '/terms', '/privacy', '/cookie-policy'];
+const PUBLIC_ROUTES = ['/', '/login', '/signup', '/api', '/terms', '/privacy', '/cookie-policy'];
 
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();

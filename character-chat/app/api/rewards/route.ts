@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { db as prisma } from '@/lib/db';
 import { headers } from 'next/headers';
 
 // Define the rewards structure matching the user's design

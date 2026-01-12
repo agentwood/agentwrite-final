@@ -1,0 +1,36 @@
+name: Automate Blog Content
+
+on:
+  schedule:
+    # Run every 3 days at 09:00 UTC
+    - cron: '0 9 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  generate-and-post:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Generate Content
+        run: npm run generate-blog
+        
+      - name: Commit and Push
+        run: |
+          git config --global user.name "Agentwood Bot"
+          git config --global user.email "bot@agentwood.ai"
+          git add content/blog/*.md
+          # Only commit if there are changes
+          git diff --quiet && git diff --staged --quiet || (git commit -m "content: automated blog post generation" && git push)
