@@ -156,14 +156,7 @@ export default function HomePageClient({ characters, categories, heroStates, sta
 
     return (
         <div className="flex min-h-screen font-sans selection:bg-purple-500 selection:text-white transition-colors duration-500 bg-[#0f0f0f] text-white">
-            <Sidebar
-                recentCharacters={characters.slice(0, 3).map(p => ({
-                    id: p.id,
-                    name: p.name,
-                    avatarUrl: p.avatarUrl,
-                    category: p.category,
-                }))}
-            />
+            <Sidebar />
 
             <main className="flex-1 lg:pl-60 flex flex-col">
                 {/* Header */}

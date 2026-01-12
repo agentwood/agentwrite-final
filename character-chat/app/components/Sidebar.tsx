@@ -7,6 +7,7 @@ import {
   Plus, Compass, Search, Heart, Brain, Bell, Book, PenTool, Award, Settings, Zap, LogOut, User, ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 interface SidebarProps {
   recentCharacters?: Array<{
@@ -17,11 +18,15 @@ interface SidebarProps {
   }>;
 }
 
-export default function Sidebar({ recentCharacters = [] }: SidebarProps) {
+export default function Sidebar({ recentCharacters: initialRecents = [] }: SidebarProps) {
   const router = useRouter();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [recentCharacters, setRecentCharacters] = useState<any[]>(initialRecents);
+  const [loadingRecents, setLoadingRecents] = useState(false);
   const [planId, setPlanId] = useState<'free' | 'starter' | 'pro'>('free');
+
+  const { data: session } = useSession(); // Ensure useSession is imported if not already
 
   useEffect(() => {
     // Initial user fetch
