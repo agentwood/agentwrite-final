@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Install dependencies first (these are fast)
-RUN pip install --no-cache-dir runpod
+RUN pip install --no-cache-dir runpod onnxruntime-gpu numpy scipy soundfile
 
 # Clone and install F5-TTS
 RUN git clone --depth 1 https://github.com/SWivid/F5-TTS.git .

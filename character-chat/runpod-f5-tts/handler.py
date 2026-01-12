@@ -6,14 +6,28 @@ import io
 import os
 import random
 import numpy as np
+import threading
+import time
 
 # Import F5-TTS
 from f5_tts.model import DiT
 from f5_tts.infer.utils_infer import load_checkpoint, load_vocoder, infer_process
 
+# Import Idle Handler
+import idle_handler
+
+# START IDLE CHECKER BACKGROUND THREAD
+def idle_checker_loop():
+    while True:
+        idle_handler.check_idle()
+        time.sleep(60) # Check every minute
+
+threading.Thread(target=idle_checker_loop, daemon=True).start()
+
 # GLOBAL STATE (Loaded once on cold start)
 model = None
 vocoder = None
+# supertonic_session = None # Placeholder for ONNX session
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def init_model():
@@ -21,7 +35,6 @@ def init_model():
     print(f"Loading F5-TTS model on {device}...")
     
     # Load F5-TTS (using default checkpoint name)
-    # The Dockerfile should have pre-downloaded this to ~/.cache or similar
     model = load_checkpoint(target_dir=None, checkpoint_name="F5-TTS", device=device, show_progress=False)
     vocoder = load_vocoder(is_local=False)
     
@@ -29,11 +42,27 @@ def init_model():
 
 def handler(event):
     global model, vocoder
+    
+    # Reset idle timer
+    idle_handler.update_activity()
+    
     if model is None:
         init_model()
 
     input_data = event.get("input", {})
     
+    engine = input_data.get("engine", "f5") # Default to F5
+    
+    # --- SUPERTONIC HANDLER (Placeholder/Fusion) ---
+    if engine == "supertonic":
+        # In a real fusion, we would run ONNX inference here using onnxruntime
+        # For now, we'll log it and perhaps fallback or return a special response
+        print("Supertonic Engine Requested")
+        text = input_data.get("text")
+        # TODO: Implement actual ONNX inference here
+        # return run_supertonic_inference(text, ...)
+        return {"error": "Supertonic server-side inference not yet fully implemented"}
+
     # --- INPUT VALIDATION ---
     text = input_data.get("text")
     if not text:
@@ -60,8 +89,6 @@ def handler(event):
             return {"error": f"Invalid reference audio base64: {str(e)}"}
     else:
         # Fallback? F5-TTS needs reference. 
-        # For now, return error if no reference.
-        # In prod, we might have a default 'generic.wav'
         return {"error": "Reference audio (ref_audio) is required for Zero-Shot Cloning"}
 
     # --- SET SEED (THE "CUSTOM INTEGER") ---
@@ -73,9 +100,6 @@ def handler(event):
     # --- INFERENCE ---
     try:
         # infer_process returns -> (sample_rate, numpy_audio_array, spectogram)
-        # We only care about sample_rate and audio
-        
-        # Note: F5-TTS API might change, but this is standard for recent commit
         audio_output, sample_rate, _ = infer_process(
             ref_audio_path,
             ref_text,
@@ -98,7 +122,8 @@ def handler(event):
             "format": "wav",
             "sample_rate": sample_rate,
             "seed_used": seed,
-            "steps_used": n_steps
+            "steps_used": n_steps,
+            "engine": "f5"
         }
         
     except Exception as e:
