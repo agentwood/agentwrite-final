@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Check, Sparkles, Zap } from 'lucide-react';
 import Sidebar from '@/app/components/Sidebar';
+import { getSession, isAuthenticated, setSession } from '@/lib/auth';
+import AuthModal from '@/app/components/AuthModal';
 
 interface Plan {
   id: string;
@@ -20,12 +23,23 @@ interface Plan {
 }
 
 export default function PricingPage() {
+  const router = useRouter();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly');
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [pendingPlan, setPendingPlan] = useState<Plan | null>(null);
+  const [showDevBypass, setShowDevBypass] = useState(false);
 
   useEffect(() => {
+    setIsLoggedIn(isAuthenticated());
+    // Check for dev bypass flag in URL
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      setShowDevBypass(urlParams.has('dev') || urlParams.get('dev') === '1');
+    }
     fetch('/api/pricing')
       .then(res => res.json())
       .then(data => {
@@ -39,11 +53,25 @@ export default function PricingPage() {
   }, []);
 
   const handleSubscribe = async (plan: Plan) => {
-    // Free tier redirects to homepage - user is already on Starter
+    console.log('Subscribe clicked for plan:', plan.id);
+
+    // Free tier redirects to homepage
     if (!plan.priceId || plan.price === 0) {
       window.location.href = plan.redirectUrl || '/';
       return;
     }
+
+    const auth = isAuthenticated(); // Check fresh
+    console.log('Is authenticated:', auth);
+
+    if (!auth) {
+      console.log('Showing login modal...');
+      setPendingPlan(plan); // Store which plan they wanted
+      setShowAuthModal(true); // Show modal instead of redirect
+      return;
+    }
+
+    const session = getSession();
 
     setProcessingPlan(plan.id);
 
@@ -52,13 +80,14 @@ export default function PricingPage() {
         ? plan.annualPriceId
         : plan.priceId;
 
-      const response = await fetch('/api/stripe/create-checkout', {
+      const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           priceId,
-          planId: plan.id,
-          mode: plan.interval === 'one-time' ? 'payment' : 'subscription',
+          type: plan.interval === 'one-time' ? 'payment' : 'subscription',
+          userId: session?.id,
+          email: session?.email, // Include email directly from session
         }),
       });
 
@@ -89,6 +118,34 @@ export default function PricingPage() {
     if (plan.price === 0) return 'forever';
     if (plan.interval === 'one-time') return 'one-time';
     return billingInterval === 'annual' && plan.annualPrice ? '/year' : '/month';
+  };
+
+  // Handle auth modal close - resume checkout if user logged in
+  const handleAuthClose = () => {
+    setShowAuthModal(false);
+    // Check if user is now authenticated and had a pending plan
+    setTimeout(() => {
+      if (isAuthenticated() && pendingPlan) {
+        setIsLoggedIn(true);
+        handleSubscribe(pendingPlan);
+        setPendingPlan(null);
+      }
+    }, 100);
+  };
+
+  // Dev Bypass - creates a test session for testing checkout
+  const handleDevBypass = () => {
+    const testEmail = `testuser_${Date.now()}@agentwood.xyz`;
+    setSession({
+      id: `dev_${Date.now()}`,
+      email: testEmail,
+      displayName: 'Dev Tester',
+      planId: 'free',
+    });
+    localStorage.setItem('agentwood_age_verified', 'true');
+    setIsLoggedIn(true);
+    setShowAuthModal(false);
+    alert(`✅ Dev Bypass Active!\nEmail: ${testEmail}\n\nYou can now test the checkout flow.`);
   };
 
   return (
@@ -231,6 +288,19 @@ export default function PricingPage() {
           </div>
         </section>
       </main>
+
+      {/* Auth Modal - appears when unauthenticated user clicks a plan */}
+      <AuthModal isOpen={showAuthModal} onClose={handleAuthClose} />
+
+      {/* Dev Bypass Button - visible when accessing /pricing?dev or /pricing?dev=1 */}
+      {showDevBypass && !isLoggedIn && (
+        <button
+          onClick={handleDevBypass}
+          className="fixed bottom-4 right-4 px-4 py-2 bg-yellow-500 text-black text-xs font-bold rounded-lg shadow-lg hover:bg-yellow-400 transition-all z-[200]"
+        >
+          🔓 Dev Bypass
+        </button>
+      )}
     </div>
   );
 }

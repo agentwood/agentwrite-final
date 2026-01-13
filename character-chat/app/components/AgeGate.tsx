@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AgeVerificationModal from './AgeVerificationModal';
-import { getSession, isAgeVerified } from '@/lib/auth';
+import { isAgeVerified } from '@/lib/auth';
 
 interface AgeGateProps {
   children: React.ReactNode;
@@ -16,24 +16,39 @@ export default function AgeGate({ children }: AgeGateProps) {
 
   useEffect(() => {
     const check = () => {
-      // Allow guests to proceed (gating handled by AuthWrapper)
-      const session = getSession();
-      if (!session) {
+      if (typeof window === 'undefined') {
         setIsChecking(false);
         return;
       }
 
-      // If user is logged in, check verification
-      const verified = isAgeVerified();
-      if (!verified) {
-        setShowModal(true);
+      // ONLY show age verification if explicitly flagged after first-time signup
+      // This flag should be set in the signup/register flow ONLY
+      const needsVerification = localStorage.getItem('agentwood_needs_age_verification') === 'true';
+
+      if (!needsVerification) {
+        // Not flagged for verification - skip entirely
+        setIsChecking(false);
+        return;
       }
 
+      // Check if already verified or skipped
+      const verified = isAgeVerified();
+      const skipped = localStorage.getItem('agentwood_age_skipped') === 'true';
+
+      if (verified || skipped) {
+        // Clear the flag
+        localStorage.removeItem('agentwood_needs_age_verification');
+        setIsChecking(false);
+        return;
+      }
+
+      // Show verification modal
+      setShowModal(true);
       setIsChecking(false);
     };
 
     check();
-  }, [router]);
+  }, []);
 
   const handleVerify = async (dateOfBirth: Date) => {
     try {
@@ -56,6 +71,7 @@ export default function AgeGate({ children }: AgeGateProps) {
 
       localStorage.setItem('agentwood_age_verified', 'true');
       localStorage.setItem('agentwood_age', dateOfBirth.toISOString());
+      localStorage.removeItem('agentwood_needs_age_verification');
       setShowModal(false);
     } catch (error: any) {
       console.error('Error verifying age:', error);
@@ -64,13 +80,15 @@ export default function AgeGate({ children }: AgeGateProps) {
   };
 
   const handleSkip = () => {
-    router.push('/home');
+    localStorage.setItem('agentwood_age_skipped', 'true');
+    localStorage.removeItem('agentwood_needs_age_verification');
+    setShowModal(false);
   };
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-zinc-500">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-[#0f0f0f]">
+        <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
       </div>
     );
   }
@@ -87,3 +105,4 @@ export default function AgeGate({ children }: AgeGateProps) {
 
   return <>{children}</>;
 }
+

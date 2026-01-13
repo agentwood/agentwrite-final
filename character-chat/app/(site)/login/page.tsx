@@ -28,17 +28,34 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Mock auth logic
-      const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      setSession({
-        id: userId,
-        email: formData.email,
-        displayName: formData.email.split('@')[0],
-        planId: 'free',
+      console.log('Attempting login...');
+      // Call API to get real DB user
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
+      const data = await res.json();
+      console.log('Login response:', data);
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // data contains: { id, email, displayName, planId }
+      setSession(data);
+
+      // Force redirect
       router.push('/');
+      router.refresh();
     } catch (error: any) {
+      console.error('Login error:', error);
       setErrors({ submit: error.message || 'Invalid email or password.' });
     } finally {
       setIsLoading(false);

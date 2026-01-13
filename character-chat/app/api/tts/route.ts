@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { runpodF5Client } from '@/lib/audio/runpodF5Client';
+import { TTSRouter } from '@/lib/audio/ttsRouter';
 
 // Helper to sanitize text
 function sanitizeText(text: string): string {
@@ -10,12 +11,10 @@ function sanitizeText(text: string): string {
 }
 
 /**
- * ELITE VOICE POOL PIPELINE (v5)
+ * TREE-0 VOICE CLUSTER PIPELINE
  * 
- * 1. Resolve VoiceSeed from Character (via voiceSeedId)
- * 2. Load Reference Audio from VoiceSeed.filePath
- * 3. Execute F5-TTS with strict reference
- * 4. No Fallback - Hard fail if voice missing
+ * F5-TTS only - ensures all 29 characters maintain unique voices
+ * via zero-shot cloning from reference audio.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -39,6 +38,7 @@ export async function POST(request: NextRequest) {
       select: {
         id: true,
         name: true,
+        featured: true,
         voiceSeedId: true,
         styleHint: true,
         voiceSpeed: true,
@@ -81,6 +81,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No valid text after sanitization' }, { status: 400 });
     }
 
+    // --- TREE-0 CLUSTER ROUTING ---
+    // Currently F5-TTS only for unique voice cloning
+    const decision = await TTSRouter.decide(character, {});
+    console.log(`[TTS] Router Decision: ${decision.engine} (${decision.reason})`);
+
+    // F5-TTS: Server-side synthesis
     // 4. Load Reference Audio from VoiceSeed
     let refAudioBase64: string | null = null;
     try {
@@ -102,7 +108,6 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Build Voice Description from seed metadata and persona traits
-    // Combine seed metadata (tone, energy) with persona specific styleHint
     const baseDescription = voiceSeed.description || `${voiceSeed.tone} ${voiceSeed.energy} voice`;
     const stylePrompt = character.styleHint ? `, ${character.styleHint}` : '';
     const voiceDescription = `${baseDescription}${stylePrompt}. Clear, high-quality audio. Natural pauses and intonation.`;
@@ -110,7 +115,6 @@ export async function POST(request: NextRequest) {
     // 5b. Calculate Speed based on Energy if not explicitly set
     let dynamicSpeed = character.voiceSpeed || 1.0;
     if (!character.voiceSpeed && voiceSeed.energy) {
-      // adjust speed slightly based on energy tag
       if (voiceSeed.energy.toLowerCase().includes('fast') || voiceSeed.energy.toLowerCase().includes('excited')) dynamicSpeed = 1.05;
       if (voiceSeed.energy.toLowerCase().includes('slow') || voiceSeed.energy.toLowerCase().includes('calm')) dynamicSpeed = 0.95;
     }
@@ -120,9 +124,9 @@ export async function POST(request: NextRequest) {
       const result = await runpodF5Client.synthesize(cleanedText, {
         voice_description: voiceDescription,
         ref_audio: refAudioBase64,
-        ref_text: voiceSeed.referenceText || undefined, // Use stored transcript to prevent robotic output
+        ref_text: voiceSeed.referenceText || undefined,
         speed: dynamicSpeed,
-        voice_name: voiceSeed.name, // Pass voice name specifically for Pod uploading
+        voice_name: voiceSeed.name,
       });
 
       if (!result) {
@@ -131,20 +135,18 @@ export async function POST(request: NextRequest) {
 
       console.log(`[TTS] ✅ Generated ${result.audio.length} bytes for "${character.name}"`);
 
-      console.log(`[TTS] ✅ Generated ${result.audio.length} bytes for "${character.name}"`);
-
-      // Return JSON with Base64 Audio (Client expects JSON)
       return NextResponse.json({
         audio: result.audio.toString('base64'),
         format: 'wav',
         sampleRate: 24000,
+        engine: 'f5-tts',
         voiceUsed: voiceSeed.name,
       });
 
     } catch (synthError: any) {
       console.error(`[TTS] ❌ Synthesis Failed:`, synthError);
       return NextResponse.json({
-        error: 'Voice Generation Failed. No fallback permitted.',
+        error: 'Voice Generation Failed.',
         details: synthError.message,
         debug: {
           character: character.name,
@@ -160,4 +162,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal Server Error', details: error.message }, { status: 500 });
   }
 }
-

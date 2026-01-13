@@ -667,3 +667,34 @@ model NewsletterSubscriber {
 
   @@index([email])
 }
+
+// =============================================
+// BLOG ENGAGEMENT
+// =============================================
+
+model BlogLike {
+  id        String   @id @default(cuid())
+  slug      String   // Blog post slug
+  userId    String?  // Optional user ID
+  sessionId String?  // For anonymous likes
+  createdAt DateTime @default(now())
+
+  @@unique([slug, userId])
+  @@unique([slug, sessionId])
+  @@index([slug])
+}
+
+model BlogComment {
+  id        String   @id @default(cuid())
+  slug      String   // Blog post slug
+  userId    String?
+  name      String   // Display name (for anonymous or logged in)
+  email     String?  // Optional email
+  content   String
+  approved  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([createdAt])
+}

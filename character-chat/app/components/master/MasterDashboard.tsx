@@ -30,6 +30,7 @@ import { Footer } from './Footer';
 import ChatWindow from '../ChatWindow';
 import SafeImage from '../SafeImage';
 import { supabase } from '@/lib/supabaseClient';
+import { toast } from 'sonner';
 
 const SidebarLink: React.FC<{ active?: boolean; icon: React.ReactNode; label: string; badge?: string; onClick?: () => void }> = ({ active, icon, label, badge, onClick }) => (
   <button
@@ -727,6 +728,18 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     { id: 'roleplay', name: 'Advanced Roleplay', icon: '🎭', desc: 'Enhanced roleplay capabilities' },
   ];
 
+  // Handle publishing character (placeholder)
+  const handlePublish = async () => {
+    setIsAiLoading('publishing');
+    try {
+      // TODO: Implement actual publish logic
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Character published (stub)');
+    } finally {
+      setIsAiLoading(null);
+    }
+  };
+
   // Available voices
   const availableVoices = [
     { id: 'alloy', name: 'Alloy', gender: 'Neutral', preview: 'Modern and balanced' },
@@ -1057,8 +1070,20 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <div className="h-16 px-6 border-b border-white/5 flex items-center justify-between bg-[#0e0e0e]">
           <span className="text-[13px] font-bold text-white">Preview and Testing</span>
           <div className="flex gap-3">
-            <button className="px-6 py-2 bg-[#1c1816] text-white/60 rounded-lg font-bold text-[11px] hover:text-white hover:bg-[#25201d] transition-all">Save</button>
-            <button className="px-6 py-2 bg-white text-black rounded-lg font-bold text-[11px] hover:bg-white/90 transition-all shadow-lg">Publish</button>
+            <button
+              onClick={handlePublish}
+              disabled={isAiLoading === 'publishing'}
+              className="px-6 py-2 bg-[#1c1816] text-white/60 rounded-lg font-bold text-[11px] hover:text-white hover:bg-[#25201d] transition-all disabled:opacity-50"
+            >
+              {isAiLoading === 'publishing' ? 'Saving...' : 'Save'}
+            </button>
+            <button
+              onClick={handlePublish}
+              disabled={isAiLoading === 'publishing'}
+              className="px-6 py-2 bg-white text-black rounded-lg font-bold text-[11px] hover:bg-white/90 transition-all shadow-lg disabled:opacity-50"
+            >
+              {isAiLoading === 'publishing' ? 'Publishing...' : 'Publish'}
+            </button>
           </div>
         </div>
 
@@ -1263,7 +1288,7 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 };
 
 const RewardsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const [stats, setStats] = useState({ level: 12, credits: 450, chatHours: 1.2, customChars: 1, streak: 4, stories: 2 });
+  const [stats, setStats] = useState({ level: 0, credits: 0, chatHours: 0, customChars: 0, streak: 0, stories: 0 });
 
   useEffect(() => {
     // Load stats from API if user exists
@@ -2175,11 +2200,11 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
   };
 
   const navigateToProfile = (char: CharacterProfile) => {
-    // Auth Check removed for dev/testing
-    // if (!currentUser) {
-    //   setIsAuthOpen(true);
-    //   return;
-    // }
+    // Require login to view character profiles
+    if (!currentUser) {
+      setIsAuthOpen(true);
+      return;
+    }
 
     const hasSeenOnboarding = localStorage.getItem('agentwood_onboarding_seen');
     if (!hasSeenOnboarding) {
@@ -2224,10 +2249,10 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
 
         <button
           onClick={() => {
-            // if (!currentUser) {
-            //   setIsAuthOpen(true);
-            //   return;
-            // }
+            if (!currentUser) {
+              setIsAuthOpen(true);
+              return;
+            }
             setSelectedCharacter(null);
             setCurrentView('create');
           }}
@@ -2282,10 +2307,10 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
                 icon={<PenTool size={18} />}
                 label="Craft a Story"
                 onClick={() => {
-                  // if (!currentUser) {
-                  //   setIsAuthOpen(true);
-                  //   return;
-                  // }
+                  if (!currentUser) {
+                    setIsAuthOpen(true);
+                    return;
+                  }
                   setCurrentView('craft');
                 }}
               />
@@ -2295,10 +2320,10 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
                 label="Rewards"
                 badge="PRO"
                 onClick={() => {
-                  // if (!currentUser) {
-                  //   setIsAuthOpen(true);
-                  //   return;
-                  // }
+                  if (!currentUser) {
+                    setIsAuthOpen(true);
+                    return;
+                  }
                   setCurrentView('rewards');
                 }}
               />
@@ -2308,22 +2333,18 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
           <section>
             <h4 className="mb-2 px-4 text-[11px] font-bold uppercase tracking-wider text-white/30 font-sans">Recent</h4>
             <div className="flex flex-col gap-0.5">
-              {FALLBACK_CHARACTERS.map((char, i) => (
-                <button key={i} onClick={() => navigateToProfile(char)} className="flex w-full items-center gap-3 rounded-xl px-4 py-2 text-[13px] font-medium text-white/40 hover:text-white hover:bg-white/5 transition-all">
-                  <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10"><img src={char.avatarUrl} className="w-full h-full object-cover" /></div>
-                  <span className="truncate font-sans">{char.name}</span>
-                </button>
-              ))}
+              {/* Fresh start: No recent chats yet */}
+              <div className="px-4 py-3 text-[12px] text-white/20 italic">No recent chats</div>
             </div>
           </section>
         </div>
 
         <div className="mt-auto pt-4 border-t border-white/5 space-y-4">
           <SidebarLink icon={<Settings size={18} />} label="Settings" onClick={() => {
-            // if (!currentUser) {
-            //   setIsAuthOpen(true);
-            //   return;
-            // }
+            if (!currentUser) {
+              setIsAuthOpen(true);
+              return;
+            }
             setCurrentView('settings');
           }} />
           <div

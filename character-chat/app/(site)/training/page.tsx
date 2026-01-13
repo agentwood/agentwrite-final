@@ -52,29 +52,13 @@ export default function TrainingPage() {
         rejectFlirtation: false
     });
 
-    useEffect(() => {
-        if (status === 'unauthenticated') {
-            router.push('/login');
-            return;
-        }
-        if (status === 'authenticated') {
-            checkSubscription();
-            fetchCharacters();
-        }
-    }, [status]);
-
     const checkSubscription = async () => {
-        // Mock check or real API check
         try {
-            // Ideally we check real subscription status here
-            // For now, let's assume if they can access they might be pro, or we fetch
             const res = await fetch('/api/user/subscription');
             if (res.ok) {
                 const data = await res.json();
-                if (data.status === 'pro') setIsPro(true);
-                else setIsPro(false);
+                setIsPro(data.status === 'pro');
             } else {
-                // Fallback for demo: Check local storage or default false
                 setIsPro(false);
             }
         } catch (e) {
@@ -89,22 +73,34 @@ export default function TrainingPage() {
             if (res.ok) {
                 const data = await res.json();
                 setCharacters(data.created || []);
-                // Select first character by default if available
                 if (data.created && data.created.length > 0) setSelectedChar(data.created[0]);
             }
         } catch (err) {
             console.error(err);
-        } finally {
-            setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.push('/login');
+            return;
+        }
+        if (status === 'authenticated') {
+            Promise.all([checkSubscription(), fetchCharacters()]).finally(() => {
+                setLoading(false);
+            });
+        }
+    }, [status, router]);
 
     const handleSave = async () => {
         if (!selectedChar) return;
         setSaving(true);
 
         try {
-            // Construct a tuning block
+            // 1. Strip existing tuning blocks from the prompt to prevent accumulation
+            const basePrompt = selectedChar.systemPrompt.split('[SYNAPTIC_TUNING]')[0].trim();
+
+            // 2. Construct new tuning block
             const tuningBlock = `
 [SYNAPTIC_TUNING]
 Behavioral_EmpathyLogic: ${behavioral.empathyLogic}/100
@@ -117,23 +113,27 @@ Constraints_NoSpeculation: ${constraints.noSpeculation}
 Constraints_LimitLength: ${constraints.limitLength}
 Constraints_PeriodCharacter: ${constraints.periodCharacter}
 Constraints_RejectFlirtation: ${constraints.rejectFlirtation}
-[/SYNAPTIC_TUNING]
-            `;
+[/SYNAPTIC_TUNING]`;
+
+            const fullPrompt = `${basePrompt}\n\n${tuningBlock}`;
 
             const res = await fetch(`/api/character/${selectedChar.id}/update`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    systemPrompt: selectedChar.systemPrompt + tuningBlock
+                    systemPrompt: fullPrompt
                 })
             });
 
             if (res.ok) {
                 toast.success('Synaptic tuning parameters saved.');
+                // Update local state so if they save again, basePrompt calculation is correct
+                setSelectedChar({ ...selectedChar, systemPrompt: fullPrompt });
             } else {
                 toast.error('Failed to save tuning.');
             }
         } catch (error) {
+            console.error('Save error:', error);
             toast.error('Error saving data');
         } finally {
             setSaving(false);
@@ -159,7 +159,7 @@ Constraints_RejectFlirtation: ${constraints.rejectFlirtation}
                         </p>
                     </div>
                     <button
-                        onClick={() => router.push('/plus')}
+                        onClick={() => router.push('/pricing')}
                         className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest rounded-xl hover:bg-white/90 transition-all shadow-lg hover:shadow-purple-500/20"
                     >
                         Upgrade to Agentwood Pro

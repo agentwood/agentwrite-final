@@ -12,6 +12,7 @@ import AdBanner from './AdBanner';
 import SafeImage from './SafeImage';
 import { getAuthHeaders } from '@/lib/auth';
 import { audioManager } from '@/lib/audio/audioManager';
+import { supertonicGenerator } from '@/lib/audio/supertonicGenerator';
 
 interface Message {
   id: string;
@@ -412,6 +413,7 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
         category: persona.category,
         tagline: persona.tagline,
         description: persona.description,
+        clientSupportsSupertonic: true, // Signal that we can handle local WASM generation
       };
 
       // #region agent log
@@ -444,6 +446,36 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
       }
 
       const data = await response.json();
+
+      // --- HYBRID CLUSTER HANDLING ---
+      if (data.engine === 'supertonic' && data.instruction === 'GENERATE_LOCALLY') {
+        console.log(`[TTS] ⚡ Switching to Supertonic Local (Reason: ${data.reason})`);
+        try {
+          // Use the preset voice returned by the router (or derived from character)
+          const voiceStyle = data.voiceName || 'F1';
+          const localAudioBuffer = await supertonicGenerator.synthesize(dialogueText, { voiceName: voiceStyle });
+
+          // Convert ArrayBuffer to base64 for audioManager
+          const base64Audio = btoa(
+            new Uint8Array(localAudioBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+          );
+
+          setShowCuratingModal(false);
+          await audioManager.playAudio(
+            base64Audio,
+            24000, // Supertonic default
+            1.0,
+            messageId,
+            'wav'
+          );
+          return; // Success
+        } catch (localError) {
+          console.warn('[TTS] ⚠️ Local Supertonic failed, falling back to server F5...', localError);
+          // Potential fallback: re-call API with clientSupportsSupertonic: false 
+          // but for now we'll just log and continue if data.audio exists
+        }
+      }
+      // -------------------------------
 
       if (!data.audio) {
         throw new Error('No audio data received from TTS API');

@@ -21,6 +21,24 @@ function getStripe(): Stripe {
     return stripe;
 }
 
+// Get base URL with proper scheme - handles missing or invalid env vars
+function getBaseUrl(): string {
+    // Check NEXT_PUBLIC_URL first (for production)
+    const publicUrl = process.env.NEXT_PUBLIC_URL || process.env.NEXT_PUBLIC_APP_URL;
+
+    if (publicUrl) {
+        // Ensure it has a proper scheme
+        if (publicUrl.startsWith('http://') || publicUrl.startsWith('https://')) {
+            return publicUrl.replace(/\/$/, ''); // Remove trailing slash
+        }
+        // Add https:// if missing scheme
+        return `https://${publicUrl}`.replace(/\/$/, '');
+    }
+
+    // Fallback to localhost for development
+    return 'http://localhost:3000';
+}
+
 export async function POST(req: NextRequest) {
     try {
         const { priceId, type, creditPackId, userId, email } = await req.json()
@@ -56,6 +74,9 @@ export async function POST(req: NextRequest) {
             )
         }
 
+        const baseUrl = getBaseUrl();
+        console.log('[Stripe Checkout] Using base URL:', baseUrl);
+
         // Create Stripe checkout session
         const checkoutSession = await getStripe().checkout.sessions.create({
             customer_email: customerEmail,
@@ -70,8 +91,8 @@ export async function POST(req: NextRequest) {
             // ENABLE STRIPE LINK for easy checkout
             payment_method_types: ['card', 'link'],
 
-            success_url: `${process.env.NEXT_PUBLIC_URL}/pricing/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${process.env.NEXT_PUBLIC_URL}/pricing?canceled=true`,
+            success_url: `${baseUrl}/pricing/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${baseUrl}/pricing?canceled=true`,
 
             metadata: {
                 userId: userId || '',
@@ -89,3 +110,4 @@ export async function POST(req: NextRequest) {
         )
     }
 }
+

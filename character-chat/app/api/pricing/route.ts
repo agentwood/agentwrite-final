@@ -33,7 +33,7 @@ export async function GET() {
       price: 14.99,
       priceId: process.env.STRIPE_PRICE_PLUS_MONTHLY || 'price_plus_monthly',
       interval: 'month',
-      annualPrice: 149,
+      annualPrice: 99.99,
       annualPriceId: process.env.STRIPE_PRICE_PLUS_ANNUAL || 'price_plus_annual',
       tagline: 'Everything you need to get lost.',
       mostPopular: true,
@@ -58,10 +58,10 @@ export async function GET() {
     {
       id: 'pro',
       name: 'Agentwood Pro',
-      price: 41.99,
+      price: 49.99,
       priceId: process.env.STRIPE_PRICE_PRO_MONTHLY || 'price_pro_monthly',
       interval: 'month',
-      annualPrice: 419,
+      annualPrice: 499.99,
       annualPriceId: process.env.STRIPE_PRICE_PRO_ANNUAL || 'price_pro_annual',
       tagline: 'The ultimate immersive experience.',
       features: [

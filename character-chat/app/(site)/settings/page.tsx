@@ -45,6 +45,32 @@ export default function SettingsPage() {
   const [cancelStep, setCancelStep] = useState(0); // 0: Closed, 1: Offer, 2: Reason, 3: Warning
   const [cancelReason, setCancelReason] = useState('');
   const [customReason, setCustomReason] = useState('');
+  const [resumeLoading, setResumeLoading] = useState(false);
+
+  const handleResume = async () => {
+    setResumeLoading(true);
+    try {
+      const response = await fetch('/api/stripe/resume-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': localStorage.getItem('agentwood_user_id') || '',
+        },
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSubscriptionDetails(prev => ({ ...prev, cancelAtPeriodEnd: false, status: 'active' }));
+        alert('Subscription resumed successfully!');
+      } else {
+        alert(data.error || 'Failed to resume subscription');
+      }
+    } catch (error) {
+      console.error('Resume error:', error);
+      alert('Failed to resume subscription');
+    } finally {
+      setResumeLoading(false);
+    }
+  };
 
   // Form States
   const [username, setUsername] = useState('');
@@ -357,11 +383,11 @@ export default function SettingsPage() {
         return (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 max-w-2xl">
             <div className="flex items-center justify-between mb-10">
-              <h2 className="text-4xl font-bold text-gray-900 tracking-tight">Public profile</h2>
+              <h2 className="text-4xl font-bold text-white tracking-tight">Public profile</h2>
               <button
                 onClick={() => handleSave('profile')}
                 disabled={loading}
-                className="bg-black text-white px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-800 transition-all disabled:opacity-50 flex items-center gap-2"
+                className="bg-white text-black px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-white/90 transition-all disabled:opacity-50 flex items-center gap-2"
               >
                 {loading ? <RefreshCw className="animate-spin" size={16} /> : <Save size={16} />}
                 Save Changes
@@ -380,58 +406,58 @@ export default function SettingsPage() {
                 className="relative inline-block group cursor-pointer"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-1">
-                  <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-4xl font-bold text-gray-900 overflow-hidden relative">
+                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-1">
+                  <div className="w-full h-full rounded-full bg-[#1a1a1a] flex items-center justify-center text-4xl font-bold text-white overflow-hidden relative">
                     {avatarUrl ? (
                       <SafeImage src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
                     ) : (
-                      <span className="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-400">
+                      <span className="absolute inset-0 flex items-center justify-center bg-[#1a1a1a] text-white/40">
                         {displayName?.[0]?.toUpperCase() || 'U'}
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="absolute bottom-1 right-1 bg-white rounded-full p-2.5 shadow-xl border border-gray-100 group-hover:scale-110 transition-transform">
-                  <Edit3 size={16} className="text-gray-900" />
+                <div className="absolute bottom-1 right-1 bg-[#1a1a1a] rounded-full p-2.5 shadow-xl border border-white/10 group-hover:scale-110 transition-transform">
+                  <Edit3 size={16} className="text-white" />
                 </div>
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 text-xl">{displayName}</h3>
-                <p className="text-gray-500 text-sm">Update your avatar and personal details</p>
+                <h3 className="font-bold text-white text-xl">{displayName}</h3>
+                <p className="text-white/40 text-sm">Update your avatar and personal details</p>
               </div>
             </div>
 
             <div className="space-y-6">
-              <div className="bg-gray-50 border border-transparent rounded-2xl px-5 py-4 focus-within:bg-white focus-within:border-gray-200 focus-within:ring-4 focus-within:ring-gray-100 transition-all">
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Username</label>
+              <div className="bg-[#1a1a1a] border border-white/5 rounded-2xl px-5 py-4 focus-within:border-white/20 transition-all">
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-1.5">Username</label>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-transparent border-none p-0 text-gray-900 focus:ring-0 font-bold text-lg placeholder-gray-300"
+                  className="w-full bg-transparent border-none p-0 text-white focus:ring-0 font-bold text-lg placeholder-white/20"
                 />
               </div>
 
-              <div className="bg-gray-50 border border-transparent rounded-2xl px-5 py-4 focus-within:bg-white focus-within:border-gray-200 focus-within:ring-4 focus-within:ring-gray-100 transition-all">
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Display Name</label>
+              <div className="bg-[#1a1a1a] border border-white/5 rounded-2xl px-5 py-4 focus-within:border-white/20 transition-all">
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-1.5">Display Name</label>
                 <input
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full bg-transparent border-none p-0 text-gray-900 focus:ring-0 font-bold text-lg placeholder-gray-300"
+                  className="w-full bg-transparent border-none p-0 text-white focus:ring-0 font-bold text-lg placeholder-white/20"
                 />
               </div>
 
-              <div className="bg-gray-50 border border-transparent rounded-2xl px-5 py-4 focus-within:bg-white focus-within:border-gray-200 focus-within:ring-4 focus-within:ring-gray-100 transition-all text-right">
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5 text-left">Bio / Tagline</label>
+              <div className="bg-[#1a1a1a] border border-white/5 rounded-2xl px-5 py-4 focus-within:border-white/20 transition-all text-right">
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-1.5 text-left">Bio / Tagline</label>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   maxLength={500}
-                  className="w-full bg-transparent border-none p-0 text-gray-900 focus:ring-0 font-medium text-base placeholder-gray-300 resize-none h-32"
+                  className="w-full bg-transparent border-none p-0 text-white focus:ring-0 font-medium text-base placeholder-white/20 resize-none h-32"
                   placeholder="Tell the community about yourself..."
                 />
-                <span className="text-[10px] font-bold text-gray-400 tabular-nums">{bio.length}/500</span>
+                <span className="text-[10px] font-bold text-white/40 tabular-nums">{bio.length}/500</span>
               </div>
             </div>
           </div>
@@ -461,12 +487,23 @@ export default function SettingsPage() {
                   </button>
                 </div>
                 <div className="pt-6 border-t border-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-sm">
-                  <span className="text-gray-500 font-medium">
-                    {subscriptionDetails.cancelAtPeriodEnd
-                      ? `Subscription ends on ${subscriptionDetails.currentPeriodEnd ? new Date(subscriptionDetails.currentPeriodEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'end of period'}`
-                      : `Next billing cycle starts on ${subscriptionDetails.currentPeriodEnd ? new Date(subscriptionDetails.currentPeriodEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}`
-                    }
-                  </span>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-gray-500 font-medium">
+                      {subscriptionDetails.cancelAtPeriodEnd
+                        ? `Subscription ends on ${subscriptionDetails.currentPeriodEnd ? new Date(subscriptionDetails.currentPeriodEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'end of period'}`
+                        : `Next billing cycle starts on ${subscriptionDetails.currentPeriodEnd ? new Date(subscriptionDetails.currentPeriodEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}`
+                      }
+                    </span>
+                    {subscriptionDetails.cancelAtPeriodEnd && (
+                      <button
+                        onClick={handleResume}
+                        disabled={resumeLoading}
+                        className="text-xs font-bold text-indigo-600 hover:text-indigo-800 underline disabled:opacity-50 text-left"
+                      >
+                        {resumeLoading ? 'Resuming...' : 'Resume Subscription'}
+                      </button>
+                    )}
+                  </div>
                   <div className="flex items-center gap-1 font-bold text-gray-900">
                     $9.99 / mo <ChevronDown size={14} className="text-gray-400 ml-1" />
                   </div>
@@ -717,7 +754,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0f0f0f]">
+    <div className="flex min-h-screen bg-[#0c0c0c]">
       {/* Sidebar Nav */}
       <Sidebar
         recentCharacters={[]}
@@ -725,23 +762,23 @@ export default function SettingsPage() {
 
       <main className="flex-1 lg:pl-60 flex flex-col min-h-screen overflow-hidden">
         {/* Desktop Settings Header */}
-        <header className="px-8 py-10 flex items-center justify-between border-b border-gray-100 bg-white/50 backdrop-blur-md">
+        <header className="px-8 py-10 flex items-center justify-between border-b border-white/10 bg-[#0c0c0c]">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white shadow-lg">
+            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-white shadow-lg">
               <SettingsIcon size={24} />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight">Settings</h1>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-0.5">Control Center</p>
+              <h1 className="text-2xl font-black text-white tracking-tight">Settings</h1>
+              <p className="text-xs font-bold text-white/40 uppercase tracking-widest mt-0.5">Control Center</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden lg:flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-100 rounded-xl shadow-sm text-xs font-bold text-gray-700">
+            <div className="hidden lg:flex items-center gap-1.5 px-4 py-2 bg-[#1a1a1a] border border-white/10 rounded-xl text-xs font-bold text-white/70">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               Server Status: Online
             </div>
-            <button className="p-2.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-xl transition-all">
+            <button className="p-2.5 text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-all">
               <Bell size={20} />
             </button>
           </div>
@@ -749,36 +786,36 @@ export default function SettingsPage() {
 
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           {/* Horizontal Section Selector for Desktop (Left) */}
-          <aside className="w-full md:w-80 md:shrink-0 bg-white/30 p-8 border-r border-gray-100 overflow-y-auto">
+          <aside className="w-full md:w-80 md:shrink-0 bg-[#0c0c0c] p-8 border-r border-white/5 overflow-y-auto">
             <nav className="space-y-1.5">
               {SETTINGS_NAV.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setActiveSection(item.id as SettingsSection)}
-                  className={`w-full flex items-center justify-between px-6 py-4.5 rounded-[22px] group transition-all duration-300 ${activeSection === item.id
-                    ? 'bg-white text-gray-900 shadow-xl shadow-gray-100/50 border border-gray-100 translate-x-1'
-                    : 'text-gray-400 hover:text-gray-600 hover:bg-white/50'
+                  className={`w-full flex items-center justify-between px-6 py-4 rounded-2xl group transition-all duration-300 ${activeSection === item.id
+                    ? 'bg-[#1a1a1a] text-white border border-white/10'
+                    : 'text-white/40 hover:text-white/60 hover:bg-white/5'
                     }`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-xl transition-colors ${activeSection === item.id ? 'bg-indigo-600 text-white shadow-md' : 'bg-gray-100 text-gray-400 group-hover:text-gray-600'}`}>
+                    <div className={`p-2 rounded-xl transition-colors ${activeSection === item.id ? 'bg-purple-600 text-white' : 'bg-white/5 text-white/40 group-hover:text-white/60'}`}>
                       <item.icon size={18} />
                     </div>
-                    <span className={`text-sm font-black transition-colors ${activeSection === item.id ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-600'}`}>{item.label}</span>
+                    <span className={`text-sm font-bold transition-colors ${activeSection === item.id ? 'text-white' : 'text-white/40 group-hover:text-white/60'}`}>{item.label}</span>
                   </div>
-                  {activeSection === item.id && <ChevronRight size={16} className="text-indigo-600 animate-in slide-in-from-left-2" />}
+                  {activeSection === item.id && <ChevronRight size={16} className="text-purple-400" />}
                 </button>
               ))}
             </nav>
 
-            <div className="mt-12 space-y-4 pt-8 border-t border-gray-100">
-              <button className="w-full flex items-center gap-4 px-6 py-4 rounded-3xl bg-indigo-600 text-white shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all font-bold text-sm">
+            <div className="mt-12 space-y-4 pt-8 border-t border-white/5">
+              <button className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-[#5865F2] text-white hover:bg-[#4752C4] transition-all font-bold text-sm">
                 <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
                   <ExternalLinkIcon size={14} />
                 </div>
                 Join Discord
               </button>
-              <button className="w-full flex items-center gap-4 px-6 py-4 rounded-3xl bg-gray-900 text-white shadow-xl shadow-gray-200 hover:bg-black transition-all font-bold text-sm">
+              <button className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-[#1a1a1a] border border-white/10 text-white hover:bg-[#252525] transition-all font-bold text-sm">
                 <div className="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center text-[10px] font-black">
                   APP
                 </div>
@@ -788,16 +825,16 @@ export default function SettingsPage() {
           </aside>
 
           {/* Right Scrollable Area */}
-          <section className="flex-1 bg-white p-8 md:p-16 overflow-y-auto scroll-smooth">
+          <section className="flex-1 bg-[#0f0f0f] p-8 md:p-16 overflow-y-auto scroll-smooth">
             {renderContent()}
 
             {/* Footer within settings content */}
-            <div className="mt-32 pt-16 border-t border-gray-50 text-center">
-              <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] mb-4">Agentwood Digital Systems v2.1.0</p>
+            <div className="mt-32 pt-16 border-t border-white/5 text-center">
+              <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mb-4">Agentwood Digital Systems v2.1.0</p>
               <div className="flex justify-center gap-6">
-                <a href="#" className="text-xs font-bold text-gray-400 hover:text-gray-900 transition-colors">Safety</a>
-                <a href="#" className="text-xs font-bold text-gray-400 hover:text-gray-900 transition-colors">Privacy</a>
-                <a href="#" className="text-xs font-bold text-gray-400 hover:text-gray-900 transition-colors">Terms</a>
+                <a href="#" className="text-xs font-bold text-white/30 hover:text-white transition-colors">Safety</a>
+                <a href="#" className="text-xs font-bold text-white/30 hover:text-white transition-colors">Privacy</a>
+                <a href="#" className="text-xs font-bold text-white/30 hover:text-white transition-colors">Terms</a>
               </div>
             </div>
           </section>
@@ -806,3 +843,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+

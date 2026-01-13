@@ -2,9 +2,11 @@ import { getPostData, getAllPostSlugs } from '@/lib/blog/service';
 import Footer from '@/app/components/Footer';
 import Link from 'next/link';
 import { generateBlogMetadata } from '@/lib/seo/metadata';
+import BlogEngagement from '@/app/components/BlogEngagement';
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-    const post = await getPostData(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+    const resolvedParams = await params;
+    const post = await getPostData(resolvedParams.slug);
     return generateBlogMetadata(post);
 }
 
@@ -13,8 +15,9 @@ export async function generateStaticParams() {
     return paths;
 }
 
-export default async function Post({ params }: { params: { slug: string } }) {
-    const postData = await getPostData(params.slug);
+export default async function Post({ params }: { params: Promise<{ slug: string }> }) {
+    const resolvedParams = await params;
+    const postData = await getPostData(resolvedParams.slug);
 
     return (
         <div className="min-h-screen flex flex-col bg-[#0c0f16] text-white">
@@ -70,6 +73,9 @@ export default async function Post({ params }: { params: { slug: string } }) {
                     />
                 </article>
 
+                {/* Likes and Comments */}
+                <BlogEngagement slug={resolvedParams.slug} />
+
                 <div className="mt-24 pt-12 border-t border-white/10">
                     <h3 className="text-2xl font-bold mb-8">Share this article</h3>
                     <div className="flex gap-4">
@@ -89,3 +95,4 @@ export default async function Post({ params }: { params: { slug: string } }) {
         </div>
     );
 }
+

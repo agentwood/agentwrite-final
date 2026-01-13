@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Search, Bell, Play, Star, MessageSquare, ChevronDown, Heart, ChevronRight
@@ -9,6 +9,7 @@ import { CharacterProfile, Category } from '@/lib/master/types';
 import { CharacterCard } from './CharacterCard';
 import { SkeletonRow, SkeletonCard } from './SkeletonLoaders';
 import { Footer } from './Footer';
+import { getSession } from '@/lib/auth';
 
 interface LandingPageProps {
   characters: CharacterProfile[];
@@ -203,7 +204,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onSearch
 }) => {
   const [activeMood, setActiveMood] = useState('Relaxed');
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const moods = ['Helpful', 'Relaxed', 'Intense', 'Romantic', 'Playful', 'Slow-Burn', 'Wholesome', 'Adventurous'];
+
+  useEffect(() => {
+    // Get user avatar from session
+    const session = getSession();
+    if (session?.avatarUrl) {
+      setUserAvatar(session.avatarUrl);
+    }
+  }, []);
 
   return (
     <div className="fade-in">
@@ -217,8 +227,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <Link href="/notifications">
             <Bell size={18} className="text-white/40 cursor-pointer hover:text-white transition-colors" />
           </Link>
-          <Link href="/settings" className="h-9 w-9 rounded-full bg-purple-600 border border-white/20 flex items-center justify-center font-bold text-white text-xs hover:border-white transition-colors">
-            U
+          <Link href="/settings" className="h-9 w-9 rounded-full bg-purple-600 border border-white/20 flex items-center justify-center font-bold text-white text-xs hover:border-white transition-colors overflow-hidden">
+            {userAvatar ? (
+              <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <span>U</span>
+            )}
           </Link>
         </div>
       </div>
