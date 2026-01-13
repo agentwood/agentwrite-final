@@ -1,6 +1,7 @@
 "use client";
 
 import { supabase } from '@/lib/supabaseClient';
+import { setSession } from '@/lib/auth';
 
 import React, { useState } from 'react';
 import { X, ArrowRight, Eye, EyeOff } from 'lucide-react';
@@ -55,17 +56,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     // Set Session and Redirect
     try {
-      // Import setSession dynamically if needed or assume it's available via import
-      // But since we need to import it, let's verify imports first.
-      // The previous file content didn't show the import for setSession in AuthModal.
-      // We must add it. I'll do this in a separate edit or assume the user wants me to fix the logic block first.
-      // Wait, I can't add imports with replace_file_content easily if they are far away.
-      // I will use `setSession` here and then add the import in a subsequent call if missing.
-      // Actually, I should probably check imports first.
-      // Assuming I add the import at the top, here is the logic:
-
-      const { setSession } = require('@/lib/auth'); // dynamic require to avoid top-level issues if I can't edit top
-
       setSession(userSession);
       localStorage.setItem('agentwood_age_verified', 'true');
 
