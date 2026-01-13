@@ -17,6 +17,7 @@ interface CreateFullRequest {
     gender?: 'M' | 'F' | 'NB';
     archetype?: string;
     voiceId?: string;
+    voiceSeedId?: string; // Voice seed ID from VoiceSelector
     avatarUrl?: string; // Allow passing detailed avatar URL or base64
 }
 
@@ -136,6 +137,7 @@ async function processCharacterCreation(characterId: string, body: CreateFullReq
                 systemPrompt,
                 characterKeywords: body.keywords,
                 mappingConfidence: archetypeMatch.confidence,
+                voiceSeedId: body.voiceSeedId || undefined, // Save the selected voice seed
                 voiceReady: true, // Fish Speech v1.5 ready
                 creationStatus: 'ready',
                 creationProgress: 100,

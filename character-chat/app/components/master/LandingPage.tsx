@@ -203,9 +203,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onToggleFavorite,
   onSearch
 }) => {
-  const [activeMood, setActiveMood] = useState('Relaxed');
+  const [activeMood, setActiveMood] = useState('All');
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
-  const moods = ['Helpful', 'Relaxed', 'Intense', 'Romantic', 'Playful', 'Slow-Burn', 'Wholesome', 'Adventurous'];
+  const moods = ['All', 'Helpful', 'Relaxed', 'Intense', 'Romantic', 'Playful', 'Slow-Burn', 'Wholesome', 'Adventurous'];
 
   useEffect(() => {
     // Get user avatar from session
@@ -276,6 +276,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   setActiveMood(mood);
                   // Determine broad category mapping for the URL/State, but we'll do refined filtering below
                   const moodMap: Record<string, Category> = {
+                    'All': 'All',
                     'Helpful': 'Helpful',
                     'Relaxed': 'All',
                     'Intense': 'Anime & Game',
