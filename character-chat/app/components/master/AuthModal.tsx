@@ -66,10 +66,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         return;
       }
 
-      if (data?.session) {
+      // Safe check for session and user
+      if (data?.session && data.user) {
         setSession({
           id: data.user.id,
-          email: data.user.email,
+          email: data.user.email || '',
           displayName: data.user.user_metadata?.full_name || data.user.email?.split('@')[0],
           planId: 'free',
         });
@@ -114,7 +115,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   };
 
   const handleGoogleLogin = () => handleOAuthLogin('google');
-  const handleAppleLogin = () => handleOAuthLogin('apple');
 
   // SVGs for brand icons
   const GoogleIcon = () => (
@@ -125,12 +125,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.249 C -21.864 50.459 -21.734 49.689 -21.484 48.969 L -21.484 45.879 L -25.464 45.879 C -26.284 47.509 -26.754 49.329 -26.754 51.249 C -26.754 53.169 -26.284 54.989 -25.464 56.619 L -21.484 53.529 Z" />
         <path fill="#EA4335" d="M -14.754 44.009 C -12.984 44.009 -11.424 44.619 -10.174 45.809 L -6.714 42.349 C -8.804 40.409 -11.514 39.239 -14.754 39.239 C -19.424 39.239 -23.494 41.939 -25.464 45.879 L -21.484 48.969 C -20.534 46.119 -17.884 44.009 -14.754 44.009 Z" />
       </g>
-    </svg>
-  );
-
-  const AppleIcon = () => (
-    <svg viewBox="0 0 384 512" width="20" height="20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
     </svg>
   );
 
@@ -228,13 +222,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </div>
 
             <div className="flex flex-col gap-3">
-              <button
-                onClick={handleAppleLogin}
-                className="flex w-full items-center justify-center gap-3 bg-white text-black rounded-xl py-3.5 text-[11px] font-bold uppercase tracking-wider hover:bg-gray-100 transition-all shadow-lg active:scale-[0.98]"
-              >
-                <AppleIcon />
-                <span>Apple</span>
-              </button>
               <button
                 onClick={handleGoogleLogin}
                 className="flex w-full items-center justify-center gap-3 bg-white text-black rounded-xl py-3.5 text-[11px] font-bold uppercase tracking-wider hover:bg-gray-100 transition-all shadow-lg active:scale-[0.98]"
