@@ -9,6 +9,7 @@ export function middleware(request: NextRequest) {
         '/',           // Landing page only
         '/login',
         '/signup',
+        '/auth',       // Allow auth paths (callbacks)
         '/forgot-password',
         '/reset-password',
         '/privacy',
