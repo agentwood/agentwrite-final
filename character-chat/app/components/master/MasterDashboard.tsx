@@ -58,20 +58,29 @@ const SearchView: React.FC<{
 }> = ({ onSelectCharacter, characters }) => {
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState('Trending');
-  const tabs = ['Trending', 'Rising', 'New', 'Editors Choice'];
+  const [activeMood, setActiveMood] = useState('All');
 
-  // Filter based on query
-  const results = characters.filter(c =>
-    c.name.toLowerCase().includes(query.toLowerCase()) ||
-    c.tagline.toLowerCase().includes(query.toLowerCase())
-  );
+  const tabs = ['Trending', 'Rising', 'New', 'Editors Choice'];
+  const moods = ['All', 'Helpful', 'Relaxed', 'Intense', 'Romantic', 'Playful', 'Slow-Burn', 'Wholesome', 'Adventurous'];
+
+  // Filter based on query and mood
+  const results = characters.filter(c => {
+    const matchesQuery = c.name.toLowerCase().includes(query.toLowerCase()) ||
+      c.tagline.toLowerCase().includes(query.toLowerCase());
+
+    // Normalize category comparison
+    const charCategory = (c.category || '').toLowerCase();
+    const matchesMood = activeMood === 'All' || charCategory === activeMood.toLowerCase();
+
+    return matchesQuery && matchesMood;
+  });
 
   return (
     <div className="min-h-screen bg-[#0c0c0c] p-6 md:p-12 animate-fade-in pb-32">
       <div className="max-w-6xl mx-auto space-y-8">
 
         {/* Header & Search Input */}
-        <div className="flex flex-col items-center space-y-8 mb-12">
+        <div className="flex flex-col items-center space-y-8 mb-8">
           <h1 className="text-4xl md:text-5xl font-serif italic text-white text-center">Explore the Woods</h1>
 
           <div className="relative group w-full max-w-2xl">
@@ -91,6 +100,25 @@ const SearchView: React.FC<{
                 </button>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Mood Filter */}
+        <div className="flex items-center justify-center gap-6 mb-8 overflow-x-auto py-2">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/30 shrink-0">MOOD</span>
+          <div className="flex items-center gap-2">
+            {moods.map(mood => (
+              <button
+                key={mood}
+                onClick={() => setActiveMood(mood)}
+                className={`px-5 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${activeMood === mood
+                    ? 'bg-[#d4b595] text-black border-[#d4b595] shadow-[0_0_15px_rgba(212,181,149,0.2)]'
+                    : 'bg-[#1a1a1a] text-white/40 border-white/5 hover:bg-white/10 hover:text-white'
+                  }`}
+              >
+                {mood}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -114,11 +142,11 @@ const SearchView: React.FC<{
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {results.map((char, index) => (
             <div
-              key={index}
+              key={char.id} /* Use ID instead of index for better key stability */
               onClick={() => onSelectCharacter(char)}
               className="group relative flex items-center gap-4 p-4 rounded-2xl bg-[#161616] border border-white/5 hover:bg-[#1f1b19] hover:border-white/10 transition-all cursor-pointer overflow-hidden"
             >
-              {/* Rank Number */}
+              {/* Rank Number - Only show if strict ranking is implied, otherwise maybe just index in list */}
               <div className="flex-shrink-0 w-8 text-center z-10">
                 <span className={`text-2xl font-black font-serif italic ${index === 0 ? 'text-yellow-500 drop-shadow-[0_0_10px_rgba(234,179,8,0.3)]' :
                   index === 1 ? 'text-gray-300' :
@@ -148,6 +176,12 @@ const SearchView: React.FC<{
                   <span className="flex items-center gap-1 text-[9px] text-white/30 font-bold uppercase tracking-wider">
                     <Eye size={10} /> {char.viewCount >= 1000 ? `${(char.viewCount / 1000).toFixed(1)}k` : char.viewCount}
                   </span>
+                  {/* Category Pill Mini */}
+                  {char.category && (
+                    <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-white/5 text-white/30 border border-white/5 uppercase tracking-wider">
+                      {char.category}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -155,6 +189,12 @@ const SearchView: React.FC<{
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
             </div>
           ))}
+
+          {results.length === 0 && (
+            <div className="col-span-full text-center py-20 text-white/30 italic font-serif text-xl">
+              No characters found for this mood.
+            </div>
+          )}
         </div>
       </div>
     </div>
