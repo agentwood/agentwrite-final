@@ -308,16 +308,72 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           ) : (
             characters
               .filter(char => {
-                // Determine if a character matches the active mood using flexible keyword matching
+                // Map database categories to mood groups
+                const categoryToMood: Record<string, string[]> = {
+                  // Helpful mood
+                  'Helpful': ['Helpful'],
+                  'Helper': ['Helpful'],
+                  'Wellness': ['Helpful', 'Relaxed'],
+                  'Education': ['Helpful'],
+                  'Wisdom': ['Helpful'],
+                  'Mindfulness': ['Helpful', 'Relaxed'],
+                  'Fitness': ['Helpful'],
+                  'Business': ['Helpful'],
+                  'Science': ['Helpful'],
+                  'Technology': ['Helpful'],
+
+                  // Relaxed mood
+                  'Comfort': ['Relaxed', 'Wholesome'],
+                  'Nature': ['Relaxed', 'Wholesome'],
+                  'Art': ['Relaxed'],
+                  'Design': ['Relaxed'],
+
+                  // Intense mood
+                  'Villain': ['Intense'],
+                  'Mystery': ['Intense'],
+                  'Military': ['Intense'],
+
+                  // Playful mood
+                  'Fun': ['Playful'],
+                  'Play & Fun': ['Playful'],
+                  'Comedy': ['Playful'],
+                  'Entertainment': ['Playful'],
+
+                  // Romantic mood
+                  'Romance': ['Romantic'],
+
+                  // Adventurous mood
+                  'Adventure': ['Adventurous'],
+                  'Storyteller': ['Adventurous'],
+
+                  // Wholesome mood
+                  'Motivation': ['Wholesome', 'Helpful'],
+                  'Lifestyle': ['Wholesome'],
+
+                  // Default/catch-all
+                  'Original': ['All'],
+                  'Recommend': ['All'],
+                  'Alternative': ['Intense'],
+                };
+
+                // If 'All' is selected, show everything
+                if (activeMood === 'All') return true;
+
+                // Check if character's category maps to the active mood
+                const charCategory = char.category || 'Original';
+                const mappedMoods = categoryToMood[charCategory] || [];
+                if (mappedMoods.includes(activeMood)) return true;
+
+                // Fallback to keyword matching for flexible matching
                 const text = (char.description + ' ' + char.tagline + ' ' + char.name + ' ' + (char.category || '')).toLowerCase();
 
                 switch (activeMood) {
                   case 'Helpful':
                     return text.includes('help') || text.includes('assist') || text.includes('guide') || text.includes('support') ||
-                      text.includes('mentor') || text.includes('teach') || text.includes('advice') || char.category === 'Helpful';
+                      text.includes('mentor') || text.includes('teach') || text.includes('advice');
                   case 'Relaxed':
                     return text.includes('calm') || text.includes('chill') || text.includes('relax') || text.includes('easy') ||
-                      text.includes('quiet') || text.includes('gentle') || text.includes('friendly') || !text.includes('dark');
+                      text.includes('quiet') || text.includes('gentle') || text.includes('friendly');
                   case 'Intense':
                     return text.includes('dark') || text.includes('power') || text.includes('villain') || text.includes('dangerous') ||
                       text.includes('mysterious') || text.includes('dominant') || text.includes('yandere') || text.includes('rival');

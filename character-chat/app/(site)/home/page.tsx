@@ -4,8 +4,8 @@ import AgeVerificationWrapper from '../../components/AgeVerificationWrapper';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'Manage your stories and characters.',
+  title: 'Agentwood - AI Character Chat',
+  description: 'Chat with thousands of AI characters with real voices. Create your own or discover unique personalities.',
 };
 
 export default async function HomePage() {
