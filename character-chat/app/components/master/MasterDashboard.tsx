@@ -112,8 +112,8 @@ const SearchView: React.FC<{
                 key={mood}
                 onClick={() => setActiveMood(mood)}
                 className={`px-5 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${activeMood === mood
-                    ? 'bg-[#d4b595] text-black border-[#d4b595] shadow-[0_0_15px_rgba(212,181,149,0.2)]'
-                    : 'bg-[#1a1a1a] text-white/40 border-white/5 hover:bg-white/10 hover:text-white'
+                  ? 'bg-[#d4b595] text-black border-[#d4b595] shadow-[0_0_15px_rgba(212,181,149,0.2)]'
+                  : 'bg-[#1a1a1a] text-white/40 border-white/5 hover:bg-white/10 hover:text-white'
                   }`}
               >
                 {mood}
@@ -2361,6 +2361,7 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
               <SidebarLink
                 icon={<Brain size={18} />}
                 label="Training & Data"
+                badge="PRO"
                 onClick={() => {
                   if (!currentUser) {
                     setIsAuthOpen(true);

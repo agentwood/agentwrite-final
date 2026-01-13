@@ -14,7 +14,7 @@ export const SUPERTONIC_VOICE_MAP: Record<string, string> = {
     'Youtuber': 'M5',         // Energetic
     'Coach': 'M2',            // Intense motivator
     'Cockney': 'M1',          // British accent
-    'Australian': 'M5',       // Australian
+    'Australian': 'M2',       // Australian
     'Indian': 'M4',           // Indian accent
     'WestAfrican': 'M3',      // West African
     'SouthAfrican': 'M2',     // South African
