@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, AlertCircle, Eye, EyeOff, X } from 'lucide-react';
 import { setSession } from '@/lib/auth';
+import { toast } from 'sonner';
 
 export default function LoginForm() {
     const router = useRouter();
@@ -30,6 +31,7 @@ export default function LoginForm() {
             // Basic validation
             if (!formData.email || !formData.password) {
                 setErrors({ submit: 'Please fill in all fields.' });
+                toast.error('Please fill in all fields.');
                 setIsLoading(false);
                 return;
             }
@@ -52,14 +54,23 @@ export default function LoginForm() {
 
         // Set Session and Redirect
         try {
+            console.log('Setting session for:', userSession);
             setSession(userSession);
             localStorage.setItem('agentwood_age_verified', 'true');
 
-            // Force a hard navigation to ensure state updates
+            // Explicitly set cookie just in case setSession misses it
+            const date = new Date();
+            date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+            document.cookie = `agentwood_token=${userSession.id}; expires=${date.toUTCString()}; path=/`;
+
+            toast.success(`Welcome back, ${userSession.displayName}`);
+
+            // Force navigation
             window.location.href = '/home';
-        } catch (e) {
+        } catch (e: any) {
             console.error("Login failed", e);
             setErrors({ submit: "Something went wrong. Please try again." });
+            toast.error("Login failed. Please try again.");
             setIsLoading(false);
         }
     };
