@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, Calendar, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
+import { Mail, Lock, Calendar, AlertCircle, CheckCircle2, Sparkles, X } from 'lucide-react';
 import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
 import { setSession } from '@/lib/auth';
@@ -148,42 +148,38 @@ export default function SignupPage() {
   const minDateString = minDate.toISOString().split('T')[0];
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <Header />
+    <div className="min-h-screen flex items-center justify-center bg-[#0f0a15] p-4 relative overflow-hidden">
 
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md">
-          <div className="bg-white border border-zinc-200 rounded-2xl p-8 shadow-lg">
-            {/* Header */}
+      {/* Background Ambience */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0f0a15] to-[#0f0a15] pointer-events-none" />
+
+      {/* Main Container */}
+      <div className="w-full max-w-6xl bg-[#0f0f0f] rounded-[32px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] flex relative min-h-[700px] border border-white/5 animate-fade-in-up">
+
+        {/* Close / Home Button */}
+        <button
+          onClick={() => router.push('/')}
+          className="absolute top-8 right-8 z-50 p-2 bg-black/20 hover:bg-white/10 rounded-full transition-all text-white/40 hover:text-white backdrop-blur-md border border-white/5"
+        >
+          <X size={20} />
+        </button>
+
+        {/* LEFT SIDE - FORM */}
+        <div className="w-full lg:w-[45%] p-8 md:p-12 flex flex-col justify-center relative bg-[#120b18]">
+          <div className="max-w-md mx-auto w-full relative z-10">
+
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 mb-4">
-                <Sparkles className="w-8 h-8 text-white" />
-              </div>
-              <h1 className="text-3xl font-bold text-zinc-900 mb-2">Create Your Account</h1>
-              <p className="text-zinc-600">Join Agentwood and start chatting with AI characters</p>
+              <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-3">Begin Your Journey</h2>
+              <h1 className="text-4xl md:text-5xl font-serif italic text-white mb-2 tracking-tight">Create Account.</h1>
+              <p className="text-white/40 text-sm font-sans">Join the story in the woods.</p>
             </div>
 
-            {/* Age Requirement Notice */}
-            <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-indigo-900 mb-1">Age Requirement</p>
-                  <p className="text-xs text-indigo-700">
-                    You must be at least <strong>13 years old</strong> to use Agentwood. We verify your age to ensure a safe environment for all users.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
 
-            <form onSubmit={handleSubmit} className="space-y-5">
               {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
+              <div className="group">
+                <div className="relative bg-[#1a1a1a] border border-white/5 rounded-xl px-4 py-3 focus-within:border-purple-500/50 focus-within:bg-white/5 transition-all">
+                  <label className="block text-[10px] font-bold text-white/30 mb-1 uppercase tracking-wider">Email Address</label>
                   <input
                     type="email"
                     value={formData.email}
@@ -195,169 +191,147 @@ export default function SignupPage() {
                         setErrors(newErrors);
                       }
                     }}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${errors.email ? 'border-red-300 bg-red-50' : 'border-zinc-200'
-                      }`}
+                    className={`w-full bg-transparent border-none p-0 text-sm text-white focus:ring-0 placeholder:text-white/20 outline-none ${errors.email ? 'text-red-300' : ''}`}
                     placeholder="name@example.com"
                   />
+                  <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
                 </div>
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.email}
-                  </p>
-                )}
+                {errors.email && <p className="mt-1 text-[10px] text-red-400 pl-1">{errors.email}</p>}
               </div>
 
-              {/* Birth Date */}
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Date of Birth <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
+              {/* Birth Date (Age Verification) */}
+              <div className="group">
+                <div className={`relative bg-[#1a1a1a] border rounded-xl px-4 py-3 focus-within:bg-white/5 transition-all ${ageVerified && !errors.birthDate ? 'border-green-500/30' : errors.birthDate ? 'border-red-500/30' : 'border-white/5 focus-within:border-purple-500/50'
+                  }`}>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-[10px] font-bold text-white/30 uppercase tracking-wider">Date of Birth</label>
+                    {ageVerified && !errors.birthDate && (
+                      <span className="text-[10px] text-green-400 flex items-center gap-1 font-bold">
+                        <CheckCircle2 className="w-3 h-3" /> Verified (13+)
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="date"
                     value={formData.birthDate}
                     onChange={handleBirthDateChange}
                     max={maxDateString}
                     min={minDateString}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${errors.birthDate ? 'border-red-300 bg-red-50' : ageVerified ? 'border-green-300 bg-green-50' : 'border-zinc-200'
-                      }`}
+                    className="w-full bg-transparent border-none p-0 text-sm text-white focus:ring-0 placeholder:text-white/20 outline-none [color-scheme:dark]"
                   />
                 </div>
-                {errors.birthDate && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.birthDate}
-                  </p>
-                )}
-                {ageVerified && !errors.birthDate && (
-                  <p className="mt-1 text-sm text-green-600 flex items-center gap-1">
-                    <CheckCircle2 className="w-4 h-4" />
-                    Age verified: {calculateAge(formData.birthDate)} years old
-                  </p>
-                )}
+                {errors.birthDate && <p className="mt-1 text-[10px] text-red-400 pl-1">{errors.birthDate}</p>}
               </div>
 
-              {/* Password */}
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
-                  <input
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => {
-                      setFormData({ ...formData, password: e.target.value });
-                      if (errors.password) {
-                        const newErrors = { ...errors };
-                        delete newErrors.password;
-                        setErrors(newErrors);
-                      }
-                    }}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${errors.password ? 'border-red-300 bg-red-50' : 'border-zinc-200'
-                      }`}
-                    placeholder="At least 8 characters"
-                  />
+              {/* Password Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="group">
+                  <div className="relative bg-[#1a1a1a] border border-white/5 rounded-xl px-4 py-3 focus-within:border-purple-500/50 focus-within:bg-white/5 transition-all">
+                    <label className="block text-[10px] font-bold text-white/30 mb-1 uppercase tracking-wider">Password</label>
+                    <input
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => {
+                        setFormData({ ...formData, password: e.target.value });
+                        if (errors.password) {
+                          const newErrors = { ...errors };
+                          delete newErrors.password;
+                          setErrors(newErrors);
+                        }
+                      }}
+                      className="w-full bg-transparent border-none p-0 text-sm text-white focus:ring-0 placeholder:text-white/20 outline-none"
+                      placeholder="8+ chars"
+                    />
+                  </div>
+                  {errors.password && <p className="mt-1 text-[10px] text-red-400 pl-1">{errors.password}</p>}
                 </div>
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.password}
-                  </p>
-                )}
-              </div>
 
-              {/* Confirm Password */}
-              <div>
-                <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
-                  <input
-                    type="password"
-                    value={formData.confirmPassword}
-                    onChange={(e) => {
-                      setFormData({ ...formData, confirmPassword: e.target.value });
-                      if (errors.confirmPassword) {
-                        const newErrors = { ...errors };
-                        delete newErrors.confirmPassword;
-                        setErrors(newErrors);
-                      }
-                    }}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-zinc-200'
-                      }`}
-                    placeholder="Re-enter your password"
-                  />
+                <div className="group">
+                  <div className="relative bg-[#1a1a1a] border border-white/5 rounded-xl px-4 py-3 focus-within:border-purple-500/50 focus-within:bg-white/5 transition-all">
+                    <label className="block text-[10px] font-bold text-white/30 mb-1 uppercase tracking-wider">Confirm</label>
+                    <input
+                      type="password"
+                      value={formData.confirmPassword}
+                      onChange={(e) => {
+                        setFormData({ ...formData, confirmPassword: e.target.value });
+                        if (errors.confirmPassword) {
+                          const newErrors = { ...errors };
+                          delete newErrors.confirmPassword;
+                          setErrors(newErrors);
+                        }
+                      }}
+                      className="w-full bg-transparent border-none p-0 text-sm text-white focus:ring-0 placeholder:text-white/20 outline-none"
+                      placeholder="Repeat"
+                    />
+                  </div>
+                  {errors.confirmPassword && <p className="mt-1 text-[10px] text-red-400 pl-1">{errors.confirmPassword}</p>}
                 </div>
-                {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.confirmPassword}
-                  </p>
-                )}
               </div>
 
-              {/* Submit Error */}
               {errors.submit && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
-                  <p className="text-sm text-red-600 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.submit}
-                  </p>
+                <div className="text-xs text-red-400 flex items-center gap-2 justify-center py-2 bg-red-500/10 rounded-lg">
+                  <AlertCircle size={12} />
+                  {errors.submit}
                 </div>
               )}
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading || !ageVerified}
-                className={`w-full py-3 rounded-xl font-semibold transition-all ${isLoading || !ageVerified
-                  ? 'bg-zinc-200 text-zinc-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 shadow-lg hover:shadow-xl'
+                className={`w-full py-4 mt-6 rounded-xl font-bold uppercase tracking-[0.2em] text-xs transition-all transform active:scale-[0.98] ${isLoading || !ageVerified
+                  ? 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5'
+                  : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:shadow-[0_0_30px_rgba(139,92,246,0.4)] shadow-lg'
                   }`}
               >
-                {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Creating Account...
-                  </span>
-                ) : (
-                  'Create Account'
-                )}
+                {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
 
-              {/* Terms */}
-              <p className="text-xs text-zinc-500 text-center">
-                By creating an account, you agree to our{' '}
-                <Link href="/terms" className="text-indigo-600 hover:text-indigo-700 font-medium">
-                  Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link href="/privacy" className="text-indigo-600 hover:text-indigo-700 font-medium">
-                  Privacy Policy
-                </Link>
-                . You must be 13+ to use this service.
-              </p>
-
-              {/* Login Link */}
-              <div className="text-center pt-4 border-t border-zinc-200">
-                <p className="text-sm text-zinc-600">
-                  Already have an account?{' '}
-                  <Link href="/login" className="text-indigo-600 hover:text-indigo-700 font-semibold">
-                    Sign in
-                  </Link>
-                </p>
+              <div className="text-center mt-6">
+                <span className="text-white/40 text-[10px]">Already have an account? </span>
+                <Link href="/login" className="text-purple-400 font-bold text-[10px] hover:text-purple-300 uppercase tracking-wider transition-colors">Sign In</Link>
               </div>
             </form>
           </div>
         </div>
-      </main>
 
-      <Footer />
+        {/* RIGHT SIDE - VISUAL */}
+        <div className="hidden lg:flex w-[55%] relative overflow-hidden items-end p-16">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/videos/fireplace.mp4" type="video/mp4" />
+          </video>
+
+          {/* Overlays */}
+          <div className="absolute inset-0 bg-black/30 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-transparent to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0f0f0f] via-transparent to-transparent z-10" />
+
+          <div className="relative z-20 max-w-lg">
+            <div className="mb-6 flex gap-2">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20" />
+              ))}
+            </div>
+            <h3 className="text-4xl md:text-5xl font-serif italic text-white mb-6 leading-tight drop-shadow-2xl">
+              "I finally found a character that listens."
+            </h3>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full border border-white/20 overflow-hidden ring-2 ring-black/50">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100&h=100" className="w-full h-full object-cover" alt="User" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-white tracking-widest uppercase py-1">Elena R.</div>
+                <div className="text-[10px] text-white/60">Storyteller & Explorer</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
