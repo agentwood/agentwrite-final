@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, AlertCircle, Eye, EyeOff, X } from 'lucide-react';
 import { setSession } from '@/lib/auth';
+import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
 
 export default function LoginForm() {
@@ -17,67 +18,79 @@ export default function LoginForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    // --- SIMULATION LOGIC ---
-    const simulateLogin = async (provider: 'email' | 'google' | 'apple') => {
+    // --- REAL SUPABASE AUTH LOGIC ---
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
         setIsLoading(true);
         setErrors({});
 
-        // Simulate network delay for realism
-        await new Promise(resolve => setTimeout(resolve, 800));
-
-        let userSession: any;
-
-        if (provider === 'email') {
-            // Basic validation
-            if (!formData.email || !formData.password) {
-                setErrors({ submit: 'Please fill in all fields.' });
-                toast.error('Please fill in all fields.');
-                setIsLoading(false);
-                return;
-            }
-
-            userSession = {
-                id: `user_${Date.now()}`,
-                email: formData.email,
-                displayName: formData.email.split('@')[0],
-                planId: 'free',
-            };
-        } else {
-            // Social Providers
-            userSession = {
-                id: `${provider}_${Date.now()}`,
-                email: `demo@${provider}.com`,
-                displayName: `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`,
-                planId: 'free',
-            };
+        if (!formData.email || !formData.password) {
+            setErrors({ submit: 'Please fill in all fields.' });
+            toast.error('Please fill in all fields.');
+            setIsLoading(false);
+            return;
         }
 
-        // Set Session and Redirect
         try {
-            console.log('Setting session for:', userSession);
-            setSession(userSession);
-            localStorage.setItem('agentwood_age_verified', 'true');
+            if (!supabase) {
+                throw new Error("Supabase is not configured. Please check your environment variables.");
+            }
 
-            // Explicitly set cookie just in case setSession misses it
-            const date = new Date();
-            date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
-            document.cookie = `agentwood_token=${userSession.id}; expires=${date.toUTCString()}; path=/`;
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: formData.email,
+                password: formData.password,
+            });
 
-            toast.success(`Welcome back, ${userSession.displayName}`);
+            if (error) throw error;
 
-            // Force navigation
-            window.location.href = '/home';
-        } catch (e: any) {
-            console.error("Login failed", e);
-            setErrors({ submit: "Something went wrong. Please try again." });
-            toast.error("Login failed. Please try again.");
+            if (data?.session) {
+                // Set local session helper for app compatibility
+                setSession({
+                    id: data.user.id,
+                    email: data.user.email,
+                    displayName: data.user.user_metadata?.full_name || data.user.email?.split('@')[0],
+                    planId: 'free',
+                });
+
+                // Also explicitly set the cookie for middleware immediately
+                const date = new Date();
+                date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+                document.cookie = `agentwood_token=${data.user.id}; expires=${date.toUTCString()}; path=/`;
+
+                toast.success('Welcome back!');
+
+                // Force hard navigation to ensure state is clean
+                window.location.href = '/home';
+            }
+        } catch (error: any) {
+            console.error('Login error:', error);
+            setErrors({ submit: error.message || "Invalid login credentials" });
+            toast.error(error.message || "Login failed");
             setIsLoading(false);
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        simulateLogin('email');
+    const handleOAuthLogin = async (provider: 'google' | 'apple') => {
+        setIsLoading(true);
+        try {
+            if (!supabase) {
+                throw new Error("Supabase is not configured.");
+            }
+
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: provider,
+                options: {
+                    redirectTo: `${window.location.origin}/auth/callback`,
+                },
+            });
+
+            if (error) throw error;
+            // Supabase handles the redirect automatically
+        } catch (error: any) {
+            console.error('OAuth error:', error);
+            toast.error(`Error connecting to ${provider}: ${error.message}`);
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -106,7 +119,7 @@ export default function LoginForm() {
                             <p className="text-white/40 text-sm">Resume your story in the woods.</p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleLogin} className="space-y-4">
                             {/* Email */}
                             <div className="bg-[#1a1a1a] border border-white/5 rounded-xl px-4 py-3 focus-within:border-white/20 transition-colors">
                                 <label className="block text-[10px] font-bold text-white/30 mb-1">Email Address</label>
@@ -172,7 +185,7 @@ export default function LoginForm() {
                         <div className="space-y-3">
                             <button
                                 type="button"
-                                onClick={() => simulateLogin('apple')}
+                                onClick={() => handleOAuthLogin('apple')}
                                 disabled={isLoading}
                                 className="w-full bg-white text-black py-3 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors"
                             >
@@ -181,7 +194,7 @@ export default function LoginForm() {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => simulateLogin('google')}
+                                onClick={() => handleOAuthLogin('google')}
                                 disabled={isLoading}
                                 className="w-full bg-white text-black py-3 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors"
                             >

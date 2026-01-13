@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabaseClient';
 import { setSession } from '@/lib/auth';
+import { toast } from 'sonner';
 
 import React, { useState } from 'react';
 import { X, ArrowRight, Eye, EyeOff } from 'lucide-react';
@@ -20,65 +21,100 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [error, setError] = useState('');
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
 
-  // --- SIMULATION LOGIC ---
-  const simulateLogin = async (provider: 'email' | 'google' | 'apple') => {
+  // --- REAL AUTH LOGIC ---
+  const handleEmailAuth = async () => {
     setIsLoading(true);
     setError('');
 
-    // Simulate network delay for realism
-    await new Promise(resolve => setTimeout(resolve, 800));
+    if (!email || !password) {
+      setError('Please enter email and password');
+      setIsLoading(false);
+      return;
+    }
 
-    let userSession: any;
+    try {
+      if (!supabase) {
+        throw new Error("Supabase is not configured.");
+      }
 
-    if (provider === 'email') {
-      // Basic validation
-      if (!email || !password) {
-        setError('Please enter email and password');
+      let result;
+
+      if (mode === 'signup') {
+        result = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: email.split('@')[0],
+            }
+          }
+        });
+      } else {
+        result = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+      }
+
+      const { data, error } = result;
+      if (error) throw error;
+
+      // For signup, we might need email verification
+      if (mode === 'signup' && data?.user && !data.session) {
+        toast.success('Account created! Please check your email to verify.');
         setIsLoading(false);
         return;
       }
 
-      userSession = {
-        id: `user_${Date.now()}`,
-        email: email,
-        displayName: email.split('@')[0],
-        planId: 'free',
-      };
-    } else {
-      // Social Providers
-      userSession = {
-        id: `${provider}_${Date.now()}`,
-        email: `demo@${provider}.com`,
-        displayName: `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`,
-        planId: 'free',
-      };
-    }
+      if (data?.session) {
+        setSession({
+          id: data.user.id,
+          email: data.user.email,
+          displayName: data.user.user_metadata?.full_name || data.user.email?.split('@')[0],
+          planId: 'free',
+        });
 
-    // Set Session and Redirect
-    try {
-      setSession(userSession);
-      localStorage.setItem('agentwood_age_verified', 'true');
+        // Set Middleware Cookie
+        const date = new Date();
+        date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+        document.cookie = `agentwood_token=${data.user.id}; expires=${date.toUTCString()}; path=/`;
 
-      // Force a hard navigation to ensure state updates
-      window.location.href = '/home';
+        toast.success(mode === 'signup' ? 'Welcome to Agentwood!' : 'Welcome back!');
+        window.location.href = '/home';
+      }
+
     } catch (e: any) {
-      console.error("Login failed", e);
-      setError("Something went wrong. Please try again.");
+      console.error("Auth failed:", e);
+      setError(e.message || "Authentication failed");
+      toast.error(e.message || "Authentication failed");
       setIsLoading(false);
     }
   };
 
-  const handleEmailAuth = async () => {
-    simulateLogin('email');
+  const handleOAuthLogin = async (provider: 'google' | 'apple') => {
+    setIsLoading(true);
+    try {
+      if (!supabase) {
+        throw new Error("Supabase is not configured.");
+      }
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (e: any) {
+      console.error("OAuth error:", e);
+      toast.error(`Error connecting to ${provider}: ${e.message}`);
+      setIsLoading(false);
+    }
   };
 
-  const handleGoogleLogin = async () => {
-    simulateLogin('google');
-  };
-
-  const handleAppleLogin = async () => {
-    simulateLogin('apple');
-  };
+  const handleGoogleLogin = () => handleOAuthLogin('google');
+  const handleAppleLogin = () => handleOAuthLogin('apple');
 
   // SVGs for brand icons
   const GoogleIcon = () => (
@@ -97,10 +133,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
     </svg>
   );
-
-  // ... existing code ...
-
-  // ... existing code ...
 
   const isDev = process.env.NODE_ENV === 'development';
 
@@ -132,10 +164,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <div className="relative z-10 text-white">
             {/* ... header ... */}
             <div className="mb-10 text-center">
-              <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/40 mb-3 block">Welcome Back</span>
-              <h2 className="text-5xl font-serif italic tracking-tighter mb-2 text-white">Sign in.</h2>
+              <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/40 mb-3 block">
+                {mode === 'signup' ? 'Join Us' : 'Welcome Back'}
+              </span>
+              <h2 className="text-5xl font-serif italic tracking-tighter mb-2 text-white">
+                {mode === 'signup' ? 'Sign up.' : 'Sign in.'}
+              </h2>
               <p className="text-sm text-white/40 font-sans">
-                Resume your story in the woods.
+                {mode === 'signup' ? 'Start your journey in the woods.' : 'Resume your story in the woods.'}
               </p>
             </div>
 
@@ -168,9 +204,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <button className="text-[10px] font-bold uppercase tracking-wider text-white/40 hover:text-white transition-colors">Forgot Password?</button>
-              </div>
+              {mode === 'signin' && (
+                <div className="flex justify-end">
+                  <button className="text-[10px] font-bold uppercase tracking-wider text-white/40 hover:text-white transition-colors">Forgot Password?</button>
+                </div>
+              )}
 
               {error && <p className="text-red-400 text-xs text-center">{error}</p>}
 
@@ -205,9 +243,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 <span>Google</span>
               </button>
             </div>
-
-            {/* Dev Bypass Button */}
-  // Dev button removed for cleanup
 
             <p className="mt-10 text-[10px] text-white/30 text-center font-sans">
               {mode === 'signin' ? (
