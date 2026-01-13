@@ -2,20 +2,38 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-    // Define protected routes that require FULL authentication (not just anonymous)
-    const protectedPaths = [
-        '/pricing',
-        '/character',
-        '/create',
-        '/library',
-        '/voice-studio',
-        '/settings',
-        '/dashboard' // if it exists
+    const pathname = request.nextUrl.pathname;
+
+    // Public routes that DON'T require authentication
+    const publicPaths = [
+        '/',           // Landing page only
+        '/login',
+        '/signup',
+        '/forgot-password',
+        '/reset-password',
+        '/privacy',
+        '/terms',
+        '/about',
+        '/blog',
+        '/api/auth',   // Auth endpoints
+        '/api/blog',   // Public blog API
+        '/_next',      // Next.js internals
+        '/favicon',
+        '/images',
+        '/videos',
+        '/avatars',
+        '/og-image',
     ];
 
-    const isProtected = protectedPaths.some(path => request.nextUrl.pathname.startsWith(path));
+    // Check if current path is public
+    const isPublic = publicPaths.some(path =>
+        pathname === path || pathname.startsWith(path + '/')
+    );
 
-    if (isProtected) {
+    // Also allow static files
+    const isStatic = pathname.includes('.') && !pathname.includes('/api/');
+
+    if (!isPublic && !isStatic) {
         // Check for the auth cookie set by lib/auth.ts
         const authToken = request.cookies.get('agentwood_token');
 
@@ -23,7 +41,7 @@ export function middleware(request: NextRequest) {
             // Redirect to login if accessing protected route without auth
             const url = request.nextUrl.clone();
             url.pathname = '/login';
-            url.searchParams.set('callbackUrl', request.nextUrl.pathname);
+            url.searchParams.set('callbackUrl', pathname);
             return NextResponse.redirect(url);
         }
     }
@@ -33,12 +51,12 @@ export function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        '/pricing/:path*',
-        '/character/:path*',
-        '/create/:path*',
-        '/library/:path*',
-        '/voice-studio/:path*',
-        '/settings/:path*',
-        // Add other protected routes here
+        /*
+         * Match all request paths except:
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         */
+        '/((?!_next/static|_next/image|favicon.ico).*)',
     ],
 };
