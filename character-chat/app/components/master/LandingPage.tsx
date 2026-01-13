@@ -307,21 +307,37 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           ) : (
             characters
               .filter(char => {
-                // 1. First Pass: Category Filter (if set strictly by parent, but we want mood to take precedence in this view)
-                // Actually, let's make MOOD the primary filter for this view.
+                // Determine if a character matches the active mood using flexible keyword matching
+                const text = (char.description + ' ' + char.tagline + ' ' + char.name + ' ' + (char.category || '')).toLowerCase();
 
-                if (activeMood === 'Relaxed') return true; // Show all for relaxed (discovery mode) or filter by 'calm' tags if we had them.
-                // For now, 'Relaxed' serves as 'All/Discover' 
-
-                if (activeMood === 'Helpful') return char.category === 'Helpful' || char.category === 'Helper' || char.category === 'Educational';
-                if (activeMood === 'Romantic') return char.category === 'Romance';
-                if (activeMood === 'Playful') return char.category === 'Play & Fun' || char.category === 'Fun';
-                if (activeMood === 'Intense') return char.category === 'Anime & Game' || char.description.toLowerCase().includes('villain') || char.description.toLowerCase().includes('power');
-                if (activeMood === 'Slow-Burn') return char.category === 'Romance' && (char.description.toLowerCase().includes('slow') || char.description.toLowerCase().includes('quiet'));
-                if (activeMood === 'Wholesome') return char.category === 'Helpful' || char.category === 'Icon';
-                if (activeMood === 'Adventurous') return char.category === 'Fun' || char.category === 'Fiction & Media';
-
-                return true;
+                switch (activeMood) {
+                  case 'Helpful':
+                    return text.includes('help') || text.includes('assist') || text.includes('guide') || text.includes('support') ||
+                      text.includes('mentor') || text.includes('teach') || text.includes('advice') || char.category === 'Helpful';
+                  case 'Relaxed':
+                    return text.includes('calm') || text.includes('chill') || text.includes('relax') || text.includes('easy') ||
+                      text.includes('quiet') || text.includes('gentle') || text.includes('friendly') || !text.includes('dark');
+                  case 'Intense':
+                    return text.includes('dark') || text.includes('power') || text.includes('villain') || text.includes('dangerous') ||
+                      text.includes('mysterious') || text.includes('dominant') || text.includes('yandere') || text.includes('rival');
+                  case 'Romantic':
+                    return text.includes('love') || text.includes('romance') || text.includes('date') || text.includes('flirt') ||
+                      text.includes('girlfriend') || text.includes('boyfriend') || text.includes('wife') || text.includes('husband');
+                  case 'Playful':
+                    return text.includes('fun') || text.includes('play') || text.includes('game') || text.includes('joke') ||
+                      text.includes('comedy') || text.includes('laugh') || text.includes('energetic') || text.includes('bubbly');
+                  case 'Slow-Burn':
+                    return (text.includes('slow') && text.includes('burn')) || text.includes('shy') || text.includes('stoic') ||
+                      text.includes('cold') || text.includes('distant') || text.includes('stranger');
+                  case 'Wholesome':
+                    return text.includes('sweet') || text.includes('pure') || text.includes('kind') || text.includes('caring') ||
+                      text.includes('innocent') || text.includes('family') || text.includes('childhood');
+                  case 'Adventurous':
+                    return text.includes('adventure') || text.includes('travel') || text.includes('explore') || text.includes('quest') ||
+                      text.includes('action') || text.includes('hero') || text.includes('journey');
+                  default:
+                    return true;
+                }
               })
               .map((char, i) => (
                 <CharacterCard
