@@ -23,45 +23,60 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
     if (!isOpen) return null;
 
-    const handleAppleLogin = () => {
+    const simulateOAuth = (provider: 'google' | 'apple') => {
         if (!termsAccepted) {
             alert('Please accept the terms and privacy policy to continue.');
             return;
         }
+
         setIsLoading(true);
+
+        // Open a simulated popup window (looks like real OAuth)
+        const width = 500;
+        const height = 600;
+        const left = window.screen.width / 2 - width / 2;
+        const top = window.screen.height / 2 - height / 2;
+
+        const popup = window.open(
+            '',
+            `${provider}_login`,
+            `width=${width},height=${height},top=${top},left=${left}`
+        );
+
+        if (popup) {
+            popup.document.write(`
+                <html>
+                    <head><title>Sign in with ${provider === 'google' ? 'Google' : 'Apple'}</title></head>
+                    <body style="background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; color:#333;">
+                        <h2 style="margin-bottom:20px;">Signing in with ${provider === 'google' ? 'Google' : 'Apple'}...</h2>
+                        <div style="width:40px; height:40px; border:4px solid #f3f3f3; border-top:4px solid #333; border-radius:50%; animation:spin 1s linear infinite;"></div>
+                        <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+                        <script>
+                            setTimeout(() => {
+                                window.close();
+                            }, 1500);
+                        </script>
+                    </body>
+                </html>
+            `);
+        }
+
         setTimeout(() => {
-            const userId = `apple_${Date.now()}`;
+            const userId = `${provider}_${Date.now()}`;
             setSession({
                 id: userId,
-                email: 'apple.user@example.com',
-                displayName: 'Apple User',
+                email: `${provider}.user@example.com`,
+                displayName: `${provider === 'google' ? 'Google' : 'Apple'} User`,
                 planId: 'free',
             });
             localStorage.setItem('agentwood_age_verified', 'true');
             setIsLoading(false);
             onClose();
-        }, 1000);
+        }, 1800);
     };
 
-    const handleGoogleLogin = () => {
-        if (!termsAccepted) {
-            alert('Please accept the terms and privacy policy to continue.');
-            return;
-        }
-        setIsLoading(true);
-        setTimeout(() => {
-            const userId = `google_${Date.now()}`;
-            setSession({
-                id: userId,
-                email: 'google.user@example.com',
-                displayName: 'Google User',
-                planId: 'free',
-            });
-            localStorage.setItem('agentwood_age_verified', 'true');
-            setIsLoading(false);
-            onClose();
-        }, 1000);
-    };
+    const handleAppleLogin = () => simulateOAuth('apple');
+    const handleGoogleLogin = () => simulateOAuth('google');
 
     const handleEmailSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

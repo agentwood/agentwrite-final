@@ -71,16 +71,16 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, classNa
 
       {/* Hover State: Glassy Overlay */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-20">
-        <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
-          <div className="w-12 h-12 rounded-full border-2 border-white/20 mb-4 overflow-hidden shadow-2xl mx-auto">
+        <div className="flex flex-col items-center justify-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
+          <div className="w-12 h-12 rounded-full border-2 border-white/20 mb-4 overflow-hidden shadow-2xl">
             <SafeImage src={character.avatarUrl} alt={character.name} className="w-full h-full" />
           </div>
 
-          <p className="text-xs font-sans text-white/90 leading-relaxed mb-6 italic line-clamp-3">
+          <p className="text-xs font-sans text-white/90 leading-relaxed mb-6 italic line-clamp-3 text-center">
             "{character.description}"
           </p>
 
-          <button className="px-5 py-2.5 bg-white text-black rounded-full flex items-center justify-center gap-2 font-bold text-[9px] uppercase tracking-widest shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-105 transition-all">
+          <button className="px-5 py-2.5 bg-white text-black rounded-full flex items-center justify-center gap-2 font-bold text-[9px] uppercase tracking-widest shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-105 transition-all mx-auto">
             Start Chatting
           </button>
         </div>

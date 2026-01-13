@@ -31,6 +31,7 @@ import ChatWindow from '../ChatWindow';
 import SafeImage from '../SafeImage';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
+import { isAuthenticated, getSession } from '@/lib/auth';
 
 const SidebarLink: React.FC<{ active?: boolean; icon: React.ReactNode; label: string; badge?: string; onClick?: () => void }> = ({ active, icon, label, badge, onClick }) => (
   <button
@@ -2134,12 +2135,22 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
   };
 
   useEffect(() => {
-    // Check auth on mount
-    const checkAuth = async () => {
-      const { data } = await supabase?.auth.getUser() ?? { data: { user: null } };
-      setCurrentUser(data.user);
+    // Check auth on mount using localStorage session
+    const checkAuth = () => {
+      const session = getSession();
+      // User is considered logged in if they have an email (not anonymous)
+      if (session && session.email) {
+        setCurrentUser(session);
+      } else {
+        setCurrentUser(null);
+      }
     };
     checkAuth();
+
+    // Also listen for storage changes (in case of login in another tab)
+    const handleStorageChange = () => checkAuth();
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const [favorites, setFavorites] = useState<CharacterProfile[]>(() => {
@@ -2284,12 +2295,17 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
                 label="Favorites"
                 onClick={() => setCurrentView('favorites')}
               />
-              <a href="/training" className="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-[13px] font-medium transition-all text-white/40 hover:text-white hover:bg-white/5">
-                <div className="flex items-center gap-3">
-                  <Brain size={18} />
-                  <span className="font-sans">Training & Data</span>
-                </div>
-              </a>
+              <SidebarLink
+                icon={<Brain size={18} />}
+                label="Training & Data"
+                onClick={() => {
+                  if (!currentUser) {
+                    setIsAuthOpen(true);
+                    return;
+                  }
+                  window.location.href = "/training"; // Using generic nav for now as it exits the dashboard context
+                }}
+              />
               <SidebarLink
                 active={currentView === 'blog'}
                 icon={<BookOpen size={18} />}
