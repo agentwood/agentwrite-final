@@ -24,11 +24,6 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     if (!isOpen) return null;
 
     const simulateOAuth = (provider: 'google' | 'apple') => {
-        if (!termsAccepted) {
-            alert('Please accept the terms and privacy policy to continue.');
-            return;
-        }
-
         setIsLoading(true);
 
         // Open a simulated popup window (looks like real OAuth)
@@ -72,8 +67,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             localStorage.setItem('agentwood_age_verified', 'true');
             setIsLoading(false);
             onClose();
-            // Force reload to update UI state
-            window.location.reload();
+            // Navigate to home instead of just reloading
+            window.location.href = '/home';
         }, 1800);
     };
 
@@ -83,10 +78,6 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     const handleEmailSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email.trim()) return;
-        if (!termsAccepted) {
-            alert('Please accept the terms and privacy policy to continue.');
-            return;
-        }
 
         setIsLoading(true);
         setTimeout(() => {
@@ -100,8 +91,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             localStorage.setItem('agentwood_age_verified', 'true');
             setIsLoading(false);
             onClose();
-            // Force reload to update UI state
-            window.location.reload();
+            // Navigate to home
+            window.location.href = '/home';
         }, 1000);
     };
 
@@ -183,7 +174,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             </div>
                             <button
                                 type="submit"
-                                disabled={isLoading || !email.trim() || !termsAccepted}
+                                disabled={isLoading || !email.trim()}
                                 className="w-full px-8 py-4 bg-dipsea-accent/80 hover:bg-dipsea-accent rounded-sm text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? 'Signing in...' : 'Continue with Email'}
