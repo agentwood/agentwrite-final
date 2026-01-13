@@ -72,6 +72,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             localStorage.setItem('agentwood_age_verified', 'true');
             setIsLoading(false);
             onClose();
+            // Force reload to update UI state
+            window.location.reload();
         }, 1800);
     };
 
@@ -98,6 +100,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             localStorage.setItem('agentwood_age_verified', 'true');
             setIsLoading(false);
             onClose();
+            // Force reload to update UI state
+            window.location.reload();
         }, 1000);
     };
 

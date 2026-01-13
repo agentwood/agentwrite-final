@@ -1,6 +1,12 @@
 import { db } from '@/lib/db';
 import MasterDashboard from '../../components/master/MasterDashboard';
 import AgeVerificationWrapper from '../../components/AgeVerificationWrapper';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description: 'Manage your stories and characters.',
+};
 
 export default async function HomePage() {
   // Fetch real characters from the database

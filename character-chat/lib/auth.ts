@@ -80,6 +80,24 @@ export function setSession(user: User): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
   localStorage.setItem(USER_ID_KEY, user.id);
+
+  // Set cookie for Middleware access
+  // Expires in 30 days
+  const date = new Date();
+  date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+  const expires = "; expires=" + date.toUTCString();
+
+  // Create a minimal session cookie for the server to verify presence
+  // We allow 'anon' users to be considered "logged in" for basic access, 
+  // but for STRICT auth (like the user requested), we might only want to set this 
+  // if they have an email.
+  // HOWEVER, the current logic creates anon users by default. 
+  // The user said "none of this should work unless signed in".
+  // So we only set the cookie if user.email exists (Simulated Login).
+
+  if (user.email && !user.email.includes('anon')) {
+    document.cookie = "agentwood_token=" + user.id + expires + "; path=/";
+  }
 }
 
 /**
@@ -89,6 +107,7 @@ export function clearSession(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(USER_ID_KEY);
+  document.cookie = "agentwood_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }
 
 /**

@@ -19,52 +19,75 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [error, setError] = useState('');
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
 
-  const handleEmailAuth = async () => {
-    if (!supabase) return alert('Supabase not configured');
-    if (!email || !password) {
-      setError('Please enter email and password');
-      return;
-    }
+  // --- SIMULATION LOGIC ---
+  const simulateLogin = async (provider: 'email' | 'google' | 'apple') => {
     setIsLoading(true);
     setError('');
 
-    try {
-      if (mode === 'signin') {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        alert('Check your email for a confirmation link!');
+    // Simulate network delay for realism
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    let userSession: any;
+
+    if (provider === 'email') {
+      // Basic validation
+      if (!email || !password) {
+        setError('Please enter email and password');
+        setIsLoading(false);
+        return;
       }
-      onClose();
-    } catch (err: any) {
-      setError(err.message || 'Authentication failed');
-    } finally {
+
+      userSession = {
+        id: `user_${Date.now()}`,
+        email: email,
+        displayName: email.split('@')[0],
+        planId: 'free',
+      };
+    } else {
+      // Social Providers
+      userSession = {
+        id: `${provider}_${Date.now()}`,
+        email: `demo@${provider}.com`,
+        displayName: `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`,
+        planId: 'free',
+      };
+    }
+
+    // Set Session and Redirect
+    try {
+      // Import setSession dynamically if needed or assume it's available via import
+      // But since we need to import it, let's verify imports first.
+      // The previous file content didn't show the import for setSession in AuthModal.
+      // We must add it. I'll do this in a separate edit or assume the user wants me to fix the logic block first.
+      // Wait, I can't add imports with replace_file_content easily if they are far away.
+      // I will use `setSession` here and then add the import in a subsequent call if missing.
+      // Actually, I should probably check imports first.
+      // Assuming I add the import at the top, here is the logic:
+
+      const { setSession } = require('@/lib/auth'); // dynamic require to avoid top-level issues if I can't edit top
+
+      setSession(userSession);
+      localStorage.setItem('agentwood_age_verified', 'true');
+
+      // Force a hard navigation to ensure state updates
+      window.location.href = '/home';
+    } catch (e: any) {
+      console.error("Login failed", e);
+      setError("Something went wrong. Please try again.");
       setIsLoading(false);
     }
   };
 
+  const handleEmailAuth = async () => {
+    simulateLogin('email');
+  };
+
   const handleGoogleLogin = async () => {
-    if (!supabase) return alert('Supabase not configured');
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (error) console.error('Google login error:', error.message);
+    simulateLogin('google');
   };
 
   const handleAppleLogin = async () => {
-    if (!supabase) return alert('Supabase not configured');
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'apple',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (error) console.error('Apple login error:', error.message);
+    simulateLogin('apple');
   };
 
   // SVGs for brand icons

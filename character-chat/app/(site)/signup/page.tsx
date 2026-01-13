@@ -40,17 +40,17 @@ export default function SignupPage() {
   const handleBirthDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const date = e.target.value;
     setFormData({ ...formData, birthDate: date });
-    
+
     if (date) {
       const isValid = validateAge(date);
       setAgeVerified(isValid);
-      
+
       if (!isValid) {
         const age = calculateAge(date);
         setErrors({
           ...errors,
-          birthDate: age < 13 
-            ? 'You must be at least 13 years old to use this service.' 
+          birthDate: age < 13
+            ? 'You must be at least 13 years old to use this service.'
             : 'Please enter a valid birth date.',
         });
       } else {
@@ -91,8 +91,8 @@ export default function SignupPage() {
       newErrors.birthDate = 'Birth date is required.';
     } else if (!ageVerified) {
       const age = calculateAge(formData.birthDate);
-      newErrors.birthDate = age < 13 
-        ? 'You must be at least 13 years old to use this service.' 
+      newErrors.birthDate = age < 13
+        ? 'You must be at least 13 years old to use this service.'
         : 'Please enter a valid birth date.';
     }
 
@@ -102,7 +102,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -114,7 +114,7 @@ export default function SignupPage() {
       // For now, create a session
       const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const age = calculateAge(formData.birthDate);
-      
+
       // Store age verification in session
       setSession({
         id: userId,
@@ -128,8 +128,8 @@ export default function SignupPage() {
       localStorage.setItem('agentwood_birth_date', formData.birthDate);
       localStorage.setItem('agentwood_age', age.toString());
 
-      // Redirect to onboarding or home
-      router.push('/');
+      // Force hard navigation to ensure state updates (mirrors Login fix)
+      window.location.href = '/home';
     } catch (error: any) {
       setErrors({ submit: error.message || 'Failed to create account. Please try again.' });
     } finally {
@@ -150,7 +150,7 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
-      
+
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
           <div className="bg-white border border-zinc-200 rounded-2xl p-8 shadow-lg">
@@ -195,9 +195,8 @@ export default function SignupPage() {
                         setErrors(newErrors);
                       }
                     }}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${
-                      errors.email ? 'border-red-300 bg-red-50' : 'border-zinc-200'
-                    }`}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${errors.email ? 'border-red-300 bg-red-50' : 'border-zinc-200'
+                      }`}
                     placeholder="name@example.com"
                   />
                 </div>
@@ -222,9 +221,8 @@ export default function SignupPage() {
                     onChange={handleBirthDateChange}
                     max={maxDateString}
                     min={minDateString}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${
-                      errors.birthDate ? 'border-red-300 bg-red-50' : ageVerified ? 'border-green-300 bg-green-50' : 'border-zinc-200'
-                    }`}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${errors.birthDate ? 'border-red-300 bg-red-50' : ageVerified ? 'border-green-300 bg-green-50' : 'border-zinc-200'
+                      }`}
                   />
                 </div>
                 {errors.birthDate && (
@@ -259,9 +257,8 @@ export default function SignupPage() {
                         setErrors(newErrors);
                       }
                     }}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${
-                      errors.password ? 'border-red-300 bg-red-50' : 'border-zinc-200'
-                    }`}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${errors.password ? 'border-red-300 bg-red-50' : 'border-zinc-200'
+                      }`}
                     placeholder="At least 8 characters"
                   />
                 </div>
@@ -291,9 +288,8 @@ export default function SignupPage() {
                         setErrors(newErrors);
                       }
                     }}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${
-                      errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-zinc-200'
-                    }`}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-zinc-200'
+                      }`}
                     placeholder="Re-enter your password"
                   />
                 </div>
@@ -319,11 +315,10 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={isLoading || !ageVerified}
-                className={`w-full py-3 rounded-xl font-semibold transition-all ${
-                  isLoading || !ageVerified
-                    ? 'bg-zinc-200 text-zinc-500 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 shadow-lg hover:shadow-xl'
-                }`}
+                className={`w-full py-3 rounded-xl font-semibold transition-all ${isLoading || !ageVerified
+                  ? 'bg-zinc-200 text-zinc-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 shadow-lg hover:shadow-xl'
+                  }`}
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Search, Bell, Plus, Compass, Brain, PenTool,
   Award, Settings, ChevronRight, Star,
@@ -2088,7 +2089,29 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
   const [characters, setCharacters] = useState<CharacterProfile[]>(initialCharacters.length > 0 ? initialCharacters : []);
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [loading, setLoading] = useState(initialCharacters.length === 0);
-  const [currentView, setCurrentView] = useState<View>('discover');
+  // Router hooks
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const viewParam = searchParams.get('view');
+
+  // State initialization based on URL param or default
+  const [currentView, setCurrentView] = useState<View>(viewParam as View || 'discover');
+
+  // Sync URL when state changes (one-way binding from URL -> State primarily, 
+  // but we update URL on click which triggers this effect if we use router.push)
+  useEffect(() => {
+    if (viewParam && viewParam !== currentView) {
+      setCurrentView(viewParam as View);
+    }
+  }, [viewParam]);
+
+  // Helper to change view and update URL
+  const changeView = (view: View) => {
+    setCurrentView(view);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('view', view);
+    router.push(`?${params.toString()}`);
+  };
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterProfile | null>(null);
   const [initialMessage, setInitialMessage] = useState<string | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -2281,19 +2304,19 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
                 active={currentView === 'discover'}
                 icon={<Compass size={18} />}
                 label="Discover"
-                onClick={() => setCurrentView('discover')}
+                onClick={() => changeView('discover')}
               />
               <SidebarLink
                 active={currentView === 'search'}
                 icon={<Search size={18} />}
                 label="Search"
-                onClick={() => setCurrentView('search')}
+                onClick={() => changeView('search')}
               />
               <SidebarLink
                 active={currentView === 'favorites'}
                 icon={<Heart size={18} />}
                 label="Favorites"
-                onClick={() => setCurrentView('favorites')}
+                onClick={() => changeView('favorites')}
               />
               <SidebarLink
                 icon={<Brain size={18} />}
@@ -2310,7 +2333,7 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
                 active={currentView === 'blog'}
                 icon={<BookOpen size={18} />}
                 label="Blog"
-                onClick={() => setCurrentView('blog')}
+                onClick={() => changeView('blog')}
               />
             </div>
           </section>
@@ -2361,7 +2384,7 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
               setIsAuthOpen(true);
               return;
             }
-            setCurrentView('settings');
+            window.location.href = '/settings';
           }} />
           <div
             onClick={() => setIsSubscriptionOpen(true)}
@@ -2386,7 +2409,7 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
             onSelectCharacter={navigateToProfile}
             isFavorite={isFavorite}
             onToggleFavorite={toggleFavorite}
-            onSearch={() => setCurrentView('search')}
+            onSearch={() => changeView('search')}
           />
         )}
 
@@ -2469,8 +2492,13 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
         {currentView === 'search' && <SearchView onSelectCharacter={navigateToProfile} characters={characters.length > 0 ? characters : FALLBACK_CHARACTERS} />}
       </main>
 
-      {/* <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} /> */}
-      <SubscriptionModal isOpen={isSubscriptionOpen} onClose={() => setIsSubscriptionOpen(false)} />
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      <SubscriptionModal
+        isOpen={isSubscriptionOpen}
+        onClose={() => setIsSubscriptionOpen(false)}
+        user={currentUser}
+        onAuthRequired={() => setIsAuthOpen(true)}
+      />
       <OnboardingModal
         character={onboardingChar}
         isOpen={!!onboardingChar}

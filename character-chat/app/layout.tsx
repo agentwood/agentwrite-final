@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import AgeGate from "./components/AgeGate";
 import StructuredData from "./components/StructuredData";
@@ -7,21 +6,6 @@ import AuthWrapper from "./components/AuthWrapper";
 import CookieConsent from "./components/CookieConsent";
 import { generateMetadata as generateSEOMetadata } from "@/lib/seo/metadata";
 import { generateOrganizationSchema, generateWebSiteSchema } from "@/lib/seo/structured-data";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-  preload: true
-});
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: "italic",
-  variable: "--font-instrument",
-  display: "swap",
-  preload: true
-});
 
 export const metadata: Metadata = {
   title: {
@@ -79,7 +63,7 @@ export default function RootLayout({
   const websiteSchema = generateWebSiteSchema();
 
   return (
-    <html lang="en" className={`${inter.variable} ${instrumentSerif.variable}`}>
+    <html lang="en">
       <body
         className="text-white selection:bg-purple-500 selection:text-white bg-[#0f0f0f] antialiased"
         suppressHydrationWarning
