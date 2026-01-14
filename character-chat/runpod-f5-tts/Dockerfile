@@ -18,6 +18,8 @@ RUN pip install --no-cache-dir runpod onnxruntime-gpu numpy scipy soundfile
 
 # Clone and install F5-TTS (without re-installing torch)
 RUN git clone --depth 1 https://github.com/SWivid/F5-TTS.git .
+# Install F5-TTS deps (except torch which is already in base image)
+RUN pip install --no-cache-dir x_transformers vocos einops transformers accelerate cached_path jieba pypinyin
 RUN pip install --no-cache-dir --no-deps -e .
 
 # SKIP MODEL DOWNLOAD - will happen on first request
