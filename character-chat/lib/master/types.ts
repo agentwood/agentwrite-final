@@ -23,4 +23,4 @@ export interface CharacterProfile {
 
 export type Category = "All" | "Play & Fun" | "Helper" | "Original" | "Anime & Game" | "Fiction & Media" | "Helpful" | "Icon" | "Romance" | "Educational" | "Fun" | "Relaxed" | "Intense" | "Playful" | "Slow-Burn" | "Wholesome" | "Adventurous";
 
-export type View = 'discover' | 'affiliates' | 'character' | 'settings' | 'rewards' | 'create' | 'blog' | 'favorites' | 'chat' | 'craft' | 'search';
+export type View = 'discover' | 'affiliates' | 'character' | 'settings' | 'rewards' | 'create' | 'blog' | 'favorites' | 'chat' | 'craft' | 'search' | 'training';

@@ -1,76 +1,24 @@
 
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import { SessionProvider } from 'next-auth/react';
-import { isAuthenticated } from '@/lib/auth';
-import AuthModal from './AuthModal';
 
-const PUBLIC_ROUTES = ['/', '/login', '/signup', '/api', '/terms', '/privacy', '/cookie-policy'];
-
+/**
+ * AuthWrapper - MASTER RESET VERSION
+ * 
+ * This wrapper ONLY provides SessionProvider context.
+ * It does NOT auto-trigger any auth modals.
+ * 
+ * Auth modals should ONLY open when:
+ * 1. User explicitly clicks a protected action (favorite, chat, etc.)
+ * 2. User navigates to a protected route via explicit click
+ * 
+ * The MasterDashboard handles its own auth modal via isAuthOpen state.
+ */
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-    const router = useRouter();
-    const [showAuthModal, setShowAuthModal] = useState(false);
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
-    useEffect(() => {
-        const checkAuth = () => {
-            // In development, never show the auth modal
-            if (process.env.NODE_ENV === 'development') {
-                setShowAuthModal(false);
-                return;
-            }
-
-            const isPublicRoute = PUBLIC_ROUTES.some(route =>
-                pathname === route || pathname.startsWith('/api/')
-            );
-
-            if (!isPublicRoute && !isAuthenticated()) {
-                setShowAuthModal(true);
-            } else {
-                setShowAuthModal(false);
-            }
-        };
-
-        if (!isMounted) return;
-
-        checkAuth();
-
-        const handleAuthChange = () => checkAuth();
-        window.addEventListener('agentwood-auth-change', handleAuthChange);
-
-        return () => window.removeEventListener('agentwood-auth-change', handleAuthChange);
-    }, [pathname, isMounted]);
-
-    if (!isMounted) return null;
-
-    const handleClose = () => {
-        // If on a protected route and closing modal, redirect to home
-        const isPublicRoute = PUBLIC_ROUTES.some(route =>
-            pathname === route || pathname.startsWith('/api/')
-        );
-
-        if (!isPublicRoute) {
-            router.push('/home');
-        }
-        setShowAuthModal(false);
-    };
-
     return (
         <SessionProvider>
             {children}
-            {showAuthModal && (
-                <AuthModal
-                    isOpen={showAuthModal}
-                    onClose={handleClose}
-                />
-            )}
         </SessionProvider>
     );
 }

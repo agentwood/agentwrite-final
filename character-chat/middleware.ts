@@ -7,6 +7,7 @@ export function middleware(request: NextRequest) {
     // Public routes that DON'T require authentication
     const publicPaths = [
         '/',           // Landing page only
+        '/home',       // Allow dashboard landing (auth guards handled in component)
         '/login',
         '/signup',
         '/auth',       // Allow auth paths (callbacks)
@@ -27,27 +28,21 @@ export function middleware(request: NextRequest) {
     ];
 
     // Check if current path is public
-    const isPublic = publicPaths.some(path =>
-        pathname === path || pathname.startsWith(path + '/')
-    );
+    const isPublic = publicPaths.includes(pathname) ||
+        publicPaths.some(path => path !== '/' && pathname.startsWith(path + '/'));
 
     // Also allow static files
     const isStatic = pathname.includes('.') && !pathname.includes('/api/');
+    const authToken = request.cookies.get('agentwood_token');
 
-    if (!isPublic && !isStatic) {
-        // Check for the auth cookie set by lib/auth.ts
-        const authToken = request.cookies.get('agentwood_token');
+    const response = !isPublic && !isStatic && !authToken
+        ? NextResponse.redirect(new URL('/login?callbackUrl=' + pathname, request.url))
+        : NextResponse.next();
 
-        if (!authToken) {
-            // Redirect to login if accessing protected route without auth
-            const url = request.nextUrl.clone();
-            url.pathname = '/login';
-            url.searchParams.set('callbackUrl', pathname);
-            return NextResponse.redirect(url);
-        }
-    }
+    response.headers.set('X-Middleware-Public', isPublic ? 'true' : 'false');
+    if (authToken) response.headers.set('X-Middleware-HasAuth', 'true');
 
-    return NextResponse.next();
+    return response;
 }
 
 export const config = {

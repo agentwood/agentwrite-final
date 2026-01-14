@@ -108,28 +108,66 @@ export default function SignupPage() {
     }
 
     setIsLoading(true);
+    setErrors({});
 
     try {
-      // TODO: Replace with actual API call to create user account
-      // For now, create a session
-      const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const age = calculateAge(formData.birthDate);
+      const { supabase } = await import('@/lib/supabaseClient');
+      if (!supabase) throw new Error("Supabase is not configured.");
 
-      // Store age verification in session
-      setSession({
-        id: userId,
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
-        displayName: formData.email.split('@')[0],
-        planId: 'free',
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.email.split('@')[0],
+            birth_date: formData.birthDate,
+          }
+        }
       });
 
-      // Store age verification in localStorage
-      localStorage.setItem('agentwood_age_verified', 'true');
-      localStorage.setItem('agentwood_birth_date', formData.birthDate);
-      localStorage.setItem('agentwood_age', age.toString());
+      if (error) throw error;
 
-      // Force hard navigation to ensure state updates (mirrors Login fix)
-      window.location.href = '/home';
+      if (data?.user) {
+        // Track that we need age verification after this signup
+        localStorage.setItem('agentwood_needs_age_verification', 'true');
+
+        // Set local session
+        setSession({
+          id: data.user.id,
+          email: data.user.email,
+          displayName: data.user.user_metadata?.full_name || data.user.email?.split('@')[0],
+          planId: 'free',
+        });
+
+        // Set Middleware Cookie
+        const date = new Date();
+        date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+        document.cookie = `agentwood_token=${data.user.id}; expires=${date.toUTCString()}; path=/`;
+
+        // SYNC to Prisma
+        try {
+          await fetch('/api/auth/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: data.user.id,
+              email: data.user.email,
+              full_name: data.user.user_metadata?.full_name,
+            })
+          });
+        } catch (syncErr) {
+          console.error("DB Sync failed:", syncErr);
+        }
+
+        // If no session (needs email verify), show message
+        if (!data.session) {
+          setErrors({ submit: 'Account created! Please check your email to verify your account.' });
+          return;
+        }
+
+        // Redirect
+        window.location.href = '/home';
+      }
     } catch (error: any) {
       setErrors({ submit: error.message || 'Failed to create account. Please try again.' });
     } finally {

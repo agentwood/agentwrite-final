@@ -10,9 +10,10 @@ import { X, ArrowRight, Eye, EyeOff } from 'lucide-react';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAuthSuccess?: (user: { id: string; email: string; displayName?: string; planId: 'free' | 'starter' | 'pro' }) => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess }) => {
   if (!isOpen) return null;
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -57,10 +58,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       }
 
       const { data, error } = result;
+      console.log("Auth attempt result:", { hasData: !!data, hasSession: !!data?.session, error });
+
       if (error) throw error;
 
       // For signup, we might need email verification
       if (mode === 'signup' && data?.user && !data.session) {
+        console.log("Signup successful, waiting for verification:", data.user.email);
         toast.success('Account created! Please check your email to verify.');
         setIsLoading(false);
         return;
@@ -68,6 +72,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
       // Safe check for session and user
       if (data?.session && data.user) {
+        console.log("Login successful for user:", data.user.id);
         setSession({
           id: data.user.id,
           email: data.user.email || '',
@@ -78,14 +83,46 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         // Set Middleware Cookie
         const date = new Date();
         date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
-        document.cookie = `agentwood_token=${data.user.id}; expires=${date.toUTCString()}; path=/`;
+        document.cookie = `agentwood_token=${data.user.id}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
+
+        // SYNC to Prisma
+        console.log("Syncing user to DB...");
+        try {
+          const syncRes = await fetch('/api/auth/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: data.user.id,
+              email: data.user.email,
+              full_name: data.user.user_metadata?.full_name,
+              avatar_url: data.user.user_metadata?.avatar_url
+            })
+          });
+          console.log("Sync result status:", syncRes.status);
+        } catch (syncErr) {
+          console.error("DB Sync failed:", syncErr);
+        }
 
         toast.success(mode === 'signup' ? 'Welcome to Agentwood!' : 'Welcome back!');
-        window.location.href = '/home';
+
+        // CRITICAL: Pass user data back to parent IMMEDIATELY before closing
+        const userData = {
+          id: data.user.id,
+          email: data.user.email || '',
+          displayName: data.user.user_metadata?.full_name || data.user.email?.split('@')[0],
+          planId: 'free' as const,
+        };
+
+        if (onAuthSuccess) {
+          onAuthSuccess(userData);
+        }
+
+        // Close modal - parent now has the user data
+        onClose();
       }
 
     } catch (e: any) {
-      console.error("Auth failed:", e);
+      console.error("Auth failed error object:", e);
       setError(e.message || "Authentication failed");
       toast.error(e.message || "Authentication failed");
       setIsLoading(false);

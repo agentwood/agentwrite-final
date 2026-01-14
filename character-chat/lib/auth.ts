@@ -96,7 +96,7 @@ export function setSession(user: User): void {
   // So we only set the cookie if user.email exists (Simulated Login).
 
   if (user.email && !user.email.includes('anon')) {
-    document.cookie = "agentwood_token=" + user.id + expires + "; path=/";
+    document.cookie = "agentwood_token=" + user.id + expires + "; path=/; SameSite=Lax";
   }
 }
 

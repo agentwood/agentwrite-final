@@ -157,7 +157,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, on
       }
     } catch (err) {
       console.error(err);
-      alert("Something went wrong starting checkout");
+      alert((err instanceof Error ? err.message : String(err)) || "Something went wrong starting checkout");
     } finally {
       setProcessingPlan(null);
     }

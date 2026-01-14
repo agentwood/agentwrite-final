@@ -14,6 +14,12 @@ export default function AuthCallbackPage() {
 
     useEffect(() => {
         const handleAuth = async () => {
+            // Guard: supabase client must exist
+            if (!supabase) {
+                handleFailure('Supabase client not initialized');
+                return;
+            }
+
             // 0. Check for hash fragment tokens (Implicit/Legacy flow)
             // Supabase sometimes returns tokens in hash: #access_token=...&refresh_token=...
             if (typeof window !== 'undefined' && window.location.hash) {
@@ -65,6 +71,7 @@ export default function AuthCallbackPage() {
             } else {
                 // 4. Wait a moment for hash to be parsed, then retry
                 setTimeout(async () => {
+                    if (!supabase) return;
                     const { data: { session: retrySession } } = await supabase.auth.getSession();
                     if (retrySession) {
                         handleSuccess(retrySession.user);

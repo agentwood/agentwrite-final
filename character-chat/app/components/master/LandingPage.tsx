@@ -20,6 +20,8 @@ interface LandingPageProps {
   isFavorite: (char: CharacterProfile) => boolean;
   onToggleFavorite: (char: CharacterProfile, e: React.MouseEvent) => void;
   onSearch: () => void;
+  currentUser?: { avatarUrl?: string; displayName?: string; email?: string } | null;
+  onSignIn?: () => void;
 }
 
 const AgentwoodDifference = () => (
@@ -201,19 +203,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onSelectCharacter,
   isFavorite,
   onToggleFavorite,
-  onSearch
+  onSearch,
+  currentUser,
+  onSignIn
 }) => {
   const [activeMood, setActiveMood] = useState('All');
-  const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const moods = ['All', 'Helpful', 'Relaxed', 'Intense', 'Romantic', 'Playful', 'Slow-Burn', 'Wholesome', 'Adventurous'];
 
-  useEffect(() => {
-    // Get user avatar from session
-    const session = getSession();
-    if (session?.avatarUrl) {
-      setUserAvatar(session.avatarUrl);
-    }
-  }, []);
+  // Use currentUser avatar if available
+  const userAvatar = currentUser?.avatarUrl || null;
+  const isLoggedIn = !!(currentUser?.email);
 
   return (
     <div className="fade-in">
@@ -224,16 +223,27 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
         <div className="flex items-center gap-8 ml-4">
           <Link href="/affiliates" className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-white/40 cursor-pointer hover:text-white transition-colors font-sans">AFFILIATES</Link>
-          <Link href="/notifications">
-            <Bell size={18} className="text-white/40 cursor-pointer hover:text-white transition-colors" />
-          </Link>
-          <Link href="/settings" className="h-9 w-9 rounded-full bg-purple-600 border border-white/20 flex items-center justify-center font-bold text-white text-xs hover:border-white transition-colors overflow-hidden">
-            {userAvatar ? (
-              <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" />
-            ) : (
-              <span>U</span>
-            )}
-          </Link>
+          {isLoggedIn && (
+            <Link href="/notifications">
+              <Bell size={18} className="text-white/40 cursor-pointer hover:text-white transition-colors" />
+            </Link>
+          )}
+          {isLoggedIn ? (
+            <Link href="/settings" className="h-9 w-9 rounded-full bg-purple-600 border border-white/20 flex items-center justify-center font-bold text-white text-xs hover:border-white transition-colors overflow-hidden">
+              {userAvatar ? (
+                <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <span>{currentUser?.displayName?.[0] || currentUser?.email?.[0]?.toUpperCase() || 'U'}</span>
+              )}
+            </Link>
+          ) : (
+            <button
+              onClick={onSignIn}
+              className="px-5 py-2 rounded-full bg-white text-black text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 transition-colors"
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </div>
 

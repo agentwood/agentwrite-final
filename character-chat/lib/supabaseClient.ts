@@ -1,12 +1,13 @@
-import { createClient } from '@supabase/supabase-js';
+
+import { createBrowserClient } from '@supabase/ssr';
 
 // Use process.env for Next.js
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
-// Only create the client if keys are present
+// Create a singleton Supabase client using SSR package for correct cookie handling in Next.js App Router
 export const supabase = (supabaseUrl && supabaseAnonKey)
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createBrowserClient(supabaseUrl, supabaseAnonKey)
   : null;
 
 /**

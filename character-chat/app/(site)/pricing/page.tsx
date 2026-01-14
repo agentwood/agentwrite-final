@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Check, Sparkles, Zap } from 'lucide-react';
 import Sidebar from '@/app/components/Sidebar';
 import { getSession, isAuthenticated, setSession } from '@/lib/auth';
-import AuthModal from '@/app/components/AuthModal';
+import { AuthModal } from '@/app/components/master/AuthModal';
 
 interface Plan {
   id: string;

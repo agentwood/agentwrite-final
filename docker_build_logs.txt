@@ -1,0 +1,605 @@
+build	Set up job	﻿2026-01-14T07:53:32.2782457Z Current runner version: '2.330.0'
+build	Set up job	2026-01-14T07:53:32.2807344Z ##[group]Runner Image Provisioner
+build	Set up job	2026-01-14T07:53:32.2808209Z Hosted Compute Agent
+build	Set up job	2026-01-14T07:53:32.2808789Z Version: 20251211.462
+build	Set up job	2026-01-14T07:53:32.2809465Z Commit: 6cbad8c2bb55d58165063d031ccabf57e2d2db61
+build	Set up job	2026-01-14T07:53:32.2810176Z Build Date: 2025-12-11T16:28:49Z
+build	Set up job	2026-01-14T07:53:32.2810844Z Worker ID: {150bda4a-58e7-44d9-a03b-4211ce5ab7fb}
+build	Set up job	2026-01-14T07:53:32.2811914Z ##[endgroup]
+build	Set up job	2026-01-14T07:53:32.2812510Z ##[group]Operating System
+build	Set up job	2026-01-14T07:53:32.2813071Z Ubuntu
+build	Set up job	2026-01-14T07:53:32.2813585Z 24.04.3
+build	Set up job	2026-01-14T07:53:32.2814040Z LTS
+build	Set up job	2026-01-14T07:53:32.2814512Z ##[endgroup]
+build	Set up job	2026-01-14T07:53:32.2815087Z ##[group]Runner Image
+build	Set up job	2026-01-14T07:53:32.2815635Z Image: ubuntu-24.04
+build	Set up job	2026-01-14T07:53:32.2816175Z Version: 20260105.202.1
+build	Set up job	2026-01-14T07:53:32.2817234Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260105.202/images/ubuntu/Ubuntu2404-Readme.md
+build	Set up job	2026-01-14T07:53:32.2818657Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260105.202
+build	Set up job	2026-01-14T07:53:32.2819919Z ##[endgroup]
+build	Set up job	2026-01-14T07:53:32.2821022Z ##[group]GITHUB_TOKEN Permissions
+build	Set up job	2026-01-14T07:53:32.2823336Z Contents: read
+build	Set up job	2026-01-14T07:53:32.2824040Z Metadata: read
+build	Set up job	2026-01-14T07:53:32.2824537Z Packages: read
+build	Set up job	2026-01-14T07:53:32.2825102Z ##[endgroup]
+build	Set up job	2026-01-14T07:53:32.2827156Z Secret source: Actions
+build	Set up job	2026-01-14T07:53:32.2827834Z Prepare workflow directory
+build	Set up job	2026-01-14T07:53:32.3150615Z Prepare all required actions
+build	Set up job	2026-01-14T07:53:32.3195404Z Getting action download info
+build	Set up job	2026-01-14T07:53:32.8426099Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+build	Set up job	2026-01-14T07:53:32.9545508Z Download action repository 'docker/setup-qemu-action@v3' (SHA:c7c53464625b32c7a7e944ae62b3e17d2b600130)
+build	Set up job	2026-01-14T07:53:33.5726880Z Download action repository 'docker/setup-buildx-action@v3' (SHA:8d2750c68a42422c14e847fe6c8ac0403b4cbd6f)
+build	Set up job	2026-01-14T07:53:34.2029280Z Download action repository 'docker/login-action@v3' (SHA:5e57cd118135c172c3672efd75eb46360885c0ef)
+build	Set up job	2026-01-14T07:53:34.8424520Z Download action repository 'docker/build-push-action@v5' (SHA:ca052bb54ab0790a636c9b5f226502c73d547a25)
+build	Set up job	2026-01-14T07:53:35.5753396Z Complete job name: build
+build	Checkout code	﻿2026-01-14T07:53:35.6392229Z ##[group]Run actions/checkout@v4
+build	Checkout code	2026-01-14T07:53:35.6392873Z with:
+build	Checkout code	2026-01-14T07:53:35.6393094Z   repository: agentwood/agentwrite-final
+build	Checkout code	2026-01-14T07:53:35.6393533Z   token: ***
+build	Checkout code	2026-01-14T07:53:35.6393715Z   ssh-strict: true
+build	Checkout code	2026-01-14T07:53:35.6393907Z   ssh-user: git
+build	Checkout code	2026-01-14T07:53:35.6394102Z   persist-credentials: true
+build	Checkout code	2026-01-14T07:53:35.6394324Z   clean: true
+build	Checkout code	2026-01-14T07:53:35.6394521Z   sparse-checkout-cone-mode: true
+build	Checkout code	2026-01-14T07:53:35.6394774Z   fetch-depth: 1
+build	Checkout code	2026-01-14T07:53:35.6394952Z   fetch-tags: false
+build	Checkout code	2026-01-14T07:53:35.6395159Z   show-progress: true
+build	Checkout code	2026-01-14T07:53:35.6395355Z   lfs: false
+build	Checkout code	2026-01-14T07:53:35.6395518Z   submodules: false
+build	Checkout code	2026-01-14T07:53:35.6395712Z   set-safe-directory: true
+build	Checkout code	2026-01-14T07:53:35.6396153Z ##[endgroup]
+build	Checkout code	2026-01-14T07:53:35.7461034Z Syncing repository: agentwood/agentwrite-final
+build	Checkout code	2026-01-14T07:53:35.7462798Z ##[group]Getting Git version info
+build	Checkout code	2026-01-14T07:53:35.7463254Z Working directory is '/home/runner/work/agentwrite-final/agentwrite-final'
+build	Checkout code	2026-01-14T07:53:35.7463903Z [command]/usr/bin/git version
+build	Checkout code	2026-01-14T07:53:35.7526529Z git version 2.52.0
+build	Checkout code	2026-01-14T07:53:35.7552732Z ##[endgroup]
+build	Checkout code	2026-01-14T07:53:35.7568829Z Temporarily overriding HOME='/home/runner/work/_temp/053ed305-52cd-4d90-bde2-54d7eef8099d' before making global git config changes
+build	Checkout code	2026-01-14T07:53:35.7570296Z Adding repository directory to the temporary git global config as a safe directory
+build	Checkout code	2026-01-14T07:53:35.7583641Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/agentwrite-final/agentwrite-final
+build	Checkout code	2026-01-14T07:53:35.7622919Z Deleting the contents of '/home/runner/work/agentwrite-final/agentwrite-final'
+build	Checkout code	2026-01-14T07:53:35.7626689Z ##[group]Initializing the repository
+build	Checkout code	2026-01-14T07:53:35.7631648Z [command]/usr/bin/git init /home/runner/work/agentwrite-final/agentwrite-final
+build	Checkout code	2026-01-14T07:53:35.7727679Z hint: Using 'master' as the name for the initial branch. This default branch name
+build	Checkout code	2026-01-14T07:53:35.7728622Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+build	Checkout code	2026-01-14T07:53:35.7729174Z hint: to use in all of your new repositories, which will suppress this warning,
+build	Checkout code	2026-01-14T07:53:35.7729546Z hint: call:
+build	Checkout code	2026-01-14T07:53:35.7729720Z hint:
+build	Checkout code	2026-01-14T07:53:35.7730120Z hint: 	git config --global init.defaultBranch <name>
+build	Checkout code	2026-01-14T07:53:35.7730417Z hint:
+build	Checkout code	2026-01-14T07:53:35.7730691Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build	Checkout code	2026-01-14T07:53:35.7731273Z hint: 'development'. The just-created branch can be renamed via this command:
+build	Checkout code	2026-01-14T07:53:35.7732179Z hint:
+build	Checkout code	2026-01-14T07:53:35.7732481Z hint: 	git branch -m <name>
+build	Checkout code	2026-01-14T07:53:35.7732736Z hint:
+build	Checkout code	2026-01-14T07:53:35.7733027Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build	Checkout code	2026-01-14T07:53:35.7733623Z Initialized empty Git repository in /home/runner/work/agentwrite-final/agentwrite-final/.git/
+build	Checkout code	2026-01-14T07:53:35.7743229Z [command]/usr/bin/git remote add origin https://github.com/agentwood/agentwrite-final
+build	Checkout code	2026-01-14T07:53:35.7777238Z ##[endgroup]
+build	Checkout code	2026-01-14T07:53:35.7777916Z ##[group]Disabling automatic garbage collection
+build	Checkout code	2026-01-14T07:53:35.7781701Z [command]/usr/bin/git config --local gc.auto 0
+build	Checkout code	2026-01-14T07:53:35.7808646Z ##[endgroup]
+build	Checkout code	2026-01-14T07:53:35.7809021Z ##[group]Setting up auth
+build	Checkout code	2026-01-14T07:53:35.7815653Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build	Checkout code	2026-01-14T07:53:35.7845567Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build	Checkout code	2026-01-14T07:53:35.8161688Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build	Checkout code	2026-01-14T07:53:35.8190659Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build	Checkout code	2026-01-14T07:53:35.8407331Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build	Checkout code	2026-01-14T07:53:35.8436929Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build	Checkout code	2026-01-14T07:53:35.8667554Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build	Checkout code	2026-01-14T07:53:35.8702245Z ##[endgroup]
+build	Checkout code	2026-01-14T07:53:35.8710232Z ##[group]Fetching the repository
+build	Checkout code	2026-01-14T07:53:35.8711836Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +0249b5400ccb5481615b151321a00f2aa344d209:refs/remotes/origin/main
+build	Checkout code	2026-01-14T07:53:42.2589745Z From https://github.com/agentwood/agentwrite-final
+build	Checkout code	2026-01-14T07:53:42.2619735Z  * [new ref]         0249b5400ccb5481615b151321a00f2aa344d209 -> origin/main
+build	Checkout code	2026-01-14T07:53:42.2621239Z ##[endgroup]
+build	Checkout code	2026-01-14T07:53:42.2621904Z ##[group]Determining the checkout info
+build	Checkout code	2026-01-14T07:53:42.2624075Z ##[endgroup]
+build	Checkout code	2026-01-14T07:53:42.2629411Z [command]/usr/bin/git sparse-checkout disable
+build	Checkout code	2026-01-14T07:53:42.2668783Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+build	Checkout code	2026-01-14T07:53:42.2694005Z ##[group]Checking out the ref
+build	Checkout code	2026-01-14T07:53:42.2697988Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+build	Checkout code	2026-01-14T07:53:43.2848604Z Updating files:  99% (1236/1241)
+build	Checkout code	2026-01-14T07:53:43.2849199Z Updating files: 100% (1241/1241)
+build	Checkout code	2026-01-14T07:53:43.2849671Z Updating files: 100% (1241/1241), done.
+build	Checkout code	2026-01-14T07:53:43.2874778Z Switched to a new branch 'main'
+build	Checkout code	2026-01-14T07:53:43.2877841Z branch 'main' set up to track 'origin/main'.
+build	Checkout code	2026-01-14T07:53:43.2956384Z ##[endgroup]
+build	Checkout code	2026-01-14T07:53:43.2997105Z [command]/usr/bin/git log -1 --format=%H
+build	Checkout code	2026-01-14T07:53:43.3019703Z 0249b5400ccb5481615b151321a00f2aa344d209
+build	Set up QEMU	﻿2026-01-14T07:53:43.3204923Z ##[group]Run docker/setup-qemu-action@v3
+build	Set up QEMU	2026-01-14T07:53:43.3205288Z with:
+build	Set up QEMU	2026-01-14T07:53:43.3205659Z   image: docker.io/tonistiigi/binfmt:latest
+build	Set up QEMU	2026-01-14T07:53:43.3206042Z   platforms: all
+build	Set up QEMU	2026-01-14T07:53:43.3206288Z   cache-image: true
+build	Set up QEMU	2026-01-14T07:53:43.3206608Z ##[endgroup]
+build	Set up QEMU	2026-01-14T07:53:43.5491051Z ##[group]Docker info
+build	Set up QEMU	2026-01-14T07:53:43.5541326Z [command]/usr/bin/docker version
+build	Set up QEMU	2026-01-14T07:53:43.6568782Z Client: Docker Engine - Community
+build	Set up QEMU	2026-01-14T07:53:43.6569427Z  Version:           28.0.4
+build	Set up QEMU	2026-01-14T07:53:43.6572040Z  API version:       1.48
+build	Set up QEMU	2026-01-14T07:53:43.6573438Z  Go version:        go1.23.7
+build	Set up QEMU	2026-01-14T07:53:43.6574266Z  Git commit:        b8034c0
+build	Set up QEMU	2026-01-14T07:53:43.6575010Z  Built:             Tue Mar 25 15:07:16 2025
+build	Set up QEMU	2026-01-14T07:53:43.6575827Z  OS/Arch:           linux/amd64
+build	Set up QEMU	2026-01-14T07:53:43.6576456Z  Context:           default
+build	Set up QEMU	2026-01-14T07:53:43.6576881Z 
+build	Set up QEMU	2026-01-14T07:53:43.6577108Z Server: Docker Engine - Community
+build	Set up QEMU	2026-01-14T07:53:43.6577761Z  Engine:
+build	Set up QEMU	2026-01-14T07:53:43.6578304Z   Version:          28.0.4
+build	Set up QEMU	2026-01-14T07:53:43.6578918Z   API version:      1.48 (minimum version 1.24)
+build	Set up QEMU	2026-01-14T07:53:43.6579571Z   Go version:       go1.23.7
+build	Set up QEMU	2026-01-14T07:53:43.6647210Z   Git commit:       6430e49
+build	Set up QEMU	2026-01-14T07:53:43.6647815Z   Built:            Tue Mar 25 15:07:16 2025
+build	Set up QEMU	2026-01-14T07:53:43.6648267Z   OS/Arch:          linux/amd64
+build	Set up QEMU	2026-01-14T07:53:43.6648665Z   Experimental:     false
+build	Set up QEMU	2026-01-14T07:53:43.6649020Z  containerd:
+build	Set up QEMU	2026-01-14T07:53:43.6649318Z   Version:          v2.2.1
+build	Set up QEMU	2026-01-14T07:53:43.6649789Z   GitCommit:        dea7da592f5d1d2b7755e3a161be07f43fad8f75
+build	Set up QEMU	2026-01-14T07:53:43.6650286Z  runc:
+build	Set up QEMU	2026-01-14T07:53:43.6650569Z   Version:          1.3.4
+build	Set up QEMU	2026-01-14T07:53:43.6650948Z   GitCommit:        v1.3.4-0-gd6d73eb8
+build	Set up QEMU	2026-01-14T07:53:43.6651715Z  docker-init:
+build	Set up QEMU	2026-01-14T07:53:43.6652071Z   Version:          0.19.0
+build	Set up QEMU	2026-01-14T07:53:43.6652476Z   GitCommit:        de40ad0
+build	Set up QEMU	2026-01-14T07:53:43.6655520Z [command]/usr/bin/docker info
+build	Set up QEMU	2026-01-14T07:53:45.7523062Z Client: Docker Engine - Community
+build	Set up QEMU	2026-01-14T07:53:45.7527213Z  Version:    28.0.4
+build	Set up QEMU	2026-01-14T07:53:45.7527562Z  Context:    default
+build	Set up QEMU	2026-01-14T07:53:45.7527895Z  Debug Mode: false
+build	Set up QEMU	2026-01-14T07:53:45.7528206Z  Plugins:
+build	Set up QEMU	2026-01-14T07:53:45.7528519Z   buildx: Docker Buildx (Docker Inc.)
+build	Set up QEMU	2026-01-14T07:53:45.7528901Z     Version:  v0.30.1
+build	Set up QEMU	2026-01-14T07:53:45.7529202Z     Path:     /usr/libexec/docker/cli-plugins/docker-buildx
+build	Set up QEMU	2026-01-14T07:53:45.7529555Z   compose: Docker Compose (Docker Inc.)
+build	Set up QEMU	2026-01-14T07:53:45.7529819Z     Version:  v2.38.2
+build	Set up QEMU	2026-01-14T07:53:45.7530101Z     Path:     /usr/libexec/docker/cli-plugins/docker-compose
+build	Set up QEMU	2026-01-14T07:53:45.7530354Z 
+build	Set up QEMU	2026-01-14T07:53:45.7530423Z Server:
+build	Set up QEMU	2026-01-14T07:53:45.7530592Z  Containers: 0
+build	Set up QEMU	2026-01-14T07:53:45.7530769Z   Running: 0
+build	Set up QEMU	2026-01-14T07:53:45.7530952Z   Paused: 0
+build	Set up QEMU	2026-01-14T07:53:45.7531120Z   Stopped: 0
+build	Set up QEMU	2026-01-14T07:53:45.7531294Z  Images: 0
+build	Set up QEMU	2026-01-14T07:53:45.7531777Z  Server Version: 28.0.4
+build	Set up QEMU	2026-01-14T07:53:45.7532000Z  Storage Driver: overlay2
+build	Set up QEMU	2026-01-14T07:53:45.7532243Z   Backing Filesystem: extfs
+build	Set up QEMU	2026-01-14T07:53:45.7532476Z   Supports d_type: true
+build	Set up QEMU	2026-01-14T07:53:45.7532681Z   Using metacopy: false
+build	Set up QEMU	2026-01-14T07:53:45.7532896Z   Native Overlay Diff: false
+build	Set up QEMU	2026-01-14T07:53:45.7533124Z   userxattr: false
+build	Set up QEMU	2026-01-14T07:53:45.7533321Z  Logging Driver: json-file
+build	Set up QEMU	2026-01-14T07:53:45.7533546Z  Cgroup Driver: systemd
+build	Set up QEMU	2026-01-14T07:53:45.7533755Z  Cgroup Version: 2
+build	Set up QEMU	2026-01-14T07:53:45.7533959Z  Plugins:
+build	Set up QEMU	2026-01-14T07:53:45.7534137Z   Volume: local
+build	Set up QEMU	2026-01-14T07:53:45.7534368Z   Network: bridge host ipvlan macvlan null overlay
+build	Set up QEMU	2026-01-14T07:53:45.7534778Z   Log: awslogs fluentd gcplogs gelf journald json-file local splunk syslog
+build	Set up QEMU	2026-01-14T07:53:45.7535154Z  Swarm: inactive
+build	Set up QEMU	2026-01-14T07:53:45.7535369Z  Runtimes: io.containerd.runc.v2 runc
+build	Set up QEMU	2026-01-14T07:53:45.7535650Z  Default Runtime: runc
+build	Set up QEMU	2026-01-14T07:53:45.7535855Z  Init Binary: docker-init
+build	Set up QEMU	2026-01-14T07:53:45.7536677Z  containerd version: dea7da592f5d1d2b7755e3a161be07f43fad8f75
+build	Set up QEMU	2026-01-14T07:53:45.7537268Z  runc version: v1.3.4-0-gd6d73eb8
+build	Set up QEMU	2026-01-14T07:53:45.7538003Z  init version: de40ad0
+build	Set up QEMU	2026-01-14T07:53:45.7538377Z  Security Options:
+build	Set up QEMU	2026-01-14T07:53:45.7538736Z   apparmor
+build	Set up QEMU	2026-01-14T07:53:45.7539035Z   seccomp
+build	Set up QEMU	2026-01-14T07:53:45.7539339Z    Profile: builtin
+build	Set up QEMU	2026-01-14T07:53:45.7539662Z   cgroupns
+build	Set up QEMU	2026-01-14T07:53:45.7539973Z  Kernel Version: 6.11.0-1018-azure
+build	Set up QEMU	2026-01-14T07:53:45.7540402Z  Operating System: Ubuntu 24.04.3 LTS
+build	Set up QEMU	2026-01-14T07:53:45.7540854Z  OSType: linux
+build	Set up QEMU	2026-01-14T07:53:45.7541134Z  Architecture: x86_64
+build	Set up QEMU	2026-01-14T07:53:45.7541802Z  CPUs: 4
+build	Set up QEMU	2026-01-14T07:53:45.7542083Z  Total Memory: 15.62GiB
+build	Set up QEMU	2026-01-14T07:53:45.7542426Z  Name: runnervmi13qx
+build	Set up QEMU	2026-01-14T07:53:45.7542805Z  ID: cad06968-cefe-42f1-8413-b84e8b052c72
+build	Set up QEMU	2026-01-14T07:53:45.7543287Z  Docker Root Dir: /var/lib/docker
+build	Set up QEMU	2026-01-14T07:53:45.7543708Z  Debug Mode: false
+build	Set up QEMU	2026-01-14T07:53:45.7544062Z  Username: githubactions
+build	Set up QEMU	2026-01-14T07:53:45.7544445Z  Experimental: false
+build	Set up QEMU	2026-01-14T07:53:45.7544799Z  Insecure Registries:
+build	Set up QEMU	2026-01-14T07:53:45.7550765Z   ::1/128
+build	Set up QEMU	2026-01-14T07:53:45.7551092Z   127.0.0.0/8
+build	Set up QEMU	2026-01-14T07:53:45.7551675Z  Live Restore Enabled: false
+build	Set up QEMU	2026-01-14T07:53:45.7551973Z 
+build	Set up QEMU	2026-01-14T07:53:45.7552633Z ##[endgroup]
+build	Set up QEMU	2026-01-14T07:53:45.7553261Z ##[group]Pulling binfmt Docker image
+build	Set up QEMU	2026-01-14T07:53:46.0168781Z Cache hit for: docker.io--tonistiigi--binfmt-latest-linux-x64
+build	Set up QEMU	2026-01-14T07:53:47.2818938Z Received 8388608 of 31670916 (26.5%), 8.0 MBs/sec
+build	Set up QEMU	2026-01-14T07:53:47.4985288Z Received 31670916 of 31670916 (100.0%), 24.8 MBs/sec
+build	Set up QEMU	2026-01-14T07:53:47.4987446Z Cache Size: ~30 MB (31670916 B)
+build	Set up QEMU	2026-01-14T07:53:47.5016545Z [command]/usr/bin/tar -xf /home/runner/work/_temp/95c3518e-28e7-48db-81b9-ed1310ee4f2d/cache.tzst -P -C /home/runner/work/agentwrite-final/agentwrite-final --use-compress-program unzstd
+build	Set up QEMU	2026-01-14T07:53:47.6408223Z Cache restored successfully
+build	Set up QEMU	2026-01-14T07:53:47.6469026Z Restored docker.io--tonistiigi--binfmt-latest-linux-x64 from GitHub Actions cache
+build	Set up QEMU	2026-01-14T07:53:47.7207399Z Cached to hosted tool cache /opt/hostedtoolcache/docker.io--tonistiigi--binfmt/latest/linux-x64
+build	Set up QEMU	2026-01-14T07:53:47.7209394Z Copying /opt/hostedtoolcache/docker.io--tonistiigi--binfmt/latest/linux-x64/image.tar to /home/runner/.docker/.cache/images/docker.io--tonistiigi--binfmt/latest/linux-x64/image.tar
+build	Set up QEMU	2026-01-14T07:53:47.8017314Z Image found from cache in /home/runner/.docker/.cache/images/docker.io--tonistiigi--binfmt/latest/linux-x64/image.tar
+build	Set up QEMU	2026-01-14T07:53:47.8042910Z [command]/usr/bin/docker load -i /home/runner/.docker/.cache/images/docker.io--tonistiigi--binfmt/latest/linux-x64/image.tar
+build	Set up QEMU	2026-01-14T07:53:49.0482868Z Loaded image: tonistiigi/binfmt:latest
+build	Set up QEMU	2026-01-14T07:53:49.0655567Z [command]/usr/bin/docker pull docker.io/tonistiigi/binfmt:latest
+build	Set up QEMU	2026-01-14T07:53:50.1314623Z latest: Pulling from tonistiigi/binfmt
+build	Set up QEMU	2026-01-14T07:53:50.4110290Z Digest: sha256:30cc9a4d03765acac9be2ed0afc23af1ad018aed2c28ea4be8c2eb9afe03fbd1
+build	Set up QEMU	2026-01-14T07:53:50.4118193Z Status: Image is up to date for tonistiigi/binfmt:latest
+build	Set up QEMU	2026-01-14T07:53:50.4126080Z docker.io/tonistiigi/binfmt:latest
+build	Set up QEMU	2026-01-14T07:53:50.4160842Z [command]/usr/bin/docker save -o /home/runner/work/_temp/docker-actions-toolkit-NKgx9T/749e64100d3fa0c09bdbc8a02e4fb9cb3ee64266f7f661c98371040689abacb3.tar docker.io/tonistiigi/binfmt:latest
+build	Set up QEMU	2026-01-14T07:53:50.8282311Z Copying /home/runner/work/_temp/docker-actions-toolkit-NKgx9T/749e64100d3fa0c09bdbc8a02e4fb9cb3ee64266f7f661c98371040689abacb3.tar to /home/runner/.docker/.cache/images/docker.io--tonistiigi--binfmt/latest/linux-x64/image.tar
+build	Set up QEMU	2026-01-14T07:53:50.9923255Z Image cached to /home/runner/.docker/.cache/images/docker.io--tonistiigi--binfmt/latest/linux-x64/image.tar
+build	Set up QEMU	2026-01-14T07:53:50.9924483Z ##[endgroup]
+build	Set up QEMU	2026-01-14T07:53:50.9926299Z ##[group]Image info
+build	Set up QEMU	2026-01-14T07:53:50.9944401Z [command]/usr/bin/docker image inspect docker.io/tonistiigi/binfmt:latest
+build	Set up QEMU	2026-01-14T07:53:51.0387665Z [
+build	Set up QEMU	2026-01-14T07:53:51.0388067Z     {
+build	Set up QEMU	2026-01-14T07:53:51.0389121Z         "Id": "sha256:c97f15e717f7eb99d237e46f0a3553da8cfdf470a15bba459c056d90d0e398f5",
+build	Set up QEMU	2026-01-14T07:53:51.0390058Z         "RepoTags": [
+build	Set up QEMU	2026-01-14T07:53:51.0390426Z             "tonistiigi/binfmt:latest"
+build	Set up QEMU	2026-01-14T07:53:51.0390852Z         ],
+build	Set up QEMU	2026-01-14T07:53:51.0391044Z         "RepoDigests": [
+build	Set up QEMU	2026-01-14T07:53:51.0391747Z             "tonistiigi/binfmt@sha256:30cc9a4d03765acac9be2ed0afc23af1ad018aed2c28ea4be8c2eb9afe03fbd1"
+build	Set up QEMU	2026-01-14T07:53:51.0392231Z         ],
+build	Set up QEMU	2026-01-14T07:53:51.0392419Z         "Parent": "",
+build	Set up QEMU	2026-01-14T07:53:51.0392658Z         "Comment": "buildkit.dockerfile.v0",
+build	Set up QEMU	2026-01-14T07:53:51.0392957Z         "Created": "2025-09-11T09:43:57.050886711Z",
+build	Set up QEMU	2026-01-14T07:53:51.0393268Z         "DockerVersion": "",
+build	Set up QEMU	2026-01-14T07:53:51.0393491Z         "Author": "",
+build	Set up QEMU	2026-01-14T07:53:51.0393673Z         "Config": {
+build	Set up QEMU	2026-01-14T07:53:51.0393861Z             "Hostname": "",
+build	Set up QEMU	2026-01-14T07:53:51.0394077Z             "Domainname": "",
+build	Set up QEMU	2026-01-14T07:53:51.0394293Z             "User": "",
+build	Set up QEMU	2026-01-14T07:53:51.0394511Z             "AttachStdin": false,
+build	Set up QEMU	2026-01-14T07:53:51.0394751Z             "AttachStdout": false,
+build	Set up QEMU	2026-01-14T07:53:51.0394999Z             "AttachStderr": false,
+build	Set up QEMU	2026-01-14T07:53:51.0395224Z             "Tty": false,
+build	Set up QEMU	2026-01-14T07:53:51.0395435Z             "OpenStdin": false,
+build	Set up QEMU	2026-01-14T07:53:51.0395656Z             "StdinOnce": false,
+build	Set up QEMU	2026-01-14T07:53:51.0395861Z             "Env": [
+build	Set up QEMU	2026-01-14T07:53:51.0396189Z                 "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+build	Set up QEMU	2026-01-14T07:53:51.0396569Z                 "QEMU_PRESERVE_ARGV0=1"
+build	Set up QEMU	2026-01-14T07:53:51.0396808Z             ],
+build	Set up QEMU	2026-01-14T07:53:51.0396984Z             "Cmd": null,
+build	Set up QEMU	2026-01-14T07:53:51.0397187Z             "Image": "",
+build	Set up QEMU	2026-01-14T07:53:51.0397378Z             "Volumes": {
+build	Set up QEMU	2026-01-14T07:53:51.0397577Z                 "/tmp": {}
+build	Set up QEMU	2026-01-14T07:53:51.0397819Z             },
+build	Set up QEMU	2026-01-14T07:53:51.0398147Z             "WorkingDir": "/",
+build	Set up QEMU	2026-01-14T07:53:51.0398479Z             "Entrypoint": [
+build	Set up QEMU	2026-01-14T07:53:51.0398704Z                 "/usr/bin/binfmt"
+build	Set up QEMU	2026-01-14T07:53:51.0398926Z             ],
+build	Set up QEMU	2026-01-14T07:53:51.0399113Z             "OnBuild": null,
+build	Set up QEMU	2026-01-14T07:53:51.0399325Z             "Labels": {
+build	Set up QEMU	2026-01-14T07:53:51.0399627Z                 "org.opencontainers.image.created": "2025-09-11T09:13:47.128Z",
+build	Set up QEMU	2026-01-14T07:53:51.0400259Z                 "org.opencontainers.image.description": "Cross-platform emulator collection distributed with Docker images",
+build	Set up QEMU	2026-01-14T07:53:51.0400846Z                 "org.opencontainers.image.licenses": "MIT",
+build	Set up QEMU	2026-01-14T07:53:51.0401313Z                 "org.opencontainers.image.revision": "8bf932dba1f67bb274320e7cebece2807e4b99e1",
+build	Set up QEMU	2026-01-14T07:53:51.0402158Z                 "org.opencontainers.image.source": "https://github.com/tonistiigi/binfmt",
+build	Set up QEMU	2026-01-14T07:53:51.0402708Z                 "org.opencontainers.image.title": "Binfmt",
+build	Set up QEMU	2026-01-14T07:53:51.0403150Z                 "org.opencontainers.image.url": "https://github.com/tonistiigi/binfmt",
+build	Set up QEMU	2026-01-14T07:53:51.0403964Z                 "org.opencontainers.image.version": "qemu-v10.0.4-56"
+build	Set up QEMU	2026-01-14T07:53:51.0404507Z             }
+build	Set up QEMU	2026-01-14T07:53:51.0404791Z         },
+build	Set up QEMU	2026-01-14T07:53:51.0405091Z         "Architecture": "amd64",
+build	Set up QEMU	2026-01-14T07:53:51.0405475Z         "Os": "linux",
+build	Set up QEMU	2026-01-14T07:53:51.0405803Z         "Size": 83325873,
+build	Set up QEMU	2026-01-14T07:53:51.0406150Z         "GraphDriver": {
+build	Set up QEMU	2026-01-14T07:53:51.0406499Z             "Data": {
+build	Set up QEMU	2026-01-14T07:53:51.0407034Z                 "LowerDir": "/var/lib/docker/overlay2/70c523ce8f31c556e0f1064a973b9cf42623203352bfb45ef0ba80d597161711/diff",
+build	Set up QEMU	2026-01-14T07:53:51.0408226Z                 "MergedDir": "/var/lib/docker/overlay2/45619ae2878df4c62af6dd3738435c3159ea80535d634875c3f4781b83e253da/merged",
+build	Set up QEMU	2026-01-14T07:53:51.0409089Z                 "UpperDir": "/var/lib/docker/overlay2/45619ae2878df4c62af6dd3738435c3159ea80535d634875c3f4781b83e253da/diff",
+build	Set up QEMU	2026-01-14T07:53:51.0409840Z                 "WorkDir": "/var/lib/docker/overlay2/45619ae2878df4c62af6dd3738435c3159ea80535d634875c3f4781b83e253da/work"
+build	Set up QEMU	2026-01-14T07:53:51.0410578Z             },
+build	Set up QEMU	2026-01-14T07:53:51.0411012Z             "Name": "overlay2"
+build	Set up QEMU	2026-01-14T07:53:51.0411229Z         },
+build	Set up QEMU	2026-01-14T07:53:51.0411609Z         "RootFS": {
+build	Set up QEMU	2026-01-14T07:53:51.0411874Z             "Type": "layers",
+build	Set up QEMU	2026-01-14T07:53:51.0412094Z             "Layers": [
+build	Set up QEMU	2026-01-14T07:53:51.0412437Z                 "sha256:ba63059928005ec5a66585f9353d2f4e14eaede3da6a25acac0a4f44d809cb64",
+build	Set up QEMU	2026-01-14T07:53:51.0412955Z                 "sha256:66aa431c2e5b0cb36e6f7fde44ab8195fab52d6c93b407c720212e28337ac745"
+build	Set up QEMU	2026-01-14T07:53:51.0413327Z             ]
+build	Set up QEMU	2026-01-14T07:53:51.0413488Z         },
+build	Set up QEMU	2026-01-14T07:53:51.0413648Z         "Metadata": {
+build	Set up QEMU	2026-01-14T07:53:51.0413872Z             "LastTagTime": "0001-01-01T00:00:00Z"
+build	Set up QEMU	2026-01-14T07:53:51.0414262Z         }
+build	Set up QEMU	2026-01-14T07:53:51.0414419Z     }
+build	Set up QEMU	2026-01-14T07:53:51.0414575Z ]
+build	Set up QEMU	2026-01-14T07:53:51.0415474Z ##[endgroup]
+build	Set up QEMU	2026-01-14T07:53:51.0415818Z ##[group]Binfmt version
+build	Set up QEMU	2026-01-14T07:53:51.0422756Z [command]/usr/bin/docker run --rm --privileged docker.io/tonistiigi/binfmt:latest --version
+build	Set up QEMU	2026-01-14T07:53:51.3989427Z binfmt/8bf932d qemu/v10.0.4 go/1.23.12
+build	Set up QEMU	2026-01-14T07:53:51.4631203Z ##[endgroup]
+build	Set up QEMU	2026-01-14T07:53:51.4632139Z ##[group]Installing QEMU static binaries
+build	Set up QEMU	2026-01-14T07:53:51.4648565Z [command]/usr/bin/docker run --rm --privileged docker.io/tonistiigi/binfmt:latest --install all
+build	Set up QEMU	2026-01-14T07:53:51.5975464Z installing: arm OK
+build	Set up QEMU	2026-01-14T07:53:51.5975822Z installing: riscv64 OK
+build	Set up QEMU	2026-01-14T07:53:51.5976099Z installing: mips64le OK
+build	Set up QEMU	2026-01-14T07:53:51.5976366Z installing: mips64 OK
+build	Set up QEMU	2026-01-14T07:53:51.5976624Z installing: loong64 OK
+build	Set up QEMU	2026-01-14T07:53:51.5976866Z installing: arm64 OK
+build	Set up QEMU	2026-01-14T07:53:51.5977096Z installing: s390x OK
+build	Set up QEMU	2026-01-14T07:53:51.5977354Z installing: ppc64le OK
+build	Set up QEMU	2026-01-14T07:53:51.6201287Z {
+build	Set up QEMU	2026-01-14T07:53:51.6201925Z   "supported": [
+build	Set up QEMU	2026-01-14T07:53:51.6202288Z     "linux/amd64",
+build	Set up QEMU	2026-01-14T07:53:51.6202636Z     "linux/amd64/v2",
+build	Set up QEMU	2026-01-14T07:53:51.6203031Z     "linux/amd64/v3",
+build	Set up QEMU	2026-01-14T07:53:51.6203368Z     "linux/arm64",
+build	Set up QEMU	2026-01-14T07:53:51.6203680Z     "linux/riscv64",
+build	Set up QEMU	2026-01-14T07:53:51.6204041Z     "linux/ppc64le",
+build	Set up QEMU	2026-01-14T07:53:51.6204361Z     "linux/s390x",
+build	Set up QEMU	2026-01-14T07:53:51.6204658Z     "linux/386",
+build	Set up QEMU	2026-01-14T07:53:51.6204965Z     "linux/mips64le",
+build	Set up QEMU	2026-01-14T07:53:51.6205296Z     "linux/mips64",
+build	Set up QEMU	2026-01-14T07:53:51.6205612Z     "linux/loong64",
+build	Set up QEMU	2026-01-14T07:53:51.6205955Z     "linux/arm/v7",
+build	Set up QEMU	2026-01-14T07:53:51.6206261Z     "linux/arm/v6"
+build	Set up QEMU	2026-01-14T07:53:51.6206568Z   ],
+build	Set up QEMU	2026-01-14T07:53:51.6206874Z   "emulators": [
+build	Set up QEMU	2026-01-14T07:53:51.6207185Z     "llvm-16-runtime.binfmt",
+build	Set up QEMU	2026-01-14T07:53:51.6207576Z     "llvm-17-runtime.binfmt",
+build	Set up QEMU	2026-01-14T07:53:51.6207965Z     "llvm-18-runtime.binfmt",
+build	Set up QEMU	2026-01-14T07:53:51.6208353Z     "python3.12",
+build	Set up QEMU	2026-01-14T07:53:51.6208647Z     "qemu-aarch64",
+build	Set up QEMU	2026-01-14T07:53:51.6208959Z     "qemu-arm",
+build	Set up QEMU	2026-01-14T07:53:51.6209277Z     "qemu-loongarch64",
+build	Set up QEMU	2026-01-14T07:53:51.6209600Z     "qemu-mips64",
+build	Set up QEMU	2026-01-14T07:53:51.6209929Z     "qemu-mips64el",
+build	Set up QEMU	2026-01-14T07:53:51.6210252Z     "qemu-ppc64le",
+build	Set up QEMU	2026-01-14T07:53:51.6210572Z     "qemu-riscv64",
+build	Set up QEMU	2026-01-14T07:53:51.6210875Z     "qemu-s390x"
+build	Set up QEMU	2026-01-14T07:53:51.6211155Z   ]
+build	Set up QEMU	2026-01-14T07:53:51.6211589Z }
+build	Set up QEMU	2026-01-14T07:53:51.6874648Z ##[endgroup]
+build	Set up QEMU	2026-01-14T07:53:51.6875477Z ##[group]Extracting available platforms
+build	Set up QEMU	2026-01-14T07:53:51.9287035Z linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64,linux/riscv64,linux/ppc64le,linux/s390x,linux/386,linux/mips64le,linux/mips64,linux/loong64,linux/arm/v7,linux/arm/v6
+build	Set up QEMU	2026-01-14T07:53:51.9288717Z ##[endgroup]
+build	Set up Docker Buildx	﻿2026-01-14T07:53:51.9484848Z ##[group]Run docker/setup-buildx-action@v3
+build	Set up Docker Buildx	2026-01-14T07:53:51.9485144Z with:
+build	Set up Docker Buildx	2026-01-14T07:53:51.9485334Z   driver: docker-container
+build	Set up Docker Buildx	2026-01-14T07:53:51.9485550Z   use: true
+build	Set up Docker Buildx	2026-01-14T07:53:51.9485722Z   keep-state: false
+build	Set up Docker Buildx	2026-01-14T07:53:51.9485909Z   cache-binary: true
+build	Set up Docker Buildx	2026-01-14T07:53:51.9486103Z   cleanup: true
+build	Set up Docker Buildx	2026-01-14T07:53:51.9486281Z   install: false
+build	Set up Docker Buildx	2026-01-14T07:53:51.9486651Z ##[endgroup]
+build	Set up Docker Buildx	2026-01-14T07:53:52.1980142Z ##[group]Docker info
+build	Set up Docker Buildx	2026-01-14T07:53:52.2006941Z [command]/usr/bin/docker version
+build	Set up Docker Buildx	2026-01-14T07:53:52.2214168Z Client: Docker Engine - Community
+build	Set up Docker Buildx	2026-01-14T07:53:52.2215034Z  Version:           28.0.4
+build	Set up Docker Buildx	2026-01-14T07:53:52.2215906Z  API version:       1.48
+build	Set up Docker Buildx	2026-01-14T07:53:52.2216621Z  Go version:        go1.23.7
+build	Set up Docker Buildx	2026-01-14T07:53:52.2217306Z  Git commit:        b8034c0
+build	Set up Docker Buildx	2026-01-14T07:53:52.2217961Z  Built:             Tue Mar 25 15:07:16 2025
+build	Set up Docker Buildx	2026-01-14T07:53:52.2218492Z  OS/Arch:           linux/amd64
+build	Set up Docker Buildx	2026-01-14T07:53:52.2218908Z  Context:           default
+build	Set up Docker Buildx	2026-01-14T07:53:52.2219256Z 
+build	Set up Docker Buildx	2026-01-14T07:53:52.2219430Z Server: Docker Engine - Community
+build	Set up Docker Buildx	2026-01-14T07:53:52.2219847Z  Engine:
+build	Set up Docker Buildx	2026-01-14T07:53:52.2220152Z   Version:          28.0.4
+build	Set up Docker Buildx	2026-01-14T07:53:52.2220589Z   API version:      1.48 (minimum version 1.24)
+build	Set up Docker Buildx	2026-01-14T07:53:52.2221102Z   Go version:       go1.23.7
+build	Set up Docker Buildx	2026-01-14T07:53:52.2221759Z   Git commit:       6430e49
+build	Set up Docker Buildx	2026-01-14T07:53:52.2222281Z   Built:            Tue Mar 25 15:07:16 2025
+build	Set up Docker Buildx	2026-01-14T07:53:52.2222740Z   OS/Arch:          linux/amd64
+build	Set up Docker Buildx	2026-01-14T07:53:52.2223160Z   Experimental:     false
+build	Set up Docker Buildx	2026-01-14T07:53:52.2223563Z  containerd:
+build	Set up Docker Buildx	2026-01-14T07:53:52.2223895Z   Version:          v2.2.1
+build	Set up Docker Buildx	2026-01-14T07:53:52.2224405Z   GitCommit:        dea7da592f5d1d2b7755e3a161be07f43fad8f75
+build	Set up Docker Buildx	2026-01-14T07:53:52.2224951Z  runc:
+build	Set up Docker Buildx	2026-01-14T07:53:52.2225258Z   Version:          1.3.4
+build	Set up Docker Buildx	2026-01-14T07:53:52.2225923Z   GitCommit:        v1.3.4-0-gd6d73eb8
+build	Set up Docker Buildx	2026-01-14T07:53:52.2226388Z  docker-init:
+build	Set up Docker Buildx	2026-01-14T07:53:52.2226724Z   Version:          0.19.0
+build	Set up Docker Buildx	2026-01-14T07:53:52.2227115Z   GitCommit:        de40ad0
+build	Set up Docker Buildx	2026-01-14T07:53:52.2271620Z [command]/usr/bin/docker info
+build	Set up Docker Buildx	2026-01-14T07:53:52.2946610Z Client: Docker Engine - Community
+build	Set up Docker Buildx	2026-01-14T07:53:52.2947202Z  Version:    28.0.4
+build	Set up Docker Buildx	2026-01-14T07:53:52.2947569Z  Context:    default
+build	Set up Docker Buildx	2026-01-14T07:53:52.2947889Z  Debug Mode: false
+build	Set up Docker Buildx	2026-01-14T07:53:52.2948101Z  Plugins:
+build	Set up Docker Buildx	2026-01-14T07:53:52.2948313Z   buildx: Docker Buildx (Docker Inc.)
+build	Set up Docker Buildx	2026-01-14T07:53:52.2948617Z     Version:  v0.30.1
+build	Set up Docker Buildx	2026-01-14T07:53:52.2948902Z     Path:     /usr/libexec/docker/cli-plugins/docker-buildx
+build	Set up Docker Buildx	2026-01-14T07:53:52.2949266Z   compose: Docker Compose (Docker Inc.)
+build	Set up Docker Buildx	2026-01-14T07:53:52.2949536Z     Version:  v2.38.2
+build	Set up Docker Buildx	2026-01-14T07:53:52.2949816Z     Path:     /usr/libexec/docker/cli-plugins/docker-compose
+build	Set up Docker Buildx	2026-01-14T07:53:52.2950079Z 
+build	Set up Docker Buildx	2026-01-14T07:53:52.2950149Z Server:
+build	Set up Docker Buildx	2026-01-14T07:53:52.2950478Z  Containers: 0
+build	Set up Docker Buildx	2026-01-14T07:53:52.2950776Z   Running: 0
+build	Set up Docker Buildx	2026-01-14T07:53:52.2950952Z   Paused: 0
+build	Set up Docker Buildx	2026-01-14T07:53:52.2951127Z   Stopped: 0
+build	Set up Docker Buildx	2026-01-14T07:53:52.2951302Z  Images: 1
+build	Set up Docker Buildx	2026-01-14T07:53:52.2951776Z  Server Version: 28.0.4
+build	Set up Docker Buildx	2026-01-14T07:53:52.2952006Z  Storage Driver: overlay2
+build	Set up Docker Buildx	2026-01-14T07:53:52.2952230Z   Backing Filesystem: extfs
+build	Set up Docker Buildx	2026-01-14T07:53:52.2952462Z   Supports d_type: true
+build	Set up Docker Buildx	2026-01-14T07:53:52.2952677Z   Using metacopy: false
+build	Set up Docker Buildx	2026-01-14T07:53:52.2952896Z   Native Overlay Diff: false
+build	Set up Docker Buildx	2026-01-14T07:53:52.2953128Z   userxattr: false
+build	Set up Docker Buildx	2026-01-14T07:53:52.2953335Z  Logging Driver: json-file
+build	Set up Docker Buildx	2026-01-14T07:53:52.2953563Z  Cgroup Driver: systemd
+build	Set up Docker Buildx	2026-01-14T07:53:52.2953772Z  Cgroup Version: 2
+build	Set up Docker Buildx	2026-01-14T07:53:52.2953964Z  Plugins:
+build	Set up Docker Buildx	2026-01-14T07:53:52.2954151Z   Volume: local
+build	Set up Docker Buildx	2026-01-14T07:53:52.2954378Z   Network: bridge host ipvlan macvlan null overlay
+build	Set up Docker Buildx	2026-01-14T07:53:52.2954812Z   Log: awslogs fluentd gcplogs gelf journald json-file local splunk syslog
+build	Set up Docker Buildx	2026-01-14T07:53:52.2955194Z  Swarm: inactive
+build	Set up Docker Buildx	2026-01-14T07:53:52.2955408Z  Runtimes: io.containerd.runc.v2 runc
+build	Set up Docker Buildx	2026-01-14T07:53:52.2955681Z  Default Runtime: runc
+build	Set up Docker Buildx	2026-01-14T07:53:52.2955897Z  Init Binary: docker-init
+build	Set up Docker Buildx	2026-01-14T07:53:52.2956548Z  containerd version: dea7da592f5d1d2b7755e3a161be07f43fad8f75
+build	Set up Docker Buildx	2026-01-14T07:53:52.2956894Z  runc version: v1.3.4-0-gd6d73eb8
+build	Set up Docker Buildx	2026-01-14T07:53:52.2957145Z  init version: de40ad0
+build	Set up Docker Buildx	2026-01-14T07:53:52.2957356Z  Security Options:
+build	Set up Docker Buildx	2026-01-14T07:53:52.2957552Z   apparmor
+build	Set up Docker Buildx	2026-01-14T07:53:52.2957713Z   seccomp
+build	Set up Docker Buildx	2026-01-14T07:53:52.2957882Z    Profile: builtin
+build	Set up Docker Buildx	2026-01-14T07:53:52.2958225Z   cgroupns
+build	Set up Docker Buildx	2026-01-14T07:53:52.2958549Z  Kernel Version: 6.11.0-1018-azure
+build	Set up Docker Buildx	2026-01-14T07:53:52.2958948Z  Operating System: Ubuntu 24.04.3 LTS
+build	Set up Docker Buildx	2026-01-14T07:53:52.2959202Z  OSType: linux
+build	Set up Docker Buildx	2026-01-14T07:53:52.2959449Z  Architecture: x86_64
+build	Set up Docker Buildx	2026-01-14T07:53:52.2959722Z  CPUs: 4
+build	Set up Docker Buildx	2026-01-14T07:53:52.2959898Z  Total Memory: 15.62GiB
+build	Set up Docker Buildx	2026-01-14T07:53:52.2960107Z  Name: runnervmi13qx
+build	Set up Docker Buildx	2026-01-14T07:53:52.2960321Z  ID: cad06968-cefe-42f1-8413-b84e8b052c72
+build	Set up Docker Buildx	2026-01-14T07:53:52.2960589Z  Docker Root Dir: /var/lib/docker
+build	Set up Docker Buildx	2026-01-14T07:53:52.2960825Z  Debug Mode: false
+build	Set up Docker Buildx	2026-01-14T07:53:52.2961019Z  Username: githubactions
+build	Set up Docker Buildx	2026-01-14T07:53:52.2961243Z  Experimental: false
+build	Set up Docker Buildx	2026-01-14T07:53:52.2961655Z  Insecure Registries:
+build	Set up Docker Buildx	2026-01-14T07:53:52.2961872Z   ::1/128
+build	Set up Docker Buildx	2026-01-14T07:53:52.2962033Z   127.0.0.0/8
+build	Set up Docker Buildx	2026-01-14T07:53:52.2962210Z  Live Restore Enabled: false
+build	Set up Docker Buildx	2026-01-14T07:53:52.2962357Z 
+build	Set up Docker Buildx	2026-01-14T07:53:52.2964088Z ##[endgroup]
+build	Set up Docker Buildx	2026-01-14T07:53:52.3850311Z ##[group]Buildx version
+build	Set up Docker Buildx	2026-01-14T07:53:52.3871811Z [command]/usr/bin/docker buildx version
+build	Set up Docker Buildx	2026-01-14T07:53:52.4620007Z github.com/docker/buildx v0.30.1 9e66234aa13328a5e75b75aa5574e1ca6d6d9c01
+build	Set up Docker Buildx	2026-01-14T07:53:52.4653504Z ##[endgroup]
+build	Set up Docker Buildx	2026-01-14T07:53:52.4809588Z ##[group]Inspecting default docker context
+build	Set up Docker Buildx	2026-01-14T07:53:52.4948898Z [
+build	Set up Docker Buildx	2026-01-14T07:53:52.4949226Z   {
+build	Set up Docker Buildx	2026-01-14T07:53:52.4949505Z     "Name": "default",
+build	Set up Docker Buildx	2026-01-14T07:53:52.4949875Z     "Metadata": {},
+build	Set up Docker Buildx	2026-01-14T07:53:52.4950224Z     "Endpoints": {
+build	Set up Docker Buildx	2026-01-14T07:53:52.4950556Z       "docker": {
+build	Set up Docker Buildx	2026-01-14T07:53:52.4950942Z         "Host": "unix:///var/run/docker.sock",
+build	Set up Docker Buildx	2026-01-14T07:53:52.4951692Z         "SkipTLSVerify": false
+build	Set up Docker Buildx	2026-01-14T07:53:52.4952133Z       }
+build	Set up Docker Buildx	2026-01-14T07:53:52.4952424Z     },
+build	Set up Docker Buildx	2026-01-14T07:53:52.4952759Z     "TLSMaterial": {},
+build	Set up Docker Buildx	2026-01-14T07:53:52.4953136Z     "Storage": {
+build	Set up Docker Buildx	2026-01-14T07:53:52.4953502Z       "MetadataPath": "<IN MEMORY>",
+build	Set up Docker Buildx	2026-01-14T07:53:52.4953970Z       "TLSPath": "<IN MEMORY>"
+build	Set up Docker Buildx	2026-01-14T07:53:52.4954381Z     }
+build	Set up Docker Buildx	2026-01-14T07:53:52.4954693Z   }
+build	Set up Docker Buildx	2026-01-14T07:53:52.4954983Z ]
+build	Set up Docker Buildx	2026-01-14T07:53:52.4955591Z ##[endgroup]
+build	Set up Docker Buildx	2026-01-14T07:53:52.4956233Z ##[group]Creating a new builder instance
+build	Set up Docker Buildx	2026-01-14T07:53:52.6396900Z [command]/usr/bin/docker buildx create --name builder-8225275d-c24e-4fe2-9089-8b34dadf2244 --driver docker-container --buildkitd-flags --allow-insecure-entitlement security.insecure --allow-insecure-entitlement network.host --use
+build	Set up Docker Buildx	2026-01-14T07:53:52.7170024Z builder-8225275d-c24e-4fe2-9089-8b34dadf2244
+build	Set up Docker Buildx	2026-01-14T07:53:52.7206926Z ##[endgroup]
+build	Set up Docker Buildx	2026-01-14T07:53:52.7207573Z ##[group]Booting builder
+build	Set up Docker Buildx	2026-01-14T07:53:52.7242857Z [command]/usr/bin/docker buildx inspect --bootstrap --builder builder-8225275d-c24e-4fe2-9089-8b34dadf2244
+build	Set up Docker Buildx	2026-01-14T07:53:52.7787404Z #1 [internal] booting buildkit
+build	Set up Docker Buildx	2026-01-14T07:53:52.9292291Z #1 pulling image moby/buildkit:buildx-stable-1
+build	Set up Docker Buildx	2026-01-14T07:53:56.1522734Z #1 pulling image moby/buildkit:buildx-stable-1 3.4s done
+build	Set up Docker Buildx	2026-01-14T07:53:56.3031724Z #1 creating container buildx_buildkit_builder-8225275d-c24e-4fe2-9089-8b34dadf22440
+build	Set up Docker Buildx	2026-01-14T07:53:56.4818036Z #1 creating container buildx_buildkit_builder-8225275d-c24e-4fe2-9089-8b34dadf22440 0.3s done
+build	Set up Docker Buildx	2026-01-14T07:53:56.4999789Z #1 DONE 3.7s
+build	Set up Docker Buildx	2026-01-14T07:53:56.5414988Z Name:          builder-8225275d-c24e-4fe2-9089-8b34dadf2244
+build	Set up Docker Buildx	2026-01-14T07:53:56.5415602Z Driver:        docker-container
+build	Set up Docker Buildx	2026-01-14T07:53:56.5416042Z Last Activity: 2026-01-14 07:53:52 +0000 UTC
+build	Set up Docker Buildx	2026-01-14T07:53:56.5416362Z 
+build	Set up Docker Buildx	2026-01-14T07:53:56.5416471Z Nodes:
+build	Set up Docker Buildx	2026-01-14T07:53:56.5417834Z Name:                  builder-8225275d-c24e-4fe2-9089-8b34dadf22440
+build	Set up Docker Buildx	2026-01-14T07:53:56.5418476Z Endpoint:              unix:///var/run/docker.sock
+build	Set up Docker Buildx	2026-01-14T07:53:56.5419384Z Status:                running
+build	Set up Docker Buildx	2026-01-14T07:53:56.5420285Z BuildKit daemon flags: --allow-insecure-entitlement security.insecure --allow-insecure-entitlement network.host
+build	Set up Docker Buildx	2026-01-14T07:53:56.5421216Z BuildKit version:      v0.26.3
+build	Set up Docker Buildx	2026-01-14T07:53:56.5422781Z Platforms:             linux/amd64, linux/amd64/v2, linux/amd64/v3, linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x, linux/386, linux/mips64le, linux/mips64, linux/loong64, linux/arm/v7, linux/arm/v6
+build	Set up Docker Buildx	2026-01-14T07:53:56.5424338Z Labels:
+build	Set up Docker Buildx	2026-01-14T07:53:56.5424743Z  org.mobyproject.buildkit.worker.executor:         oci
+build	Set up Docker Buildx	2026-01-14T07:53:56.5425437Z  org.mobyproject.buildkit.worker.hostname:         6b9c60007131
+build	Set up Docker Buildx	2026-01-14T07:53:56.5426142Z  org.mobyproject.buildkit.worker.network:          host
+build	Set up Docker Buildx	2026-01-14T07:53:56.5426831Z  org.mobyproject.buildkit.worker.oci.process-mode: sandbox
+build	Set up Docker Buildx	2026-01-14T07:53:56.5427546Z  org.mobyproject.buildkit.worker.selinux.enabled:  false
+build	Set up Docker Buildx	2026-01-14T07:53:56.5428256Z  org.mobyproject.buildkit.worker.snapshotter:      overlayfs
+build	Set up Docker Buildx	2026-01-14T07:53:56.5428846Z GC Policy rule#0:
+build	Set up Docker Buildx	2026-01-14T07:53:56.5429156Z  All:            false
+build	Set up Docker Buildx	2026-01-14T07:53:56.5429717Z  Filters:        type==source.local,type==exec.cachemount,type==source.git.checkout
+build	Set up Docker Buildx	2026-01-14T07:53:56.5430392Z  Keep Duration:  48h0m0s
+build	Set up Docker Buildx	2026-01-14T07:53:56.5430756Z  Max Used Space: 488.3MiB
+build	Set up Docker Buildx	2026-01-14T07:53:56.5431116Z GC Policy rule#1:
+build	Set up Docker Buildx	2026-01-14T07:53:56.5431582Z  All:            false
+build	Set up Docker Buildx	2026-01-14T07:53:56.5431927Z  Keep Duration:  1440h0m0s
+build	Set up Docker Buildx	2026-01-14T07:53:56.5432288Z  Reserved Space: 7.451GiB
+build	Set up Docker Buildx	2026-01-14T07:53:56.5432691Z  Max Used Space: 54.02GiB
+build	Set up Docker Buildx	2026-01-14T07:53:56.5433036Z  Min Free Space: 13.97GiB
+build	Set up Docker Buildx	2026-01-14T07:53:56.5433374Z GC Policy rule#2:
+build	Set up Docker Buildx	2026-01-14T07:53:56.5433672Z  All:            false
+build	Set up Docker Buildx	2026-01-14T07:53:56.5434002Z  Reserved Space: 7.451GiB
+build	Set up Docker Buildx	2026-01-14T07:53:56.5434369Z  Max Used Space: 54.02GiB
+build	Set up Docker Buildx	2026-01-14T07:53:56.5434723Z  Min Free Space: 13.97GiB
+build	Set up Docker Buildx	2026-01-14T07:53:56.5435075Z GC Policy rule#3:
+build	Set up Docker Buildx	2026-01-14T07:53:56.5435387Z  All:            true
+build	Set up Docker Buildx	2026-01-14T07:53:56.5435724Z  Reserved Space: 7.451GiB
+build	Set up Docker Buildx	2026-01-14T07:53:56.5436079Z  Max Used Space: 54.02GiB
+build	Set up Docker Buildx	2026-01-14T07:53:56.5436429Z  Min Free Space: 13.97GiB
+build	Set up Docker Buildx	2026-01-14T07:53:56.5474129Z ##[endgroup]
+build	Set up Docker Buildx	2026-01-14T07:53:56.6299140Z ##[group]Inspect builder
+build	Set up Docker Buildx	2026-01-14T07:53:56.6301578Z {
+build	Set up Docker Buildx	2026-01-14T07:53:56.6301873Z   "nodes": [
+build	Set up Docker Buildx	2026-01-14T07:53:56.6302186Z     {
+build	Set up Docker Buildx	2026-01-14T07:53:56.6302588Z       "name": "builder-8225275d-c24e-4fe2-9089-8b34dadf22440",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6303175Z       "endpoint": "unix:///var/run/docker.sock",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6303585Z       "status": "running",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6304144Z       "buildkitd-flags": "--allow-insecure-entitlement security.insecure --allow-insecure-entitlement network.host",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6304699Z       "buildkit": "v0.26.3",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6305558Z       "platforms": "linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64,linux/riscv64,linux/ppc64le,linux/s390x,linux/386,linux/mips64le,linux/mips64,linux/loong64,linux/arm/v7,linux/arm/v6",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6306315Z       "features": {
+build	Set up Docker Buildx	2026-01-14T07:53:56.6306725Z         "Automatically load images to the Docker Engine image store": true,
+build	Set up Docker Buildx	2026-01-14T07:53:56.6307095Z         "Cache export": true,
+build	Set up Docker Buildx	2026-01-14T07:53:56.6307316Z         "Direct push": true,
+build	Set up Docker Buildx	2026-01-14T07:53:56.6307538Z         "Docker exporter": true,
+build	Set up Docker Buildx	2026-01-14T07:53:56.6307786Z         "Multi-platform build": true,
+build	Set up Docker Buildx	2026-01-14T07:53:56.6308039Z         "OCI exporter": true
+build	Set up Docker Buildx	2026-01-14T07:53:56.6308242Z       },
+build	Set up Docker Buildx	2026-01-14T07:53:56.6308464Z       "labels": {
+build	Set up Docker Buildx	2026-01-14T07:53:56.6308823Z         "org.mobyproject.buildkit.worker.executor": "oci",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6309224Z         "org.mobyproject.buildkit.worker.hostname": "6b9c60007131",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6309620Z         "org.mobyproject.buildkit.worker.network": "host",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6310054Z         "org.mobyproject.buildkit.worker.oci.process-mode": "sandbox",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6310504Z         "org.mobyproject.buildkit.worker.selinux.enabled": "false",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6311230Z         "org.mobyproject.buildkit.worker.snapshotter": "overlayfs"
+build	Set up Docker Buildx	2026-01-14T07:53:56.6311884Z       },
+build	Set up Docker Buildx	2026-01-14T07:53:56.6312063Z       "gcPolicy": [
+build	Set up Docker Buildx	2026-01-14T07:53:56.6312246Z         {
+build	Set up Docker Buildx	2026-01-14T07:53:56.6312416Z           "all": false,
+build	Set up Docker Buildx	2026-01-14T07:53:56.6312620Z           "filter": [
+build	Set up Docker Buildx	2026-01-14T07:53:56.6312820Z             "type==source.local",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6313245Z             "type==exec.cachemount",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6313503Z             "type==source.git.checkout"
+build	Set up Docker Buildx	2026-01-14T07:53:56.6313745Z           ],
+build	Set up Docker Buildx	2026-01-14T07:53:56.6313927Z           "keepDuration": "48h0m0s",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6314161Z           "maxUsedSpace": "488.3MiB"
+build	Set up Docker Buildx	2026-01-14T07:53:56.6314384Z         },
+build	Set up Docker Buildx	2026-01-14T07:53:56.6314543Z         {
+build	Set up Docker Buildx	2026-01-14T07:53:56.6314704Z           "all": false,
+build	Set up Docker Buildx	2026-01-14T07:53:56.6314912Z           "keepDuration": "1440h0m0s",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6315151Z           "reservedSpace": "7.451GiB",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6315391Z           "maxUsedSpace": "54.02GiB",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6315636Z           "minFreeSpace": "13.97GiB"
+build	Set up Docker Buildx	2026-01-14T07:53:56.6315853Z         },
+build	Set up Docker Buildx	2026-01-14T07:53:56.6316007Z         {
+build	Set up Docker Buildx	2026-01-14T07:53:56.6316159Z           "all": false,
+build	Set up Docker Buildx	2026-01-14T07:53:56.6316362Z           "reservedSpace": "7.451GiB",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6316601Z           "maxUsedSpace": "54.02GiB",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6316843Z           "minFreeSpace": "13.97GiB"
+build	Set up Docker Buildx	2026-01-14T07:53:56.6317062Z         },
+build	Set up Docker Buildx	2026-01-14T07:53:56.6317215Z         {
+build	Set up Docker Buildx	2026-01-14T07:53:56.6317371Z           "all": true,
+build	Set up Docker Buildx	2026-01-14T07:53:56.6317570Z           "reservedSpace": "7.451GiB",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6317809Z           "maxUsedSpace": "54.02GiB",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6318043Z           "minFreeSpace": "13.97GiB"
+build	Set up Docker Buildx	2026-01-14T07:53:56.6318258Z         }
+build	Set up Docker Buildx	2026-01-14T07:53:56.6318409Z       ]
+build	Set up Docker Buildx	2026-01-14T07:53:56.6318563Z     }
+build	Set up Docker Buildx	2026-01-14T07:53:56.6318717Z   ],
+build	Set up Docker Buildx	2026-01-14T07:53:56.6318940Z   "name": "builder-8225275d-c24e-4fe2-9089-8b34dadf2244",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6319252Z   "driver": "docker-container",
+build	Set up Docker Buildx	2026-01-14T07:53:56.6319499Z   "lastActivity": "2026-01-14T07:53:52.000Z"
+build	Set up Docker Buildx	2026-01-14T07:53:56.6319740Z }
+build	Set up Docker Buildx	2026-01-14T07:53:56.6320086Z ##[endgroup]
+build	Set up Docker Buildx	2026-01-14T07:53:56.6320583Z ##[group]BuildKit version
+build	Set up Docker Buildx	2026-01-14T07:53:56.6321056Z builder-8225275d-c24e-4fe2-9089-8b34dadf22440: v0.26.3
+build	Set up Docker Buildx	2026-01-14T07:53:56.6322028Z ##[endgroup]
+build	Login to Docker Hub	﻿2026-01-14T07:53:56.6463240Z ##[group]Run docker/login-action@v3
+build	Login to Docker Hub	2026-01-14T07:53:56.6463525Z with:
+build	Login to Docker Hub	2026-01-14T07:53:56.6463800Z   username: ***
+build	Login to Docker Hub	2026-01-14T07:53:56.6464023Z   password: ***
+build	Login to Docker Hub	2026-01-14T07:53:56.6464209Z   logout: true
+build	Login to Docker Hub	2026-01-14T07:53:56.6464384Z ##[endgroup]
+build	Login to Docker Hub	2026-01-14T07:53:56.9408057Z Logging into docker.io...
+build	Login to Docker Hub	2026-01-14T07:53:57.6202404Z Login Succeeded!

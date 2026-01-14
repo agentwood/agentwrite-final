@@ -32,7 +32,7 @@ import ChatWindow from '../ChatWindow';
 import SafeImage from '../SafeImage';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
-import { isAuthenticated, getSession } from '@/lib/auth';
+import { isAuthenticated, getSession, setSession } from '@/lib/auth';
 
 const SidebarLink: React.FC<{ active?: boolean; icon: React.ReactNode; label: string; badge?: string; onClick?: () => void }> = ({ active, icon, label, badge, onClick }) => (
   <button
@@ -1329,6 +1329,261 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   );
 };
 
+// Training & Data View - Comprehensive training interface
+const TrainingView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const [behavioralSliders, setBehavioralSliders] = useState({
+    empathyLogic: 50,
+    agreeableChallenging: 40,
+    chaosOrder: 60,
+    pessimismOptimism: 45
+  });
+  const [stylisticSliders, setStylisticSliders] = useState({
+    conciseVerbose: 55,
+    casualFormal: 60
+  });
+  const [selectedTraits, setSelectedTraits] = useState<string[]>(['Stoic', 'Playful']);
+  const [constraints, setConstraints] = useState({
+    refuseEmotional: false,
+    avoidSlang: false,
+    neverSpeculate: false,
+    limitResponse: false,
+    stayInCharacter: false,
+    rejectFlirtation: false
+  });
+  const [archetype, setArchetype] = useState('Mythical Narrator');
+  const [simulationMessages, setSimulationMessages] = useState([
+    { role: 'assistant', content: 'Systems online. My neural pathways are malleable. How shall I be shaped today?' },
+    { role: 'user', content: 'lets start' },
+    { role: 'assistant', content: '[Training Mode] Acknowledged. Adjusting baseline parameters to incorporate: "lets start". Deviation recorded.' }
+  ]);
+  const [inputMessage, setInputMessage] = useState('');
+
+  const allTraits = ['Stoic', 'Playful', 'Dark', 'Optimistic', 'Sarcastic', 'Polite', 'Mysterious', 'Energetic'];
+
+  const toggleTrait = (trait: string) => {
+    setSelectedTraits(prev =>
+      prev.includes(trait) ? prev.filter(t => t !== trait) : [...prev, trait]
+    );
+  };
+
+  const handleSend = () => {
+    if (!inputMessage.trim()) return;
+    setSimulationMessages(prev => [
+      ...prev,
+      { role: 'user', content: inputMessage },
+      { role: 'assistant', content: `[Training Mode] Processing: "${inputMessage}". Behavioral parameters adjusted.` }
+    ]);
+    setInputMessage('');
+  };
+
+  const SliderComponent: React.FC<{ leftLabel: string; rightLabel: string; value: number; onChange: (v: number) => void }> =
+    ({ leftLabel, rightLabel, value, onChange }) => (
+      <div className="space-y-2">
+        <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-white/40">
+          <span>{leftLabel}</span>
+          <span>{rightLabel}</span>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={value}
+          onChange={(e) => onChange(parseInt(e.target.value))}
+          className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer slider-thumb"
+          style={{ accentColor: '#a855f7' }}
+        />
+      </div>
+    );
+
+  return (
+    <div className="flex h-screen bg-[#0c0c0c] animate-fade-in overflow-hidden">
+      {/* Left Sidebar */}
+      <div className="w-[320px] flex-shrink-0 border-r border-white/5 bg-[#0c0c0c] flex flex-col overflow-y-auto">
+        <div className="p-6">
+          <button onClick={onBack} className="flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-6">
+            <ChevronLeft size={20} />
+            <span className="text-sm font-bold uppercase tracking-wider">Back</span>
+          </button>
+          <h1 className="text-2xl font-serif italic text-white mb-1">Training & Data</h1>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-green-500 flex items-center gap-2 mb-8">
+            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+            Secure Environment
+          </p>
+
+          {/* Live Parameters */}
+          <div className="bg-[#1c1816] border border-white/5 rounded-2xl p-5 space-y-5">
+            <h3 className="text-[10px] font-bold uppercase tracking-wider text-white/40">Live Parameters</h3>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-white/40">
+                <Info size={12} />
+                <span className="text-[10px] font-bold uppercase tracking-wider">Archetype</span>
+              </div>
+              <p className="text-lg font-serif text-white">{archetype}</p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-white/40">
+                <Info size={12} />
+                <span className="text-[10px] font-bold uppercase tracking-wider">Active Constraints</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {constraints.avoidSlang && <span className="px-2 py-1 rounded-full bg-red-500/20 text-red-400 text-[10px] font-bold">No Slang</span>}
+                {constraints.refuseEmotional && <span className="px-2 py-1 rounded-full bg-red-500/20 text-red-400 text-[10px] font-bold">Refuse Comfort</span>}
+                {Object.values(constraints).every(v => !v) && <span className="text-white/30 text-[11px] italic">None active</span>}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">Guided Sessions</span>
+              <div className="space-y-2">
+                <button className="flex items-center gap-2 text-[12px] text-green-400 hover:text-green-300">
+                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                  "Correct this flawed argument"
+                </button>
+                <button className="flex items-center gap-2 text-[12px] text-green-400 hover:text-green-300">
+                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                  "Explain this concept coldly"
+                </button>
+              </div>
+            </div>
+
+            <button className="w-full py-3 rounded-xl bg-white text-black text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 transition-colors">
+              Save & Lock Model
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto bg-[#0c0c0c]">
+        <div className="max-w-5xl p-12 space-y-10">
+          {/* Training Sections Row */}
+          <div className="grid grid-cols-2 gap-8">
+            {/* Behavioral Training */}
+            <div className="space-y-6">
+              <h2 className="text-xl font-serif italic text-white">Behavioral Training</h2>
+              <div className="bg-[#1c1816] border border-white/5 rounded-2xl p-6 space-y-6">
+                <SliderComponent leftLabel="Empathy" rightLabel="Logic" value={behavioralSliders.empathyLogic} onChange={(v) => setBehavioralSliders(p => ({ ...p, empathyLogic: v }))} />
+                <SliderComponent leftLabel="Agreeable" rightLabel="Challenging" value={behavioralSliders.agreeableChallenging} onChange={(v) => setBehavioralSliders(p => ({ ...p, agreeableChallenging: v }))} />
+                <SliderComponent leftLabel="Chaos" rightLabel="Order" value={behavioralSliders.chaosOrder} onChange={(v) => setBehavioralSliders(p => ({ ...p, chaosOrder: v }))} />
+                <SliderComponent leftLabel="Pessimism" rightLabel="Optimism" value={behavioralSliders.pessimismOptimism} onChange={(v) => setBehavioralSliders(p => ({ ...p, pessimismOptimism: v }))} />
+              </div>
+            </div>
+
+            {/* Stylistic Training */}
+            <div className="space-y-6">
+              <h2 className="text-xl font-serif italic text-white">Stylistic Training</h2>
+              <div className="bg-[#1c1816] border border-white/5 rounded-2xl p-6 space-y-6">
+                <SliderComponent leftLabel="Concise" rightLabel="Verbose" value={stylisticSliders.conciseVerbose} onChange={(v) => setStylisticSliders(p => ({ ...p, conciseVerbose: v }))} />
+                <SliderComponent leftLabel="Casual" rightLabel="Formal" value={stylisticSliders.casualFormal} onChange={(v) => setStylisticSliders(p => ({ ...p, casualFormal: v }))} />
+              </div>
+
+              {/* Personality Matrix */}
+              <h3 className="text-lg font-serif italic text-white pt-4">Personality Matrix</h3>
+              <div className="flex flex-wrap gap-2">
+                {allTraits.map(trait => (
+                  <button
+                    key={trait}
+                    onClick={() => toggleTrait(trait)}
+                    className={`px-4 py-2 rounded-full text-[11px] font-bold transition-all ${selectedTraits.includes(trait)
+                      ? 'bg-white text-black'
+                      : 'bg-white/5 text-white/60 hover:bg-white/10'
+                      }`}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      {selectedTraits.includes(trait) && <Check size={12} />}
+                      {trait}
+                    </span>
+                  </button>
+                ))}
+                <button className="px-4 py-2 rounded-full text-[11px] font-bold bg-white/5 text-white/40 hover:bg-white/10 border border-dashed border-white/20">
+                  + Add Custom
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Constraint Training */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-serif italic text-white">
+              Constraint Training <span className="text-red-400 text-sm ml-2">(Hard Limits)</span>
+            </h2>
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { key: 'refuseEmotional', label: 'Refuse emotional reassurance' },
+                { key: 'avoidSlang', label: 'Avoid modern slang' },
+                { key: 'neverSpeculate', label: 'Never speculate without evidence' },
+                { key: 'limitResponse', label: 'Limit response length' },
+                { key: 'stayInCharacter', label: 'Stay in period character' },
+                { key: 'rejectFlirtation', label: 'Reject flirtation' }
+              ].map(({ key, label }) => (
+                <label key={key} className="flex items-center gap-3 bg-[#1c1816] border border-white/5 rounded-xl p-4 cursor-pointer hover:bg-white/5 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={constraints[key as keyof typeof constraints]}
+                    onChange={() => setConstraints(p => ({ ...p, [key]: !p[key as keyof typeof constraints] }))}
+                    className="w-4 h-4 rounded border-white/20 bg-white/5 accent-purple-500"
+                  />
+                  <span className="text-[12px] text-white/70">{label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Domain Knowledge */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-serif italic text-white">Domain Knowledge</h2>
+            <div className="bg-[#1c1816] border border-dashed border-white/10 rounded-2xl p-12 flex flex-col items-center justify-center gap-4 hover:border-white/20 transition-colors cursor-pointer">
+              <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
+                <BookOpen size={24} className="text-white/40" />
+              </div>
+              <div className="text-center">
+                <p className="text-white font-bold mb-1">Upload Knowledge Base</p>
+                <p className="text-[11px] text-white/40">PDF, TXT, or JSON. Max 50MB.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Simulation Panel */}
+      <div className="w-[400px] flex-shrink-0 border-l border-white/5 bg-[#0c0c0c] flex flex-col">
+        <div className="p-6 border-b border-white/5">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white/60">Simulation Mode</span>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {simulationMessages.map((msg, i) => (
+            <div key={i} className={`p-4 rounded-xl ${msg.role === 'user' ? 'bg-purple-500/20 ml-8' : 'bg-white/5 mr-8'}`}>
+              <p className="text-[13px] text-white/80 font-mono">{msg.content}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="p-4 border-t border-white/5">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Test your constraints..."
+              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-[13px] text-white placeholder:text-white/30 outline-none focus:border-white/20"
+            />
+            <button onClick={handleSend} className="p-3 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-colors">
+              <Send size={18} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const RewardsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [stats, setStats] = useState({ level: 0, credits: 0, chatHours: 0, customChars: 0, streak: 0, stories: 0 });
 
@@ -1363,92 +1618,111 @@ const RewardsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const milestones = [
     { level: 1, title: "First Whisper", desc: "Spend 1 hour talking to any character.", progress: stats.chatHours * 60, total: 60, completed: stats.chatHours >= 1, reward: "50 Credits", icon: <Clock size={20} /> },
-    { level: 2, title: "Storyteller", desc: "Create your first custom character.", progress: stats.customChars, total: 1, completed: stats.customChars >= 1, reward: "New Voice Pack", icon: <PenTool size={20} /> },
-    { level: 3, title: "Deep Dive", desc: "Reach a 7-day streak.", progress: stats.streak, total: 7, completed: stats.streak >= 7, reward: "Profile Badge", icon: <Trophy size={20} /> },
+    { level: 2, title: "Storyteller", desc: "Create your first custom character.", progress: stats.customChars, total: 1, completed: stats.customChars >= 1, reward: "Voice Pack", icon: <PenTool size={20} /> },
+    { level: 3, title: "Deep Dive", desc: "Reach a 7-day streak.", progress: stats.streak, total: 7, completed: stats.streak >= 7, reward: "Badge", icon: <Trophy size={20} /> },
     { level: 4, title: "World Builder", desc: "Craft 5 unique stories.", progress: stats.stories, total: 5, completed: stats.stories >= 5, reward: "200 Credits", icon: <Map size={20} /> },
     { level: 5, title: "Legend Status", desc: "Create a character that reaches 1,000 users.", progress: 124, total: 1000, completed: false, reward: "Pro (1 Month)", icon: <Users size={20} /> },
   ];
 
   return (
-    <div className="min-h-screen bg-[#0c0c0c] p-12 animate-fade-in-up">
-      <div className="max-w-4xl mx-auto space-y-12">
-        <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-white"><ChevronLeft size={24} /></button>
-          <div>
-            <h1 className="text-4xl font-serif italic text-white mb-1">Rewards & Milestones</h1>
-            <p className="text-white/40 text-sm font-sans">Track your journey through the wood.</p>
-          </div>
-        </div>
+    <div className="flex h-screen bg-[#0c0c0c] animate-fade-in overflow-hidden">
+      {/* Left Sidebar - Consistent with Settings */}
+      <div className="w-[280px] flex-shrink-0 border-r border-white/5 bg-[#0c0c0c] flex flex-col">
+        <div className="p-6">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-white/40 hover:text-white transition-colors mb-6"
+          >
+            <ChevronLeft size={20} />
+            <span className="text-sm font-bold uppercase tracking-wider">Back</span>
+          </button>
+          <h1 className="text-2xl font-serif italic text-white mb-6">Rewards</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-[#1c1816] border border-white/5 p-6 rounded-2xl flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500"><Trophy size={24} /></div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Total Level</p>
-              <p className="text-3xl font-serif text-white">{stats.level}</p>
+          {/* Stats Summary */}
+          <div className="space-y-4 mb-8">
+            <div className="bg-[#1c1816] border border-white/5 p-4 rounded-xl flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500"><Trophy size={18} /></div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-white/40">Level</p>
+                <p className="text-xl font-serif text-white">{stats.level}</p>
+              </div>
             </div>
-          </div>
-          <div className="bg-[#1c1816] border border-white/5 p-6 rounded-2xl flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500"><Sparkle size={24} /></div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Credits Earned</p>
-              <p className="text-3xl font-serif text-white">{stats.credits}</p>
-            </div>
-          </div>
-          <div className="bg-[#1c1816] border border-white/5 p-6 rounded-2xl flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-500"><Target size={24} /></div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Next Goal</p>
-              <p className="text-xl font-serif text-white">
-                {milestones.find(m => !m.completed)?.title || "Max Level"}
-              </p>
+            <div className="bg-[#1c1816] border border-white/5 p-4 rounded-xl flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500"><Sparkle size={18} /></div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-white/40">Credits</p>
+                <p className="text-xl font-serif text-white">{stats.credits}</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="space-y-6 relative">
-          <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-white/5 -z-10"></div>
+        <div className="mt-auto p-6 space-y-3 border-t border-white/5">
+          <div className="p-4 rounded-xl bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-white/10">
+            <p className="text-sm font-serif italic text-white mb-2">Invite Friends, Earn Credits</p>
+            <p className="text-[11px] text-white/50 mb-3">Get 500 credits for every friend who joins and crafts their first story.</p>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.origin + '?ref=user');
+                alert('Invite link copied!');
+              }}
+              className="w-full py-2.5 rounded-lg bg-white/10 text-white text-[11px] font-bold uppercase tracking-wider hover:bg-white/20 transition-colors flex items-center justify-center gap-2"
+            >
+              <Share2 size={14} />
+              Copy Invite Link
+            </button>
+          </div>
+        </div>
+      </div>
 
-          {milestones.map((milestone, i) => (
-            <div key={i} className={`relative flex gap-6 p-6 rounded-2xl border transition-all duration-300 ${milestone.completed ? 'bg-white/5 border-white/10' : 'bg-[#1c1816] border-white/5 opacity-80'}`}>
-              <div className={`flex-shrink-0 w-14 h-14 rounded-full border-4 border-[#0c0c0c] flex items-center justify-center z-10 ${milestone.completed ? 'bg-green-500 text-black' : 'bg-[#161616] text-white/40'}`}>
-                {milestone.completed ? <Check size={20} strokeWidth={3} /> : <span className="font-bold text-sm">{milestone.level}</span>}
-              </div>
+      {/* Right Content */}
+      <div className="flex-1 overflow-y-auto bg-[#0c0c0c]">
+        <div className="max-w-3xl p-12">
+          <h2 className="text-4xl font-serif italic text-white mb-2">Achievements</h2>
+          <p className="text-white/40 text-sm mb-10">Complete milestones to earn rewards.</p>
 
-              <div className="flex-1 space-y-3">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className={`text-xl font-bold font-serif ${milestone.completed ? 'text-white' : 'text-white/60'}`}>{milestone.title}</h3>
-                    <p className="text-sm text-white/40 mt-1">{milestone.desc}</p>
-                  </div>
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/5">
-                    {milestone.completed ? <Unlock size={12} className="text-green-500" /> : <Lock size={12} className="text-white/20" />}
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-white/60">{milestone.reward}</span>
-                  </div>
+          <div className="space-y-4">
+            {milestones.map((milestone, i) => (
+              <div key={i} className={`flex gap-5 p-5 rounded-2xl border transition-all duration-300 ${milestone.completed ? 'bg-white/5 border-white/10' : 'bg-[#1c1816] border-white/5'}`}>
+                <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${milestone.completed ? 'bg-green-500/20 text-green-500' : 'bg-white/5 text-white/40'}`}>
+                  {milestone.completed ? <Check size={20} strokeWidth={3} /> : milestone.icon}
                 </div>
 
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-white/30">
-                    <span>Progress</span>
-                    <span>{milestone.progress} / {milestone.total}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start gap-4 mb-2">
+                    <div>
+                      <h3 className={`text-lg font-bold ${milestone.completed ? 'text-white' : 'text-white/70'}`}>{milestone.title}</h3>
+                      <p className="text-sm text-white/40">{milestone.desc}</p>
+                    </div>
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${milestone.completed ? 'bg-green-500/10 text-green-400' : 'bg-white/5 text-white/50'}`}>
+                      {milestone.completed ? <Unlock size={11} /> : <Lock size={11} />}
+                      {milestone.reward}
+                    </div>
                   </div>
-                  <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-1000 ${milestone.completed ? 'bg-green-500' : 'bg-purple-600'}`}
-                      style={{ width: `${Math.min(100, (milestone.progress / milestone.total) * 100)}%` }}
-                    ></div>
+
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-wide text-white/30">
+                      <span>Progress</span>
+                      <span>{milestone.progress} / {milestone.total}</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-1000 ${milestone.completed ? 'bg-green-500' : 'bg-purple-500'}`}
+                        style={{ width: `${Math.min(100, (milestone.progress / milestone.total) * 100)}%` }}
+                      ></div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-const SettingsView: React.FC<{ onBack: () => void; user: any; onUpdateUser: (u: any) => void }> = ({ onBack, user, onUpdateUser }) => {
+const SettingsView: React.FC<{ onBack: () => void; user: any; onUpdateUser: (u: any) => void; onLogout?: () => void }> = ({ onBack, user, onUpdateUser, onLogout }) => {
   const [activeTab, setActiveTab] = useState('Public profile');
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1577,6 +1851,15 @@ const SettingsView: React.FC<{ onBack: () => void; user: any; onUpdateUser: (u: 
             <Smartphone size={20} className="group-hover:scale-110 transition-transform" />
             <span className="font-bold text-xs uppercase tracking-wider">Get the App</span>
           </button>
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-3 w-full p-4 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors group"
+            >
+              <X size={20} className="group-hover:scale-110 transition-transform" />
+              <span className="font-bold text-xs uppercase tracking-wider">Log Out</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -2137,20 +2420,54 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
   // State initialization based on URL param or default
   const [currentView, setCurrentView] = useState<View>(viewParam as View || 'discover');
 
-  // Sync URL when state changes (one-way binding from URL -> State primarily, 
-  // but we update URL on click which triggers this effect if we use router.push)
+  // Sync URL when state changes (one-way binding from URL -> State primarily)
   useEffect(() => {
     if (viewParam && viewParam !== currentView) {
-      setCurrentView(viewParam as View);
+      // Allow 'discover' and 'blog' as public views
+      const isPublic = viewParam === 'discover' || viewParam === 'blog';
+
+      // If NOT public and NOT logged in, we stay on current or go to discover
+      const session = getSession();
+      const hasAuth = !!(session && session.email);
+
+      if (!isPublic && !hasAuth) {
+        // If they tried to go to a protected view via URL but aren't logged in,
+        // we default them to discover but DON'T force the modal unless they click something.
+        setCurrentView('discover');
+      } else {
+        setCurrentView(viewParam as View);
+      }
     }
   }, [viewParam]);
 
   // Helper to change view and update URL
   const changeView = (view: View) => {
+    if (view === currentView) return;
+
+    // Public views check
+    if (view === 'discover' || view === 'blog') {
+      setCurrentView(view);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('view', view);
+      router.push(`?${params.toString()}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // Protected - check auth
+    const session = getSession();
+    const hasAuth = !!(session && session.email) || !!currentUser;
+
+    if (!hasAuth) {
+      setIsAuthOpen(true);
+      return;
+    }
+
     setCurrentView(view);
     const params = new URLSearchParams(searchParams.toString());
     params.set('view', view);
     router.push(`?${params.toString()}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterProfile | null>(null);
   const [initialMessage, setInitialMessage] = useState<string | null>(null);
@@ -2160,6 +2477,28 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
 
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+
+  // Logout handler - clears all auth state
+  const handleLogout = async () => {
+    try {
+      // Sign out from Supabase
+      if (supabase) {
+        await supabase.auth.signOut();
+      }
+      // Clear localStorage session
+      localStorage.removeItem('agentwood_user');
+      // Clear the agentwood_token cookie
+      document.cookie = 'agentwood_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      // Reset user state
+      setCurrentUser(null);
+      // Go back to discover view
+      setCurrentView('discover');
+      // Show success (optional)
+      console.log('Logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const handleStoryStart = async (data: any) => {
     // 1. Select the primary character (first one)
@@ -2198,22 +2537,116 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
   };
 
   useEffect(() => {
-    // Check auth on mount using localStorage session
-    const checkAuth = () => {
+    // Check auth on mount using localStorage session AND Supabase
+
+    const checkAuth = async () => {
+      // CRITICAL: First check for OAuth callback auth_session param
+      // This ensures localStorage is hydrated after Google/OAuth login
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const authSessionParam = urlParams.get('auth_session');
+
+        if (authSessionParam) {
+          try {
+            const authData = JSON.parse(decodeURIComponent(authSessionParam));
+            if (authData.id && authData.email) {
+              // Hydrate localStorage from OAuth callback data
+              setSession(authData);
+              setCurrentUser(authData);
+
+              // Clean URL by removing auth_session param
+              urlParams.delete('auth_session');
+              const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '');
+              window.history.replaceState({}, '', newUrl);
+
+              console.log("Session hydrated from OAuth callback");
+              return; // We're done, session is set
+            }
+          } catch (e) {
+            console.error("Failed to parse auth_session param:", e);
+          }
+        }
+      }
+
       const session = getSession();
-      // User is considered logged in if they have an email (not anonymous)
+
+      // 1. Check local storage first - this is our source of truth for immediate UI
       if (session && session.email) {
         setCurrentUser(session);
-      } else {
-        setCurrentUser(null);
+      }
+
+      // 2. Hydrate from Supabase (server cookie) if needed
+      if (supabase) {
+        const { data } = await supabase.auth.getSession();
+
+        if (data.session?.user) {
+          const user = {
+            id: data.session.user.id,
+            email: data.session.user.email,
+            displayName: data.session.user.user_metadata?.full_name || data.session.user.email?.split('@')[0],
+            planId: 'free' as const,
+          };
+          // Ensure local storage is in sync
+          if (!session || !session.email) {
+            setSession(user);
+          }
+          setCurrentUser(user);
+        } else {
+          // Fallback: Check if we have the cookie but no Supabase session
+          const hasCookie = typeof document !== 'undefined' && document.cookie.includes('agentwood_token=');
+
+          if (hasCookie && (!session || !session.email)) {
+            // Try to refresh session if we have a cookie but no local session
+            const { data: refreshData } = await supabase.auth.refreshSession();
+            if (refreshData.session?.user) {
+              const user = {
+                id: refreshData.session.user.id,
+                email: refreshData.session.user.email,
+                displayName: refreshData.session.user.user_metadata?.full_name || '',
+                planId: 'free' as const
+              };
+              setSession(user);
+              setCurrentUser(user);
+            }
+          }
+        }
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+          if (session?.user) {
+            const user = {
+              id: session.user.id,
+              email: session.user.email,
+              displayName: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
+              planId: 'free' as const,
+            };
+            setSession(user);
+            setCurrentUser(user);
+          } else if (event === 'SIGNED_OUT') {
+            // CRITICAL: Only clear session if we don't have a valid cookie/local session
+            const hasCookie = typeof document !== 'undefined' && document.cookie.includes('agentwood_token=');
+            if (!hasCookie) {
+              setCurrentUser(null);
+              setSession({ id: '', planId: 'free' as const });
+              localStorage.removeItem('agentwood_user_session');
+            }
+          }
+        });
+
+        return () => subscription.unsubscribe();
       }
     };
+
     checkAuth();
 
-    // Also listen for storage changes (in case of login in another tab)
+    // Also listen for storage changes and auth events
     const handleStorageChange = () => checkAuth();
+    const handleAuthChange = () => checkAuth();
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('agentwood-auth-change', handleAuthChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('agentwood-auth-change', handleAuthChange);
+    };
   }, []);
 
   const [favorites, setFavorites] = useState<CharacterProfile[]>(() => {
@@ -2228,6 +2661,10 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
 
   const toggleFavorite = (char: CharacterProfile, e?: React.MouseEvent) => {
     e?.stopPropagation();
+    if (!currentUser) {
+      setIsAuthOpen(true);
+      return;
+    }
     setFavorites(prev => {
       const exists = prev.find(c => c.name === char.name);
       if (exists) return prev.filter(c => c.name !== char.name);
@@ -2302,6 +2739,10 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
   };
 
   const navigateToChat = (char: CharacterProfile, starterMessage?: string) => {
+    if (!currentUser) {
+      setIsAuthOpen(true);
+      return;
+    }
     setSelectedCharacter(char);
     setInitialMessage(starterMessage || null);
     setCurrentView('chat');
@@ -2359,6 +2800,7 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
                 onClick={() => changeView('favorites')}
               />
               <SidebarLink
+                active={currentView === 'training'}
                 icon={<Brain size={18} />}
                 label="Training & Data"
                 badge="PRO"
@@ -2367,7 +2809,7 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
                     setIsAuthOpen(true);
                     return;
                   }
-                  window.location.href = "/training"; // Using generic nav for now as it exits the dashboard context
+                  changeView('training');
                 }}
               />
               <SidebarLink
@@ -2420,12 +2862,28 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
         </div>
 
         <div className="mt-auto pt-4 border-t border-white/5 space-y-4">
+          {/* Auth Status Indicator */}
+          {currentUser?.email ? (
+            <div className="flex items-center gap-3 px-4 py-2 text-green-400">
+              <div className="w-2 h-2 rounded-full bg-green-400"></div>
+              <span className="text-[11px] font-bold uppercase tracking-wider">Logged In</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsAuthOpen(true)}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+            >
+              <User size={18} />
+              <span className="text-[12px] font-bold">Sign Up / Log In</span>
+            </button>
+          )}
+
           <SidebarLink icon={<Settings size={18} />} label="Settings" onClick={() => {
             if (!currentUser) {
               setIsAuthOpen(true);
               return;
             }
-            window.location.href = '/settings';
+            changeView('settings');
           }} />
           <div
             onClick={() => setIsSubscriptionOpen(true)}
@@ -2451,6 +2909,8 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
             isFavorite={isFavorite}
             onToggleFavorite={toggleFavorite}
             onSearch={() => changeView('search')}
+            currentUser={currentUser}
+            onSignIn={() => setIsAuthOpen(true)}
           />
         )}
 
@@ -2526,14 +2986,23 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
 
         {currentView === 'rewards' && <RewardsView onBack={() => setCurrentView('discover')} />}
 
-        {currentView === 'settings' && <SettingsView onBack={() => setCurrentView('discover')} user={currentUser} onUpdateUser={setCurrentUser} />}
+        {currentView === 'training' && <TrainingView onBack={() => setCurrentView('discover')} />}
+
+        {currentView === 'settings' && <SettingsView onBack={() => setCurrentView('discover')} user={currentUser} onUpdateUser={setCurrentUser} onLogout={handleLogout} />}
 
         {currentView === 'craft' && <CraftStoryView onBack={() => setCurrentView('discover')} characters={characters} onStartStory={handleStoryStart} />}
 
         {currentView === 'search' && <SearchView onSelectCharacter={navigateToProfile} characters={characters.length > 0 ? characters : FALLBACK_CHARACTERS} />}
       </main>
 
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onAuthSuccess={(user) => {
+          setCurrentUser(user);
+          setSession(user);
+        }}
+      />
       <SubscriptionModal
         isOpen={isSubscriptionOpen}
         onClose={() => setIsSubscriptionOpen(false)}
