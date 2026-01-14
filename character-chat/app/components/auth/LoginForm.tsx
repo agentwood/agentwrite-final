@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, AlertCircle, Eye, EyeOff, X } from 'lucide-react';
-import { setSession } from '@/lib/auth';
+import { setSession, getSession } from '@/lib/auth';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
 
@@ -17,6 +17,63 @@ export default function LoginForm() {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+
+    // Auto-redirect if already logged in OR handle hash tokens from OAuth
+    useEffect(() => {
+        const checkExistingSession = async () => {
+            // 0. FIRST: Check for hash fragment tokens (Supabase sometimes returns here instead of /auth/callback)
+            if (typeof window !== 'undefined' && window.location.hash) {
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const accessToken = hashParams.get('access_token');
+                const refreshToken = hashParams.get('refresh_token');
+
+                if (accessToken && supabase) {
+                    console.log('Found hash tokens on /login, setting session...');
+                    const { data, error } = await supabase.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: refreshToken || '',
+                    });
+
+                    if (data?.session) {
+                        // Success! Set local session and redirect
+                        setSession({
+                            id: data.session.user.id,
+                            email: data.session.user.email || '',
+                            displayName: data.session.user.user_metadata?.full_name,
+                            planId: 'free',
+                        });
+                        const date = new Date();
+                        date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+                        document.cookie = `agentwood_token=${data.session.user.id}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
+
+                        toast.success('Welcome back!');
+                        window.location.href = '/home';
+                        return;
+                    }
+                    if (error) {
+                        console.error('setSession error:', error);
+                        toast.error('Authentication failed: ' + error.message);
+                    }
+                }
+            }
+
+            // 1. Check local session
+            const session = getSession();
+            if (session && session.email) {
+                window.location.href = '/home';
+                return;
+            }
+
+            // 2. Check Supabase session
+            if (supabase) {
+                const { data } = await supabase.auth.getSession();
+                if (data.session?.user) {
+                    window.location.href = '/home';
+                }
+            }
+        };
+        checkExistingSession();
+    }, []);
 
     // --- REAL SUPABASE AUTH LOGIC ---
     const handleLogin = async (e: React.FormEvent) => {
@@ -41,9 +98,12 @@ export default function LoginForm() {
                 password: formData.password,
             });
 
+            console.log("Login attempt result:", { hasData: !!data, hasSession: !!data?.session, error });
+
             if (error) throw error;
 
             if (data?.session) {
+                console.log("Login successful for user:", data.user.id);
                 // Set local session helper for app compatibility
                 setSession({
                     id: data.user.id,
@@ -55,15 +115,34 @@ export default function LoginForm() {
                 // Also explicitly set the cookie for middleware immediately
                 const date = new Date();
                 date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
-                document.cookie = `agentwood_token=${data.user.id}; expires=${date.toUTCString()}; path=/`;
+                document.cookie = `agentwood_token=${data.user.id}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
+
+                // SYNC to Prisma
+                console.log("Syncing user to DB...");
+                try {
+                    await fetch('/api/auth/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: data.user.id,
+                            email: data.user.email,
+                            full_name: data.user.user_metadata?.full_name,
+                            // avatar not available here usually unless passed in meta
+                        })
+                    });
+                } catch (syncErr) {
+                    console.error("DB Sync failed:", syncErr);
+                }
 
                 toast.success('Welcome back!');
 
                 // Force hard navigation to ensure state is clean
-                window.location.href = '/home';
+                setTimeout(() => {
+                    window.location.href = '/home';
+                }, 500);
             }
         } catch (error: any) {
-            console.error('Login error:', error);
+            console.error('Login error detailed:', error);
             setErrors({ submit: error.message || "Invalid login credentials" });
             toast.error(error.message || "Login failed");
             setIsLoading(false);
