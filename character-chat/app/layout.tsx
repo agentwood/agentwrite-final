@@ -35,10 +35,10 @@ export const metadata: Metadata = {
     description: "Chat with thousands of AI characters, create your own, and discover unique personalities.",
     images: [
       {
-        url: "https://agentwood.xyz/og-image.png",
+        url: "https://agentwood.xyz/TwitterCardValidator.png",
         width: 1200,
         height: 630,
-        alt: "Agentwood",
+        alt: "Agentwood - AI Character Chat",
       },
     ],
   },
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Agentwood - AI Character Chat",
     description: "Chat with thousands of AI characters, create your own, and discover unique personalities.",
-    images: ["https://agentwood.xyz/og-image.png"],
+    images: ["https://agentwood.xyz/TwitterCardValidator.png"],
     creator: "@agentwood",
   },
   verification: {
