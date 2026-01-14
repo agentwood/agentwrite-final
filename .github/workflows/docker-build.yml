@@ -25,8 +25,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: ./runpod-f5-tts
-          file: ./runpod-f5-tts/Dockerfile
+          context: ./character-chat/runpod-f5-tts
+          file: ./character-chat/runpod-f5-tts/Dockerfile
           push: true
           tags: watchaibc/f5-tts:latest
           platforms: linux/amd64
