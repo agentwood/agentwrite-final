@@ -1,58 +1,81 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient'; // Use the shared client instance
+import { supabase } from '@/lib/supabaseClient';
 import { setSession } from '@/lib/auth';
 
 export default function AuthCallbackPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const code = searchParams.get('code');
-    const error = searchParams.get('error');
+    const errorParam = searchParams.get('error');
     const [status, setStatus] = useState('Authenticating...');
 
     useEffect(() => {
-        if (error) {
-            setStatus(`Authentication Error: ${error}`);
-            setTimeout(() => router.push('/login?error=' + error), 2000);
-            return;
-        }
+        const handleAuth = async () => {
+            // 1. FIRST check if Supabase already has a session (from hash/implicit flow)
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-        if (code) {
-            // Exchange code for session using the CLIENT instance (access to local storage/cookies)
-            supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
-                if (error) {
-                    console.error("Auth Callback Error:", error);
-                    setStatus('Authentication failed. Redirecting...');
-                    setTimeout(() => router.push('/login?error=' + error.message), 2000);
-                } else if (data.session) {
-                    // Success!
-                    const user = data.user;
-                    // Set local app session/cookies if needed
-                    setSession({
-                        id: user.id,
-                        email: user.email || '',
-                        displayName: user.user_metadata?.full_name,
-                        planId: 'free', // Or fetch from DB
-                    });
+            if (session) {
+                // Success! Session found (likely from hash token)
+                handleSuccess(session.user);
+                return;
+            }
 
-                    // Set the middleware cookie manually here to be safe (client-side)
-                    // Though setSession might do it? Let's verify via document.cookie
-                    const date = new Date();
-                    date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
-                    document.cookie = `agentwood_token=${user.id}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
-
-                    setStatus('Success! Redirecting...');
-                    router.push('/home'); // Or use 'next' param
+            // 2. If no session, try Code Exchange (PKCE flow)
+            if (code) {
+                const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+                if (data?.session) {
+                    handleSuccess(data.session.user);
+                    return;
+                } else if (error) {
+                    handleFailure(error.message);
+                    return;
                 }
-            });
-        } else {
-            // No code, maybe already logged in?
-            router.push('/home');
-        }
-    }, [code, error, router]);
+            }
+
+            // 3. If no code and no session, show error
+            if (errorParam) {
+                handleFailure(errorParam);
+            } else {
+                // 4. Wait a moment for hash to be parsed, then retry
+                setTimeout(async () => {
+                    const { data: { session: retrySession } } = await supabase.auth.getSession();
+                    if (retrySession) {
+                        handleSuccess(retrySession.user);
+                    } else {
+                        handleFailure('No session found. Please try again.');
+                    }
+                }, 1000);
+            }
+        };
+
+        handleAuth();
+    }, [code, errorParam, router]);
+
+    const handleSuccess = (user: any) => {
+        setStatus('Success! Redirecting...');
+        setSession({
+            id: user.id,
+            email: user.email || '',
+            displayName: user.user_metadata?.full_name,
+            planId: 'free',
+        });
+
+        // Set cookie for middleware
+        const date = new Date();
+        date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+        document.cookie = `agentwood_token=${user.id}; expires=${date.toUTCString()}; path=/; SameSite=Lax`;
+
+        // Hard navigation to ensure middleware sees cookie
+        window.location.href = '/home';
+    };
+
+    const handleFailure = (msg: string) => {
+        setStatus(`Authentication Error: ${msg}`);
+        setTimeout(() => router.push('/login?error=' + encodeURIComponent(msg)), 2000);
+    };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
