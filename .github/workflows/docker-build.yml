@@ -28,5 +28,5 @@ jobs:
           context: ./runpod-f5-tts
           file: ./runpod-f5-tts/Dockerfile
           push: true
-          tags: agentwood/f5-tts:latest
+          tags: watchaibc/f5-tts:latest
           platforms: linux/amd64
