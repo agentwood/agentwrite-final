@@ -1,39 +1,38 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
 
-export async function GET(request: Request) {
-    const { searchParams, origin } = new URL(request.url)
-    const code = searchParams.get('code')
-    // if "next" is in param, use it as the redirect URL
-    const next = searchParams.get('next') ?? '/home'
+import { type NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+export async function GET(request: NextRequest) {
+    const requestUrl = new URL(request.url);
+    const code = requestUrl.searchParams.get('code');
+    const next = requestUrl.searchParams.get('next') || '/home';
 
     if (code) {
-        const cookieStore = await cookies()
-        const supabase = createServerClient(
+        const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                cookies: {
-                    get(name: string) {
-                        return cookieStore.get(name)?.value
-                    },
-                    set(name: string, value: string, options: CookieOptions) {
-                        cookieStore.set({ name, value, ...options })
-                    },
-                    remove(name: string, options: CookieOptions) {
-                        cookieStore.delete({ name, ...options })
-                    },
-                },
-            }
-        )
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
 
-        const { error } = await supabase.auth.exchangeCodeForSession(code)
-        if (!error) {
-            return NextResponse.redirect(`${origin}${next}`)
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+        if (!error && data?.session) {
+            // Create response to redirect to home
+            const response = NextResponse.redirect(new URL(next, request.url));
+
+            // We also need to set the agentwood_token for middleware compatibility
+            // since the AuthModal sets it manually for email login
+            if (data.user) {
+                response.cookies.set('agentwood_token', data.user.id, {
+                    path: '/',
+                    maxAge: 30 * 24 * 60 * 60, // 30 days
+                    sameSite: 'lax'
+                });
+            }
+
+            return response;
         }
     }
 
-    // return the user to an error page with instructions
-    return NextResponse.redirect(`${origin}/login?error=auth-code-error`)
+    // Return the user to an error page with instructions
+    return NextResponse.redirect(new URL('/login?error=auth-code-error', request.url));
 }
