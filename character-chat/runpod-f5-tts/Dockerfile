@@ -24,5 +24,6 @@ RUN pip install --no-cache-dir --no-deps -e .
 # This makes the build reliable but first request will be slow (~30s)
 
 COPY handler.py .
+COPY idle_handler.py .
 
 CMD [ "python3", "-u", "handler.py" ]
