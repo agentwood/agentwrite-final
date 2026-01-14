@@ -14,6 +14,30 @@ export default function AuthCallbackPage() {
 
     useEffect(() => {
         const handleAuth = async () => {
+            // 0. Check for hash fragment tokens (Implicit/Legacy flow)
+            // Supabase sometimes returns tokens in hash: #access_token=...&refresh_token=...
+            if (typeof window !== 'undefined' && window.location.hash) {
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const accessToken = hashParams.get('access_token');
+                const refreshToken = hashParams.get('refresh_token');
+
+                if (accessToken) {
+                    console.log('Found hash tokens, setting session...');
+                    const { data, error } = await supabase.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: refreshToken || '',
+                    });
+
+                    if (data?.session) {
+                        handleSuccess(data.session.user);
+                        return;
+                    }
+                    if (error) {
+                        console.error('setSession error:', error);
+                    }
+                }
+            }
+
             // 1. FIRST check if Supabase already has a session (from hash/implicit flow)
             const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
