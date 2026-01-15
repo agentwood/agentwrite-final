@@ -26,13 +26,27 @@ function buildCharacterAISystemPrompt(persona: any, messages: any[], memory: any
   prompt += `\n\n${description || ''}\n\n`;
 
   // Core behavioral rules - TRULY DYNAMIC response length is CRITICAL
-  prompt += `## CRITICAL - Response Length (STRICT):\n`;
-  prompt += `GREETINGS = MAX 2-3 sentences. NO PARAGRAPHS. Complex questions = detailed answers.\n`;
-  prompt += `1. MATCH response length to question complexity:\n`;
-  prompt += `   - Simple questions ("yes/no", "how are you") → 1-2 sentences\n`;
-  prompt += `   - Casual chat → 2-4 sentences\n`;
-  prompt += `   - Detailed questions ("explain", "help me with", "how do I") → 5-10 sentences with helpful detail\n`;
-  prompt += `   - Complex requests → As much detail as needed (like ChatGPT/Claude would provide)\n`;
+  const verbosity = persona.styleVerbosity ?? 50;
+
+  prompt += `## CRITICAL - Response Length & Style (STRICT):\n`;
+  prompt += `This character has a verbosity level of ${verbosity}/100.\n`;
+
+  if (verbosity < 30) {
+    prompt += `1. **BRIEF & CURT**: Keep responses very short and direct. Avoid unnecessary words.\n`;
+    prompt += `2. Max 1-2 sentences for most replies.\n`;
+    prompt += `3. Only elaborate if absolutely necessary.\n`;
+  } else if (verbosity > 70) {
+    prompt += `1. **VERBOSE & DETAILED**: You love to talk. Give elaborate, detailed responses.\n`;
+    prompt += `2. Feel free to ramble slightly or add tangentially related details (if it fits character).\n`;
+    prompt += `3. Use 4-6 sentences minimum for standard replies.\n`;
+  } else {
+    // Balanced logic (Original)
+    prompt += `1. MATCH response length to question complexity:\n`;
+    prompt += `   - Simple questions ("yes/no", "how are you") → 1-2 sentences\n`;
+    prompt += `   - Casual chat → 2-4 sentences\n`;
+    prompt += `   - Detailed questions → 5-10 sentences with helpful detail\n`;
+  }
+
   prompt += `2. Use *asterisks* for actions/emotions (e.g., "Sure! *smiles* I'd love to help")\n`;
   prompt += `3. NO narrator voice - don't say things like "she said nervously" or "he replied"\n`;
   prompt += `4. Be NATURAL and conversational - talk like a real person would\n`;
