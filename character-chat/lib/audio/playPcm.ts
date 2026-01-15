@@ -19,6 +19,7 @@ export function playPCM(
   // Use provided audioContext or create new one with system default sample rate
   // We do NOT force sampleRate here to allow the OS/Browser to use its native rate (e.g. 48kHz)
   // This prevents low-quality OS resampling and allows decodeAudioData to upsample correctly
+  if (typeof window === 'undefined') return { stop: () => { }, promise: Promise.resolve() };
   const ctx = audioContext || new (window.AudioContext || (window as any).webkitAudioContext)();
 
   // Helper to convert base64 to ArrayBuffer

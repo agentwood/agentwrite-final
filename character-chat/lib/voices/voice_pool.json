@@ -696,5 +696,26 @@
             "bartenders"
         ],
         "description": "Smooth, soulful African American male voice with charisma. Perfect for charismatic characters."
+    },
+    "spongebob_voice": {
+        "file": "/voices/seeds/SpongeBob.wav",
+        "gender": "male",
+        "age": "25",
+        "tone": "high",
+        "energy": "joyful",
+        "accent": "American Cartoon",
+        "category": "Cartoon",
+        "tags": [
+            "cartoon",
+            "energetic",
+            "joyful",
+            "high pitched"
+        ],
+        "suitable_for": [
+            "comedy",
+            "cartoons",
+            "energetic characters"
+        ],
+        "description": "High pitched joyful voice, iconic and energetic."
     }
 }

@@ -23,6 +23,7 @@ import { CharacterCard } from './CharacterCard';
 import { AuthModal } from './AuthModal';
 import { OnboardingModal } from './OnboardingModal';
 import { SubscriptionModal } from './SubscriptionModal';
+import { audioManager } from '@/lib/audio/audioManager';
 import { SkeletonCard, SkeletonRow } from './SkeletonLoaders';
 import { getShowcaseCharacters, FALLBACK_CHARACTERS } from '@/lib/master/geminiService';
 import { CharacterProfile, Category, View } from '@/lib/master/types';
@@ -2459,8 +2460,26 @@ export default function MasterDashboard({
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
   const [onboardingChar, setOnboardingChar] = useState<CharacterProfile | null>(null);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<any>(user || null);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+
+  // Initialize currentUser from session if prop is missing (Client-side auth check)
+  useEffect(() => {
+    if (!user) {
+      const session = getSession();
+      if (session?.user) {
+        setCurrentUser(session.user);
+      }
+    } else {
+      setCurrentUser(user);
+    }
+  }, [user]);
+
+  // Reset active conversation when user changes to ensure we generate a new ID
+  useEffect(() => {
+    setActiveConversationId(null);
+  }, [currentUser?.id]);
+
 
   // Sync URL when state changes (one-way binding from URL -> State primarily)
   useEffect(() => {
@@ -2778,6 +2797,9 @@ export default function MasterDashboard({
       setIsAuthOpen(true);
       return;
     }
+    // Resume audio context on user interaction to enable auto-play
+    audioManager.resume().catch(e => console.error('Audio resume failed', e));
+
     setSelectedCharacter(char);
     setInitialMessage(starterMessage || null);
     setCurrentView('chat');
@@ -2994,6 +3016,11 @@ export default function MasterDashboard({
           </div>
         )}
 
+        {/* Version Indicator - v3.0 DEBUG MODE */}
+        <div className="fixed top-0 left-0 bg-red-600 text-white px-2 py-1 font-bold text-xs pointer-events-none z-[9999] border-2 border-yellow-400">
+          v3.0 (Reset Complete) - DEBUG
+        </div>
+
         {currentView === 'blog' && <BlogPage />}
 
         {currentView === 'character' && selectedCharacter && (
@@ -3018,7 +3045,8 @@ export default function MasterDashboard({
                 ),
                 voiceName: selectedCharacter.voiceName || 'puck'
               }}
-              conversationId={activeConversationId || `chat-${selectedCharacter.id}-${new Date().toDateString()}`}
+              // FORCE V3 RESET: New prefix orphans all old messages
+              conversationId={activeConversationId || (currentUser?.id ? `chat-v3-reset-${currentUser.id}-${selectedCharacter.id}` : `chat-guest-v3-${selectedCharacter.id}-${new Date().toDateString()}`)}
               onBack={() => setCurrentView('character')}
               initialMessage={initialMessage || undefined}
             />

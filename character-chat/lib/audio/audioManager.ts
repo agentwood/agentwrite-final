@@ -18,7 +18,33 @@ class AudioManager {
   private lastStopTime: number = 0;
   private readonly STOP_COOLDOWN_MS = 200; // Cooldown after stopping audio before allowing new playback
   private isStopping: boolean = false; // Flag to prevent new audio from starting during stop operation
-  private activeRequests: Map<string, Promise<void>> = new Map(); // Track active fetch+play requests by messageId
+  private activeRequests: Map<string, Promise<void>> = new Map(); // active fetch+play requests
+  private globalAudioContext: AudioContext | null = null;
+
+  /**
+   * Get or create global AudioContext
+   */
+  private getAudioContext(): AudioContext {
+    if (!this.globalAudioContext) {
+      this.globalAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    return this.globalAudioContext;
+  }
+
+  /**
+   * Resume AudioContext (Call this on user interaction to unlock auto-play)
+   */
+  async resume(): Promise<void> {
+    const ctx = this.getAudioContext();
+    if (ctx.state === 'suspended') {
+      try {
+        await ctx.resume();
+        console.log('[AudioManager] AudioContext resumed');
+      } catch (e) {
+        console.error('[AudioManager] Failed to resume AudioContext', e);
+      }
+    }
+  }
 
   /**
    * Play audio and stop any currently playing audio
@@ -95,11 +121,19 @@ class AudioManager {
     }
 
     // Otherwise, use PCM playback (Gemini TTS)
-    // Create new audio context with system default sample rate (e.g. 48kHz)
-    // We do NOT force sampleRate here, allowing for high-fidelity upsampling
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioContext = this.getAudioContext();
 
-    // Play audio
+    // Ensure context is running
+    if (audioContext.state === 'suspended') {
+      try {
+        await audioContext.resume();
+      } catch (e) {
+        console.warn('Could not resume AudioContext in playAudio', e);
+      }
+    }
+
+    // Play audio using GLOBAL context
+    // passing audioContext prevents playPCM from closing it on stop
     const { stop, promise } = playPCM(base64Audio, sampleRate, playbackRate, audioContext);
 
     // Store current audio instance
@@ -212,10 +246,14 @@ class AudioManager {
         // Ignore errors when stopping
       }
 
-      try {
-        this.currentAudio.audioContext.close().catch(() => { });
-      } catch (e) {
-        // Ignore errors when closing context
+      // DO NOT close audio context if it is global
+      // Only close if it's not the global one (e.g. legacy MP3 might set it to null anyway)
+      if (this.currentAudio.audioContext && this.currentAudio.audioContext !== this.globalAudioContext) {
+        try {
+          this.currentAudio.audioContext.close().catch(() => { });
+        } catch (e) {
+          // Ignore
+        }
       }
 
       this.currentAudio = null;

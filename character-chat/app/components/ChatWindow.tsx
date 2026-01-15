@@ -8,7 +8,6 @@ import ChatSidebar from './ChatSidebar';
 import VoiceButton from './VoiceButton';
 import VoiceFeedbackButton from './VoiceFeedbackButton';
 import QuotaExceededModal from './QuotaExceededModal';
-import CuratingModal from './CuratingModal';
 import AdBanner from './AdBanner';
 import SafeImage from './SafeImage';
 import { getAuthHeaders } from '@/lib/auth';
@@ -149,7 +148,6 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showCuratingModal, setShowCuratingModal] = useState(false);
   const [inputText, setInputText] = useState('');
   const [voiceEnabled, setVoiceEnabled] = useState(true); // Default to enabled (speech-first)
   const [isMuted, setIsMuted] = useState(false);
@@ -350,17 +348,7 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
 
 
 
-  // Safety timeout: Ensure modal never stays open more than 5 minutes (cold start protection)
-  // RunPod F5-TTS can take 2-3 mins to spin up from cold
-  useEffect(() => {
-    if (showCuratingModal) {
-      const timer = setTimeout(() => {
-        console.log('[ChatWindow] Curating modal safety timeout (2 min) - cold start wait');
-        setShowCuratingModal(false);
-      }, 120000); // 120 seconds for cold start scenarios
-      return () => clearTimeout(timer);
-    }
-  }, [showCuratingModal]);
+
 
   // Auto-play voice for assistant messages
   const playVoiceForMessage = useCallback(async (text: string, messageId: string) => {
@@ -369,17 +357,11 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
     // Use audioManager.playVoice to handle deduplication and race conditions
     // The fetch/generation logic is passed as a callback
     await audioManager.playVoice(messageId, async () => {
-      // Show curating modal only if request takes > 4s (cold start scenario)
-      // With a warm worker, TTS should complete in 2-3s
-      const modalTimer = setTimeout(() => {
-        if (messages.length <= 1) setShowCuratingModal(true);
-      }, 4000);
-
+      // Fetch TTS
       try {
         // Extract dialogue
         const dialogueText = extractDialogueForTTS(text);
         if (!dialogueText || dialogueText.trim().length === 0) {
-          clearTimeout(modalTimer);
           return null;
         }
 
@@ -405,7 +387,6 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
           signal: controller.signal
         }).finally(() => {
           clearTimeout(timeoutId);
-          clearTimeout(modalTimer);
         });
 
         if (!response.ok) {
@@ -432,7 +413,6 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
             const base64Audio = btoa(
               new Uint8Array(localAudioBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
             );
-            setShowCuratingModal(false);
             return {
               audio: base64Audio,
               sampleRate: 24000,
@@ -445,7 +425,6 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
         }
 
         if (data.audio) {
-          setShowCuratingModal(false);
           return {
             audio: data.audio,
             sampleRate: data.sampleRate || 24000,
@@ -454,7 +433,6 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
         }
         return null;
       } catch (e) {
-        setShowCuratingModal(false);
         console.error('Voice generation error', e);
         return null;
       }
@@ -755,12 +733,7 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
         <AdBanner variant="banner" className="sticky top-0 z-50" />
 
         {/* Curating/Waiting Modal */}
-        {showCuratingModal && (
-          <CuratingModal
-            isOpen={showCuratingModal}
-            characterName={persona.name}
-          />
-        )}
+
 
         {/* Chat Header - Matches Screenshot 3 */}
         <header className="sticky top-[52px] z-40 flex h-16 items-center justify-between border-b border-white/5 bg-[#121212]/80 px-6 backdrop-blur-xl shrink-0">

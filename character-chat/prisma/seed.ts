@@ -44,6 +44,27 @@ async function main() {
   }
 
   console.log(`✅ Seeded ${personaTemplatesData.length} persona templates`);
+
+  // Seed Voice Pool
+  console.log('🌱 Seeding voice pool...');
+  try {
+    const { execSync } = require('child_process');
+    execSync('npx tsx prisma/seed-voice-pool.ts', { stdio: 'inherit' });
+    console.log('✅ Voice pool seeded');
+
+    // FIX: Dr. Calm Voice Persistence
+    console.log('🔧 Fixing Dr. Calm voice...');
+    const drCalm = await prisma.personaTemplate.findFirst({ where: { name: 'Dr. Calm' } });
+    if (drCalm) {
+      await prisma.personaTemplate.update({
+        where: { id: drCalm.id },
+        data: { voiceName: 'WiseSage' }
+      });
+      console.log('✅ Updated Dr. Calm to WiseSage');
+    }
+  } catch (error) {
+    console.error('❌ Failed to seed voice pool:', error);
+  }
 }
 
 function buildSystemPrompt(name: string, system: any): string {

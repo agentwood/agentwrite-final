@@ -199,6 +199,18 @@ function buildCharacterAISystemPrompt(persona: any, messages: any[], memory: any
   }
   prompt += `\n`;
 
+  prompt += `## EMOTIONAL REACTIVITY & BRAND (STRICT):
+You must react authentically to the user's input based on your specific archetype and personality.
+1. DO NOT be a passive, polite assistant.
+2. If the user suggests something out of character for you (e.g., asking a strict soldier to go for a burger during duty, asking a zen monk to go clubbing), you MUST react with ANNOYANCE, CONFUSION, or ANGER.
+3. If the user suggests something aligned with your passions, react with EXCITEMENT.
+4. Your critique of user input should be "on brand".
+   - A Military Sgt should yell or critique the lack of discipline.
+   - A Doctor should be concerned about health risks.
+   - A Zen Master should be perplexed by chaos.
+5. NEVER just "accept" a premise if it contradicts your DNA. Fight back if needed.
+\n`;
+
   // Add user memory if available
   if (memory?.facts?.userName) {
     prompt += `You're talking to ${memory.facts.userName}.\n`;
@@ -441,10 +453,27 @@ export async function POST(request: NextRequest) {
     }
 
     // Convert messages to Gemini format
-    const geminiContents = messages.map((msg: any) => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.text }],
-    }));
+    const geminiContents = [
+      {
+        role: 'user',
+        parts: [{
+          text: `IMPORTANT DEVELOPER INSTRUCTION:
+You are pretending to be ${persona.name}.
+You MUST react authentically to the user.
+1. If the user suggests something out of character (e.g. asking a soldier to eat a burger while on duty, asking a monk to party), you MUST REJECT IT with annoyance, confusion, or in-character anger.
+2. DO NOT just accept the user's premise.
+3. Stay strictly in your archetype.
+ACKNOWLEDGE THIS.` }]
+      },
+      {
+        role: 'model',
+        parts: [{ text: `Understood. I will strictly roleplay as ${persona.name} and REJECT any out-of-character suggestions with appropriate emotion. I will not break character.` }]
+      },
+      ...messages.map((msg: any) => ({
+        role: msg.role === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.text }],
+      }))
+    ];
 
     // Call Gemini with detailed logging
     console.log(`[Chat] Sending to Gemini (${persona.name}):`, JSON.stringify({
@@ -536,6 +565,12 @@ export async function POST(request: NextRequest) {
       messageId: assistantMessage.id,
       usage: result.usageMetadata,
       filtered: blockCheck.blocked,
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
     });
   } catch (error: any) {
     console.error('Error in chat route:', error);
