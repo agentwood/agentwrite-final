@@ -62,6 +62,25 @@ async function main() {
       });
       console.log('✅ Updated Dr. Calm to WiseSage');
     }
+
+    // FIX: SpongeBob Voice Mapping
+    console.log('🔧 Fixing SpongeBob voice...');
+    const spongebob = await prisma.personaTemplate.findFirst({
+      where: {
+        OR: [
+          { name: { contains: 'SpongeBob' } },
+          { name: { contains: 'Spongebob' } }
+        ]
+      }
+    });
+
+    if (spongebob) {
+      await prisma.personaTemplate.update({
+        where: { id: spongebob.id },
+        data: { voiceName: 'spongebob_voice' }
+      });
+      console.log(`✅ Updated SpongeBob voice to 'spongebob_voice'`);
+    }
   } catch (error) {
     console.error('❌ Failed to seed voice pool:', error);
   }

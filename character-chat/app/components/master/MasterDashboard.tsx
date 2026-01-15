@@ -3016,10 +3016,7 @@ export default function MasterDashboard({
           </div>
         )}
 
-        {/* Version Indicator - v3.0 DEBUG MODE */}
-        <div className="fixed top-0 left-0 bg-red-600 text-white px-2 py-1 font-bold text-xs pointer-events-none z-[9999] border-2 border-yellow-400">
-          v3.0 (Reset Complete) - DEBUG
-        </div>
+
 
         {currentView === 'blog' && <BlogPage />}
 
