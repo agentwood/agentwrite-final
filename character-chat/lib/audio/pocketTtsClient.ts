@@ -59,6 +59,7 @@ class PocketTtsClient {
      * Load reference audio file as a Blob for multipart upload
      */
     private async loadReferenceAudio(voicePath: string): Promise<Blob | null> {
+        // 1. Try Local File System (Works in Dev / when bundled)
         try {
             // Handle both absolute and relative paths
             let fullPath: string;
@@ -69,7 +70,7 @@ class PocketTtsClient {
                 fullPath = voicePath;
             }
 
-            console.log(`[Pocket TTS] Loading reference audio: ${fullPath}`);
+            console.log(`[Pocket TTS] Loading reference audio (FS): ${fullPath}`);
             const buffer = await fs.readFile(fullPath);
 
             // Determine MIME type from extension
@@ -78,7 +79,36 @@ class PocketTtsClient {
 
             return new Blob([buffer], { type: mimeType });
         } catch (error) {
-            console.error(`[Pocket TTS] Failed to load reference audio: ${voicePath}`, error);
+            console.warn(`[Pocket TTS] FS load failed, trying HTTP fetch: ${voicePath}`);
+        }
+
+        // 2. Fallback: Fetch via HTTP (Works in Serverless / Netlify)
+        try {
+            // Netlify exposes 'URL' env var. Vercel exposes 'VERCEL_URL'.
+            // Or use NEXT_PUBLIC_SUPABASE_URL as a hint? No.
+            // fallback to relative if we are on same origin? Node fetch needs absolute.
+
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL ||
+                process.env.URL ||
+                (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
+            const fetchUrl = `${baseUrl}${voicePath}`;
+            console.log(`[Pocket TTS] Fetching reference audio (HTTP): ${fetchUrl}`);
+
+            const response = await fetch(fetchUrl);
+            if (!response.ok) {
+                console.error(`[Pocket TTS] HTTP fetch failed: ${response.statusText}`);
+                return null;
+            }
+
+            const buffer = await response.arrayBuffer();
+            // Determine MIME type from extension
+            const ext = path.extname(voicePath).toLowerCase();
+            const mimeType = ext === '.wav' ? 'audio/wav' : 'audio/mpeg';
+            return new Blob([buffer], { type: mimeType });
+
+        } catch (fetchError) {
+            console.error(`[Pocket TTS] HTTP fetch failed details:`, fetchError);
             return null;
         }
     }
