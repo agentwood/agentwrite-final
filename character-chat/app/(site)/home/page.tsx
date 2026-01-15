@@ -41,7 +41,7 @@ export default async function HomePage() {
 
   return (
     <AgeVerificationWrapper>
-      <MasterDashboard initialCharacters={characters} />
+      <MasterDashboard initialCharacters={characters} initialView="discover" />
     </AgeVerificationWrapper>
   );
 }

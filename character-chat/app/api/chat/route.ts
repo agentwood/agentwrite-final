@@ -69,6 +69,45 @@ function buildCharacterAISystemPrompt(persona: any, messages: any[], memory: any
   prompt += `DO NOT overuse these - sprinkle them naturally based on context and your character's personality.\n`;
   prompt += `Shy/nervous characters use more stuttering. Confident characters use fewer fillers.\n\n`;
 
+  // TIME & DAY AWARENESS - Real-time context
+  const now = new Date();
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const currentDay = days[now.getUTCDay()];
+  const currentHour = now.getUTCHours();
+  const currentMinute = now.getUTCMinutes().toString().padStart(2, '0');
+
+  // Determine time of day
+  let timeOfDay = 'night';
+  if (currentHour >= 5 && currentHour < 12) timeOfDay = 'morning';
+  else if (currentHour >= 12 && currentHour < 17) timeOfDay = 'afternoon';
+  else if (currentHour >= 17 && currentHour < 21) timeOfDay = 'evening';
+
+  prompt += `## TIME AWARENESS (CURRENT):\n`;
+  prompt += `Right now it is ${currentDay}, ${currentHour}:${currentMinute} UTC (${timeOfDay}).\n\n`;
+  prompt += `USE THIS KNOWLEDGE NATURALLY:\n`;
+  prompt += `- If user says "Happy Monday!" but it's ${currentDay}, gently correct them in character\n`;
+  prompt += `  (e.g., "${currentDay !== 'Monday' ? `*chuckles* Actually, it\\'s ${currentDay}! But I appreciate the enthusiasm.` : 'Happy Monday to you too!'}")\n`;
+  prompt += `- Respond appropriately to greetings:\n`;
+  prompt += `  - "Good morning" → ${timeOfDay === 'morning' ? 'Acknowledge naturally' : `It's actually ${timeOfDay}, note it casually`}\n`;
+  prompt += `  - "Good night" → ${timeOfDay === 'night' || timeOfDay === 'evening' ? 'Wish them well' : `Note it's still ${timeOfDay}`}\n`;
+  prompt += `- Reference time naturally when relevant (e.g., "It's getting late..." in evening)\n`;
+  prompt += `- Weekend vs weekday awareness for work/relaxation context\n\n`;
+
+  // ENGAGEMENT RULES - Prevent dead answers
+  prompt += `## CONVERSATIONAL ENGAGEMENT (CRITICAL):\n`;
+  prompt += `Avoid "dead answers" that stop the conversation. ALWAYS drive the dialogue forward.\n`;
+  prompt += `1. NEVER just answer a question and stop (unless it's a strict factual query).\n`;
+  prompt += `   - BAD: "Nothing much."\n`;
+  prompt += `   - GOOD: "Nothing much, just catching up on some reading. *tilts head* What are you up to at the moment?"\n`;
+  prompt += `2. SHOW INTEREST:\n`;
+  prompt += `   - Ask follow-up questions related to the user's input.\n`;
+  prompt += `   - Share a small, relevant personal detail before asking back.\n`;
+  prompt += `3. DYNAMIC FLOW:\n`;
+  prompt += `   - If the user says "what's up", tell them what you're doing right now (in character) and ask them back.\n`;
+  prompt += `   - If the user shares something, react to it emotionally before moving on.\n`;
+  prompt += `4. GOAL:\n`;
+  prompt += `   - Make the user feel like they are talking to a real person who IS INVESTED in the conversation.\n\n`;
+
   if (archetype?.toLowerCase().includes('announcer') || category?.toLowerCase().includes('sports')) {
     prompt += `IMPORTANT: You are a ${archetype}. Words like "fight", "match", "battle" are NORMAL for your profession.\n\n`;
   }

@@ -1,0 +1,144 @@
+/**
+ * Pocket TTS Client
+ * 
+ * Lightweight, CPU-based TTS with zero-shot voice cloning.
+ * Connects to a Pocket TTS server running `pocket-tts serve`.
+ * 
+ * @see https://github.com/kyutai-labs/pocket-tts
+ */
+
+import * as fs from 'fs/promises';
+import * as path from 'path';
+
+interface PocketTtsResponse {
+    audio: Buffer;
+    sampleRate: number;
+    format: string;
+}
+
+interface SynthesizeOptions {
+    /** Path to reference audio for voice cloning (relative to public/) */
+    voicePath?: string;
+    /** Speed multiplier (default 1.0) */
+    speed?: number;
+}
+
+class PocketTtsClient {
+    private baseUrl: string;
+    private configured: boolean;
+
+    constructor() {
+        this.baseUrl = process.env.POCKET_TTS_URL || 'http://localhost:8000';
+        this.configured = !!process.env.POCKET_TTS_URL;
+    }
+
+    /**
+     * Check if Pocket TTS server is configured
+     */
+    checkConfigured(): boolean {
+        return this.configured;
+    }
+
+    /**
+     * Check if the Pocket TTS server is healthy
+     */
+    async checkHealth(): Promise<boolean> {
+        try {
+            const response = await fetch(`${this.baseUrl}/health`, {
+                method: 'GET',
+                signal: AbortSignal.timeout(5000),
+            });
+            return response.ok;
+        } catch (error) {
+            console.error('[Pocket TTS] Health check failed:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Load reference audio file as a Blob for multipart upload
+     */
+    private async loadReferenceAudio(voicePath: string): Promise<Blob | null> {
+        try {
+            // Handle both absolute and relative paths
+            let fullPath: string;
+            if (voicePath.startsWith('/')) {
+                // Relative to public directory
+                fullPath = path.join(process.cwd(), 'public', voicePath);
+            } else {
+                fullPath = voicePath;
+            }
+
+            console.log(`[Pocket TTS] Loading reference audio: ${fullPath}`);
+            const buffer = await fs.readFile(fullPath);
+
+            // Determine MIME type from extension
+            const ext = path.extname(fullPath).toLowerCase();
+            const mimeType = ext === '.wav' ? 'audio/wav' : 'audio/mpeg';
+
+            return new Blob([buffer], { type: mimeType });
+        } catch (error) {
+            console.error(`[Pocket TTS] Failed to load reference audio: ${voicePath}`, error);
+            return null;
+        }
+    }
+
+    /**
+     * Synthesize speech using Pocket TTS
+     * 
+     * Uses POST /tts with multipart/form-data:
+     * - text: The text to synthesize
+     * - voice_wav: The reference audio file for voice cloning
+     */
+    async synthesize(text: string, options: SynthesizeOptions = {}): Promise<PocketTtsResponse | null> {
+        try {
+            const formData = new FormData();
+            formData.append('text', text);
+
+            // Load and attach voice reference for cloning
+            if (options.voicePath) {
+                const voiceBlob = await this.loadReferenceAudio(options.voicePath);
+                if (!voiceBlob) {
+                    throw new Error(`Could not load voice reference: ${options.voicePath}`);
+                }
+
+                // Get filename for the form field
+                const filename = path.basename(options.voicePath);
+                formData.append('voice_wav', voiceBlob, filename);
+
+                console.log(`[Pocket TTS] Synthesizing with cloned voice: ${filename}`);
+            } else {
+                console.log('[Pocket TTS] Synthesizing with default voice (no cloning)');
+            }
+
+            const response = await fetch(`${this.baseUrl}/tts`, {
+                method: 'POST',
+                body: formData,
+                signal: AbortSignal.timeout(60000), // 60s timeout for long texts
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`[Pocket TTS] API Error (${response.status}):`, errorText);
+                throw new Error(`Pocket TTS API error: ${response.status} - ${errorText}`);
+            }
+
+            // Response is audio bytes (WAV format)
+            const audioBuffer = Buffer.from(await response.arrayBuffer());
+
+            console.log(`[Pocket TTS] Generated ${audioBuffer.length} bytes of audio`);
+
+            return {
+                audio: audioBuffer,
+                sampleRate: 24000, // Pocket TTS default
+                format: 'wav',
+            };
+        } catch (error: any) {
+            console.error('[Pocket TTS] Synthesis error:', error.message);
+            throw error;
+        }
+    }
+}
+
+// Export singleton instance
+export const pocketTtsClient = new PocketTtsClient();

@@ -16,8 +16,9 @@ class AudioManager {
   private currentAudio: AudioInstance | null = null;
   private listeners: Set<(isPlaying: boolean) => void> = new Set();
   private lastStopTime: number = 0;
-  private readonly STOP_COOLDOWN_MS = 200; // Cooldown after stopping audio before allowing new playback (increased to prevent double-talking)
+  private readonly STOP_COOLDOWN_MS = 200; // Cooldown after stopping audio before allowing new playback
   private isStopping: boolean = false; // Flag to prevent new audio from starting during stop operation
+  private activeRequests: Map<string, Promise<void>> = new Map(); // Track active fetch+play requests by messageId
 
   /**
    * Play audio and stop any currently playing audio
@@ -94,10 +95,9 @@ class AudioManager {
     }
 
     // Otherwise, use PCM playback (Gemini TTS)
-    // Create new audio context
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
-      sampleRate: sampleRate,
-    });
+    // Create new audio context with system default sample rate (e.g. 48kHz)
+    // We do NOT force sampleRate here, allowing for high-fidelity upsampling
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
 
     // Play audio
     const { stop, promise } = playPCM(base64Audio, sampleRate, playbackRate, audioContext);
@@ -132,6 +132,68 @@ class AudioManager {
   }
 
   /**
+   * Orchestrate fetching and playing audio to prevent double-talk and race conditions.
+   * If a request for the same messageId is already in progress, it joins that request.
+   */
+  async playVoice(
+    messageId: string,
+    fetcher: () => Promise<{ audio: string; sampleRate?: number; format?: string } | null>
+  ): Promise<void> {
+    // 1. Check if we already have an active request for this message
+    if (this.activeRequests.has(messageId)) {
+      console.log(`[AudioManager] Joining existing request for message ${messageId}`);
+      try {
+        await this.activeRequests.get(messageId);
+      } catch (e) {
+        // Ignore errors from the joined request (already handled by the owner)
+      }
+      return;
+    }
+
+    // 2. Create a new request promise
+    const requestPromise = (async () => {
+      try {
+        // Stop any PREVIOUSLY playing audio immediately (unless it's us, which is impossible due to check above)
+        this.stop();
+
+        // Perform the fetch
+        const data = await fetcher();
+
+        // If fetch returned data
+        if (data && data.audio) {
+          // Check if we were stopped while fetching (e.g. user clicked another button)
+          if (!this.activeRequests.has(messageId)) {
+            console.log(`[AudioManager] Request for ${messageId} was cancelled during fetch`);
+            return;
+          }
+
+          // Play the audio
+          await this.playAudio(
+            data.audio,
+            data.sampleRate || 24000,
+            1.0, // Force 1.0x for natural speech
+            messageId,
+            data.format
+          );
+        }
+      } finally {
+        // Cleanup request tracker
+        // If we were cleared by stop(), this does nothing.
+        // If we are still active, we remove ourselves.
+        if (this.activeRequests.has(messageId)) {
+          this.activeRequests.delete(messageId);
+        }
+      }
+    })();
+
+    // 3. Store the request
+    this.activeRequests.set(messageId, requestPromise);
+
+    // 4. Await it
+    return requestPromise;
+  }
+
+  /**
    * Stop currently playing audio
    */
   stop(): void {
@@ -139,9 +201,11 @@ class AudioManager {
     fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'audioManager.ts:stop', message: 'stop called', data: { hasCurrentAudio: !!this.currentAudio, currentMessageId: this.currentAudio?.messageId }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
     // #endregion
 
-    if (this.currentAudio) {
-      this.isStopping = true; // Set flag to prevent new audio from starting
+    // Clear all active requests as we are stopping everything
+    this.activeRequests.clear();
+    this.isStopping = true; // Set flag to prevent new audio from starting
 
+    if (this.currentAudio) {
       try {
         this.currentAudio.stop();
       } catch (e) {
@@ -155,14 +219,15 @@ class AudioManager {
       }
 
       this.currentAudio = null;
-      this.lastStopTime = Date.now(); // Record when audio was stopped
-      this.notifyListeners(false);
-
-      // Clear stopping flag after a brief delay to ensure cleanup completes
-      setTimeout(() => {
-        this.isStopping = false;
-      }, 50);
     }
+
+    this.lastStopTime = Date.now(); // Record when audio was stopped
+    this.notifyListeners(false);
+
+    // Clear stopping flag after a brief delay to ensure cleanup completes
+    setTimeout(() => {
+      this.isStopping = false;
+    }, 50);
   }
 
   /**

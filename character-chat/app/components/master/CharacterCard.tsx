@@ -60,7 +60,7 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, classNa
           <Eye size={12} className="opacity-60" />
           <span className="text-[11px] font-sans font-medium">
             {character.viewCount >= 1000
-              ? `${(character.viewCount / 1000).toFixed(1)}k`
+              ? `${(character.viewCount / 1000).toFixed(1).replace(/\.0$/, '')}k`
               : character.viewCount}
           </span>
         </div>

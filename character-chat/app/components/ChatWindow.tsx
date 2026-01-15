@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ArrowLeft, Send, Loader2, Volume2, VolumeX, MoreVertical, RefreshCw, MessageCircle, Heart, Share2, Plus, Settings, ChevronRight, Sparkles, Image as ImageIcon, Mic } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import ChatSidebar from './ChatSidebar';
 import VoiceButton from './VoiceButton';
 import VoiceFeedbackButton from './VoiceFeedbackButton';
@@ -139,6 +140,7 @@ function FormattedMessage({ text }: { text: string }) {
 }
 
 export default function ChatWindow({ persona, conversationId, initialMessages = [], initialMessage, onBack }: ChatWindowProps) {
+  const router = useRouter();
   // #region agent log
   if (typeof window !== 'undefined') {
     fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/components/ChatWindow.tsx:42', message: 'ChatWindow render - VOICE DEBUG', data: { personaId: persona?.id, personaName: persona?.name, conversationId, hasGreeting: !!persona?.greeting, hasVoiceName: !!persona?.voiceName, voiceNameReceived: persona?.voiceName, voiceNameType: typeof persona?.voiceName }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
@@ -353,155 +355,111 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
   useEffect(() => {
     if (showCuratingModal) {
       const timer = setTimeout(() => {
-        console.log('[ChatWindow] Curating modal safety timeout (5 min) - voice generation may have failed');
+        console.log('[ChatWindow] Curating modal safety timeout (2 min) - cold start wait');
         setShowCuratingModal(false);
-      }, 300000); // 5 minutes max for cold start scenarios
+      }, 120000); // 120 seconds for cold start scenarios
       return () => clearTimeout(timer);
     }
   }, [showCuratingModal]);
 
-  // Auto-play voice for assistant messages (defined first so handleSendMessage can use it)
+  // Auto-play voice for assistant messages
   const playVoiceForMessage = useCallback(async (text: string, messageId: string) => {
     if (!persona.voiceName || isMuted) return;
 
-    // Prevent multiple simultaneous calls - check BEFORE any async operations
-    if (isPlayingVoiceRef.current) {
-      console.log('Voice playback already in progress, skipping duplicate call');
-      return;
-    }
+    // Use audioManager.playVoice to handle deduplication and race conditions
+    // The fetch/generation logic is passed as a callback
+    await audioManager.playVoice(messageId, async () => {
+      // Show curating modal only if request takes > 4s (cold start scenario)
+      // With a warm worker, TTS should complete in 2-3s
+      const modalTimer = setTimeout(() => {
+        if (messages.length <= 1) setShowCuratingModal(true);
+      }, 4000);
 
-    // Mark as playing IMMEDIATELY to prevent race conditions (synchronous operation)
-    isPlayingVoiceRef.current = true;
-
-    // Extract ONLY dialogue (quoted text) for TTS - never read action descriptions
-    const dialogueText = extractDialogueForTTS(text);
-
-    // If no dialogue found, don't play anything (action descriptions should not be read)
-    if (!dialogueText || dialogueText.trim().length === 0) {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/components/ChatWindow.tsx:163', message: 'No dialogue found, skipping TTS', data: { messageId, originalTextLength: text.length }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D' }) }).catch(() => { });
-      // #endregion
-      isPlayingVoiceRef.current = false; // Reset flag before returning
-      return;
-    }
-
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/components/ChatWindow.tsx:171', message: 'playVoiceForMessage called - VOICE DEBUG', data: { messageId, originalTextLength: text.length, dialogueTextLength: dialogueText.length, personaVoiceName: persona.voiceName, personaName: persona.name, isMuted }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
-    // #endregion
-
-    // Stop any currently playing audio (using shared audio manager)
-    // The audioManager will handle cooldown internally to prevent double-talking
-    audioManager.stop();
-
-    // Wait for audio context cleanup and cooldown (audioManager has built-in cooldown, but extra delay ensures smooth transition)
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    try {
-      // Show curating modal for first-time cold start masking
-      // Only if it's the first message and voice is enabled
-      if (messages.length <= 1) {
-        setShowCuratingModal(true);
-      }
-
-      const requestBody = {
-        text: dialogueText, // ONLY dialogue, not action descriptions
-        voiceName: persona.voiceName, // HARD-CODED: Always use stored voiceName from database
-        styleHint: persona.styleHint, // LOCKED: Always use stored styleHint for accent consistency
-        personaId: persona.id,
-        characterName: persona.name,
-        archetype: persona.archetype || persona.category, // Use archetype if available
-        category: persona.category,
-        tagline: persona.tagline,
-        description: persona.description,
-        clientSupportsSupertonic: true, // Signal that we can handle local WASM generation
-      };
-
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/849b47d0-4707-42cd-b5ab-88f1ec7db25a', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/components/ChatWindow.tsx:188', message: 'Sending TTS request - VOICE DEBUG', data: { voiceNameInRequest: requestBody.voiceName, styleHint: requestBody.styleHint, personaId: requestBody.personaId, characterName: requestBody.characterName, dialogueLength: dialogueText.length }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
-      // #endregion
-
-      const response = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-
-        // Check for specific error status codes
-        if (response.status === 429) {
-          setQuotaModal({
-            isOpen: true,
-            type: 'tts',
-            currentUsage: errorData.currentUsage || 0,
-            limit: errorData.limit || 0
-          });
-          isPlayingVoiceRef.current = false;
-          setShowCuratingModal(false);
-          return;
+      try {
+        // Extract dialogue
+        const dialogueText = extractDialogueForTTS(text);
+        if (!dialogueText || dialogueText.trim().length === 0) {
+          clearTimeout(modalTimer);
+          return null;
         }
 
-        throw new Error(`TTS API error: ${response.status} ${response.statusText}`);
-      }
+        // Add timeout to fetch
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 300000); // 5m timeout for Cold Start
 
-      const data = await response.json();
+        const response = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+          body: JSON.stringify({
+            text: dialogueText,
+            voiceName: persona.voiceName,
+            styleHint: persona.styleHint,
+            personaId: persona.id,
+            characterName: persona.name,
+            archetype: persona.archetype || persona.category,
+            category: persona.category,
+            tagline: persona.tagline,
+            description: persona.description,
+            clientSupportsSupertonic: true,
+          }),
+          signal: controller.signal
+        }).finally(() => {
+          clearTimeout(timeoutId);
+          clearTimeout(modalTimer);
+        });
 
-      // --- HYBRID CLUSTER HANDLING ---
-      if (data.engine === 'supertonic' && data.instruction === 'GENERATE_LOCALLY') {
-        console.log(`[TTS] ⚡ Switching to Supertonic Local (Reason: ${data.reason})`);
-        try {
-          // Use the preset voice returned by the router (or derived from character)
-          const voiceStyle = data.voiceName || 'F1';
-          const localAudioBuffer = await supertonicGenerator.synthesize(dialogueText, { voiceName: voiceStyle });
-
-          // Convert ArrayBuffer to base64 for audioManager
-          const base64Audio = btoa(
-            new Uint8Array(localAudioBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
-          );
-
-          setShowCuratingModal(false);
-          await audioManager.playAudio(
-            base64Audio,
-            24000, // Supertonic default
-            1.0,
-            messageId,
-            'wav'
-          );
-          return; // Success
-        } catch (localError) {
-          console.warn('[TTS] ⚠️ Local Supertonic failed, falling back to server F5...', localError);
-          // Potential fallback: re-call API with clientSupportsSupertonic: false 
-          // but for now we'll just log and continue if data.audio exists
+        if (!response.ok) {
+          // Handle errors logic
+          if (response.status === 429) {
+            const errorData = await response.json();
+            setQuotaModal({
+              isOpen: true,
+              type: 'tts',
+              currentUsage: errorData.currentUsage || 0,
+              limit: errorData.limit || 0
+            });
+          }
+          return null;
         }
+
+        const data = await response.json();
+
+        // Supertonic handling
+        if (data.engine === 'supertonic' && data.instruction === 'GENERATE_LOCALLY') {
+          try {
+            const voiceStyle = data.voiceName || 'F1';
+            const localAudioBuffer = await supertonicGenerator.synthesize(dialogueText, { voiceName: voiceStyle });
+            const base64Audio = btoa(
+              new Uint8Array(localAudioBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+            );
+            setShowCuratingModal(false);
+            return {
+              audio: base64Audio,
+              sampleRate: 24000,
+              format: 'wav'
+            };
+          } catch (e) {
+            console.error('Supertonic failed', e);
+            return null;
+          }
+        }
+
+        if (data.audio) {
+          setShowCuratingModal(false);
+          return {
+            audio: data.audio,
+            sampleRate: data.sampleRate || 24000,
+            format: data.format
+          };
+        }
+        return null;
+      } catch (e) {
+        setShowCuratingModal(false);
+        console.error('Voice generation error', e);
+        return null;
       }
-      // -------------------------------
+    });
 
-      if (!data.audio) {
-        throw new Error('No audio data received from TTS API');
-      }
-
-      // Play audio using shared audio manager
-      // Hide modal right before starting playback for smooth transition
-      setShowCuratingModal(false);
-
-      await audioManager.playAudio(
-        data.audio,
-        data.sampleRate || 24000,
-        1.0, // playbackRate
-        messageId,
-        data.format
-      );
-
-    } catch (error: any) {
-      console.error('[TTS] Voice generation failed:', error);
-      setShowCuratingModal(false);
-      // NO FALLBACKS: Silence is better than robotic voices
-      // User requested: if the voice fails, better there is no voice than a generic one
-    } finally {
-      // Always reset the playing flag
-      isPlayingVoiceRef.current = false;
-    }
   }, [persona, isMuted, messages.length]);
 
   // Generate unique message ID
@@ -666,21 +624,25 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
       });
 
       // Don't auto-greet if there's a starter message pending
-      if (persona.greeting && messages.length === 0 && !greetingPlayedRef.current && !initialMessage) {
+      if (messages.length === 0 && !greetingPlayedRef.current && !initialMessage) {
+
+        // Use persona greeting or a default fallback to ensure conversation starts
+        const greetingText = persona.greeting || `Hello! I'm ${persona.name}. How can I help you today?`;
+
         const greetingMessage: Message = {
           id: 'greeting',
           role: 'assistant',
-          text: persona.greeting,
+          text: greetingText,
           timestamp: Date.now(),
         };
         setMessages([greetingMessage]);
 
         // Auto-play greeting voice (speech-first)
-        if (persona.voiceName && !isMuted) {
+        if (persona.voiceName && !isMuted && greetingMessage.text) {
           greetingPlayedRef.current = true;
           setTimeout(() => {
             lastAutoPlayedMessageRef.current = 'greeting';
-            playVoiceForMessage(persona.greeting!, 'greeting');
+            playVoiceForMessage(greetingMessage.text, 'greeting');
           }, 800);
         }
       }
@@ -1057,11 +1019,11 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
 
             <div className="flex items-center gap-6 mb-6">
               <div className="flex flex-col">
-                <span className="text-lg font-bold text-white leading-none">{(persona.viewCount || 0).toFixed(1)}K</span>
+                <span className="text-lg font-bold text-white leading-none">{(persona.viewCount || 0) >= 1000 ? ((persona.viewCount || 0) / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : (persona.viewCount || 0).toLocaleString()}</span>
                 <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">VIEWS</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-bold text-white leading-none">{(persona.saveCount || 0).toFixed(1)}K</span>
+                <span className="text-lg font-bold text-white leading-none">{(persona.saveCount || 0) >= 1000 ? ((persona.saveCount || 0) / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : (persona.saveCount || 0).toLocaleString()}</span>
                 <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">LIKES</span>
               </div>
             </div>
@@ -1093,7 +1055,7 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
                 <MessageCircle size={16} />
               </button>
               <button
-                onClick={() => window.location.href = '/create'}
+                onClick={() => router.push('/create')}
                 className="flex-1 py-1.5 flex items-center justify-center rounded-full text-white/40 hover:text-white transition-colors"
                 title="Create new character"
               >

@@ -174,7 +174,7 @@ const SearchView: React.FC<{
                 <p className="text-white/40 text-[11px] line-clamp-1">{char.tagline}</p>
                 <div className="flex items-center gap-3 pt-1">
                   <span className="flex items-center gap-1 text-[9px] text-white/30 font-bold uppercase tracking-wider">
-                    <Eye size={10} /> {char.viewCount >= 1000 ? `${(char.viewCount / 1000).toFixed(1)}k` : char.viewCount}
+                    <Eye size={10} /> {char.viewCount >= 1000 ? `${(char.viewCount / 1000).toFixed(1).replace(/\.0$/, '')}k` : char.viewCount}
                   </span>
                   {/* Category Pill Mini */}
                   {char.category && (
@@ -328,7 +328,7 @@ const CharacterProfileView: React.FC<{
             <div className="flex items-center gap-3 mb-4">
               <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-dipsea-accent">{character.category}</span>
               <div className="flex items-center gap-1 text-white/40 text-xs font-bold uppercase tracking-wider">
-                <Eye size={12} /> {character.viewCount >= 1000 ? `${(character.viewCount / 1000).toFixed(1)}k` : character.viewCount}
+                <Eye size={12} /> {character.viewCount >= 1000 ? `${(character.viewCount / 1000).toFixed(1).replace(/\.0$/, '')}k` : character.viewCount}
               </div>
             </div>
             <h1 className="text-6xl md:text-8xl font-serif italic text-white mb-2">{character.name}</h1>
@@ -357,16 +357,7 @@ const CharacterProfileView: React.FC<{
               </p>
             </section>
 
-            <section>
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-6">Conversation Starters</h3>
-              <div className="grid gap-4">
-                {character.chatStarters?.map((starter, i) => (
-                  <button key={i} onClick={() => onChat(starter)} className="text-left p-6 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group">
-                    <span className="text-lg font-serif italic text-white/80 group-hover:text-white transition-colors">"{starter}"</span>
-                  </button>
-                ))}
-              </div>
-            </section>
+            {/* Conversation Starters removed per user request */}
           </div>
 
           <div className="space-y-8">
@@ -440,7 +431,25 @@ const ImmersiveChatView: React.FC<{
     }
   };
 
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause();
+        currentAudioRef.current = null;
+      }
+    };
+  }, []);
+
   const playVoice = async (text: string) => {
+    // Stop any currently playing audio
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+
     try {
       const response = await fetch('/api/tts', {
         method: 'POST',
@@ -451,9 +460,19 @@ const ImmersiveChatView: React.FC<{
         })
       });
       const data = await response.json();
+
       if (data.audio) {
-        const audio = new Audio(`data:audio/mp3;base64,${data.audio}`);
-        audio.play();
+        // Use the format from the response or default to wav
+        const mimeType = data.format === 'mp3' ? 'audio/mpeg' : 'audio/wav';
+        const audio = new Audio(`data:${mimeType};base64,${data.audio}`);
+
+        currentAudioRef.current = audio;
+
+        audio.onended = () => {
+          currentAudioRef.current = null;
+        };
+
+        await audio.play();
       }
     } catch (e) {
       console.error("TTS failed", e);
@@ -602,8 +621,8 @@ const ImmersiveChatView: React.FC<{
             <div className="space-y-1">
               <h2 className="text-4xl font-serif italic text-white leading-none">{character.name}</h2>
               <div className="flex items-center gap-3 text-[10px] font-bold text-white/60 font-sans tracking-wide">
-                <span className="flex items-center gap-1"><Eye size={12} /> {character.viewCount >= 1000 ? `${(character.viewCount / 1000).toFixed(1)}k` : character.viewCount}</span>
-                <span className="flex items-center gap-1"><User size={12} /> {(character.chatCount >= 1000 ? (character.chatCount / 1000).toFixed(1) + 'k' : character.chatCount)}</span>
+                <span className="flex items-center gap-1"><Eye size={12} /> {character.viewCount >= 1000 ? `${(character.viewCount / 1000).toFixed(1).replace(/\.0$/, '')}k` : character.viewCount}</span>
+                <span className="flex items-center gap-1"><User size={12} /> {character.chatCount >= 1000 ? `${(character.chatCount / 1000).toFixed(1).replace(/\.0$/, '')}k` : character.chatCount}</span>
                 <span className="opacity-50">|</span>
                 <span>By {character.handle.replace('@', '')}</span>
               </div>
@@ -2408,7 +2427,17 @@ const CraftStoryView: React.FC<{ onBack: () => void; characters: CharacterProfil
   );
 };
 
-export default function MasterDashboard({ initialCharacters = [], user }: { initialCharacters?: CharacterProfile[], user?: any }) {
+export default function MasterDashboard({
+  initialCharacters = [],
+  user,
+  initialView = 'discover',
+  initialCharacterId
+}: {
+  initialCharacters?: CharacterProfile[],
+  user?: any,
+  initialView?: View,
+  initialCharacterId?: string
+}) {
   const [characters, setCharacters] = useState<CharacterProfile[]>(initialCharacters.length > 0 ? initialCharacters : []);
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [loading, setLoading] = useState(initialCharacters.length === 0);
@@ -2417,8 +2446,21 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
   const searchParams = useSearchParams();
   const viewParam = searchParams.get('view');
 
-  // State initialization based on URL param or default
-  const [currentView, setCurrentView] = useState<View>(viewParam as View || 'discover');
+  // State initialization based on Props (priority) -> URL param -> Default
+  const [currentView, setCurrentView] = useState<View>(initialView);
+
+  // Find initial character if ID provided
+  const initialChar = initialCharacterId
+    ? (initialCharacters.find(c => c.id === initialCharacterId) || null)
+    : null;
+
+  const [selectedCharacter, setSelectedCharacter] = useState<CharacterProfile | null>(initialChar);
+  const [initialMessage, setInitialMessage] = useState<string | null>(null);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
+  const [onboardingChar, setOnboardingChar] = useState<CharacterProfile | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
 
   // Sync URL when state changes (one-way binding from URL -> State primarily)
   useEffect(() => {
@@ -2469,14 +2511,7 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
     router.push(`?${params.toString()}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  const [selectedCharacter, setSelectedCharacter] = useState<CharacterProfile | null>(null);
-  const [initialMessage, setInitialMessage] = useState<string | null>(null);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
-  const [onboardingChar, setOnboardingChar] = useState<CharacterProfile | null>(null);
 
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
 
   // Logout handler - clears all auth state
   const handleLogout = async () => {
@@ -2698,34 +2733,29 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
     fetchData();
   }, [activeCategory, initialCharacters]);
 
-  const logCharacterView = async (charId: string) => {
+  const handleSelectCharacter = async (character: CharacterProfile) => {
+    // Set local state for SPA-style navigation within MasterDashboard
+    // Do NOT use router.push here - it causes a full page reload which breaks state
+    setSelectedCharacter(character);
+    setInitialMessage(null); // Clear any previous starter
+    setCurrentView('character');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Increment view count
     try {
-      await fetch('/api/character/view', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ characterId: charId })
-      });
+      if (character.id) {
+        fetch('/api/character/view', {
+          method: 'POST',
+          body: JSON.stringify({ characterId: character.id })
+        }).catch(err => console.error('View count error', err));
+      }
     } catch (e) {
-      console.error('Failed to log view:', e);
+      // ignore
     }
   };
 
   const navigateToProfile = (char: CharacterProfile) => {
-    // Require login to view character profiles
-    if (!currentUser) {
-      setIsAuthOpen(true);
-      return;
-    }
-
-    const hasSeenOnboarding = localStorage.getItem('agentwood_onboarding_seen');
-    if (!hasSeenOnboarding) {
-      setOnboardingChar(char);
-    } else {
-      setSelectedCharacter(char);
-      setCurrentView('character');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      logCharacterView(char.id);
-    }
+    handleSelectCharacter(char);
   };
 
   const handleOnboardingComplete = () => {
@@ -2747,7 +2777,17 @@ export default function MasterDashboard({ initialCharacters = [], user }: { init
     setInitialMessage(starterMessage || null);
     setCurrentView('chat');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    logCharacterView(char.id);
+    // Increment view count via beacon/background
+    try {
+      if (char.id) {
+        fetch('/api/character/view', {
+          method: 'POST',
+          body: JSON.stringify({ characterId: char.id })
+        }).catch(err => console.error('View count error', err));
+      }
+    } catch (e) {
+      // ignore
+    }
   };
 
   return (

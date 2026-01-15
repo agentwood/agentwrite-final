@@ -1,0 +1,9 @@
+# Core dependencies already in base image ghcr.io/swivid/f5-tts:main
+# We only add serving layer
+
+runpod>=1.3.0
+soundfile
+numpy
+# Fix for "AttributeError: module 'torch.utils._pytree' has no attribute 'register_pytree_node'"
+transformers==4.37.2
+accelerate==0.27.2

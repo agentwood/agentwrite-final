@@ -94,10 +94,11 @@ export class RunPodF5Client {
             throw new Error('F5-TTS Configuration Missing: RUNPOD_F5_POD_ID or (RUNPOD_API_KEY + RUNPOD_F5_ENDPOINT_ID) required.');
         }
 
-        const url = `${this.baseUrl}/${this.endpointId}/runsync`;
+        // Use ASYNC run endpoint to avoid timeouts on Cold Start
+        const url = `${this.baseUrl}/${this.endpointId}/run`;
 
-        console.log(`[F5-TTS] Sending request to Serverless Endpoint: ${this.endpointId}`);
-        console.log(`[F5-TTS] Payload: text="${text.substring(0, 50)}...", ref_audio=${options.ref_audio ? 'Yes (Base64)' : 'No'}`);
+        console.log(`[F5-TTS] Sending ASYNC request to RunPod: ${this.endpointId}`);
+        // console.log(`[F5-TTS] Payload: text="${text.substring(0, 50)}...", ref_audio=${options.ref_audio ? 'Yes (Base64)' : 'No'}`);
 
         const response = await fetch(url, {
             method: 'POST',
@@ -107,11 +108,9 @@ export class RunPodF5Client {
             },
             body: JSON.stringify({
                 input: {
-                    gen_text: text,
+                    text: text,  // Handler expects 'text' not 'gen_text'
                     ref_audio: options.ref_audio,
                     ref_text: options.ref_text || "",
-                    model: "F5-TTS",
-                    remove_silence: true,
                     speed: options.speed || 1.0
                 }
             })
@@ -123,29 +122,9 @@ export class RunPodF5Client {
         }
 
         const data = await response.json();
-        let finalResponse: RunPodF5Response;
+        console.log(`[F5-TTS] Async Job Submitted. ID: ${data.id} Status: ${data.status}`);
 
-        // Normalize response
-        if (data.status === 'COMPLETED') {
-            finalResponse = {
-                id: data.id,
-                status: 'COMPLETED',
-                output: {
-                    audio: data.output.audio || data.output,
-                    format: 'wav',
-                    sample_rate: 24000,
-                    seed_used: 0,
-                    steps_used: 0
-                }
-            };
-        } else if (data.status === 'FAILED') {
-            throw new Error(`F5-TTS Task Failed: ${data.error}`);
-        } else if (data.status === 'IN_QUEUE' || data.status === 'IN_PROGRESS') {
-            console.log(`[F5-TTS] Job ${data.id} in queue/progress provided by runsync. Polling...`);
-            finalResponse = await this.pollStatus(data.id);
-        } else {
-            finalResponse = { id: data.id, status: data.status };
-        }
+        const finalResponse = await this.pollStatus(data.id);
 
         // Return object compatible with TTS route
         if (finalResponse.status === 'COMPLETED' && finalResponse.output?.audio) {
@@ -157,6 +136,7 @@ export class RunPodF5Client {
         }
         return null;
     }
+
 
     /**
      * MODE 1: Direct Pod Logic (Upload -> Synthesize)
@@ -230,7 +210,6 @@ export class RunPodF5Client {
             await new Promise(r => setTimeout(r, 5000)); // 5s wait
 
             const url = `${this.baseUrl}/${this.endpointId}/status/${id}`;
-            console.log(`[F5-TTS] Polling (${(attempts + 1) * 5}s)... Status Check: ${url}`);
 
             try {
                 const response = await fetch(url, {
@@ -238,6 +217,7 @@ export class RunPodF5Client {
                 });
 
                 const data = await response.json();
+                console.log(`[F5-TTS] Polling (${(attempts + 1) * 5}s)... Status: ${data.status} Check: ${url}`);
 
                 if (data.status === 'COMPLETED') {
                     return {

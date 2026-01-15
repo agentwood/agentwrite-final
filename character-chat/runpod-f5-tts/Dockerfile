@@ -1,31 +1,14 @@
-# OPTIMIZED: Use RunPod's official image (cached on their nodes)
-FROM runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel
+# Use official F5-TTS image with models already embedded
+FROM ghcr.io/swivid/f5-tts:main
 
-ENV PIP_DEFAULT_TIMEOUT=300
-ENV DEBIAN_FRONTEND=noninteractive
-
-# System dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    ffmpeg \
-    libsndfile1 \
-    && rm -rf /var/lib/apt/lists/*
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /app
-
-# Install dependencies (fast)
-RUN pip install --no-cache-dir runpod onnxruntime-gpu numpy scipy soundfile
-
-# Clone and install F5-TTS (without re-installing torch)
-RUN git clone --depth 1 https://github.com/SWivid/F5-TTS.git .
-# Install F5-TTS deps (except torch which is already in base image)
-RUN pip install --no-cache-dir x_transformers vocos einops transformers accelerate cached_path jieba pypinyin
-RUN pip install --no-cache-dir --no-deps -e .
-
-# SKIP MODEL DOWNLOAD - will happen on first request
-# This makes the build reliable but first request will be slow (~30s)
 
 COPY handler.py .
 COPY idle_handler.py .
 
-CMD [ "python3", "-u", "handler.py" ]
+# RunPod Serverless requires this CMD pattern (NOT ENTRYPOINT)
+CMD ["python3", "-u", "handler.py"]

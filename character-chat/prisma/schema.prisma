@@ -25,13 +25,35 @@ model VoiceSeed {
   gender       String              // "male", "female", "neutral"
   age          String              // "young", "adult", "middle_aged", "elderly", "ageless"
   tone         String              // "deep", "bright", "raspy", "soft", "warm", etc.
-  energy       String              // "calm", "epic", "chaotic", "intimate", "zen", etc.
+  energyDescription String?             // "calm", "epic", "chaotic", "intimate", "zen", etc.
   accent       String              // "american", "british", "french", "australian", etc.
   category     String              // "Authority", "Mentor", "Energetic", "Texture", "Global"
   tags         String              // JSON array: ["narrator", "villain", "comedy"]
   suitableFor  String              // JSON array: ["villains", "mentors", "heroes"]
   description  String?             // Human-readable description
   referenceText String?            // Transcript of the reference audio (Prevents double-talk)
+  
+  // === ACOUSTIC SIGNATURE (Tree-0 v2 Immutable Profile) ===
+  sourceProvider String?           // "elevenlabs_clone", "f5_seed"
+  sourceVoiceId  String?           // External ID if applicable
+  
+  // Acoustic Parameters (Locked)
+  pitch          Float             @default(0.0) // Relative pitch
+  speed          Float             @default(1.0)
+  timbre         String?           // "warm_dry", "metallic", etc.
+  cadence        String?           // "measured", "rapid", "halted"
+  energy         Float             @default(0.5) // 0.0-1.0
+  aggression     Float             @default(0.0)
+  
+  // Constraints
+  allowedPitchRange String?        // JSON: [-2.0, 2.0]
+  allowedSpeedRange String?        // JSON: [0.8, 1.2]
+  prosodyVariance   Float          @default(0.2)
+  
+  ttsEngine      String?            // "f5", "fish" (Legacy compatibility)
+  pitchShift     Float              @default(0.0) // (Legacy compatibility)
+  speechRate     Float              @default(1.0) // (Legacy compatibility)
+  stability      Float              @default(0.5) // (Legacy compatibility)
   
   // Relations
   characters   PersonaTemplate[]   @relation("VoiceSeedCharacters")
@@ -697,4 +719,34 @@ model BlogComment {
 
   @@index([slug])
   @@index([createdAt])
+}
+
+// =============================================
+// PHASE 2: VOICE JOBS & WORKERS (Runtime)
+// =============================================
+
+model VoiceJob {
+  id           String   @id @default(cuid())
+  characterId  String
+  seedVoiceId  String
+  engine       String   // "f5", "fish"
+  status       String   // "queued", "running", "complete", "failed"
+  latencyMs    Int?
+  error        String?
+  audioUrl     String?  // Result
+  createdAt    DateTime @default(now())
+
+  @@map("voice_jobs")
+  @@index([characterId])
+  @@index([status])
+}
+
+model TtsWorker {
+  id            String   @id @default(cuid())
+  engine        String
+  status        String   // "initializing", "ready", "error"
+  gpuType       String?
+  lastHeartbeat DateTime @default(now())
+  
+  @@map("tts_workers")
 }

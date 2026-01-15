@@ -6,92 +6,62 @@ import io
 import os
 import random
 import numpy as np
-import threading
-import time
+import uuid
 
 # Import F5-TTS
 from f5_tts.model import DiT
 from f5_tts.infer.utils_infer import load_checkpoint, load_vocoder, infer_process
 
-# Import Idle Handler
-import idle_handler
-
-# START IDLE CHECKER BACKGROUND THREAD
-def idle_checker_loop():
-    while True:
-        idle_handler.check_idle()
-        time.sleep(60) # Check every minute
-
-threading.Thread(target=idle_checker_loop, daemon=True).start()
-
-# GLOBAL STATE (Loaded once on cold start)
-model = None
-vocoder = None
-# supertonic_session = None # Placeholder for ONNX session
+# ============== GLOBAL STATE ==============
+# Load model at import time (BEFORE runpod.serverless.start)
+# This ensures the worker is WARM when it receives its first job.
 device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"[F5-TTS] Device: {device}")
 
-def init_model():
-    global model, vocoder
-    print(f"Loading F5-TTS model on {device}...")
-    
-    # Load F5-TTS (using default checkpoint name)
-    model = load_checkpoint(target_dir=None, checkpoint_name="F5-TTS", device=device, show_progress=False)
-    vocoder = load_vocoder(is_local=False)
-    
-    print("Model loaded successfully!")
+print("[F5-TTS] Loading model into memory (this may take 30-60s)...")
+model = load_checkpoint(target_dir=None, checkpoint_name="F5-TTS", device=device, show_progress=True)
+vocoder = load_vocoder(is_local=False)
+print("[F5-TTS] Model loaded successfully! Worker is WARM.")
 
+# ============== HANDLER ==============
 def handler(event):
+    """
+    RunPod Serverless handler function.
+    Called for each job in the queue.
+    """
     global model, vocoder
     
-    # Reset idle timer
-    idle_handler.update_activity()
-    
-    if model is None:
-        init_model()
-
     input_data = event.get("input", {})
     
-    engine = input_data.get("engine", "f5") # Default to F5
-    
-    # --- SUPERTONIC HANDLER (Placeholder/Fusion) ---
-    if engine == "supertonic":
-        # In a real fusion, we would run ONNX inference here using onnxruntime
-        # For now, we'll log it and perhaps fallback or return a special response
-        print("Supertonic Engine Requested")
-        text = input_data.get("text")
-        # TODO: Implement actual ONNX inference here
-        # return run_supertonic_inference(text, ...)
-        return {"error": "Supertonic server-side inference not yet fully implemented"}
-
     # --- INPUT VALIDATION ---
     text = input_data.get("text")
     if not text:
         return {"error": "No text provided"}
 
     ref_audio_base64 = input_data.get("ref_audio")
-    ref_text = input_data.get("ref_text", "") # Optional reference text
+    ref_text = input_data.get("ref_text", "")
     
-    # Custom Integers & Floats
-    seed = input_data.get("seed", -1) # -1 = Random
-    n_steps = input_data.get("steps", 32) # Default 32 steps (balance speed/quality)
+    # Custom parameters
+    seed = input_data.get("seed", -1)  # -1 = Random
+    n_steps = input_data.get("steps", 32)
     speed = input_data.get("speed", 1.0)
     
     # --- PREPARE REFERENCE AUDIO ---
-    # F5-TTS needs a reference audio file path usually. We'll write the base64 to /tmp
-    ref_audio_path = "/tmp/ref_audio.wav"
+    temp_id = str(uuid.uuid4())[:8]
+    ref_audio_path = f"/tmp/ref_audio_{temp_id}.mp3"
     
     if ref_audio_base64:
         try:
             audio_data = base64.b64decode(ref_audio_base64)
             with open(ref_audio_path, "wb") as f:
                 f.write(audio_data)
+            print(f"[F5-TTS] Reference audio: {len(audio_data)} bytes")
         except Exception as e:
             return {"error": f"Invalid reference audio base64: {str(e)}"}
     else:
-        # Fallback? F5-TTS needs reference. 
-        return {"error": "Reference audio (ref_audio) is required for Zero-Shot Cloning"}
+        return {"error": "Reference audio (ref_audio) is required"}
 
-    # --- SET SEED (THE "CUSTOM INTEGER") ---
+    # --- SET SEED ---
     if seed != -1:
         torch.manual_seed(seed)
         np.random.seed(seed)
@@ -99,20 +69,22 @@ def handler(event):
     
     # --- INFERENCE ---
     try:
-        # infer_process returns -> (sample_rate, numpy_audio_array, spectogram)
         audio_output, sample_rate, _ = infer_process(
             ref_audio_path,
             ref_text,
             text,
             model,
             vocoder,
-            nfe_step=n_steps, # Number of Flow Steps
+            nfe_step=n_steps,
             speed=speed,
             device=device
         )
         
-        # --- ENCODE OUTPUT ---
-        # Convert numpy array to wav bytes
+        # Cleanup temp file
+        if os.path.exists(ref_audio_path):
+            os.remove(ref_audio_path)
+
+        # Encode output as base64 WAV
         buffer = io.BytesIO()
         sf.write(buffer, audio_output, sample_rate, format='WAV')
         audio_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
@@ -127,8 +99,12 @@ def handler(event):
         }
         
     except Exception as e:
-        print(f"Inference Error: {str(e)}")
+        print(f"[F5-TTS] Inference Error: {str(e)}")
+        # Cleanup on error
+        if os.path.exists(ref_audio_path):
+            os.remove(ref_audio_path)
         return {"error": f"Inference failed: {str(e)}"}
 
-# Register the handler
+# ============== START SERVERLESS ==============
+# This MUST be called for RunPod Serverless to work
 runpod.serverless.start({"handler": handler})
