@@ -23,7 +23,8 @@ async function main() {
             gender: config.gender,
             age: config.age,
             tone: config.tone,
-            energy: config.energy,
+            energyDescription: config.energy,
+            energy: 0.7, // Default high energy for Elite voices
             accent: config.accent,
             category: config.category,
             tags: JSON.stringify(config.tags),
