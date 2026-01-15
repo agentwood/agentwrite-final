@@ -2467,8 +2467,8 @@ export default function MasterDashboard({
   useEffect(() => {
     if (!user) {
       const session = getSession();
-      if (session?.user) {
-        setCurrentUser(session.user);
+      if (session && session.email) {
+        setCurrentUser(session);
       }
     } else {
       setCurrentUser(user);
