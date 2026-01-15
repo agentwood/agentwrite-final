@@ -11,16 +11,16 @@ async function main() {
         update: {},
         create: {
             name: 'spongebob_voice',
-            filePath: '/voices/spongebob_sample.mp3', // Placeholder path
+            filePath: '/voices/seeds/SpongeBob.wav',
             description: 'High pitched joyful voice',
-            tone: 'High',
-            energy: 'High',
+            tone: 'High', // String in schema
+            energy: 0.9,  // Float in schema
             accent: 'American Cartoon',
             gender: 'M',
-            age: '25', // String
+            age: '25',
             category: 'Cartoon',
-            tags: 'cartoon,energetic', // String CSV
-            suitableFor: 'comedy'      // String CSV
+            tags: 'cartoon,energetic',
+            suitableFor: 'comedy'
         }
     });
 

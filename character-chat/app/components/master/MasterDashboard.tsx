@@ -2741,6 +2741,11 @@ export default function MasterDashboard({
     setCurrentView('character');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
+    // Update URL without reload (Deep Linking)
+    if (character.id) {
+      window.history.pushState({ characterId: character.id }, '', `/character/${character.id}`);
+    }
+
     // Increment view count
     try {
       if (character.id) {
