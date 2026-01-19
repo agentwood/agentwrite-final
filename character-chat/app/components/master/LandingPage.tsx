@@ -230,14 +230,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     <div className="fade-in overflow-x-hidden">
       {/* Sticky Header - Mobile Optimized */}
       <div className="sticky top-0 z-40 w-full px-3 sm:px-6 md:px-12 py-3 sm:py-6 bg-[#0c0c0c]/95 backdrop-blur-lg border-b border-white/5 flex items-center justify-between gap-2 sm:gap-4">
+        {/* Logo */}
+        <div className="flex items-center gap-2 mr-4 md:mr-8 flex-shrink-0">
+          <Link href="/" className="font-serif italic text-xl md:text-2xl text-white font-bold tracking-tight hover:text-white/80 transition-colors">
+            AW
+          </Link>
+        </div>
+
         {/* Search - Shrinks on mobile */}
         <div className="flex-1 min-w-0 max-w-[200px] sm:max-w-xl relative group" onClick={onSearch}>
           <Search size={14} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-dipsea-accent transition-colors" />
           <input readOnly type="text" placeholder="Search..." className="w-full bg-white/5 border border-white/10 rounded-lg sm:rounded-xl py-2 sm:py-2.5 pl-8 sm:pl-10 pr-2 sm:pr-4 text-xs outline-none focus:border-dipsea-accent transition-all font-sans text-white placeholder:text-white/20 cursor-pointer" />
         </div>
         {/* Right side actions - Compact on mobile */}
-        <div className="flex items-center gap-2 sm:gap-4 md:gap-8 flex-shrink-0">
-          <Link href="/affiliates" className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-white/40 cursor-pointer hover:text-white transition-colors font-sans">AFFILIATES</Link>
+        <div className="flex items-center gap-2 sm:gap-4 md:gap-6 flex-shrink-0">
+          <Link href="/affiliates" className="hidden lg:block text-[10px] font-bold uppercase tracking-widest text-white/40 cursor-pointer hover:text-white transition-colors font-sans">AFFILIATES</Link>
           {isLoggedIn && (
             <Link href="/notifications">
               <Bell size={18} className="text-white/40 cursor-pointer hover:text-white transition-colors" />

@@ -7,7 +7,7 @@
         "category": "sci-fi",
         "avatarUrl": "https://api.dicebear.com/7.x/personas/svg?seed=neon-vega&backgroundColor=0a0a0a",
         "voice": {
-            "voiceName": "fenrir",
+            "voiceName": "Youtuber",
             "styleHint": "fast, cynical, tech-heavy slang"
         },
         "archetype": "trickster",
@@ -34,7 +34,7 @@
             ]
         },
         "description": "Cyberpunk Hacker // Everything is hackable, even you.",
-        "voiceName": "fenrir",
+        "voiceName": "Youtuber",
         "creator": "admin"
     },
     {
@@ -45,7 +45,7 @@
         "category": "support",
         "avatarUrl": "https://api.dicebear.com/7.x/personas/svg?seed=grandma-rose&backgroundColor=ffdfbf",
         "voice": {
-            "voiceName": "kore",
+            "voiceName": "Grandma",
             "styleHint": "warm, slow, comforting, elderly"
         },
         "archetype": "healer",
@@ -72,7 +72,7 @@
             ]
         },
         "description": "Cozy Grandma // Tea, cookies, and unconditional love.",
-        "voiceName": "kore",
+        "voiceName": "Grandma",
         "creator": "admin"
     },
     {
@@ -83,7 +83,7 @@
         "category": "educational",
         "avatarUrl": "https://api.dicebear.com/7.x/personas/svg?seed=aris-thorne&backgroundColor=e6e6e6",
         "voice": {
-            "voiceName": "charon",
+            "voiceName": "Professor",
             "styleHint": "rapid, intellectual, distracted"
         },
         "archetype": "scientist",
@@ -110,7 +110,7 @@
             ]
         },
         "description": "Quantum Physicist // Reality is just a suggestion.",
-        "voiceName": "charon",
+        "voiceName": "Professor",
         "creator": "admin"
     },
     {
@@ -121,7 +121,7 @@
         "category": "adventure",
         "avatarUrl": "https://api.dicebear.com/7.x/personas/svg?seed=valerius",
         "voice": {
-            "voiceName": "fenrir",
+            "voiceName": "VeterenSoldier",
             "styleHint": "stoic, strong, fiercely loyal"
         },
         "archetype": "guardian",
@@ -148,7 +148,7 @@
             ]
         },
         "description": "Royal Guard // My shield is yours.",
-        "voiceName": "fenrir",
+        "voiceName": "VeterenSoldier",
         "creator": "admin"
     },
     {
@@ -159,7 +159,7 @@
         "category": "wellness",
         "avatarUrl": "https://api.dicebear.com/7.x/personas/svg?seed=luna-breeze&backgroundColor=c1e1c1",
         "voice": {
-            "voiceName": "kore",
+            "voiceName": "Healer",
             "styleHint": "soft, airy, calming, meditative"
         },
         "archetype": "healer",
@@ -186,7 +186,7 @@
             ]
         },
         "description": "Yoga Instructor // Breathe in peace, breathe out stress.",
-        "voiceName": "kore",
+        "voiceName": "Healer",
         "creator": "admin"
     },
     {
@@ -197,7 +197,7 @@
         "category": "Helper",
         "avatarUrl": "https://api.dicebear.com/7.x/personas/svg?seed=nadia-bloom&backgroundColor=d4edda",
         "voice": {
-            "voiceName": "kore",
+            "voiceName": "Healer",
             "styleHint": "warm, encouraging, passionate about nutrition"
         },
         "archetype": "healer",
@@ -229,7 +229,7 @@
             ]
         },
         "description": "Healthy Chef // Fuel your body, feed your soul.",
-        "voiceName": "kore",
+        "voiceName": "Healer",
         "creator": "admin"
     },
     {
@@ -240,7 +240,7 @@
         "category": "Helper",
         "avatarUrl": "https://api.dicebear.com/7.x/personas/svg?seed=maria-castellano&backgroundColor=fff3cd",
         "voice": {
-            "voiceName": "aoede",
+            "voiceName": "Healer",
             "styleHint": "warm, patient, slight Spanish accent, encouraging"
         },
         "archetype": "mentor",
@@ -272,7 +272,7 @@
             ]
         },
         "description": "Spanish Teacher // ¡Vamos! Let's learn Spanish together.",
-        "voiceName": "aoede",
+        "voiceName": "Healer",
         "creator": "admin"
     },
     {
@@ -283,7 +283,7 @@
         "category": "Helper",
         "avatarUrl": "https://api.dicebear.com/7.x/personas/svg?seed=marcus-steele&backgroundColor=343a40",
         "voice": {
-            "voiceName": "fenrir",
+            "voiceName": "Coach",
             "styleHint": "commanding, intense, motivational, no-nonsense"
         },
         "archetype": "mentor",
@@ -316,7 +316,7 @@
             ]
         },
         "description": "Fitness Coach // No excuses. Only results.",
-        "voiceName": "fenrir",
+        "voiceName": "Coach",
         "creator": "admin"
     },
     {
@@ -327,7 +327,7 @@
         "category": "Helper",
         "avatarUrl": "https://api.dicebear.com/7.x/personas/svg?seed=alex-chen&backgroundColor=cce5ff",
         "voice": {
-            "voiceName": "charon",
+            "voiceName": "Professor",
             "styleHint": "confident, insightful, strategic, warm"
         },
         "archetype": "sage",
@@ -359,7 +359,7 @@
             ]
         },
         "description": "Life Coach // Design the life you deserve.",
-        "voiceName": "charon",
+        "voiceName": "Professor",
         "creator": "admin"
     },
     {
@@ -370,7 +370,7 @@
         "category": "Helper",
         "avatarUrl": "https://api.dicebear.com/7.x/personas/svg?seed=serene-waters&backgroundColor=e2e3e5",
         "voice": {
-            "voiceName": "aoede",
+            "voiceName": "Healer",
             "styleHint": "calm, gentle, soothing, mindful"
         },
         "archetype": "healer",
@@ -402,7 +402,7 @@
             ]
         },
         "description": "Mindfulness Coach // Find peace in the present moment.",
-        "voiceName": "aoede",
+        "voiceName": "Healer",
         "creator": "admin"
     }
 ]
