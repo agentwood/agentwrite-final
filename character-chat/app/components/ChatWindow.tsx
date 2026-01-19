@@ -1030,6 +1030,7 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
         onClose={() => setQuotaModal(null)}
         type={quotaModal?.type || 'messages'}
         limit={quotaModal?.limit || 0}
+        currentUsage={quotaModal?.currentUsage || 0}
       />
 
 
