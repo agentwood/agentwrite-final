@@ -2818,7 +2818,7 @@ export default function MasterDashboard({
   };
 
   return (
-    <div className="flex min-h-screen font-sans bg-dipsea-bg text-dipsea-cream">
+    <div className="flex min-h-screen max-w-[100vw] overflow-x-hidden font-sans bg-dipsea-bg text-dipsea-cream">
 
       <aside className="fixed left-0 top-0 hidden h-full w-[260px] flex-col border-r border-white/5 lg:flex z-50 bg-[#0c0c0c] p-5">
         <div
@@ -3085,6 +3085,60 @@ export default function MasterDashboard({
         onClose={() => setOnboardingChar(null)}
         onComplete={handleOnboardingComplete}
       />
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-[#0c0c0c]/95 backdrop-blur-lg border-t border-white/10 px-2 py-2 safe-area-pb">
+        <div className="flex items-center justify-around max-w-md mx-auto">
+          <button
+            onClick={() => changeView('discover')}
+            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${currentView === 'discover' ? 'text-white bg-white/10' : 'text-white/40'}`}
+          >
+            <Compass size={20} />
+            <span className="text-[10px] font-medium">Discover</span>
+          </button>
+          <button
+            onClick={() => changeView('search')}
+            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${currentView === 'search' ? 'text-white bg-white/10' : 'text-white/40'}`}
+          >
+            <Search size={20} />
+            <span className="text-[10px] font-medium">Search</span>
+          </button>
+          <button
+            onClick={() => {
+              if (!currentUser) {
+                setIsAuthOpen(true);
+                return;
+              }
+              setSelectedCharacter(null);
+              setCurrentView('create');
+            }}
+            className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-white text-black"
+          >
+            <Plus size={20} />
+            <span className="text-[10px] font-bold">Create</span>
+          </button>
+          <button
+            onClick={() => changeView('favorites')}
+            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${currentView === 'favorites' ? 'text-white bg-white/10' : 'text-white/40'}`}
+          >
+            <Heart size={20} />
+            <span className="text-[10px] font-medium">Favorites</span>
+          </button>
+          <button
+            onClick={() => {
+              if (!currentUser) {
+                setIsAuthOpen(true);
+                return;
+              }
+              changeView('settings');
+            }}
+            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${currentView === 'settings' ? 'text-white bg-white/10' : 'text-white/40'}`}
+          >
+            <Settings size={20} />
+            <span className="text-[10px] font-medium">Settings</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

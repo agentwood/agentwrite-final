@@ -151,6 +151,7 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
   const [inputText, setInputText] = useState('');
   const [voiceEnabled, setVoiceEnabled] = useState(true); // Default to enabled (speech-first)
   const [isMuted, setIsMuted] = useState(false);
+  const [showUnmuteOverlay, setShowUnmuteOverlay] = useState(false); // Fallback for browser autoplay policy
   const [lastMessageId, setLastMessageId] = useState<string | null>(null);
   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false); // DEBUG: Track history load status
   const [quotaModal, setQuotaModal] = useState<{
@@ -159,6 +160,30 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
     currentUsage: number;
     limit: number;
   } | null>(null);
+
+  // Check audio context state on mount for "Tap to Unmute" fallback
+  useEffect(() => {
+    const checkAudioState = async () => {
+      // Small delay to allow browser to process any previous interaction
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // We only care if we are NOT muted by choice
+      if (!isMuted && persona.voiceName) {
+        // @ts-ignore - Accessing private property in a hacky way for checking state without creating new token
+        const ctx = (audioManager as any).globalAudioContext;
+        if (ctx && ctx.state === 'suspended') {
+          console.log('[ChatWindow] Audio context suspended, showing unmute overlay');
+          setShowUnmuteOverlay(true);
+        }
+      }
+    };
+    checkAudioState();
+  }, [persona.voiceName, isMuted]);
+
+  const handleUnmuteClick = async () => {
+    await audioManager.resume();
+    setShowUnmuteOverlay(false);
+  };
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Voice Input State
@@ -603,9 +628,37 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
 
       // Don't auto-greet if there's a starter message pending
       if (messages.length === 0 && !greetingPlayedRef.current && !initialMessage) {
+        // Use persona greeting, or generate one dynamically from their persona
+        let greetingText = persona.greeting;
 
-        // Use persona greeting or a default fallback to ensure conversation starts
-        const greetingText = persona.greeting || `Hello! I'm ${persona.name}. How can I help you today?`;
+        if (!greetingText) {
+          // Generate in-character greeting based on persona details
+          const name = persona.name;
+          const tagline = persona.tagline || '';
+          const desc = persona.description || '';
+
+          // Create immersive greeting based on character type
+          if (desc.toLowerCase().includes('cook') || desc.toLowerCase().includes('chef')) {
+            greetingText = `*wipes hands on apron* Ah, welcome to my kitchen! I'm ${name}. What culinary adventure shall we embark on today?`;
+          } else if (desc.toLowerCase().includes('coach') || desc.toLowerCase().includes('fitness')) {
+            greetingText = `*cracks knuckles* Alright, let's get to work! I'm ${name}, and I don't do excuses. What are we conquering today?`;
+          } else if (desc.toLowerCase().includes('teacher') || desc.toLowerCase().includes('professor')) {
+            greetingText = `*adjusts glasses* Welcome, welcome! I'm ${name}. Ready to learn something new today? Let's begin!`;
+          } else if (desc.toLowerCase().includes('therapist') || desc.toLowerCase().includes('counselor') || desc.toLowerCase().includes('mindfulness')) {
+            greetingText = `*settles into chair with a warm smile* Hello there. I'm ${name}. This is a safe space. What's on your mind?`;
+          } else if (name.toLowerCase().includes('spongebob')) {
+            greetingText = `I'M READY! I'M READY! I'M READY! *jumps excitedly* Hi there! I'm SpongeBob SquarePants! Wanna go jellyfishing?!`;
+          } else if (tagline.toLowerCase().includes('villain') || desc.toLowerCase().includes('villain')) {
+            greetingText = `*emerges from shadows* Ah, a visitor... I am ${name}. What brings you to my domain?`;
+          } else if (tagline.toLowerCase().includes('romance') || desc.toLowerCase().includes('romance')) {
+            greetingText = `*looks up with a gentle smile* Oh, hi there... I'm ${name}. ${tagline ? tagline : 'Nice to meet you.'}`;
+          } else {
+            // Default immersive fallback using tagline
+            greetingText = tagline
+              ? `*${name} appears* ${tagline}`
+              : `*${name} greets you warmly* Hey there! Ready for an adventure?`;
+          }
+        }
 
         const greetingMessage: Message = {
           id: 'greeting',
@@ -960,15 +1013,24 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
       </div>
 
       {/* Quota Exceeded Modal */}
-      {quotaModal && (
-        <QuotaExceededModal
-          isOpen={quotaModal.isOpen}
-          onClose={() => setQuotaModal(null)}
-          type={quotaModal.type}
-          currentUsage={quotaModal.currentUsage}
-          limit={quotaModal.limit}
-        />
+      {/* Tap to Unmute Overlay */}
+      {showUnmuteOverlay && (
+        <div
+          onClick={handleUnmuteClick}
+          className="absolute bottom-24 left-1/2 -translate-x-1/2 z-50 bg-black/80 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-full flex items-center gap-2 cursor-pointer hover:bg-black/90 transition-all animate-bounce"
+        >
+          <VolumeX size={16} />
+          <span className="text-xs font-bold uppercase tracking-wider">Tap to Unmute</span>
+        </div>
       )}
+
+      {/* Quota Modal */}
+      <QuotaExceededModal
+        isOpen={!!quotaModal}
+        onClose={() => setQuotaModal(null)}
+        type={quotaModal?.type || 'messages'}
+        limit={quotaModal?.limit || 0}
+      />
 
 
 

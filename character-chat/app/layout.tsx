@@ -1,5 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#0f0f0f",
+};
 import AgeGate from "./components/AgeGate";
 import StructuredData from "./components/StructuredData";
 import AuthWrapper from "./components/AuthWrapper";

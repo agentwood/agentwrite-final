@@ -1,12 +1,16 @@
 import { PrismaClient } from '@prisma/client';
 import personaTemplatesData from '../data/persona-templates.seed.json';
+import newCharactersData from '../data/new-characters.json';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Seeding persona templates...');
 
-  for (const templateData of personaTemplatesData) {
+  // Merge original and new characters
+  const allTemplates = [...personaTemplatesData, ...newCharactersData];
+
+  for (const templateData of allTemplates) {
     const systemPrompt = buildSystemPrompt(templateData.name, templateData.system);
 
     await prisma.personaTemplate.upsert({
@@ -24,6 +28,7 @@ async function main() {
         tonePack: templateData.tonePack || null,
         scenarioSkin: templateData.scenarioSkin || null,
         systemPrompt: systemPrompt,
+        isOfficial: (templateData as any).isOfficial || false,
       },
       create: {
         seedId: templateData.id,
@@ -39,11 +44,12 @@ async function main() {
         tonePack: templateData.tonePack || null,
         scenarioSkin: templateData.scenarioSkin || null,
         systemPrompt: systemPrompt,
+        isOfficial: (templateData as any).isOfficial || false,
       },
     });
   }
 
-  console.log(`✅ Seeded ${personaTemplatesData.length} persona templates`);
+  console.log(`✅ Seeded ${allTemplates.length} persona templates`);
 
   // Seed Voice Pool
   console.log('🌱 Seeding voice pool...');

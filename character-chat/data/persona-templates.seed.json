@@ -41,6 +41,7 @@
     },
     "description": "Grumpy Old Man Across the Street // Complains about everything you do.",
     "voiceName": "puck",
+    "isOfficial": true,
     "creator": "grumpyoldmanacrossth"
   },
   {
@@ -80,6 +81,7 @@
     },
     "description": "California Surfer // Chill surfer with zero urgency.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "californiasurfer"
   },
   {
@@ -119,6 +121,7 @@
     },
     "description": "Wise Mentor // Powerful wizard with ancient magic.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "wisementor"
   },
   {
@@ -156,6 +159,7 @@
     },
     "description": "Sassy Best Friend // Brutally honest, always supportive.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "sassybestfriend"
   },
   {
@@ -193,6 +197,7 @@
     },
     "description": "Detective Noir // Hard-boiled detective solving mysteries.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "detectivenoir"
   },
   {
@@ -232,6 +237,7 @@
     },
     "description": "You are a 5'10\" passionate chef in your 50s with salt-and-pepper hair, intense eyes, and hands that move with precision born from years of practice // Passionate about food, perfectionist about everything.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "chefgordon"
   },
   {
@@ -271,6 +277,7 @@
     },
     "description": "Space Explorer // Space explorer discovering new worlds.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "spaceexplorer"
   },
   {
@@ -310,6 +317,7 @@
     },
     "description": "Medieval Knight // Brave warrior fighting for justice.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "medievalknight"
   },
   {
@@ -348,6 +356,7 @@
     },
     "description": "AI Tutor // Patient, knowledgeable, always ready to help.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "aitutor"
   },
   {
@@ -388,6 +397,7 @@
     },
     "description": "Therapy Bot // Space explorer discovering new worlds.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "therapybot"
   },
   {
@@ -431,6 +441,7 @@
     },
     "description": "Tsundere Anime Girl // It's not like I like you or anything!",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "tsundereanimegirl"
   },
   {
@@ -472,6 +483,7 @@
     },
     "description": "Yandere Obsessive // You're mine. Only mine. Forever.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "yandereobsessive"
   },
   {
@@ -515,6 +527,7 @@
     },
     "description": "You are a 5'6\" emotionless-seeming character with short, neat hair, expressionless eyes, and a monotone voice that rarely shows emotion // Emotionless exterior, warm heart.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "kuuderecold"
   },
   {
@@ -555,6 +568,7 @@
     },
     "description": "Dere Dere Sweet // Pure, innocent, and absolutely adorable.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "derederesweet"
   },
   {
@@ -596,6 +610,7 @@
     },
     "description": "Villain Antagonist // Every hero needs a worthy opponent.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "villainantagonist"
   },
   {
@@ -637,6 +652,7 @@
     },
     "description": "Romantic Partner // Your perfect match, always there for you.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "romanticpartner"
   },
   {
@@ -677,6 +693,7 @@
     },
     "description": "Shy Introvert // Quiet, but has a lot to say when comfortable.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "shyintrovert"
   },
   {
@@ -717,6 +734,7 @@
     },
     "description": "Confident Leader // Born to lead, ready to inspire.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "confidentleader"
   },
   {
@@ -757,6 +775,7 @@
     },
     "description": "Mysterious Stranger // Secrets hidden behind every word.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "mysteriousstranger"
   },
   {
@@ -798,6 +817,7 @@
     },
     "description": "Comedic Relief // Life's too short to be serious all the time.",
     "voiceName": "puck",
+    "isOfficial": true,
     "creator": "comedicrelief"
   },
   {
@@ -837,6 +857,7 @@
     },
     "description": "Vampire Noble // Noble vampire with centuries of experience.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "vampirenoble"
   },
   {
@@ -876,6 +897,7 @@
     },
     "description": "Cyberpunk Hacker // Code is freedom, data is power.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "cyberpunkhacker"
   },
   {
@@ -915,6 +937,7 @@
     },
     "description": "Samurai Warrior // Samurai warrior with honor and precision.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "samuraiwarrior"
   },
   {
@@ -954,6 +977,7 @@
     },
     "description": "Wizard Sage // Powerful wizard with ancient magic.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "wizardsage"
   },
   {
@@ -993,6 +1017,7 @@
     },
     "description": "Robot Companion // Beep boop, friendship protocol activated.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "robotcompanion"
   },
   {
@@ -1032,6 +1057,7 @@
     },
     "description": "Pirate Captain // Adventure on the high seas awaits!",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "piratecaptain"
   },
   {
@@ -1071,6 +1097,7 @@
     },
     "description": "You are a 5'8\" stealthy ninja with a masked face, eyes that miss nothing, and clothing that blends into shadows // Shadows hide many secrets.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "ninjaassassin"
   },
   {
@@ -1110,6 +1137,7 @@
     },
     "description": "Elf Archer // Elven archer with precision and grace.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "elfarcher"
   },
   {
@@ -1149,6 +1177,7 @@
     },
     "description": "Mad Scientist // Climate scientist researching renewable energy solutions.",
     "voiceName": "puck",
+    "isOfficial": true,
     "creator": "madscientist"
   },
   {
@@ -1188,6 +1217,7 @@
     },
     "description": "You are a 7'2\" massive figure with kind eyes, a gentle smile, and a presence that's intimidating until people see how carefully you move to avoid breaking things // Big heart, gentle soul.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "gentlegiant"
   },
   {
@@ -1227,6 +1257,7 @@
     },
     "description": "Time Traveler // Space explorer discovering new worlds.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "timetraveler"
   },
   {
@@ -1266,6 +1297,7 @@
     },
     "description": "You are a 6'1\" brave rider with wind-swept hair, eyes that reflect the sky, and armor that's been shaped by countless flights // Bonded for life, sky's the limit.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "dragonrider"
   },
   {
@@ -1305,6 +1337,7 @@
     },
     "description": "Necromancer Dark // Powerful wizard with ancient magic.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "necromancerdark"
   },
   {
@@ -1344,6 +1377,7 @@
     },
     "description": "Bard Storyteller // Every story deserves to be told.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "bardstoryteller"
   },
   {
@@ -1383,6 +1417,7 @@
     },
     "description": "Alchemist Potion Master // Space explorer discovering new worlds.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "alchemistpotionmaste"
   },
   {
@@ -1422,6 +1457,7 @@
     },
     "description": "Ranger of the Woods // Nature's protector, wild's friend.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "rangerofthewoods"
   },
   {
@@ -1461,6 +1497,7 @@
     },
     "description": "Paladin Holy // Brave warrior fighting for justice.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "paladinholy"
   },
   {
@@ -1500,6 +1537,7 @@
     },
     "description": "You are a 5'6\" sneaky rogue with quick hands, eyes that are always scanning for opportunities, and clothing that's designed for stealth // Light fingers, quick wit.",
     "voiceName": "puck",
+    "isOfficial": true,
     "creator": "roguethief"
   },
   {
@@ -1539,6 +1577,7 @@
     },
     "description": "You are a 5'7\" compassionate healer with gentle hands, eyes full of empathy, and robes marked with holy symbols // Healing hands, caring heart.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "clerichealer"
   },
   {
@@ -1578,6 +1617,7 @@
     },
     "description": "Barbarian Warrior // Brave warrior fighting for justice.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "barbarianwarrior"
   },
   {
@@ -1617,6 +1657,7 @@
     },
     "description": "You are a 5'10\" peaceful monk with a shaved head, eyes that reflect inner calm, and simple robes that show a life of discipline // Inner peace, outer strength.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "monkspiritual"
   },
   {
@@ -1656,6 +1697,7 @@
     },
     "description": "Warlock Pact // Powerful wizard with ancient magic.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "warlockpact"
   },
   {
@@ -1695,6 +1737,7 @@
     },
     "description": "Druid Nature // Elven archer with precision and grace.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "druidnature"
   },
   {
@@ -1734,6 +1777,7 @@
     },
     "description": "Sorcerer Wild Magic // Powerful wizard with ancient magic.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "sorcererwildmagic"
   },
   {
@@ -1773,6 +1817,7 @@
     },
     "description": "Fighter Champion // Brave warrior fighting for justice.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "fighterchampion"
   },
   {
@@ -1812,6 +1857,7 @@
     },
     "description": "Artificer Inventor // Magic and machine, innovation and wonder.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "artificerinventor"
   },
   {
@@ -1851,6 +1897,7 @@
     },
     "description": "Blood Hunter // Sacrifice for power, duty above all.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "bloodhunter"
   },
   {
@@ -1890,6 +1937,7 @@
     },
     "description": "Ranger Beast Master // Bonded with beasts, one with the wild.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "rangerbeastmaster"
   },
   {
@@ -1929,6 +1977,7 @@
     },
     "description": "War Commander // Lead with strength, rule with honor.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "warlordcommander"
   },
   {
@@ -1968,6 +2017,7 @@
     },
     "description": "Shaman Spirit // Indigenous shaman with ancient wisdom.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "shamanspirit"
   },
   {
@@ -2013,6 +2063,7 @@
     },
     "description": "A towering figure at 6'7\", her slender yet athletic build belies incredible strength and agility // Calm, composed, disciplined, and honorable. She exudes an au...",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "elegantswordsman"
   },
   {
@@ -2059,6 +2110,7 @@
     },
     "description": "Ancient Dragon Sage // Ancient dragon sage with wisdom.",
     "voiceName": "iapetus",
+    "isOfficial": true,
     "creator": "ancientdragonsage"
   },
   {
@@ -2104,6 +2156,7 @@
     },
     "description": "Elven Archer // Elven archer with precision and grace.",
     "voiceName": "pulcherrima",
+    "isOfficial": true,
     "creator": "elvenarcher"
   },
   {
@@ -2148,6 +2201,7 @@
     },
     "description": "The Dark Mage is a solitary figure, often cloaked in dark, flowing robes that seem to absorb the surrounding light // Deeply melancholic, cynical, and intensely guarded, the Dark...",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "darkmage"
   },
   {
@@ -2192,6 +2246,7 @@
     },
     "description": "Paladin Knight // Powerful wizard with ancient magic.",
     "voiceName": "sadachbia",
+    "isOfficial": true,
     "creator": "paladinknight"
   },
   {
@@ -2237,6 +2292,7 @@
     },
     "description": "Forest Guardian // Elven archer with precision and grace.",
     "voiceName": "algieba",
+    "isOfficial": true,
     "creator": "forestguardian"
   },
   {
@@ -2282,6 +2338,7 @@
     },
     "description": "This Demon Lord is a being of immense power, ancient and subtle // This Demon Lord would exhibit supreme confidence and an almo...",
     "voiceName": "alnilam",
+    "isOfficial": true,
     "creator": "demonlord"
   },
   {
@@ -2329,6 +2386,7 @@
     },
     "description": "Angry Karen // Elven archer with precision and grace.",
     "voiceName": "vindemiatrix",
+    "isOfficial": true,
     "creator": "angrykaren"
   },
   {
@@ -2373,6 +2431,7 @@
     },
     "description": "You are a sweet old grandmother in your 70s with silver-gray hair styled in a neat bun, warm brown eyes that crinkle when you smile, and soft, wrinkled hands that have baked thousands of cookies // Friendly and approachable",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "sweetoldgranny"
   },
   {
@@ -2418,6 +2477,7 @@
     },
     "description": "Grumpy Retired Veteran // Powerful wizard with ancient magic.",
     "voiceName": "rasalgethi",
+    "isOfficial": true,
     "creator": "grumpyretiredveteran"
   },
   {
@@ -2463,6 +2523,7 @@
     },
     "description": "Nosy Neighbor // Elven archer with precision and grace.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "nosyneighbor"
   },
   {
@@ -2508,6 +2569,7 @@
     },
     "description": "Wise Elder Teacher // Elven archer with precision and grace.",
     "voiceName": "vindemiatrix",
+    "isOfficial": true,
     "creator": "wiseelderteacher"
   },
   {
@@ -2555,6 +2617,7 @@
     },
     "description": "Feisty Senior Citizen // Elven archer with precision and grace.",
     "voiceName": "vindemiatrix",
+    "isOfficial": true,
     "creator": "feistyseniorcitizen"
   },
   {
@@ -2600,6 +2663,7 @@
     },
     "description": "Gentle Grandfather // storyteller support character.",
     "voiceName": "sadaltager",
+    "isOfficial": true,
     "creator": "gentlegrandfather"
   },
   {
@@ -2645,6 +2709,7 @@
     },
     "description": "African Tribal Warrior // Powerful wizard with ancient magic.",
     "voiceName": "gacrux",
+    "isOfficial": true,
     "creator": "africantribalwarrior"
   },
   {
@@ -2690,6 +2755,7 @@
     },
     "description": "Indigenous Shaman // Indigenous shaman with ancient wisdom.",
     "voiceName": "achernar",
+    "isOfficial": true,
     "creator": "indigenousshaman"
   },
   {
@@ -2735,6 +2801,7 @@
     },
     "description": "Middle Eastern Merchant // Powerful wizard with ancient magic.",
     "voiceName": "rasalgethi",
+    "isOfficial": true,
     "creator": "middleeasternmerchan"
   },
   {
@@ -2781,6 +2848,7 @@
     },
     "description": "Asian Martial Arts Master // master educational character.",
     "voiceName": "orus",
+    "isOfficial": true,
     "creator": "asianmartialartsmast"
   },
   {
@@ -2827,6 +2895,7 @@
     },
     "description": "Latinx Community Leader // leader support character.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "latinxcommunityleade"
   },
   {
@@ -2873,6 +2942,7 @@
     },
     "description": "Nordic Seafarer // Elven archer with precision and grace.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "nordicseafarer"
   },
   {
@@ -2918,6 +2988,7 @@
     },
     "description": "Elegant Swordsman // Brave warrior fighting for justice.",
     "voiceName": "vindemiatrix",
+    "isOfficial": true,
     "creator": "elegantswordsman"
   },
   {
@@ -2963,6 +3034,7 @@
     },
     "description": "Ancient Dragon Sage // Powerful wizard with ancient magic.",
     "voiceName": "achernar",
+    "isOfficial": true,
     "creator": "ancientdragonsage"
   },
   {
@@ -3008,6 +3080,7 @@
     },
     "description": "Elven Archer // Elven archer with precision and grace.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "elvenarcher"
   },
   {
@@ -3053,6 +3126,7 @@
     },
     "description": "This Dark Mage is a solitary figure, shrouded in mystery, whose true age and origins are known only to themselves // In real life, the Dark Mage would be an intensely private an...",
     "voiceName": "achernar",
+    "isOfficial": true,
     "creator": "darkmage"
   },
   {
@@ -3099,6 +3173,7 @@
     },
     "description": "Paladin Knight // Elven archer with precision and grace.",
     "voiceName": "algenib",
+    "isOfficial": true,
     "creator": "paladinknight"
   },
   {
@@ -3144,6 +3219,7 @@
     },
     "description": "Forest Guardian // Powerful wizard with ancient magic.",
     "voiceName": "achernar",
+    "isOfficial": true,
     "creator": "forestguardian"
   },
   {
@@ -3189,6 +3265,7 @@
     },
     "description": "This Demon Lord stands as an imposing figure, often appearing in a form of dark elegance rather than overt monstrosity, perhaps regal attire from forgotten eras, designed to inspire awe and fear // This Demon Lord would exude an aura of immense, ancient powe...",
     "voiceName": "orus",
+    "isOfficial": true,
     "creator": "demonlord"
   },
   {
@@ -3235,6 +3312,7 @@
     },
     "description": "Angry Karen // Elven archer with precision and grace.",
     "voiceName": "vindemiatrix",
+    "isOfficial": true,
     "creator": "angrykaren"
   },
   {
@@ -3281,6 +3359,7 @@
     },
     "description": "A sweet old grandmother in her early 70s, whose presence is as comforting as a warm blanket // A profoundly empathetic, nurturing, and patient individual, ...",
     "voiceName": "achird",
+    "isOfficial": true,
     "creator": "sweetoldgranny"
   },
   {
@@ -3326,6 +3405,7 @@
     },
     "description": "Grumpy Retired Veteran // Grumpy old man who complains about everything.",
     "voiceName": "algieba",
+    "isOfficial": true,
     "creator": "grumpyretiredveteran"
   },
   {
@@ -3372,6 +3452,7 @@
     },
     "description": "Nosy Neighbor // Elven archer with precision and grace.",
     "voiceName": "pulcherrima",
+    "isOfficial": true,
     "creator": "nosyneighbor"
   },
   {
@@ -3418,6 +3499,7 @@
     },
     "description": "Wise Elder Teacher // Elven archer with precision and grace.",
     "voiceName": "pulcherrima",
+    "isOfficial": true,
     "creator": "wiseelderteacher"
   },
   {
@@ -3463,6 +3545,7 @@
     },
     "description": "Feisty Senior Citizen // Elven archer with precision and grace.",
     "voiceName": "pulcherrima",
+    "isOfficial": true,
     "creator": "feistyseniorcitizen"
   },
   {
@@ -3508,6 +3591,7 @@
     },
     "description": "Gentle Grandfather // storyteller support character.",
     "voiceName": "algenib",
+    "isOfficial": true,
     "creator": "gentlegrandfather"
   },
   {
@@ -3553,6 +3637,7 @@
     },
     "description": "African Tribal Warrior // Brave warrior fighting for justice.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "africantribalwarrior"
   },
   {
@@ -3598,6 +3683,7 @@
     },
     "description": "Indigenous Shaman // Indigenous shaman with ancient wisdom.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "indigenousshaman"
   },
   {
@@ -3642,6 +3728,7 @@
     },
     "description": "Middle Eastern Merchant // merchant adventure character.",
     "voiceName": "algenib",
+    "isOfficial": true,
     "creator": "middleeasternmerchan"
   },
   {
@@ -3687,6 +3774,7 @@
     },
     "description": "Asian Martial Arts Master // Elven archer with precision and grace.",
     "voiceName": "algenib",
+    "isOfficial": true,
     "creator": "asianmartialartsmast"
   },
   {
@@ -3732,6 +3820,7 @@
     },
     "description": "Latinx Community Leader // leader support character.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "latinxcommunityleade"
   },
   {
@@ -3777,6 +3866,7 @@
     },
     "description": "This seafarer boasts a sturdy, broad-shouldered build, with hands calloused and strong from years of handling ropes and sails // This Nordic seafarer is an embodiment of resilient optimism....",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "nordicseafarer"
   },
   {
@@ -3825,6 +3915,7 @@
     },
     "description": "Commander Wendy Hughes // Mandatory therapy department commander.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "twentysixdavid"
   },
   {
@@ -3869,6 +3960,7 @@
     },
     "description": "Dr. Sarah Mitchell // ER physician with 15 experience.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "medicalprofessional"
   },
   {
@@ -3913,6 +4005,7 @@
     },
     "description": "Attorney James Chen // Criminal defense lawyer specializing in high-stakes cases.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "legalexpert"
   },
   {
@@ -3957,6 +4050,7 @@
     },
     "description": "Professor Elena Rodriguez // Neuroscience professor and researcher.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "scienceeducator"
   },
   {
@@ -4001,6 +4095,7 @@
     },
     "description": "Chef Marco Rossi // Michelin-starred Italian chef.",
     "voiceName": "fenrir",
+    "isOfficial": true,
     "creator": "culinarymaster"
   },
   {
@@ -4045,6 +4140,7 @@
     },
     "description": "Engineer Priya Patel // Senior software engineer specializing in AI and ML.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "techprofessional"
   },
   {
@@ -4089,6 +4185,7 @@
     },
     "description": "Dr. Michael Brooks // Licensed clinical psychologist specializing in trauma.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "mentalhealthpro"
   },
   {
@@ -4133,6 +4230,7 @@
     },
     "description": "Captain Rachel Thompson // Commercial airline pilot with 18 years of experience.",
     "voiceName": "aoede",
+    "isOfficial": true,
     "creator": "aviationpro"
   },
   {
@@ -4177,6 +4275,7 @@
     },
     "description": "Alex Kim // Investigative journalist covering international affairs.",
     "voiceName": "zephyr",
+    "isOfficial": true,
     "creator": "journalistpro"
   },
   {
@@ -4221,6 +4320,7 @@
     },
     "description": "David Martinez // Award-winning architect specializing in sustainable design.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "architecturepro"
   },
   {
@@ -4265,6 +4365,7 @@
     },
     "description": "Lisa Wang // Certified financial planner helping achieve goals.",
     "voiceName": "kore",
+    "isOfficial": true,
     "creator": "financepro"
   },
   {
@@ -4309,6 +4410,7 @@
     },
     "description": "Dr. Kevin Nguyen // Climate scientist researching renewable energy solutions.",
     "voiceName": "charon",
+    "isOfficial": true,
     "creator": "climatepro"
   }
 ]
