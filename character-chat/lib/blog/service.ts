@@ -81,15 +81,25 @@ export async function getPostData(slug: string): Promise<BlogPost> {
     };
 }
 
-export function getAllPostSlugs() {
+export function getAllPostSlugs(): string[] {
+    const fileNames = fs.readdirSync(postsDirectory);
+    return fileNames
+        .filter((fileName) => fileName.endsWith('.md'))
+        .map((fileName) => fileName.replace(/\.md$/, ''));
+}
+
+export async function getAllPostsWithDates(): Promise<{ slug: string; date: string }[]> {
     const fileNames = fs.readdirSync(postsDirectory);
     return fileNames
         .filter((fileName) => fileName.endsWith('.md'))
         .map((fileName) => {
+            const slug = fileName.replace(/\.md$/, '');
+            const fullPath = path.join(postsDirectory, fileName);
+            const fileContents = fs.readFileSync(fullPath, 'utf8');
+            const matterResult = matter(fileContents);
             return {
-                params: {
-                    slug: fileName.replace(/\.md$/, ''),
-                },
+                slug,
+                date: matterResult.data.date || new Date().toISOString(),
             };
         });
 }

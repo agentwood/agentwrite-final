@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { db } from '@/lib/db';
-import { getAllPostSlugs } from '@/lib/blog/service';
+import { getAllPostsWithDates } from '@/lib/blog/service';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://agentwood.xyz';
 
@@ -56,11 +56,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Add blog posts
-  const blogSlugs = getAllPostSlugs();
-  const blogRoutes = blogSlugs.map((slug) => ({
-    url: `${SITE_URL}/blog/${slug}`,
-    lastModified: new Date(),
+  // Add blog posts with actual dates
+  const blogPosts = await getAllPostsWithDates();
+  const blogRoutes = blogPosts.map((post) => ({
+    url: `${SITE_URL}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
     changeFrequency: 'weekly' as const,
     priority: 0.7,
   }));
@@ -109,13 +109,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           changeFrequency: 'daily' as const,
           priority: 0.8,
         });
-        // Add paginated category pages (first 200 pages for 500k scale)
-        for (let page = 2; page <= 200; page++) {
+        // Add paginated category pages (first 10 pages to preserve crawl budget)
+        for (let page = 2; page <= 10; page++) {
           routes.push({
             url: `${SITE_URL}/category/${categoryUrl}?page=${page}`,
             lastModified: new Date(),
             changeFrequency: 'daily' as const,
-            priority: 0.6,
+            priority: 0.4,
           });
         }
       });
@@ -137,13 +137,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           changeFrequency: 'daily' as const,
           priority: 0.7,
         });
-        // Paginated archetype pages (first 200 pages)
-        for (let page = 2; page <= 200; page++) {
+        // Paginated archetype pages (first 10 pages to preserve crawl budget)
+        for (let page = 2; page <= 10; page++) {
           routes.push({
             url: `${SITE_URL}/archetype/${archetypeUrl}?page=${page}`,
             lastModified: new Date(),
             changeFrequency: 'daily' as const,
-            priority: 0.5,
+            priority: 0.3,
           });
         }
       });
@@ -176,13 +176,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'hourly' as const,
         priority: 0.9,
       });
-      // Paginated top pages (50 pages each)
-      for (let page = 2; page <= 50; page++) {
+      // Paginated top pages (10 pages each to preserve crawl budget)
+      for (let page = 2; page <= 10; page++) {
         routes.push({
           url: `${SITE_URL}/top/${type}?page=${page}`,
           lastModified: new Date(),
           changeFrequency: 'hourly' as const,
-          priority: 0.7,
+          priority: 0.5,
         });
       }
     });
@@ -196,13 +196,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'daily' as const,
         priority: 0.7,
       });
-      // Paginated A-Z pages (first 100 pages per letter)
-      for (let page = 2; page <= 100; page++) {
+      // Paginated A-Z pages (first 20 pages per letter to preserve crawl budget)
+      for (let page = 2; page <= 20; page++) {
         routes.push({
           url: `${SITE_URL}/characters/${letter}?page=${page}`,
           lastModified: new Date(),
           changeFrequency: 'daily' as const,
-          priority: 0.5,
+          priority: 0.3,
         });
       }
     });

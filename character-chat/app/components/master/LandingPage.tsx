@@ -25,49 +25,49 @@ interface LandingPageProps {
 }
 
 const AgentwoodDifference = () => (
-  <section className="bg-[#0c0c0c] px-6 md:px-24 py-8 border-b border-white/5">
+  <section className="bg-[#0c0c0c] px-4 sm:px-6 md:px-24 py-8 border-b border-white/5 overflow-hidden">
     <div className="max-w-7xl mx-auto">
       <div className="mb-6">
         <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#C69C6D] mb-3">THE AGENTWOOD DIFFERENCE</h3>
-        <h2 className="text-3xl md:text-5xl font-serif text-white max-w-3xl leading-tight">
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-serif text-white max-w-full sm:max-w-3xl leading-tight break-words">
           Communication, reimagined for the modern era.
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 border-t border-white/10 pt-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 border-t border-white/10 pt-8">
         {/* 01 */}
-        <div className="space-y-4 group">
-          <span className="text-[10px] font-bold text-white/30 block mb-4 group-hover:text-[#C69C6D] transition-colors">01</span>
-          <h4 className="text-xl font-serif text-white">Premium Immersion</h4>
-          <p className="text-sm text-white/50 leading-relaxed">
-            Experience narratives with unparalleled production value. Every voice, pause, and whisper is crafted for maximum realism and emotional depth.
+        <div className="space-y-3 sm:space-y-4 group">
+          <span className="text-[10px] font-bold text-white/30 block mb-2 sm:mb-4 group-hover:text-[#C69C6D] transition-colors">01</span>
+          <h4 className="text-lg sm:text-xl font-serif text-white">Premium Immersion</h4>
+          <p className="text-xs sm:text-sm text-white/50 leading-relaxed">
+            Experience narratives with unparalleled production value. Every voice, pause, and whisper is crafted for maximum realism.
           </p>
         </div>
 
         {/* 02 */}
-        <div className="space-y-4 group">
-          <span className="text-[10px] font-bold text-white/30 block mb-4 group-hover:text-[#C69C6D] transition-colors">02</span>
-          <h4 className="text-xl font-serif text-white">Creator Economy</h4>
-          <p className="text-sm text-white/50 leading-relaxed">
-            The first platform where you can build, buy, and sell unique character personas. Your imagination is now a tangible, tradeable asset.
+        <div className="space-y-3 sm:space-y-4 group">
+          <span className="text-[10px] font-bold text-white/30 block mb-2 sm:mb-4 group-hover:text-[#C69C6D] transition-colors">02</span>
+          <h4 className="text-lg sm:text-xl font-serif text-white">Creator Economy</h4>
+          <p className="text-xs sm:text-sm text-white/50 leading-relaxed">
+            Build, buy, and sell unique character personas. Your imagination is now a tradeable asset.
           </p>
         </div>
 
         {/* 03 */}
-        <div className="space-y-4 group">
-          <span className="text-[10px] font-bold text-white/30 block mb-4 group-hover:text-[#C69C6D] transition-colors">03</span>
-          <h4 className="text-xl font-serif text-white">Active Memory</h4>
-          <p className="text-sm text-white/50 leading-relaxed">
-            Forget resetting. Our agents learn from every conversation, referencing past details to build a relationship that deepens and grows with you.
+        <div className="space-y-3 sm:space-y-4 group">
+          <span className="text-[10px] font-bold text-white/30 block mb-2 sm:mb-4 group-hover:text-[#C69C6D] transition-colors">03</span>
+          <h4 className="text-lg sm:text-xl font-serif text-white">Active Memory</h4>
+          <p className="text-xs sm:text-sm text-white/50 leading-relaxed">
+            Our agents learn from every conversation, building a relationship that deepens with you.
           </p>
         </div>
 
         {/* 04 */}
-        <div className="space-y-4 group">
-          <span className="text-[10px] font-bold text-white/30 block mb-4 group-hover:text-[#C69C6D] transition-colors">04</span>
-          <h4 className="text-xl font-serif text-white">Story Generation</h4>
-          <p className="text-sm text-white/50 leading-relaxed">
-            Turn your chats into lasting artifacts. Create immersive audiobooks and written novels instantly from your roleplay history.
+        <div className="space-y-3 sm:space-y-4 group">
+          <span className="text-[10px] font-bold text-white/30 block mb-2 sm:mb-4 group-hover:text-[#C69C6D] transition-colors">04</span>
+          <h4 className="text-lg sm:text-xl font-serif text-white">Story Generation</h4>
+          <p className="text-xs sm:text-sm text-white/50 leading-relaxed">
+            Turn chats into audiobooks and novels instantly from your roleplay history.
           </p>
         </div>
       </div>

@@ -34,12 +34,21 @@ export async function generateMetadata(
     return {
         title: title,
         description: description,
+        alternates: {
+            canonical: `https://agentwood.xyz/character/${id}`,
+        },
         openGraph: {
             title: title,
             description: description,
-            images: [character.avatarUrl || 'https://agentwood.xyz/TwitterCardValidator.png'],
+            images: [{
+                url: character.avatarUrl || 'https://agentwood.xyz/TwitterCardValidator.png',
+                width: 1200,
+                height: 630,
+                alt: `${character.name} - AI Character`,
+            }],
             url: `https://agentwood.xyz/character/${id}`,
             type: 'profile',
+            siteName: 'Agentwood',
         },
         twitter: {
             card: 'summary_large_image',
@@ -47,6 +56,7 @@ export async function generateMetadata(
             description: description,
             images: [character.avatarUrl || 'https://agentwood.xyz/TwitterCardValidator.png'],
             creator: '@agentwood',
+            site: '@agentwood',
         }
     };
 }
