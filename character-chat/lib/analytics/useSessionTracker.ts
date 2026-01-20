@@ -51,9 +51,14 @@ export function useSessionTracker(userId?: string | null) {
     // Start session
     const startSession = useCallback(async () => {
         // Check if session already exists
-        const existingSession = sessionStorage.getItem(SESSION_KEY);
-        if (existingSession) {
-            sessionIdRef.current = existingSession;
+        try {
+            const existingSession = sessionStorage.getItem(SESSION_KEY);
+            if (existingSession) {
+                sessionIdRef.current = existingSession;
+                return;
+            }
+        } catch {
+            // sessionStorage not available (private mode, etc)
             return;
         }
 
@@ -80,7 +85,12 @@ export function useSessionTracker(userId?: string | null) {
 
     // End session
     const endSession = useCallback(async () => {
-        const sessionId = sessionIdRef.current || sessionStorage.getItem(SESSION_KEY);
+        let sessionId = sessionIdRef.current;
+        try {
+            sessionId = sessionId || sessionStorage.getItem(SESSION_KEY);
+        } catch {
+            // sessionStorage not available
+        }
         if (!sessionId) return;
 
         try {
@@ -102,7 +112,11 @@ export function useSessionTracker(userId?: string | null) {
                 });
             }
 
-            sessionStorage.removeItem(SESSION_KEY);
+            try {
+                sessionStorage.removeItem(SESSION_KEY);
+            } catch {
+                // sessionStorage not available
+            }
         } catch (error) {
             console.error('Failed to end session:', error);
         }
@@ -111,7 +125,12 @@ export function useSessionTracker(userId?: string | null) {
     // Track page view
     const trackPageView = useCallback(async () => {
         pageViewsRef.current += 1;
-        const sessionId = sessionIdRef.current || sessionStorage.getItem(SESSION_KEY);
+        let sessionId = sessionIdRef.current;
+        try {
+            sessionId = sessionId || sessionStorage.getItem(SESSION_KEY);
+        } catch {
+            // sessionStorage not available
+        }
         if (!sessionId) return;
 
         try {
@@ -128,7 +147,12 @@ export function useSessionTracker(userId?: string | null) {
     // Track message sent
     const trackMessage = useCallback(async () => {
         messagesRef.current += 1;
-        const sessionId = sessionIdRef.current || sessionStorage.getItem(SESSION_KEY);
+        let sessionId = sessionIdRef.current;
+        try {
+            sessionId = sessionId || sessionStorage.getItem(SESSION_KEY);
+        } catch {
+            // sessionStorage not available
+        }
         if (!sessionId) return;
 
         try {

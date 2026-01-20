@@ -227,9 +227,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   };
 
   return (
-    <div className="fade-in overflow-x-hidden">
+    <div className="fade-in overflow-x-hidden max-w-[100vw]">
       {/* Sticky Header - Mobile Optimized */}
-      <div className="sticky top-0 z-40 w-full px-3 sm:px-6 md:px-12 py-3 sm:py-6 bg-[#0c0c0c]/95 backdrop-blur-lg border-b border-white/5 flex items-center justify-between gap-2 sm:gap-4">
+      <div className="sticky top-0 z-40 w-full max-w-[100vw] px-3 sm:px-6 md:px-8 py-3 sm:py-4 bg-[#0c0c0c]/95 backdrop-blur-lg border-b border-white/5 flex items-center justify-between gap-2 sm:gap-4 overflow-hidden">
         {/* Search - Shrinks on mobile */}
         <div className="flex-1 min-w-0 max-w-[200px] sm:max-w-xl relative group" onClick={onSearch}>
           <Search size={14} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-dipsea-accent transition-colors" />
