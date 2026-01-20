@@ -118,6 +118,7 @@ export default async function CharacterPage({ params }: Props) {
             viewCount: p.viewCount && p.viewCount > 0 ? p.viewCount : randomViewCount,
             rating: 4.8,
             isVerified: true,
+            isOfficial: p.isOfficial || false,
             creator: p.creator ? { name: p.creator.name, avatar: p.creator.image } : { name: 'Agentwood', avatar: '/logo.png' },
             socials: { twitter: '', instagram: '' },
 

@@ -31,6 +31,7 @@ export default async function HomePage() {
       category: p.category || 'Original',
       chatCount: typeof p.totalChats === 'number' ? p.totalChats : parseInt(String(p.totalChats)) || 0,
       viewCount: p.viewCount && p.viewCount > 0 ? p.viewCount : randomViewCount,
+      isOfficial: p.isOfficial || false,
       chatStarters: p.prompts ? JSON.parse(p.prompts) : [
         "Hello! How can I help you today?",
         "Tell me more about yourself.",

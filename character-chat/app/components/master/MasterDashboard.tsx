@@ -328,8 +328,14 @@ const CharacterProfileView: React.FC<{
           <div>
             <div className="flex items-center gap-3 mb-4">
               <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-dipsea-accent">{character.category}</span>
-              <div className="flex items-center gap-1 text-white/40 text-xs font-bold uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-white/40 text-xs font-bold uppercase tracking-wider">
                 <Eye size={12} /> {character.viewCount >= 1000 ? `${(character.viewCount / 1000).toFixed(1).replace(/\.0$/, '')}k` : character.viewCount}
+                {/* AW Official Badge */}
+                {(character as any).isOfficial && (
+                  <span className="px-2 py-0.5 rounded bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[9px] font-bold tracking-wider">
+                    AW
+                  </span>
+                )}
               </div>
             </div>
             <h1 className="text-6xl md:text-8xl font-serif italic text-white mb-2">{character.name}</h1>
