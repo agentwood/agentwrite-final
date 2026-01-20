@@ -72,27 +72,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className="text-white selection:bg-purple-500 selection:text-white bg-[#0f0f0f] antialiased min-h-screen"
+        className="text-white selection:bg-purple-500 selection:text-white bg-[#0f0f0f] antialiased"
         suppressHydrationWarning
       >
-        {/* Wrapper div to scale content while filling viewport */}
-        <div
-          style={{
-            transform: 'scale(0.9)',
-            transformOrigin: 'top left',
-            width: '111.11%', // 100% / 0.9 = 111.11% to fill after scaling
-            minHeight: '111.11vh'
-          }}
-        >
-          <StructuredData data={organizationSchema} />
-          <StructuredData data={websiteSchema} />
-          <AgeGate>
-            <AuthWrapper>
-              {children}
-            </AuthWrapper>
-          </AgeGate>
-          <CookieConsent />
-        </div>
+        <StructuredData data={organizationSchema} />
+        <StructuredData data={websiteSchema} />
+        <AgeGate>
+          <AuthWrapper>
+            {children}
+          </AuthWrapper>
+        </AgeGate>
+        <CookieConsent />
       </body>
     </html>
   );
