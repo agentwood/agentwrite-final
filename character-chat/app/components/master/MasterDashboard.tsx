@@ -808,14 +808,42 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     }
   };
 
-  // Available voices
+  // Available voices - Real Pocket TTS voices from voice_pool.json
   const availableVoices = [
-    { id: 'alloy', name: 'Alloy', gender: 'Neutral', preview: 'Modern and balanced' },
-    { id: 'echo', name: 'Echo', gender: 'Male', preview: 'Deep and resonant' },
-    { id: 'fable', name: 'Fable', gender: 'Female', preview: 'Warm and expressive' },
-    { id: 'onyx', name: 'Onyx', gender: 'Male', preview: 'Rich and authoritative' },
-    { id: 'nova', name: 'Nova', gender: 'Female', preview: 'Bright and energetic' },
-    { id: 'shimmer', name: 'Shimmer', gender: 'Female', preview: 'Soft and soothing' },
+    // Authority Category
+    { id: 'Movetrailer', name: 'Epic Narrator', gender: 'Male', preview: 'Deep, cinematic gravitas', category: 'Authority' },
+    { id: 'VeterenSoldier', name: 'Veteran Soldier', gender: 'Male', preview: 'Rough, battle-worn authority', category: 'Authority' },
+    { id: 'FemmeFatale', name: 'Femme Fatale', gender: 'Female', preview: 'Smoky, dangerous allure', category: 'Authority' },
+    { id: 'Headmistress', name: 'Headmistress', gender: 'Female', preview: 'Sharp, commanding British', category: 'Authority' },
+    { id: 'Snob', name: 'Aristocrat', gender: 'Male', preview: 'Refined, posh British', category: 'Authority' },
+    { id: 'Villain', name: 'Villain', gender: 'Male', preview: 'Cold, calculating menace', category: 'Authority' },
+    // Mentor Category
+    { id: 'WiseSage', name: 'Wise Sage', gender: 'Male', preview: 'Warm, grandfatherly wisdom', category: 'Mentor' },
+    { id: 'Healer', name: 'Healer', gender: 'Female', preview: 'Soft, nurturing warmth', category: 'Mentor' },
+    { id: 'Professor', name: 'Professor', gender: 'Male', preview: 'Precise, academic clarity', category: 'Mentor' },
+    { id: 'Meditative', name: 'Zen Master', gender: 'Male', preview: 'Calm, spiritual serenity', category: 'Mentor' },
+    { id: 'Grandma', name: 'Grandma', gender: 'Female', preview: 'Warm, grandmotherly', category: 'Mentor' },
+    // Energetic Category
+    { id: 'Youtuber', name: 'Content Creator', gender: 'Male', preview: 'High-energy, enthusiastic', category: 'Energetic' },
+    { id: 'Bubbly', name: 'Bubbly', gender: 'Female', preview: 'Bright, cheerful positivity', category: 'Energetic' },
+    { id: 'Cockney', name: 'Cockney Rogue', gender: 'Male', preview: 'Rough street smarts', category: 'Energetic' },
+    { id: 'Raspy', name: 'Punk Rebel', gender: 'Female', preview: 'Raspy, edgy attitude', category: 'Energetic' },
+    { id: 'Coach', name: 'Coach', gender: 'Male', preview: 'Loud, motivational power', category: 'Energetic' },
+    // Texture Category
+    { id: 'Intimate', name: 'Intimate', gender: 'Male', preview: 'Whispery, romantic close', category: 'Texture' },
+    { id: 'Male ASMR', name: 'ASMR', gender: 'Male', preview: 'Soft, soothing relaxation', category: 'Texture' },
+    { id: 'Etheral', name: 'Ethereal', gender: 'Female', preview: 'Otherworldly, mystical', category: 'Texture' },
+    { id: 'Coward', name: 'Nervous Sidekick', gender: 'Male', preview: 'Shaky, anxious energy', category: 'Texture' },
+    { id: 'Nasal', name: 'Nerdy', gender: 'Male', preview: 'Distinctly geeky', category: 'Texture' },
+    { id: 'Valley', name: 'Valley Girl', gender: 'Female', preview: 'Casual vocal fry', category: 'Texture' },
+    // Global Accents Category
+    { id: 'Australian', name: 'Aussie', gender: 'Male', preview: 'Laid-back Australian', category: 'Global' },
+    { id: 'French', name: 'French', gender: 'Female', preview: 'Elegant Parisian', category: 'Global' },
+    { id: 'Indian', name: 'Indian', gender: 'Male', preview: 'Clear, professional', category: 'Global' },
+    { id: 'Scandanavian', name: 'Nordic', gender: 'Female', preview: 'Cool, composed', category: 'Global' },
+    { id: 'WestAfrican', name: 'West African', gender: 'Male', preview: 'Warm, motivational', category: 'Global' },
+    { id: 'SouthAfrican', name: 'South African', gender: 'Male', preview: 'Adventurous, rugged', category: 'Global' },
+    { id: 'AfricanAmerican', name: 'Soulful', gender: 'Male', preview: 'Smooth, charismatic', category: 'Global' },
   ];
 
   const toggleSection = (section: string) => {
