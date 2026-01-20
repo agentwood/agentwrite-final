@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import personaTemplatesData from '../data/persona-templates.seed.json';
 import newCharactersData from '../data/new-characters.json';
+import { matchVoiceToCharacter } from '../lib/voices/voice-matcher';
 
 const prisma = new PrismaClient();
 
@@ -23,7 +24,20 @@ async function main() {
   const allTemplates = [...personaTemplatesData, ...newCharactersData];
 
   for (const templateData of allTemplates) {
-    console.log(`Processing: ${templateData.name} (Voice: ${templateData.voice.voiceName})`);
+    // AUTO-MATCH: If no voice specified or voice is invalid, use voice matcher
+    let voiceName = templateData.voice?.voiceName;
+    if (!voiceName || voiceName === 'default') {
+      voiceName = matchVoiceToCharacter({
+        name: templateData.name,
+        description: templateData.description,
+        category: templateData.category,
+        gender: (templateData as any).gender
+      });
+      console.log(`🎯 Auto-matched voice for ${templateData.name}: ${voiceName}`);
+    } else {
+      console.log(`Processing: ${templateData.name} (Voice: ${voiceName})`);
+    }
+
     const systemPrompt = buildSystemPrompt(templateData.name, templateData.system);
 
     await prisma.personaTemplate.upsert({
@@ -35,15 +49,15 @@ async function main() {
         greeting: templateData.greeting || null,
         category: templateData.category,
         avatarUrl: templateData.avatarUrl,
-        voiceName: templateData.voice.voiceName,
-        styleHint: templateData.voice.styleHint || null,
+        voiceName: voiceName,
+        styleHint: templateData.voice?.styleHint || null,
         archetype: templateData.archetype,
         tonePack: templateData.tonePack || null,
         scenarioSkin: templateData.scenarioSkin || null,
         systemPrompt: systemPrompt,
         isOfficial: (templateData as any).isOfficial || false,
         voiceSeed: {
-          connect: { name: templateData.voice.voiceName }
+          connect: { name: voiceName }
         }
       },
       create: {
@@ -54,15 +68,15 @@ async function main() {
         greeting: templateData.greeting || null,
         category: templateData.category,
         avatarUrl: templateData.avatarUrl,
-        voiceName: templateData.voice.voiceName,
-        styleHint: templateData.voice.styleHint || null,
+        voiceName: voiceName,
+        styleHint: templateData.voice?.styleHint || null,
         archetype: templateData.archetype,
         tonePack: templateData.tonePack || null,
         scenarioSkin: templateData.scenarioSkin || null,
         systemPrompt: systemPrompt,
         isOfficial: (templateData as any).isOfficial || false,
         voiceSeed: {
-          connect: { name: templateData.voice.voiceName }
+          connect: { name: voiceName }
         }
       },
     });

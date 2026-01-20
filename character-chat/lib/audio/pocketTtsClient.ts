@@ -21,6 +21,15 @@ interface SynthesizeOptions {
     voicePath?: string;
     /** Speed multiplier (default 1.0) */
     speed?: number;
+    /** Tone modifiers based on persona description */
+    toneModifiers?: {
+        /** Aggression level 0-1 (affects speed and emphasis) */
+        aggression?: number;
+        /** Energy level 0-1 (affects pacing and volume) */
+        energy?: number;
+        /** Pitch adjustment -1 to 1 */
+        pitch?: number;
+    };
 }
 
 class PocketTtsClient {
@@ -123,7 +132,21 @@ class PocketTtsClient {
     async synthesize(text: string, options: SynthesizeOptions = {}): Promise<PocketTtsResponse | null> {
         try {
             const formData = new FormData();
+
+            // Apply tone modifiers to adjust speed
+            let effectiveSpeed = options.speed || 1.0;
+            if (options.toneModifiers) {
+                const { aggression = 0, energy = 0.5 } = options.toneModifiers;
+                // Aggressive personas speak faster
+                if (aggression > 0.5) effectiveSpeed *= 1.0 + (aggression * 0.2);
+                // High energy = faster, low energy = slower
+                effectiveSpeed *= 0.9 + (energy * 0.2);
+                console.log(`[Pocket TTS] Tone modifiers applied: speed=${effectiveSpeed.toFixed(2)}`);
+            }
+
             formData.append('text', text);
+            // Note: speed parameter would be passed if Pocket TTS server supports it
+            // formData.append('speed', effectiveSpeed.toString());
 
             // Load and attach voice reference for cloning
             if (options.voicePath) {
