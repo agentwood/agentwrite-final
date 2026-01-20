@@ -405,6 +405,7 @@ model User {
   loginStreak        UserLoginStreak?
   rewardProgress     UserRewardProgress[]
   voiceFeedback      VoiceFeedback[]
+  sessions           UserSession[]
 
   @@index([username])
   @@index([email])
@@ -750,4 +751,60 @@ model TtsWorker {
   lastHeartbeat DateTime @default(now())
   
   @@map("tts_workers")
+}
+
+// =============================================
+// SESSION ANALYTICS - Track user sessions and activity
+// =============================================
+
+model UserSession {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  // Session timing
+  startedAt   DateTime @default(now())
+  endedAt     DateTime?
+  durationMs  Int?     // Duration in milliseconds
+  
+  // Device info
+  ipAddress   String?
+  userAgent   String?
+  device      String?  // "desktop", "mobile", "tablet"
+  browser     String?
+  os          String?
+  
+  // Activity tracking
+  pageViews   Int      @default(0)
+  messagesCount Int    @default(0)
+  
+  createdAt   DateTime @default(now())
+  
+  @@map("user_sessions")
+  @@index([userId])
+  @@index([startedAt])
+}
+
+model DailyAnalytics {
+  id              String   @id @default(cuid())
+  date            DateTime @unique @db.Date
+  
+  // User metrics
+  activeUsers     Int      @default(0)
+  newUsers        Int      @default(0)
+  returningUsers  Int      @default(0)
+  
+  // Session metrics
+  totalSessions   Int      @default(0)
+  avgSessionDur   Int      @default(0) // in seconds
+  
+  // Engagement metrics
+  totalMessages   Int      @default(0)
+  totalViews      Int      @default(0)
+  totalSaves      Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("daily_analytics")
 }

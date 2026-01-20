@@ -91,6 +91,55 @@ export async function GET() {
             // Conversation table might not exist
         }
 
+        // Get session analytics
+        let todayAnalytics = null;
+        let activeUsersToday = 0;
+        let avgSessionDuration = 0;
+        let totalMessages = 0;
+        try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            todayAnalytics = await db.dailyAnalytics.findUnique({
+                where: { date: today }
+            });
+
+            // Get sessions from today
+            const todaySessions = await db.userSession.count({
+                where: { startedAt: { gte: today } }
+            });
+
+            // Get unique active users today
+            const uniqueUsers = await db.userSession.groupBy({
+                by: ['userId'],
+                where: {
+                    startedAt: { gte: today },
+                    userId: { not: null }
+                }
+            });
+            activeUsersToday = uniqueUsers.length;
+
+            // Calculate avg session duration
+            const avgDuration = await db.userSession.aggregate({
+                _avg: { durationMs: true },
+                where: {
+                    startedAt: { gte: today },
+                    durationMs: { not: null }
+                }
+            });
+            avgSessionDuration = Math.round((avgDuration._avg.durationMs || 0) / 1000); // in seconds
+
+            // Sum messages from sessions
+            const msgSum = await db.userSession.aggregate({
+                _sum: { messagesCount: true },
+                where: { startedAt: { gte: today } }
+            });
+            totalMessages = msgSum._sum.messagesCount || 0;
+
+        } catch (e) {
+            // Session tables might not have data yet
+        }
+
         return NextResponse.json({
             overview: {
                 totalCharacters,
@@ -98,7 +147,10 @@ export async function GET() {
                 officialCharacters: officialCount,
                 communityCharacters: totalCharacters - officialCount,
                 totalUsers: userCount,
-                totalConversations: conversationCount
+                totalConversations: conversationCount,
+                activeUsersToday,
+                avgSessionDuration,
+                totalMessagesToday: totalMessages,
             },
             engagement: {
                 totalViews: viewsAgg._sum.viewCount || 0,
