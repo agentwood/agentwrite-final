@@ -73,6 +73,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className="text-white selection:bg-purple-500 selection:text-white bg-[#0f0f0f] antialiased"
+        style={{ zoom: 0.9 }}
         suppressHydrationWarning
       >
         <StructuredData data={organizationSchema} />
