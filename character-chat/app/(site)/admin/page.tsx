@@ -47,10 +47,34 @@ export default function AdminPage() {
 
   const loadStats = async () => {
     try {
-      const response = await fetch(`/api/admin/stats?range=${dateRange}`);
+      // Use the analytics endpoint
+      const response = await fetch(`/api/admin/analytics`);
       if (response.ok) {
         const data = await response.json();
-        setStats(data);
+        // Map from analytics response to stats format
+        setStats({
+          totalUsers: data.overview?.totalUsers || 0,
+          totalConversations: data.overview?.totalConversations || 0,
+          totalMessages: data.engagement?.totalInteractions || 0,
+          activeUsersToday: 0, // Not tracked yet
+          activeUsersThisWeek: 0, // Not tracked yet
+          totalCharacterViews: data.engagement?.totalViews || 0,
+          totalCharacterSaves: data.engagement?.totalLikes || 0,
+          averageSessionDuration: 0, // Not tracked yet
+          topCharacters: (data.topCharacters?.byViews || []).map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            viewCount: c.viewCount || 0,
+            chatCount: c.chatCount || 0,
+            interactionCount: 0,
+            retentionScore: 0
+          })),
+          userGrowth: [],
+          categoryDistribution: (data.categoryBreakdown || []).map((c: any) => ({
+            category: c.category || 'Unknown',
+            count: c.count || 0
+          }))
+        });
       }
     } catch (error) {
       console.error('Error loading stats:', error);
