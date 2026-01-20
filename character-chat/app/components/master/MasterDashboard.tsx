@@ -330,11 +330,13 @@ const CharacterProfileView: React.FC<{
               <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-dipsea-accent">{character.category}</span>
               <div className="flex items-center gap-2 text-white/40 text-xs font-bold uppercase tracking-wider">
                 <Eye size={12} /> {character.viewCount >= 1000 ? `${(character.viewCount / 1000).toFixed(1).replace(/\.0$/, '')}k` : character.viewCount}
-                {/* AW Official Badge */}
+                {/* AW Official Badge - Logo */}
                 {(character as any).isOfficial && (
-                  <span className="px-2 py-0.5 rounded bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[9px] font-bold tracking-wider">
-                    AW
-                  </span>
+                  <img
+                    src="/logo.png"
+                    alt="AW Official"
+                    className="h-4 w-auto ml-1 opacity-90"
+                  />
                 )}
               </div>
             </div>
@@ -808,43 +810,18 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     }
   };
 
-  // Available voices - Real Pocket TTS voices from voice_pool.json
-  const availableVoices = [
-    // Authority Category
-    { id: 'Movetrailer', name: 'Epic Narrator', gender: 'Male', preview: 'Deep, cinematic gravitas', category: 'Authority' },
-    { id: 'VeterenSoldier', name: 'Veteran Soldier', gender: 'Male', preview: 'Rough, battle-worn authority', category: 'Authority' },
-    { id: 'FemmeFatale', name: 'Femme Fatale', gender: 'Female', preview: 'Smoky, dangerous allure', category: 'Authority' },
-    { id: 'Headmistress', name: 'Headmistress', gender: 'Female', preview: 'Sharp, commanding British', category: 'Authority' },
-    { id: 'Snob', name: 'Aristocrat', gender: 'Male', preview: 'Refined, posh British', category: 'Authority' },
-    { id: 'Villain', name: 'Villain', gender: 'Male', preview: 'Cold, calculating menace', category: 'Authority' },
-    // Mentor Category
-    { id: 'WiseSage', name: 'Wise Sage', gender: 'Male', preview: 'Warm, grandfatherly wisdom', category: 'Mentor' },
-    { id: 'Healer', name: 'Healer', gender: 'Female', preview: 'Soft, nurturing warmth', category: 'Mentor' },
-    { id: 'Professor', name: 'Professor', gender: 'Male', preview: 'Precise, academic clarity', category: 'Mentor' },
-    { id: 'Meditative', name: 'Zen Master', gender: 'Male', preview: 'Calm, spiritual serenity', category: 'Mentor' },
-    { id: 'Grandma', name: 'Grandma', gender: 'Female', preview: 'Warm, grandmotherly', category: 'Mentor' },
-    // Energetic Category
-    { id: 'Youtuber', name: 'Content Creator', gender: 'Male', preview: 'High-energy, enthusiastic', category: 'Energetic' },
-    { id: 'Bubbly', name: 'Bubbly', gender: 'Female', preview: 'Bright, cheerful positivity', category: 'Energetic' },
-    { id: 'Cockney', name: 'Cockney Rogue', gender: 'Male', preview: 'Rough street smarts', category: 'Energetic' },
-    { id: 'Raspy', name: 'Punk Rebel', gender: 'Female', preview: 'Raspy, edgy attitude', category: 'Energetic' },
-    { id: 'Coach', name: 'Coach', gender: 'Male', preview: 'Loud, motivational power', category: 'Energetic' },
-    // Texture Category
-    { id: 'Intimate', name: 'Intimate', gender: 'Male', preview: 'Whispery, romantic close', category: 'Texture' },
-    { id: 'Male ASMR', name: 'ASMR', gender: 'Male', preview: 'Soft, soothing relaxation', category: 'Texture' },
-    { id: 'Etheral', name: 'Ethereal', gender: 'Female', preview: 'Otherworldly, mystical', category: 'Texture' },
-    { id: 'Coward', name: 'Nervous Sidekick', gender: 'Male', preview: 'Shaky, anxious energy', category: 'Texture' },
-    { id: 'Nasal', name: 'Nerdy', gender: 'Male', preview: 'Distinctly geeky', category: 'Texture' },
-    { id: 'Valley', name: 'Valley Girl', gender: 'Female', preview: 'Casual vocal fry', category: 'Texture' },
-    // Global Accents Category
-    { id: 'Australian', name: 'Aussie', gender: 'Male', preview: 'Laid-back Australian', category: 'Global' },
-    { id: 'French', name: 'French', gender: 'Female', preview: 'Elegant Parisian', category: 'Global' },
-    { id: 'Indian', name: 'Indian', gender: 'Male', preview: 'Clear, professional', category: 'Global' },
-    { id: 'Scandanavian', name: 'Nordic', gender: 'Female', preview: 'Cool, composed', category: 'Global' },
-    { id: 'WestAfrican', name: 'West African', gender: 'Male', preview: 'Warm, motivational', category: 'Global' },
-    { id: 'SouthAfrican', name: 'South African', gender: 'Male', preview: 'Adventurous, rugged', category: 'Global' },
-    { id: 'AfricanAmerican', name: 'Soulful', gender: 'Male', preview: 'Smooth, charismatic', category: 'Global' },
-  ];
+  // Available voices - DYNAMICALLY LOADED from voice_pool.json
+  // When new voices are added to voice_pool.json, they auto-appear here
+  const availableVoices = React.useMemo(() => {
+    const voicePool = require('@/lib/voices/voice_pool.json');
+    return Object.entries(voicePool).map(([id, voice]: [string, any]) => ({
+      id,
+      name: id.replace(/([A-Z])/g, ' $1').trim(), // Convert camelCase to readable
+      gender: voice.gender.charAt(0).toUpperCase() + voice.gender.slice(1),
+      preview: voice.description?.slice(0, 35) + '...' || voice.tone,
+      category: voice.category,
+    }));
+  }, []);
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
