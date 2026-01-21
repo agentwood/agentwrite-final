@@ -93,7 +93,7 @@ export default function CharacterCreator() {
 
       <div className="min-h-screen bg-[#0f0f0f] text-white p-6 font-sans">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 max-w-[1600px] mx-auto">
+        <div className="flex items-center justify-between mb-8 max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
           <button
             onClick={() => router.back()}
             className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -118,7 +118,7 @@ export default function CharacterCreator() {
         </div>
 
         {/* 3-Column Layout */}
-        <form className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1600px] mx-auto h-[calc(100vh-120px)]">
+        <form className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 h-[calc(100vh-120px)]">
 
           {/* LEFT COLUMN - Core Info (4 cols) */}
           <div className="lg:col-span-4 space-y-6 overflow-y-auto pr-2 custom-scrollbar">

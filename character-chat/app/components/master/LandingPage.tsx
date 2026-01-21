@@ -230,7 +230,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     <div className="fade-in overflow-x-hidden max-w-[100vw]">
       {/* Sticky Header - Mobile Optimized with Fixed Max Width */}
       <div className="sticky top-0 z-40 w-full bg-[#0c0c0c]/95 backdrop-blur-lg border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 flex items-center justify-between gap-2 sm:gap-4">
           {/* Search - Shrinks on mobile */}
           <div className="flex-1 min-w-0 max-w-[200px] sm:max-w-xl relative group" onClick={onSearch}>
             <Search size={14} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-dipsea-accent transition-colors" />
