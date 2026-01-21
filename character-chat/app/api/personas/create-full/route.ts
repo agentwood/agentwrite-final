@@ -92,7 +92,7 @@ async function processCharacterCreation(characterId: string, body: CreateFullReq
 
             // If we have a direct suggestion or specific voice, check coherence
             const coherenceCheck = validateCoherence(
-                suggested,
+                suggested || '',
                 {
                     gender: body.gender || 'NB',
                     description: body.description || body.keywords || '',
