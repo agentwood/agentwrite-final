@@ -91,11 +91,14 @@ async function processCharacterCreation(characterId: string, body: CreateFullReq
             const suggested = body.voiceSeedId ? body.voiceSeedId : suggestArchetype(body.description || body.keywords || '', body.gender || 'NB');
 
             // If we have a direct suggestion or specific voice, check coherence
-            const coherenceCheck = validateCoherence({
-                voiceRegistryKey: suggested,
-                appearance: { style: recommendStyle(body.category, suggested) },
-                personality: { description: body.description || body.keywords || '' }
-            });
+            const coherenceCheck = validateCoherence(
+                suggested,
+                {
+                    gender: body.gender || 'NB',
+                    description: body.description || body.keywords || '',
+                    personality: body.description || body.keywords || ''
+                }
+            );
 
             if (!coherenceCheck.valid) {
                 console.warn(`Character coherence warning for ${characterId}:`, coherenceCheck.issues);
