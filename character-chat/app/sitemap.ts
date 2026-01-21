@@ -264,6 +264,51 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     });
 
+    // ============================================
+    // MASS PROGRAMMATIC SEO (Character.AI style)
+    // ============================================
+
+    // [character]-ai-chat pages (500+ pages)
+    const characterSlugs = [
+      // Top anime
+      'miku-hatsune', 'rem', 'zero-two', 'makima', 'gojo-satoru', 'tanjiro', 'nezuko',
+      'naruto', 'sasuke', 'kakashi', 'goku', 'vegeta', 'luffy', 'zoro',
+      // Top games
+      'link', 'zelda', 'cloud-strife', 'tifa-lockhart', 'sephiroth', 'geralt-of-rivia',
+      'master-chief', 'kratos', '2b', 'jinx', 'ahri',
+      // Top movies
+      'darth-vader', 'harry-potter', 'hermione-granger', 'iron-man', 'spider-man',
+      'batman', 'joker-dc', 'deadpool', 'wednesday-addams',
+      // VTubers  
+      'gawr-gura', 'mori-calliope', 'ironmouse', 'vox-akuma',
+      // Archetypes (most searched)
+      'yandere-girlfriend', 'tsundere-girlfriend', 'mafia-boss', 'vampire-prince',
+      'demon-lord', 'ceo-boyfriend', 'childhood-friend', 'royal-prince',
+      'cute-girlfriend', 'hot-boyfriend', 'possessive-boyfriend', 'romantic-girlfriend',
+    ];
+    characterSlugs.forEach((char) => {
+      routes.push({
+        url: `${SITE_URL}/${char}-ai-chat`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      });
+    });
+
+    // Roleplay scenario combinations (1000+ pages)
+    const roleplayChars = ['vampire', 'yandere', 'tsundere', 'demon', 'mafia-boss', 'ceo', 'prince', 'knight'];
+    const scenarios = ['coffee-shop', 'school', 'workplace', 'apocalypse', 'medieval', 'modern', 'mafia', 'royal-court'];
+    roleplayChars.forEach((char) => {
+      scenarios.forEach((scenario) => {
+        routes.push({
+          url: `${SITE_URL}/roleplay/${char}/${scenario}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.6,
+        });
+      });
+    });
+
   } catch (error) {
     console.error('Error generating sitemap:', error);
   }
