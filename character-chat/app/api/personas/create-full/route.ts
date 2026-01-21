@@ -106,7 +106,7 @@ async function processCharacterCreation(characterId: string, body: CreateFullReq
             }
 
             archetypeMatch = {
-                archetype: suggested,
+                archetype: suggested || 'warm_mentor',
                 confidence: coherenceCheck.valid ? 0.9 : 0.7,
                 gender: body.gender || 'NB',
                 voiceProfile: 'custom'
@@ -137,7 +137,7 @@ async function processCharacterCreation(characterId: string, body: CreateFullReq
                 personality: body.keywords // Assume keywords are personality if fully provided
             };
         } else {
-            profile = await generateProfile(body.name, body.keywords, body.gender || archetypeMatch.gender, archetypeMatch.archetype);
+            profile = await generateProfile(body.name, body.keywords, body.gender || archetypeMatch.gender, archetypeMatch.archetype || undefined);
         }
 
         // Step 4: Build system prompt
