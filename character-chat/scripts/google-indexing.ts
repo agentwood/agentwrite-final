@@ -99,12 +99,12 @@ async function getAllUrls(): Promise<string[]> {
     });
     urls.push(...characters.map(c => `${SITE_URL}/character/${c.id}`));
 
-    // Categories
-    const categories = await prisma.personaTemplate.groupBy({
-        by: ['category'],
-        where: { category: { not: null } },
+    // Categories - get distinct categories
+    const allChars = await prisma.personaTemplate.findMany({
+        select: { category: true },
     });
-    urls.push(...categories.map(c => `${SITE_URL}/category/${c.category}`));
+    const uniqueCategories = [...new Set(allChars.map(c => c.category).filter(Boolean))];
+    urls.push(...uniqueCategories.map(c => `${SITE_URL}/category/${encodeURIComponent(c as string)}`));
 
     return urls;
 }
