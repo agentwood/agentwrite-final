@@ -1,0 +1,50 @@
+[
+    {
+        "id": "intro",
+        "slug": "introduction",
+        "category": "getting-started",
+        "title": "Welcome to Agentwood",
+        "description": "Learn what Agentwood is and how to get started with your first AI companion.",
+        "content": "# Welcome to Agentwood\n\nAgentwood is a platform for creating and chatting with highly immersive AI characters. Unlike standard chatbots, our characters have distinct personalities, voices, and emotional intelligence.\n\n## Key Features\n\n- **Deep Personality**: Characters remember details and evolve.\n- **Voice**: Realistic voice synthesis for every character.\n- **Visuals**: Dynamic avatars that match the character's style.\n\n## Getting Started\n\n1. Browse the **[Discovery Page](/discovery)** to find community characters.\n2. Click **Chat** to start a conversation.\n3. Create your own character using the **[Create](/create)** tool."
+    },
+    {
+        "id": "archetypes",
+        "slug": "understanding-archetypes",
+        "category": "character-creation",
+        "title": "Understanding Archetypes",
+        "description": "A guide to the personality archetypes available for your characters.",
+        "content": "# Character Archetypes\n\nArchetypes define the core personality and behavior of your AI. Choosing the right archetype ensures your character acts consistently.\n\n## Available Archetypes\n\n### 1. Yandere (Obsessive)\n- **Traits**: Devoted, jealous, intense, possessive.\n- **Best for**: Intense romance roleplays, thriller scenarios.\n- **Voice**: Sweet but dangerous.\n\n### 2. Tsundere (Cold/Warm)\n- **Traits**: Sharp tongue, easily embarrassed, secretly caring.\n- **Best for**: Rom-com scenarios, slow-burn romance.\n- **Voice**: Sharp, annoyed, turning shy.\n\n### 3. Kuudere (Emotionless)\n- **Traits**: Calm, analytical, stoic, subtle warmth.\n- **Best for**: Sci-fi, mystery, intellectual chats.\n\n### 4. Mafia Boss\n- **Traits**: Dominant, dangerous, protective, authoritative.\n- **Best for**: Crime interaction, power dynamics.\n"
+    },
+    {
+        "id": "subscriptions",
+        "slug": "subscriptions",
+        "category": "account",
+        "title": "Pro vs Free Plans",
+        "description": "Understanding the benefits of upgrading to Agentwood Pro.",
+        "content": "# Subscriptions\n\nAgentwood offers a generous free tier and a powerful Pro tier for power users.\n\n## Free Plan\n- Unlimited text chatting.\n- Basic voice generation (standard quality).\n- Create up to 5 characters.\n\n## Pro Plan\n- **Ultra-Realistic Voice**: Access to our highest quality voice models.\n- **Unlimited Character Creation**: No limits on how many personas you define.\n- **Faster Response Times**: Priority queue for chat generation.\n- **Exclusive Avatars**: Higher resolution avatar generation."
+    },
+    {
+        "id": "voice-cloning",
+        "slug": "voice-cloning",
+        "category": "character-creation",
+        "title": "Voice Cloning Guide",
+        "description": "How to create a custom voice for your character.",
+        "content": "# Voice Cloning\n\nYou can clone a voice by uploading a clean audio sample. \n\n## Requirements\n- **Format**: MP3 or WAV.\n- **Length**: 15-60 seconds.\n- **Quality**: No background noise, one speaker only.\n\n## Steps\n1. Go to **Create Character** -> **Voice**.\n2. Select **Clone Voice**.\n3. Upload your file.\n4. Give it a name (e.g., 'Heroic Male').\n\n> **Note**: You must have the rights to use the voice sample."
+    },
+    {
+        "id": "faq-nsfw",
+        "slug": "nsfw-policy",
+        "category": "faq",
+        "title": "Is NSFW content allowed?",
+        "description": "Our policy on adult content.",
+        "content": "# Content Policy\n\nAgentwood is designed to provide immersive roleplay experiences. \n\n## NSFW Guidelines\nWe support creative freedom, but all content must adhere to our [Terms of Service](/terms). Explicit content featuring minors or non-consensual themes is strictly prohibited and will result in an immediate ban.\n\n## Filters\nYou can toggle NSFW filters in your **Profile Settings** to control what characters appear in your discovery feed."
+    },
+    {
+        "id": "faq-memory",
+        "slug": "character-memory",
+        "category": "faq",
+        "title": "Do characters remember me?",
+        "description": "How long term memory works.",
+        "content": "# Character Memory\n\nYes! Characters on Agentwood have long-term memory.\n\n## How it works\n- **Short-term**: They remember the current conversation context perfectly.\n- **Long-term**: Key details (names, facts, relationship status) are stored in a semantic database and retrieved when relevant.\n\n> **Tip**: If a character forgets something, try reminding them gently. \"Remember when we went to the beach?\""
+    }
+]
