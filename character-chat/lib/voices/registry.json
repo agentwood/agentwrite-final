@@ -213,6 +213,83 @@
             "model": "eleven_multilingual_v2",
             "status": "active",
             "notes": "Sam - detached, precise male voice"
+        },
+        "yandere_obsessive": {
+            "voice_id": "21m00Tcm4TlvDq8ikWAM",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Rachel - sweet but can turn intense and obsessive"
+        },
+        "tsundere_cold": {
+            "voice_id": "MF3mGyEYCl7XYWbV9V6O",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Elli - sharp, can sound annoyed then warm"
+        },
+        "kuudere_emotionless": {
+            "voice_id": "jsCqWAovK2LkecY7zXl4",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Freya - calm, measured, emotionally reserved"
+        },
+        "vampire_prince": {
+            "voice_id": "pNInz6obpgDQGcFmaJgB",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Adam - deep, smooth, aristocratic male"
+        },
+        "mafia_boss": {
+            "voice_id": "TxGEqnHWrfWFTfGW9XjX",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Josh - commanding, authoritative crime lord"
+        },
+        "demon_lord": {
+            "voice_id": "zcAOhNBS3c14rBihAFp1",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Giovanni - sinister charm, otherworldly"
+        },
+        "royal_princess": {
+            "voice_id": "ThT5KcBeYPX3keUQqHPh",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Dorothy - elegant, refined, regal female"
+        },
+        "witch_mysterious": {
+            "voice_id": "t0jbNlBVZ17f02VDIeMI",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Jessie - raspy, mystical, enchanting"
+        },
+        "ceo_cold": {
+            "voice_id": "onwK4e9ZLuTAKqWW03F9",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Daniel - professional, cold, corporate power"
+        },
+        "knight_protector": {
+            "voice_id": "TX3LPaxmHKxFdv7VOQHJ",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Liam - noble, steadfast, honorable"
+        },
+        "angel_guardian": {
+            "voice_id": "z9fAnlkpzviPz146aGWa",
+            "provider": "elevenlabs",
+            "model": "eleven_multilingual_v2",
+            "status": "active",
+            "notes": "Glinda - soft, ethereal, divine warmth"
         }
     },
     "characters": {
