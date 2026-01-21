@@ -32,6 +32,7 @@ export default function CharacterCreator() {
 
   const [isSaving, setIsSaving] = useState(false);
   const [showCreatingModal, setShowCreatingModal] = useState(false);
+  const [voiceModalOpen, setVoiceModalOpen] = useState(false);
   const [creatingCharacterId, setCreatingCharacterId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -227,11 +228,39 @@ export default function CharacterCreator() {
 
             {/* Voice */}
             <div className="bg-[#1a1a1a] rounded-xl p-4 border border-white/5">
-              <VoiceSelector
-                selectedId={formData.voiceSeedId}
-                onSelect={(id, name) => setFormData({ ...formData, voiceSeedId: id, voiceName: name })}
-              />
+              <label className="text-xs font-bold text-white/50 uppercase tracking-wider mb-4 block">Voice</label>
+
+              <button
+                type="button"
+                onClick={() => setVoiceModalOpen(true)}
+                className="w-full bg-black/20 border border-white/10 rounded-lg p-4 flex items-center justify-between hover:bg-white/5 transition-colors group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400">
+                    <Volume2 size={20} />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-sm font-bold text-white group-hover:text-purple-400 transition-colors">
+                      {formData.voiceName || 'Select a Voice'}
+                    </div>
+                    <div className="text-xs text-white/40">
+                      {formData.voiceName ? 'Voice selected' : 'No voice selected'}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-xs font-bold bg-white text-black px-3 py-1.5 rounded-full uppercase tracking-wider">
+                  Browse
+                </div>
+              </button>
             </div>
+
+            <VoiceSelector
+              isModal
+              selectedId={formData.voiceSeedId}
+              onSelect={(id, name) => setFormData({ ...formData, voiceSeedId: id, voiceName: name })}
+              onClose={() => setVoiceModalOpen(false)}
+              className={voiceModalOpen ? 'block' : 'hidden'}
+            />
           </div>
 
           {/* RIGHT COLUMN - Preview (5 cols) */}

@@ -22,6 +22,8 @@ interface VoiceSelectorProps {
     onSelect: (voiceSeedId: string, voiceName: string) => void;
     selectedId?: string;
     className?: string;
+    isModal?: boolean; // New prop to toggle modal styling
+    onClose?: () => void; // For closing the modal
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -40,7 +42,7 @@ const CATEGORY_COLORS: Record<string, string> = {
     'Global': 'from-cyan-500 to-blue-500',
 };
 
-export default function VoiceSelector({ onSelect, selectedId, className = '' }: VoiceSelectorProps) {
+export default function VoiceSelector({ onSelect, selectedId, className = '', isModal, onClose }: VoiceSelectorProps) {
     const [voices, setVoices] = useState<VoiceSeed[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -123,16 +125,26 @@ export default function VoiceSelector({ onSelect, selectedId, className = '' }: 
         );
     }
 
-    return (
-        <div className={`voice-selector ${className}`}>
+    const content = (
+        <div className={`voice-selector ${className} ${isModal ? 'h-full flex flex-col' : ''}`}>
             {/* Header */}
-            <div className="mb-4">
-                <h3 className="text-lg font-semibold text-white mb-2">Select a Voice</h3>
-                <p className="text-sm text-gray-400">Choose from 29 premium voice personalities</p>
+            <div className="mb-4 flex-shrink-0">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h3 className="text-lg font-semibold text-white mb-1">Select a Voice</h3>
+                        <p className="text-sm text-gray-400">Choose from 29 premium voice personalities</p>
+                    </div>
+                    {isModal && onClose && (
+                        <button onClick={onClose} className="p-2 text-white/50 hover:text-white transition-colors">
+                            <span className="sr-only">Close</span>
+                            ✖
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-4 flex-shrink-0">
                 {/* Category Pills */}
                 <button
                     onClick={() => setActiveCategory(null)}
@@ -158,87 +170,51 @@ export default function VoiceSelector({ onSelect, selectedId, className = '' }: 
                 ))}
             </div>
 
-            {/* Custom Voice Upload Section */}
-            <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-white/10 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                            <span className="text-2xl">🎙️</span>
-                            <h4 className="text-xl font-bold text-white">Clone Your Voice</h4>
-                        </div>
-                        <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                            Upload a 30-60 second voice memo to train a custom AI voice model.
-                            We'll analyze your unique tone and accent.
-                        </p>
-                        <div className="flex items-center gap-2 text-xs text-purple-300 font-bold uppercase tracking-wider">
-                            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
-                            AI Training Engine v2.0 Ready
-                        </div>
-                    </div>
+            {/* Voice Grid - Scrollable Area */}
+            <div className={`space-y-6 ${isModal ? 'flex-1 overflow-y-auto min-h-0 pr-2 custom-scrollbar' : ''}`}>
 
-                    <div className="shrink-0 w-full md:w-auto">
-                        <label className="cursor-pointer group/btn block  text-center">
-                            <input type="file" accept="audio/*" className="hidden" onChange={(e) => {
-                                if (e.target.files && e.target.files[0]) {
-                                    const file = e.target.files[0];
-                                    alert(`Uploading ${file.name} for analysis... (Feature in Beta)`);
-                                    // Logic to handle file upload would go here
-                                }
-                            }} />
-                            <div className="px-6 py-3 bg-white text-black rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-gray-200 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2">
-                                <span>Upload Audio</span>
-                                <span className="text-xs opacity-50 ml-1">(.mp3, .wav)</span>
+                {/* Custom Voice Upload - Only show if NO filter is active for cleanliness */}
+                {!activeCategory && !genderFilter && (
+                    <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-white/10 relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <span className="text-2xl">🎙️</span>
+                                    <h4 className="text-xl font-bold text-white">Clone Your Voice</h4>
+                                </div>
+                                <p className="text-sm text-gray-400 leading-relaxed mb-4">
+                                    Upload a short voice memo to create a custom voice.
+                                </p>
                             </div>
-                        </label>
-                        <p className="text-[10px] text-gray-500 text-center mt-2">Max file size: 10MB</p>
+                            <div className="shrink-0">
+                                <button className="px-4 py-2 bg-white text-black rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-gray-200">
+                                    Upload
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                )}
 
-            {/* Gender Filter */}
-            <div className="flex gap-2 mb-6">
-                <button
-                    onClick={() => setGenderFilter(null)}
-                    className={`px-3 py-1 rounded text-xs font-medium ${genderFilter === null ? 'bg-purple-500 text-white' : 'bg-white/5 text-gray-400'
-                        }`}
-                >
-                    All Genders
-                </button>
-                <button
-                    onClick={() => setGenderFilter('male')}
-                    className={`px-3 py-1 rounded text-xs font-medium ${genderFilter === 'male' ? 'bg-blue-500 text-white' : 'bg-white/5 text-gray-400'
-                        }`}
-                >
-                    Male
-                </button>
-                <button
-                    onClick={() => setGenderFilter('female')}
-                    className={`px-3 py-1 rounded text-xs font-medium ${genderFilter === 'female' ? 'bg-pink-500 text-white' : 'bg-white/5 text-gray-400'
-                        }`}
-                >
-                    Female
-                </button>
-            </div>
-
-            {/* Voice Grid */}
-            <div className="space-y-6">
                 {Object.entries(groupedVoices).map(([category, catVoices]) => (
                     <div key={category}>
-                        <h4 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+                        <h4 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2 sticky top-0 bg-[#0f0f0f]/90 py-2 z-10 backdrop-blur-sm">
                             <span>{CATEGORY_ICONS[category] || '🎤'}</span>
                             {category}
                             <span className="text-gray-500 font-normal">({catVoices.length})</span>
                         </h4>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {catVoices.map(voice => (
                                 <div
                                     key={voice.id}
-                                    onClick={() => onSelect(voice.id, voice.name)}
+                                    onClick={() => {
+                                        onSelect(voice.id, voice.name);
+                                        if (isModal && onClose) onClose();
+                                    }}
                                     className={`
                     relative p-4 rounded-xl cursor-pointer transition-all
-                    border-2 hover:scale-[1.02]
+                    border hover:scale-[1.01]
                     ${selectedId === voice.id
                                             ? 'border-purple-500 bg-purple-500/10'
                                             : 'border-white/10 bg-white/5 hover:border-white/30'
@@ -247,16 +223,16 @@ export default function VoiceSelector({ onSelect, selectedId, className = '' }: 
                                 >
                                     {/* Selected Badge */}
                                     {selectedId === voice.id && (
-                                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                                            <span className="text-white text-xs">✓</span>
+                                        <div className="absolute -top-2 -right-2 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
+                                            <span className="text-white text-[10px]">✓</span>
                                         </div>
                                     )}
 
                                     {/* Voice Info */}
                                     <div className="flex items-start justify-between mb-2">
                                         <div>
-                                            <h5 className="font-semibold text-white">{voice.name}</h5>
-                                            <p className="text-xs text-gray-400">{voice.tone} • {voice.energy}</p>
+                                            <h5 className="font-semibold text-white text-sm">{voice.name}</h5>
+                                            <p className="text-[10px] text-gray-400">{voice.tone} • {voice.energy}</p>
                                         </div>
 
                                         {/* Play Button */}
@@ -265,7 +241,7 @@ export default function VoiceSelector({ onSelect, selectedId, className = '' }: 
                                                 e.stopPropagation();
                                                 playPreview(voice);
                                             }}
-                                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${playingId === voice.id
+                                            className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${playingId === voice.id
                                                 ? 'bg-purple-500 text-white'
                                                 : 'bg-white/10 text-gray-400 hover:bg-white/20'
                                                 }`}
@@ -275,26 +251,9 @@ export default function VoiceSelector({ onSelect, selectedId, className = '' }: 
                                     </div>
 
                                     {/* Description */}
-                                    <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                                    <p className="text-[10px] text-gray-500 line-clamp-2 mb-2">
                                         {voice.description}
                                     </p>
-
-                                    {/* Tags */}
-                                    <div className="flex flex-wrap gap-1">
-                                        {voice.tags.slice(0, 3).map(tag => (
-                                            <span
-                                                key={tag}
-                                                className={`text-[10px] px-1.5 py-0.5 rounded-full bg-gradient-to-r ${CATEGORY_COLORS[category] || 'from-gray-500 to-gray-600'} text-white`}
-                                            >
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
-
-                                    {/* Accent Badge */}
-                                    <div className="absolute bottom-2 right-2">
-                                        <span className="text-[10px] text-gray-500 uppercase">{voice.accent}</span>
-                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -307,6 +266,20 @@ export default function VoiceSelector({ onSelect, selectedId, className = '' }: 
                     No voices match your filters
                 </div>
             )}
+        </div>
+    );
+
+    if (!isModal) return content;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6" onClick={onClose}>
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+            <div
+                className="relative w-full max-w-4xl h-[85vh] bg-[#0f0f0f] border border-white/10 rounded-2xl shadow-2xl p-6 flex flex-col"
+                onClick={e => e.stopPropagation()}
+            >
+                {content}
+            </div>
         </div>
     );
 }
