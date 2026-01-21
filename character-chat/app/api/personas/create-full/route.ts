@@ -117,7 +117,13 @@ async function processCharacterCreation(characterId: string, body: CreateFullReq
         await updateStatus(characterId, 'generating_avatar', 30, 'Creating unique avatar...');
         let avatarUrl = body.avatarUrl;
         if (!avatarUrl || avatarUrl === 'pending') {
-            avatarUrl = await generateAvatar(body.name, body.keywords, body.gender || archetypeMatch.gender, body.category, archetypeMatch.archetype);
+            avatarUrl = await generateAvatar(
+                body.name,
+                body.keywords,
+                body.gender || archetypeMatch.gender,
+                body.category,
+                archetypeMatch.archetype || undefined
+            );
         }
 
         // Step 3: Generate personality/description (or use provided)
