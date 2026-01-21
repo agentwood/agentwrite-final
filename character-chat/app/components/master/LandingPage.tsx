@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  Search, Bell, Play, Star, MessageSquare, ChevronDown, Heart, ChevronRight
+  Search, Bell, Play, Star, MessageSquare, ChevronDown, Heart, ChevronRight, Settings
 } from 'lucide-react';
 import { CharacterProfile, Category } from '@/lib/master/types';
 import { CharacterCard } from './CharacterCard';
@@ -236,26 +236,58 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <Search size={14} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-dipsea-accent transition-colors" />
             <input readOnly type="text" placeholder="Search..." className="w-full bg-white/5 border border-white/10 rounded-lg sm:rounded-xl py-2 sm:py-2.5 pl-8 sm:pl-10 pr-2 sm:pr-4 text-xs outline-none focus:border-dipsea-accent transition-all font-sans text-white placeholder:text-white/20 cursor-pointer" />
           </div>
-          {/* Right side actions - Compact on mobile */}
-          <div className="flex items-center gap-2 sm:gap-4 md:gap-6 flex-shrink-0">
-            <Link href="/affiliates" className="hidden lg:block text-[10px] font-bold uppercase tracking-widest text-white/40 cursor-pointer hover:text-white transition-colors font-sans">AFFILIATES</Link>
-            {isLoggedIn && (
-              <Link href="/notifications">
-                <Bell size={18} className="text-white/40 cursor-pointer hover:text-white transition-colors" />
-              </Link>
-            )}
+          <div className="flex items-center gap-4 flex-shrink-0">
             {isLoggedIn ? (
-              <Link href="/settings" className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-purple-600 border border-white/20 flex items-center justify-center font-bold text-white text-xs hover:border-white transition-colors overflow-hidden flex-shrink-0">
-                {userAvatar ? (
-                  <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <span>{currentUser?.displayName?.[0] || currentUser?.email?.[0]?.toUpperCase() || 'U'}</span>
-                )}
-              </Link>
+              <div className="relative group">
+                <button
+                  className="h-9 w-9 rounded-full bg-purple-600 border border-white/20 flex items-center justify-center font-bold text-white text-xs hover:border-white transition-colors overflow-hidden flex-shrink-0 focus:outline-none"
+                  onClick={(e) => {
+                    const dropdown = e.currentTarget.nextElementSibling;
+                    dropdown?.classList.toggle('hidden');
+                  }}
+                >
+                  {userAvatar ? (
+                    <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{currentUser?.displayName?.[0] || currentUser?.email?.[0]?.toUpperCase() || 'U'}</span>
+                  )}
+                </button>
+
+                {/* Profile Dropdown */}
+                <div className="hidden absolute right-0 top-full mt-2 w-48 bg-[#151515] border border-white/10 rounded-xl shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="px-4 py-2 border-b border-white/5 mb-1">
+                    <p className="text-sm font-bold text-white truncate">{currentUser?.displayName || 'User'}</p>
+                    <p className="text-xs text-white/40 truncate">{currentUser?.email}</p>
+                  </div>
+
+                  <Link href="/notifications" className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <Bell size={16} />
+                    Notifications
+                  </Link>
+
+                  <Link href="/affiliates" className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <span className="font-bold text-[10px] uppercase tracking-widest text-dipsea-accent">AFFILIATES</span>
+                  </Link>
+
+                  <Link href="/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm text-white/70 hover:bg-white/5 hover:text-white transition-colors">
+                    <Settings size={16} /> {/* Config icon if available or just text */}
+                    Settings
+                  </Link>
+
+                  <div className="h-px bg-white/5 my-1" />
+
+                  <button
+                    onClick={() => {/* Sign out logic - ideally passed via props or global context */ }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors text-left"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              </div>
             ) : (
               <button
                 onClick={onSignIn}
-                className="px-3 sm:px-5 py-2 rounded-full bg-white text-black text-[10px] sm:text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 transition-colors whitespace-nowrap flex-shrink-0"
+                className="px-5 py-2 rounded-full bg-white text-black text-[11px] font-bold uppercase tracking-wider hover:bg-white/90 transition-colors whitespace-nowrap flex-shrink-0"
               >
                 Sign In
               </button>
@@ -328,7 +360,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      <section className="px-6 md:px-12 py-12 bg-[#0c0c0c] min-h-screen">
+      <section className="px-6 md:px-12 py-12 bg-[#0c0c0c] min-h-screen relative z-0">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
           {loading ? (
             Array.from({ length: 14 }).map((_, i) => <SkeletonCard key={i} />)
@@ -449,54 +481,72 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
                 switch (activeMood) {
                   case 'Helpful':
-                    return text.includes('help') || text.includes('assist') || text.includes('guide') || text.includes('support') ||
-                      text.includes('mentor') || text.includes('teach') || text.includes('advice') || text.includes('coach') ||
-                      text.includes('doctor') || text.includes('chef') || text.includes('professor') || text.includes('tutor');
+                    return ['helpful', 'support', 'education', 'wellness'].some(k => text.includes(k));
                   case 'Relaxed':
-                    return text.includes('calm') || text.includes('chill') || text.includes('relax') || text.includes('easy') ||
-                      text.includes('quiet') || text.includes('gentle') || text.includes('friendly') || text.includes('soft');
+                    return ['relaxed', 'calm', 'comfort', 'nature'].some(k => text.includes(k));
                   case 'Intense':
-                    return text.includes('dark') || text.includes('power') || text.includes('villain') || text.includes('dangerous') ||
-                      text.includes('mysterious') || text.includes('dominant') || text.includes('yandere') || text.includes('rival') ||
-                      text.includes('shadow') || text.includes('blood') || text.includes('death') || text.includes('storm');
+                    return ['intense', 'villain', 'dark', 'thriller'].some(k => text.includes(k));
                   case 'Romantic':
-                    return text.includes('love') || text.includes('romance') || text.includes('date') || text.includes('flirt') ||
-                      text.includes('girlfriend') || text.includes('boyfriend') || text.includes('wife') || text.includes('husband') ||
-                      text.includes('heart') || text.includes('sweet') || text.includes('affection');
+                    return ['romantic', 'love', 'dating', 'sweet'].some(k => text.includes(k));
                   case 'Playful':
-                    return text.includes('fun') || text.includes('play') || text.includes('game') || text.includes('joke') ||
-                      text.includes('comedy') || text.includes('laugh') || text.includes('energetic') || text.includes('bubbly') ||
-                      text.includes('silly') || text.includes('cheerful') || text.includes('happy');
+                    return ['playful', 'fun', 'game', 'joke'].some(k => text.includes(k));
                   case 'Slow-Burn':
-                    return (text.includes('slow') && text.includes('burn')) || text.includes('shy') || text.includes('stoic') ||
-                      text.includes('cold') || text.includes('distant') || text.includes('stranger') || text.includes('reserved') ||
-                      text.includes('quiet') || text.includes('mysterious');
+                    return ['slow', 'burn', 'stoic', 'cold'].some(k => text.includes(k));
                   case 'Wholesome':
-                    return text.includes('sweet') || text.includes('pure') || text.includes('kind') || text.includes('caring') ||
-                      text.includes('innocent') || text.includes('family') || text.includes('childhood') || text.includes('warm') ||
-                      text.includes('gentle') || text.includes('comfort');
+                    return ['wholesome', 'family', 'friend', 'cute'].some(k => text.includes(k));
                   case 'Adventurous':
-                    return text.includes('adventure') || text.includes('travel') || text.includes('explore') || text.includes('quest') ||
-                      text.includes('action') || text.includes('hero') || text.includes('journey') || text.includes('battle') ||
-                      text.includes('fight') || text.includes('magic') || text.includes('fantasy') || text.includes('warrior');
+                    return ['adventure', 'fantasy', 'action', 'epic'].some(k => text.includes(k));
                   default:
                     return true;
                 }
               })
-              .map((char, i) => (
+              .map((char) => (
                 <CharacterCard
-                  key={i}
-                  character={char}
+                  key={char.id}
+                  character={{ ...char, description: char.tagline || char.description }} // Ensure tagline used if description missing
                   onClick={() => handleCharacterClick(char)}
-                  isFavorite={isFavorite(char)}
-                  onToggleFavorite={(e) => onToggleFavorite(char, e)}
+                  priority={false} // Lazy load grid
                 />
               ))
           )}
         </div>
-      </section>
-
-      <Footer />
+        return text.includes('love') || text.includes('romance') || text.includes('date') || text.includes('flirt') ||
+        text.includes('girlfriend') || text.includes('boyfriend') || text.includes('wife') || text.includes('husband') ||
+        text.includes('heart') || text.includes('sweet') || text.includes('affection');
+        case 'Playful':
+        return text.includes('fun') || text.includes('play') || text.includes('game') || text.includes('joke') ||
+        text.includes('comedy') || text.includes('laugh') || text.includes('energetic') || text.includes('bubbly') ||
+        text.includes('silly') || text.includes('cheerful') || text.includes('happy');
+        case 'Slow-Burn':
+        return (text.includes('slow') && text.includes('burn')) || text.includes('shy') || text.includes('stoic') ||
+        text.includes('cold') || text.includes('distant') || text.includes('stranger') || text.includes('reserved') ||
+        text.includes('quiet') || text.includes('mysterious');
+        case 'Wholesome':
+        return text.includes('sweet') || text.includes('pure') || text.includes('kind') || text.includes('caring') ||
+        text.includes('innocent') || text.includes('family') || text.includes('childhood') || text.includes('warm') ||
+        text.includes('gentle') || text.includes('comfort');
+        case 'Adventurous':
+        return text.includes('adventure') || text.includes('travel') || text.includes('explore') || text.includes('quest') ||
+        text.includes('action') || text.includes('hero') || text.includes('journey') || text.includes('battle') ||
+        text.includes('fight') || text.includes('magic') || text.includes('fantasy') || text.includes('warrior');
+        default:
+        return true;
+                }
+              })
+              .map((char, i) => (
+        <CharacterCard
+          key={i}
+          character={char}
+          onClick={() => handleCharacterClick(char)}
+          isFavorite={isFavorite(char)}
+          onToggleFavorite={(e) => onToggleFavorite(char, e)}
+        />
+        ))
+          )}
     </div>
+      </section >
+
+  <Footer />
+    </div >
   );
 };
