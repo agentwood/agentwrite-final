@@ -63,9 +63,9 @@ export default async function BestCategoryPage({ params }: { params: Promise<{ c
         },
         select: {
             id: true, name: true, description: true, avatarUrl: true,
-            category: true, archetype: true, viewCount: true, likeCount: true,
+            category: true, archetype: true, viewCount: true, interactionCount: true,
         },
-        orderBy: [{ likeCount: 'desc' }, { viewCount: 'desc' }],
+        orderBy: [{ interactionCount: 'desc' }, { viewCount: 'desc' }],
         take: 25,
     });
 
@@ -137,7 +137,7 @@ export default async function BestCategoryPage({ params }: { params: Promise<{ c
                                     <p className="text-sm text-gray-400 truncate">{c.description || c.archetype || 'AI Character'}</p>
                                 </div>
                                 <div className="text-right text-sm text-gray-500">
-                                    <div>❤️ {c.likeCount || 0}</div>
+                                    <div>💬 {c.interactionCount || 0}</div>
                                     <div>👁️ {c.viewCount || 0}</div>
                                 </div>
                             </Link>
