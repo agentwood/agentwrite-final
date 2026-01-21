@@ -481,21 +481,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
                 switch (activeMood) {
                   case 'Helpful':
-                    return ['helpful', 'support', 'education', 'wellness'].some(k => text.includes(k));
+                    return ['helpful', 'support', 'education', 'wellness', 'mentor', 'guide'].some(k => text.includes(k));
                   case 'Relaxed':
-                    return ['relaxed', 'calm', 'comfort', 'nature'].some(k => text.includes(k));
+                    return ['relaxed', 'calm', 'comfort', 'nature', 'chill'].some(k => text.includes(k));
                   case 'Intense':
-                    return ['intense', 'villain', 'dark', 'thriller'].some(k => text.includes(k));
+                    return ['intense', 'villain', 'dark', 'thriller', 'danger'].some(k => text.includes(k));
                   case 'Romantic':
-                    return ['romantic', 'love', 'dating', 'sweet'].some(k => text.includes(k));
+                    return ['romantic', 'love', 'dating', 'sweet', 'flirt'].some(k => text.includes(k));
                   case 'Playful':
-                    return ['playful', 'fun', 'game', 'joke'].some(k => text.includes(k));
+                    return ['playful', 'fun', 'game', 'joke', 'happy'].some(k => text.includes(k));
                   case 'Slow-Burn':
-                    return ['slow', 'burn', 'stoic', 'cold'].some(k => text.includes(k));
+                    return ['slow', 'burn', 'stoic', 'cold', 'mysterious'].some(k => text.includes(k));
                   case 'Wholesome':
-                    return ['wholesome', 'family', 'friend', 'cute'].some(k => text.includes(k));
+                    return ['wholesome', 'family', 'friend', 'cute', 'pure'].some(k => text.includes(k));
                   case 'Adventurous':
-                    return ['adventure', 'fantasy', 'action', 'epic'].some(k => text.includes(k));
+                    return ['adventure', 'fantasy', 'action', 'epic', 'quest'].some(k => text.includes(k));
                   default:
                     return true;
                 }
@@ -503,50 +503,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               .map((char) => (
                 <CharacterCard
                   key={char.id}
-                  character={{ ...char, description: char.tagline || char.description }} // Ensure tagline used if description missing
+                  character={{ ...char, description: char.tagline || char.description }}
                   onClick={() => handleCharacterClick(char)}
-                  priority={false} // Lazy load grid
+                  isFavorite={isFavorite(char)}
+                  onToggleFavorite={(e) => onToggleFavorite(char, e)}
                 />
               ))
           )}
         </div>
-        return text.includes('love') || text.includes('romance') || text.includes('date') || text.includes('flirt') ||
-        text.includes('girlfriend') || text.includes('boyfriend') || text.includes('wife') || text.includes('husband') ||
-        text.includes('heart') || text.includes('sweet') || text.includes('affection');
-        case 'Playful':
-        return text.includes('fun') || text.includes('play') || text.includes('game') || text.includes('joke') ||
-        text.includes('comedy') || text.includes('laugh') || text.includes('energetic') || text.includes('bubbly') ||
-        text.includes('silly') || text.includes('cheerful') || text.includes('happy');
-        case 'Slow-Burn':
-        return (text.includes('slow') && text.includes('burn')) || text.includes('shy') || text.includes('stoic') ||
-        text.includes('cold') || text.includes('distant') || text.includes('stranger') || text.includes('reserved') ||
-        text.includes('quiet') || text.includes('mysterious');
-        case 'Wholesome':
-        return text.includes('sweet') || text.includes('pure') || text.includes('kind') || text.includes('caring') ||
-        text.includes('innocent') || text.includes('family') || text.includes('childhood') || text.includes('warm') ||
-        text.includes('gentle') || text.includes('comfort');
-        case 'Adventurous':
-        return text.includes('adventure') || text.includes('travel') || text.includes('explore') || text.includes('quest') ||
-        text.includes('action') || text.includes('hero') || text.includes('journey') || text.includes('battle') ||
-        text.includes('fight') || text.includes('magic') || text.includes('fantasy') || text.includes('warrior');
-        default:
-        return true;
-                }
-              })
-              .map((char, i) => (
-        <CharacterCard
-          key={char.id || i}
-          character={{ ...char, description: char.tagline || char.description }}
-          onClick={() => handleCharacterClick(char)}
-          isFavorite={isFavorite(char)}
-          onToggleFavorite={(e) => onToggleFavorite(char, e)}
-        />
-        ))
-          )}
-    </div>
-      </section >
+      </section>
 
-  <Footer />
-    </div >
+      <Footer />
+    </div>
   );
 };
