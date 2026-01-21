@@ -3,7 +3,8 @@ import { db } from '@/lib/db';
 import { matchArchetype, generateTTSVoiceSpec } from '@/lib/characterCreation/archetypeMapper';
 import { buildSystemPrompt } from '@/lib/prompts';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { generateAvatar as generateAvatarUtil } from '@/lib/avatarGenerator';
+import { generateAvatar as generateAvatarUtil, recommendStyle } from '@/lib/avatarGenerator';
+import { validateCoherence, getArchetypeAvatarPrompt, suggestArchetype } from '@/lib/character/archetype-profiles';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -86,14 +87,34 @@ async function processCharacterCreation(characterId: string, body: CreateFullReq
                 voiceProfile: 'custom'
             };
         } else {
-            archetypeMatch = matchArchetype(body.description || '', body.keywords, body.gender);
+            // Prioritize voiceSeedId if provided (it usually maps to an archetype)
+            const suggested = body.voiceSeedId ? body.voiceSeedId : suggestArchetype(body.description || body.keywords || '', body.gender || 'NB');
+
+            // If we have a direct suggestion or specific voice, check coherence
+            const coherenceCheck = validateCoherence({
+                voiceRegistryKey: suggested,
+                appearance: { style: recommendStyle(body.category, suggested) },
+                personality: { description: body.description || body.keywords || '' }
+            });
+
+            if (!coherenceCheck.valid) {
+                console.warn(`Character coherence warning for ${characterId}:`, coherenceCheck.issues);
+                // We still proceed but might want to log this field to the DB later
+            }
+
+            archetypeMatch = {
+                archetype: suggested,
+                confidence: coherenceCheck.valid ? 0.9 : 0.7,
+                gender: body.gender || 'NB',
+                voiceProfile: 'custom'
+            };
         }
 
         // Step 2: Generate avatar (or use provided)
         await updateStatus(characterId, 'generating_avatar', 30, 'Creating unique avatar...');
         let avatarUrl = body.avatarUrl;
         if (!avatarUrl || avatarUrl === 'pending') {
-            avatarUrl = await generateAvatar(body.name, body.keywords, body.gender || archetypeMatch.gender);
+            avatarUrl = await generateAvatar(body.name, body.keywords, body.gender || archetypeMatch.gender, body.category, archetypeMatch.archetype);
         }
 
         // Step 3: Generate personality/description (or use provided)
@@ -107,15 +128,15 @@ async function processCharacterCreation(characterId: string, body: CreateFullReq
                 personality: body.keywords // Assume keywords are personality if fully provided
             };
         } else {
-            profile = await generateProfile(body.name, body.keywords, body.gender || archetypeMatch.gender);
+            profile = await generateProfile(body.name, body.keywords, body.gender || archetypeMatch.gender, archetypeMatch.archetype);
         }
 
         // Step 4: Build system prompt
         await updateStatus(characterId, 'finalizing', 85, 'Finalizing character...');
         const systemPrompt = buildSystemPrompt(
             profile.description,
-            ['Keep responses appropriate and engaging.'],
-            ['conversational'],
+            ['Keep responses appropriate and engaging.', `Embody the archetype of a ${archetypeMatch.archetype.replace(/_/g, ' ')}`],
+            ['conversational', archetypeMatch.archetype],
             [],
             body.name
         );
@@ -170,17 +191,22 @@ async function updateStatus(id: string, status: string, progress: number, messag
     });
 }
 
-async function generateAvatar(name: string, keywords: string, gender: string) {
+async function generateAvatar(name: string, keywords: string, gender: string, category?: string, archetype?: string) {
+    // Determine the best style based on category/archetype
+    const style = recommendStyle(category, archetype);
+
     // Utilize the strict visual style generator we updated
     return generateAvatarUtil({
         characterId: name.toLowerCase().replace(/\s+/g, '-'),
         characterName: name,
-        style: 'REALISTIC', // Default to realistic
-        description: keywords
+        style: style,
+        description: keywords,
+        archetype: archetype, // Passes archetype for specific prompt generation
+        gender: gender
     });
 }
 
-async function generateProfile(name: string, keywords: string, gender: string) {
+async function generateProfile(name: string, keywords: string, gender: string, archetype?: string) {
     try {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
@@ -189,6 +215,7 @@ async function generateProfile(name: string, keywords: string, gender: string) {
         Name: ${name}
         Keywords/Context: ${keywords}
         Gender: ${gender}
+        Archetype: ${archetype ? archetype.replace(/_/g, ' ') : 'General'}
         
         Generate a JSON object with:
         1. description: A shorter setting/background (under 300 chars) establishing who they are.
