@@ -61,6 +61,9 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   // Enable experimental features for better performance
   experimental: {
+    // Limit concurrency to prevent "Max client connections" errors during SSG
+    cpus: 4,
+    workerThreads: false,
     optimizePackageImports: ['lucide-react', '@prisma/client'],
   },
   // Output file tracing excludes to reduce bundle size
