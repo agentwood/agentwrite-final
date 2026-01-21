@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { SearchBox } from '@/app/components/help/SearchBox';
-import { Book, User, Settings, ArrowRight } from 'lucide-react';
+import { Book, User, Settings, ArrowRight, HelpCircle } from 'lucide-react';
 import articles from '@/data/help-articles.json';
 
 // Utility to get featured (recent) articles
@@ -8,8 +8,8 @@ const featuredArticles = articles.slice(0, 3);
 
 const categories = [
     { id: 'getting-started', label: 'Getting Started', icon: Book, desc: 'New to Agentwood? Start here.', color: 'text-blue-400', bg: 'bg-blue-500/10' },
-    { id: 'character-creation', label: 'Character Creation', icon: User, desc: 'Guides on archetypes, cloning, and prompts.', color: 'text-purple-400', bg: 'bg-purple-500/10' },
-    { id: 'account', label: 'Account & Billing', icon: Settings, desc: 'Manage your subscription and settings.', color: 'text-green-400', bg: 'bg-green-500/10' },
+    { id: 'character-creation', label: 'Character Creation', icon: User, desc: 'Guides on archetypes, voices, and advanced definition.', color: 'text-purple-400', bg: 'bg-purple-500/10' },
+    { id: 'community', label: 'Community & Safety', icon: HelpCircle, desc: 'Guidelines, safety policy, and user tips.', color: 'text-green-400', bg: 'bg-green-500/10' },
 ];
 
 export default function HelpPage() {

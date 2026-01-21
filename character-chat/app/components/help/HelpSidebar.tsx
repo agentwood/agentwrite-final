@@ -10,8 +10,8 @@ import articles from '@/data/help-articles.json';
 const categories = [
     { id: 'getting-started', label: 'Getting Started', icon: Book },
     { id: 'character-creation', label: 'Character Creation', icon: User },
-    { id: 'account', label: 'Account & Billing', icon: Settings },
-    { id: 'faq', label: 'FAQ', icon: HelpCircle },
+    { id: 'community', label: 'Community & Safety', icon: HelpCircle },
+    { id: 'faq', label: 'FAQ', icon: FileText },
 ];
 
 export function HelpSidebar() {
