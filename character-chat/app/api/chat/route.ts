@@ -398,8 +398,9 @@ export async function POST(request: NextRequest) {
     // Get character memory (Short-term) and learned patterns
     const memory = await getCharacterMemory(persona.id, userId);
 
-    // [RAG] Retrieve Long-Term Memories (Vector Search)
-    const { augmentPromptWithMemories, saveMemory } = await import('@/lib/memory');
+    // [COGNEE] Retrieve Long-Term Memories via Knowledge Graph (Graph RAG)
+    // This replaces Vector RAG with deterministic graph-based retrieval
+    const { augmentPromptWithCogneeMemories, saveCogneeMemory } = await import('@/lib/cogneeClient');
     let longTermMemoryContext = '';
 
     // Extract user information from messages for memory
@@ -407,7 +408,7 @@ export async function POST(request: NextRequest) {
     const latestUserMessage = userMessages[userMessages.length - 1];
 
     if (latestUserMessage && userId) {
-      longTermMemoryContext = await augmentPromptWithMemories(userId, characterId, latestUserMessage.text);
+      longTermMemoryContext = await augmentPromptWithCogneeMemories(userId, characterId, latestUserMessage.text);
     }
 
     // Extract patterns from conversation (Learning System)
@@ -552,12 +553,12 @@ ACKNOWLEDGE THIS.` }]
       },
     });
 
-    // [RAG] Save interaction to Vector Memory (Async, don't block response)
+    // [COGNEE] Save interaction to Knowledge Graph (Async, don't block response)
     if (userId && latestUserMessage) {
-      // Save User Message
-      saveMemory(userId, characterId, latestUserMessage.text, 'user').catch(e => console.error('Failed to save user memory:', e));
-      // Save Assistant Response
-      saveMemory(userId, characterId, responseText, 'assistant').catch(e => console.error('Failed to save assistant memory:', e));
+      // Save User Message to Cognee Graph
+      saveCogneeMemory(userId, characterId, latestUserMessage.text, 'user').catch(e => console.error('[Cognee] Failed to save user memory:', e));
+      // Save Assistant Response to Cognee Graph
+      saveCogneeMemory(userId, characterId, responseText, 'assistant').catch(e => console.error('[Cognee] Failed to save assistant memory:', e));
     }
 
     return NextResponse.json({

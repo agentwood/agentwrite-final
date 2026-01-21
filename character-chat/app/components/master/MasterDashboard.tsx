@@ -25,6 +25,7 @@ import { OnboardingModal } from './OnboardingModal';
 import { SubscriptionModal } from './SubscriptionModal';
 import { audioManager } from '@/lib/audio/audioManager';
 import { SkeletonCard, SkeletonRow } from './SkeletonLoaders';
+import { CogneeStatus } from './CogneeStatus';
 import { getShowcaseCharacters, FALLBACK_CHARACTERS } from '@/lib/master/geminiService';
 import { CharacterProfile, Category, View } from '@/lib/master/types';
 import { LandingPage } from './LandingPage';
@@ -2940,6 +2941,9 @@ export default function MasterDashboard({
         </div>
 
         <div className="mt-auto pt-4 border-t border-white/5 space-y-4">
+          {/* Cognee Memory Status */}
+          <CogneeStatus />
+
           {/* Auth Status Indicator */}
           {currentUser?.email ? (
             <div className="flex items-center gap-3 px-4 py-2 text-green-400">
