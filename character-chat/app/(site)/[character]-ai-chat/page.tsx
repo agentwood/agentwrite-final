@@ -21,12 +21,12 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://agentwood.xyz';
 function getAllCharacterSlugs(): string[] {
     const slugs: string[] = [];
 
-    // Add all character names
-    slugs.push(...characterData.anime);
-    slugs.push(...characterData.games);
-    slugs.push(...characterData.movies_tv);
-    slugs.push(...characterData.vtubers);
-    slugs.push(...characterData.archetypes);
+    // Add all character names (with safety checks)
+    if (characterData.anime_characters) slugs.push(...characterData.anime_characters);
+    if (characterData.game_characters) slugs.push(...characterData.game_characters);
+    if (characterData.movie_tv_characters) slugs.push(...characterData.movie_tv_characters);
+    if (characterData.vtubers) slugs.push(...characterData.vtubers);
+    if (characterData.archetypes) slugs.push(...characterData.archetypes);
 
     // Add modifier + archetype combinations (most searched patterns)
     const topModifiers = ['cute', 'hot', 'yandere', 'tsundere', 'possessive', 'romantic'];
@@ -38,7 +38,8 @@ function getAllCharacterSlugs(): string[] {
         });
     });
 
-    return slugs;
+    // Filter out any undefined/empty values
+    return slugs.filter(slug => slug && typeof slug === 'string' && slug.length > 0);
 }
 
 export async function generateStaticParams() {
@@ -47,6 +48,7 @@ export async function generateStaticParams() {
 }
 
 function formatName(slug: string): string {
+    if (!slug) return 'Character';
     return slug
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -54,9 +56,9 @@ function formatName(slug: string): string {
 }
 
 function getCategory(slug: string): string {
-    if (characterData.anime.includes(slug)) return 'Anime';
-    if (characterData.games.includes(slug)) return 'Video Games';
-    if (characterData.movies_tv.includes(slug)) return 'Movies & TV';
+    if (characterData.anime_characters.includes(slug)) return 'Anime';
+    if (characterData.game_characters.includes(slug)) return 'Video Games';
+    if (characterData.movie_tv_characters.includes(slug)) return 'Movies & TV';
     if (characterData.vtubers.includes(slug)) return 'VTuber';
     if (characterData.archetypes.includes(slug)) return 'Original Character';
     return 'AI Character';
@@ -64,6 +66,15 @@ function getCategory(slug: string): string {
 
 export async function generateMetadata({ params }: { params: Promise<{ character: string }> }): Promise<Metadata> {
     const { character } = await params;
+
+    // Safety check for undefined character
+    if (!character) {
+        return {
+            title: 'AI Chat | Agentwood',
+            description: 'Chat with AI characters on Agentwood',
+        };
+    }
+
     const name = formatName(character);
     const category = getCategory(character);
 
@@ -98,11 +109,17 @@ export async function generateMetadata({ params }: { params: Promise<{ character
 
 export default async function CharacterAIChatPage({ params }: { params: Promise<{ character: string }> }) {
     const { character } = await params;
+
+    // Safety check for undefined character
+    if (!character) {
+        return <div className="container mx-auto px-4 py-8"><h1>Character not found</h1></div>;
+    }
+
     const name = formatName(character);
     const category = getCategory(character);
 
     // Find matching characters in database
-    const searchTerms = character.split('-').filter(t => t.length > 2);
+    const searchTerms = (character || '').split('-').filter(t => t.length > 2);
     const matchingCharacters = await db.personaTemplate.findMany({
         where: {
             OR: searchTerms.flatMap(term => [

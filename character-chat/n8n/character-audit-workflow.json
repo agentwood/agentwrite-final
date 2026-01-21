@@ -1,0 +1,170 @@
+{
+    "name": "Character Quality Audit",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "hours",
+                            "hoursInterval": 6
+                        }
+                    ]
+                }
+            },
+            "id": "schedule-trigger",
+            "name": "Every 6 Hours",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "GET",
+                "url": "={{$env.SITE_URL}}/api/admin/characters/recent",
+                "authentication": "headerAuth",
+                "options": {}
+            },
+            "id": "fetch-characters",
+            "name": "Fetch Recent Characters",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4,
+            "position": [
+                450,
+                300
+            ],
+            "credentials": {
+                "httpHeaderAuth": {
+                    "id": "admin-auth",
+                    "name": "Admin Auth"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const characters = $input.all()[0].json.characters || [];\nconst results = [];\n\nconst ARCHETYPE_REQUIREMENTS = {\n  yandere_obsessive: { requiredGender: 'F', keywords: ['obsessive', 'devoted', 'possessive'] },\n  tsundere_cold: { requiredGender: 'F', keywords: ['cold', 'proud', 'embarrassed'] },\n  vampire_prince: { requiredGender: 'M', keywords: ['vampire', 'immortal', 'elegant'] },\n  mafia_boss: { requiredGender: 'M', keywords: ['dangerous', 'dominant', 'crime'] },\n  demon_lord: { requiredGender: 'M', keywords: ['demon', 'sinister', 'dark'] },\n};\n\nfor (const char of characters) {\n  const issues = [];\n  let score = 100;\n  \n  // Check description length\n  if (!char.description || char.description.length < 100) {\n    issues.push('Description too short');\n    score -= 15;\n  }\n  \n  // Check greeting quality\n  if (char.greeting && /^hello,?\\s*i\\s*am/i.test(char.greeting)) {\n    issues.push('Generic greeting detected');\n    score -= 15;\n  }\n  \n  // Check archetype coherence\n  const arch = ARCHETYPE_REQUIREMENTS[char.archetype];\n  if (arch) {\n    if (arch.requiredGender && char.gender !== arch.requiredGender) {\n      issues.push(`Gender mismatch for ${char.archetype}`);\n      score -= 10;\n    }\n  }\n  \n  // Check avatar\n  if (!char.avatarUrl || char.avatarUrl === 'pending') {\n    issues.push('Missing avatar');\n    score -= 20;\n  }\n  \n  results.push({\n    id: char.id,\n    name: char.name,\n    score,\n    passed: score >= 70 && issues.length === 0,\n    issues\n  });\n}\n\nconst failed = results.filter(r => !r.passed);\n\nreturn [{\n  json: {\n    total: characters.length,\n    passed: results.filter(r => r.passed).length,\n    failed: failed.length,\n    avgScore: Math.round(results.reduce((a, r) => a + r.score, 0) / (results.length || 1)),\n    failedCharacters: failed\n  }\n}];"
+            },
+            "id": "audit-characters",
+            "name": "Audit Characters",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                650,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "number": [
+                        {
+                            "value1": "={{$json.failed}}",
+                            "operation": "larger",
+                            "value2": 0
+                        }
+                    ]
+                }
+            },
+            "id": "if-failures",
+            "name": "Has Failures?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                850,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "channel": "#character-alerts",
+                "text": "=⚠️ **Character Quality Alert**\n\n📊 Audit Results:\n- Total: {{$json.total}}\n- Passed: {{$json.passed}}\n- Failed: {{$json.failed}}\n- Avg Score: {{$json.avgScore}}/100\n\n❌ **Failed Characters:**\n{{$json.failedCharacters.map(c => `• ${c.name}: ${c.issues.join(', ')}`).join('\\n')}}"
+            },
+            "id": "slack-alert",
+            "name": "Slack Alert",
+            "type": "n8n-nodes-base.slack",
+            "typeVersion": 2,
+            "position": [
+                1050,
+                200
+            ],
+            "credentials": {
+                "slackApi": {
+                    "id": "slack-creds",
+                    "name": "Slack"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "content": "=✅ All {{$json.total}} characters passed quality audit (Avg: {{$json.avgScore}}/100)"
+            },
+            "id": "log-success",
+            "name": "Log Success",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3,
+            "position": [
+                1050,
+                400
+            ]
+        }
+    ],
+    "connections": {
+        "Every 6 Hours": {
+            "main": [
+                [
+                    {
+                        "node": "Fetch Recent Characters",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Fetch Recent Characters": {
+            "main": [
+                [
+                    {
+                        "node": "Audit Characters",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Audit Characters": {
+            "main": [
+                [
+                    {
+                        "node": "Has Failures?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Has Failures?": {
+            "main": [
+                [
+                    {
+                        "node": "Slack Alert",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Log Success",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "settings": {
+        "executionOrder": "v1"
+    }
+}
