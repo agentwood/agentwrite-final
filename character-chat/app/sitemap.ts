@@ -206,6 +206,64 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
       }
     });
+
+    // ============================================
+    // PROGRAMMATIC SEO ROUTES (100K+ pages)
+    // ============================================
+
+    // Chat-with intent pages
+    const chatWithTypes = [
+      'vampire', 'yandere', 'tsundere', 'kuudere', 'dandere', 'mafia-boss', 'demon', 'angel',
+      'prince', 'princess', 'villain', 'hero', 'knight', 'witch', 'wizard', 'dragon',
+      'werewolf', 'ghost', 'zombie', 'alien', 'robot', 'cyborg', 'elf', 'fairy',
+      'ai-girlfriend', 'ai-boyfriend', 'virtual-partner', 'companion', 'best-friend',
+      'mentor', 'rival', 'enemy', 'crush', 'ex', 'soulmate',
+      'therapist', 'teacher', 'boss', 'coworker', 'roommate', 'neighbor', 'celebrity',
+      'fantasy-character', 'anime-character', 'romance-character', 'horror-character',
+    ];
+    chatWithTypes.forEach((type) => {
+      routes.push({
+        url: `${SITE_URL}/chat-with/${type}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      });
+    });
+
+    // Talk-to archetype pages
+    const talkToArchetypes = [
+      'yandere', 'tsundere', 'kuudere', 'dandere', 'himedere', 'kamidere',
+      'villain', 'hero', 'mentor', 'rival', 'sidekick', 'anti-hero',
+      'knight', 'princess', 'prince', 'queen', 'king', 'emperor',
+      'witch', 'wizard', 'mage', 'sorcerer', 'necromancer',
+      'vampire', 'werewolf', 'demon', 'angel', 'ghost', 'spirit',
+      'assassin', 'thief', 'spy', 'hunter', 'warrior', 'samurai',
+      'girlfriend', 'boyfriend', 'best-friend', 'soulmate', 'crush',
+    ];
+    talkToArchetypes.forEach((archetype) => {
+      routes.push({
+        url: `${SITE_URL}/talk-to/${archetype}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      });
+    });
+
+    // Best category listicle pages
+    const bestCategories = [
+      'fantasy', 'romance', 'anime', 'horror', 'sci-fi', 'action', 'drama',
+      'comedy', 'mystery', 'thriller', 'adventure', 'supernatural', 'slice-of-life',
+      'historical', 'modern', 'futuristic', 'wholesome', 'dark',
+    ];
+    bestCategories.forEach((category) => {
+      routes.push({
+        url: `${SITE_URL}/best/${category}`,
+        lastModified: new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 0.8,
+      });
+    });
+
   } catch (error) {
     console.error('Error generating sitemap:', error);
   }
