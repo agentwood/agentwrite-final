@@ -1,0 +1,282 @@
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure — HARBOR</title>
+    <meta name="description" content="HARBOR's Layer-1 video network and defensible infrastructure architecture.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #fff;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="bg-black text-neutral-300 antialiased selection:bg-white/20 selection:text-white">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2 text-white font-medium tracking-tight">
+                <i data-lucide="anchor" class="w-5 h-5"></i>
+                <span>HARBOR</span>
+            </a>
+            <div class="hidden md:flex items-center gap-8 text-sm font-normal text-neutral-400">
+                <a href="/product.html" class="hover:text-white transition-colors">Product</a>
+                <a href="/datasets.html" class="hover:text-white transition-colors">Datasets</a>
+                <a href="/infrastructure.html" class="text-white">Infrastructure</a>
+                <a href="/ads.html" class="hover:text-white transition-colors">Ads</a>
+                <a href="/about.html" class="hover:text-white transition-colors">About</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/pricing.html"
+                    class="hidden sm:block text-sm text-neutral-400 hover:text-white transition-colors">Pricing</a>
+                <a href="/contact.html"
+                    class="text-xs font-medium bg-white text-black px-4 py-2 rounded-full hover:bg-neutral-200 transition-colors">Request
+                    Demo</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 px-4 sm:px-6">
+
+        <!-- Hero -->
+        <section class="max-w-7xl mx-auto mb-24">
+            <div class="flex items-center gap-2 text-green-400 mb-6 font-mono text-xs">
+                <i data-lucide="server" class="w-4 h-4"></i>
+                <span>Infrastructure</span>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-medium tracking-tighter text-white mb-6 max-w-3xl">
+                The Layer-1 Video Network
+            </h1>
+            <p class="text-xl text-neutral-400 font-light leading-relaxed max-w-2xl">
+                Harbor owns the infrastructure layer for media-native AI data. This page explains why that matters.
+            </p>
+        </section>
+
+        <!-- Why Infrastructure -->
+        <section class="max-w-7xl mx-auto mb-32">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+                <div>
+                    <h2 class="text-2xl md:text-4xl font-medium tracking-tight text-white mb-6">Why Infrastructure
+                        Matters</h2>
+                    <p class="text-neutral-400 leading-relaxed mb-6">
+                        Most AI data platforms rent infrastructure from cloud providers and add a labeling layer on top.
+                        Harbor is different.
+                    </p>
+                    <p class="text-neutral-500 leading-relaxed mb-6">
+                        We own the complete stack from media ingest to frame-level addressing. This isn't about being
+                        full-stack for its own sake — it's the foundation of defensibility.
+                    </p>
+                    <p class="text-neutral-500 leading-relaxed">
+                        When you control the infrastructure, you control latency, cost structure, and the ability to
+                        build features impossible on rented platforms.
+                    </p>
+                </div>
+
+                <div class="bg-neutral-900/30 border border-white/10 rounded-2xl p-8">
+                    <h4 class="text-white mb-6">Infrastructure Ownership</h4>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 border-b border-white/5">
+                            <span class="text-neutral-400">Media Ingest</span>
+                            <span class="text-white text-sm">Owned</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 border-b border-white/5">
+                            <span class="text-neutral-400">Storage Layer</span>
+                            <span class="text-white text-sm">Owned</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 border-b border-white/5">
+                            <span class="text-neutral-400">Streaming Engine</span>
+                            <span class="text-white text-sm">Owned</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 border-b border-white/5">
+                            <span class="text-neutral-400">Frame Addressing</span>
+                            <span class="text-white text-sm">Owned</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3">
+                            <span class="text-neutral-400">Rights Enforcement</span>
+                            <span class="text-white text-sm">Owned</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture Layers -->
+        <section class="max-w-7xl mx-auto mb-32 border-t border-white/10 pt-24">
+            <h2 class="text-2xl md:text-4xl font-medium tracking-tight text-white mb-4 text-center">
+                Architecture <span class="text-neutral-500">Layers</span>
+            </h2>
+            <p class="text-neutral-400 text-center mb-16">Seven composable systems, each building on the one below.</p>
+
+            <div class="max-w-3xl mx-auto space-y-4">
+                <div
+                    class="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 flex items-center gap-6 hover:border-white/20 transition-all">
+                    <div
+                        class="w-12 h-12 rounded bg-white/5 flex items-center justify-center border border-white/10 text-lg font-medium text-white shrink-0">
+                        7</div>
+                    <div>
+                        <h3 class="text-white font-medium">Agent Deployment</h3>
+                        <p class="text-sm text-neutral-500">Deploy agents trained on Harbor datasets.</p>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 flex items-center gap-6 hover:border-white/20 transition-all">
+                    <div
+                        class="w-12 h-12 rounded bg-white/5 flex items-center justify-center border border-white/10 text-lg font-medium text-white shrink-0">
+                        6</div>
+                    <div>
+                        <h3 class="text-white font-medium">API Gateway</h3>
+                        <p class="text-sm text-neutral-500">Primary product surface. Usage-metered, rights-aware.</p>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 flex items-center gap-6 hover:border-white/20 transition-all">
+                    <div
+                        class="w-12 h-12 rounded bg-white/5 flex items-center justify-center border border-white/10 text-lg font-medium text-white shrink-0">
+                        5</div>
+                    <div>
+                        <h3 class="text-white font-medium">Dataset & Licensing</h3>
+                        <p class="text-sm text-neutral-500">Governed, monetizable assets with version control.</p>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 flex items-center gap-6 hover:border-white/20 transition-all">
+                    <div
+                        class="w-12 h-12 rounded bg-white/5 flex items-center justify-center border border-white/10 text-lg font-medium text-white shrink-0">
+                        4</div>
+                    <div>
+                        <h3 class="text-white font-medium">RAG Dataset Engine</h3>
+                        <p class="text-sm text-neutral-500">Transform datasets into queryable, context-aware assets.</p>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 flex items-center gap-6 hover:border-white/20 transition-all">
+                    <div
+                        class="w-12 h-12 rounded bg-white/5 flex items-center justify-center border border-white/10 text-lg font-medium text-white shrink-0">
+                        3</div>
+                    <div>
+                        <h3 class="text-white font-medium">Annotation Fabric</h3>
+                        <p class="text-sm text-neutral-500">Continuous refinement into high-confidence datasets.</p>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-[#0A0A0A] border border-blue-500/50 rounded-xl p-6 flex items-center gap-6 ring-1 ring-blue-500/20">
+                    <div
+                        class="w-12 h-12 rounded bg-blue-500/10 flex items-center justify-center border border-blue-500/30 text-lg font-medium text-blue-400 shrink-0">
+                        2</div>
+                    <div>
+                        <div class="text-xs text-blue-400 font-medium uppercase tracking-wide mb-1">Core Moat</div>
+                        <h3 class="text-white font-medium">Layer-1 Video Network</h3>
+                        <p class="text-sm text-neutral-500">Proprietary, media-optimized infrastructure. This layer does
+                            not exist at competitors.</p>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 flex items-center gap-6 hover:border-white/20 transition-all">
+                    <div
+                        class="w-12 h-12 rounded bg-white/5 flex items-center justify-center border border-white/10 text-lg font-medium text-white shrink-0">
+                        1</div>
+                    <div>
+                        <h3 class="text-white font-medium">Data Origination</h3>
+                        <p class="text-sm text-neutral-500">Continuous, permissioned supply through apps and partners.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Layer-1 Capabilities -->
+        <section class="max-w-7xl mx-auto mb-32 p-12 bg-neutral-900/30 border border-white/10 rounded-3xl">
+            <h2 class="text-2xl font-medium text-white mb-8 text-center">Layer-1 Capabilities</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-black/40 border border-white/5 rounded-xl p-6">
+                    <h3 class="text-white font-medium mb-2">High-Throughput Ingest</h3>
+                    <p class="text-sm text-neutral-500">Accept media from any source at any scale. No file size or
+                        duration limits.</p>
+                </div>
+                <div class="bg-black/40 border border-white/5 rounded-xl p-6">
+                    <h3 class="text-white font-medium mb-2">Distributed Storage</h3>
+                    <p class="text-sm text-neutral-500">Multiple regions with automatic replication. Hot, warm, and cold
+                        tiers.</p>
+                </div>
+                <div class="bg-black/40 border border-white/5 rounded-xl p-6">
+                    <h3 class="text-white font-medium mb-2">Real-Time Streaming</h3>
+                    <p class="text-sm text-neutral-500">Stream to annotation pipelines or applications. Adaptive
+                        bitrate, global CDN.</p>
+                </div>
+                <div class="bg-black/40 border border-white/5 rounded-xl p-6">
+                    <h3 class="text-white font-medium mb-2">Frame-Level Addressing</h3>
+                    <p class="text-sm text-neutral-500">Every frame has a unique, stable address. This makes RAG on
+                        video possible.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="max-w-xl mx-auto text-center">
+            <h2 class="text-3xl font-medium tracking-tight text-white mb-4">See the Infrastructure</h2>
+            <p class="text-neutral-400 mb-8">Schedule a technical deep-dive with our team.</p>
+            <div class="flex justify-center gap-4">
+                <a href="/contact.html"
+                    class="bg-white text-black font-medium px-6 py-3 rounded-lg hover:bg-neutral-200 transition-colors text-sm">Request
+                    Demo</a>
+                <a href="/engineering.html"
+                    class="border border-white/20 text-white font-medium px-6 py-3 rounded-lg hover:bg-white/5 transition-colors text-sm">View
+                    Engineering</a>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-white/5 bg-black py-12 px-6 mt-20">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+            <div class="space-y-4">
+                <a href="/" class="flex items-center gap-2 text-white font-medium tracking-tight">
+                    <i data-lucide="anchor" class="w-5 h-5"></i>
+                    <span>HARBOR</span>
+                </a>
+                <p class="text-xs text-neutral-500 max-w-xs">Media-native data infrastructure.</p>
+            </div>
+            <div class="flex flex-wrap gap-8 text-xs text-neutral-400">
+                <a href="/product.html" class="hover:text-white transition-colors">Product</a>
+                <a href="/datasets.html" class="hover:text-white transition-colors">Datasets</a>
+                <a href="/infrastructure.html" class="hover:text-white transition-colors">Infrastructure</a>
+                <a href="/pricing.html" class="hover:text-white transition-colors">Pricing</a>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/5 text-[10px] text-neutral-600">
+            <p>© 2026 HARBOR Inc. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>lucide.createIcons();</script>
+</body>
+
+</html>

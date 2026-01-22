@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HARBOR Client Portal - Browse Datasets</title>
+    <meta name="description" content="Browse and license premium AI training datasets">
+    <link rel="stylesheet" href="css/portal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <span class="logo-icon">⚓</span>
+                <span class="logo-text">HARBOR</span>
+                <span class="logo-badge">Client Portal</span>
+            </a>
+            <nav class="nav">
+                <a href="#" class="nav-link active">Datasets</a>
+                <a href="search.html" class="nav-link">Search</a>
+                <a href="#" class="nav-link">My Licenses</a>
+                <a href="#" class="nav-link">API Keys</a>
+            </nav>
+            <div class="header-actions">
+                <div class="user-menu">
+                    <span class="user-avatar">AC</span>
+                    <span class="user-name">Anthropic</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Filters -->
+        <aside class="filters">
+            <div class="filter-section">
+                <h3>Category</h3>
+                <label class="filter-option">
+                    <input type="checkbox" checked> All Categories
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> Video
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> Audio
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> Images
+                </label>
+            </div>
+
+            <div class="filter-section">
+                <h3>Content Type</h3>
+                <label class="filter-option">
+                    <input type="checkbox"> Human Activities
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> Conversations
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> Nature & Environment
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> Urban Scenes
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> Professional Settings
+                </label>
+            </div>
+
+            <div class="filter-section">
+                <h3>Resolution</h3>
+                <label class="filter-option">
+                    <input type="checkbox"> 4K+
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> 1080p
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> 720p
+                </label>
+            </div>
+
+            <div class="filter-section">
+                <h3>Annotations</h3>
+                <label class="filter-option">
+                    <input type="checkbox"> Object Detection
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> Segmentation
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> Transcription
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> Scene Labels
+                </label>
+            </div>
+
+            <div class="filter-section">
+                <h3>License Type</h3>
+                <label class="filter-option">
+                    <input type="checkbox"> Training Only
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> Commercial Use
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox"> Exclusive
+                </label>
+            </div>
+        </aside>
+
+        <!-- Dataset Grid -->
+        <section class="content">
+            <div class="content-header">
+                <h1>Available Datasets</h1>
+                <div class="content-actions">
+                    <input type="search" placeholder="Search datasets..." class="search-input">
+                    <select class="sort-select">
+                        <option>Newest First</option>
+                        <option>Most Items</option>
+                        <option>Alphabetical</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat">
+                    <span class="stat-value">24</span>
+                    <span class="stat-label">Datasets</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">1.2M</span>
+                    <span class="stat-label">Media Items</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">89M</span>
+                    <span class="stat-label">Annotations</span>
+                </div>
+            </div>
+
+            <div class="dataset-grid">
+                <!-- Dataset Card 1 -->
+                <article class="dataset-card" onclick="location.href='dataset.html?id=ds-001'">
+                    <div class="dataset-thumbnail">
+                        <div class="thumbnail-placeholder">🎬</div>
+                        <span class="dataset-type">Video</span>
+                    </div>
+                    <div class="dataset-info">
+                        <h3>Urban Street Scenes 4K</h3>
+                        <p>High-resolution footage of city streets, pedestrians, and vehicles from 50+ cities.</p>
+                        <div class="dataset-meta">
+                            <span class="meta-item">📦 124,500 items</span>
+                            <span class="meta-item">🏷️ 2.3M annotations</span>
+                        </div>
+                        <div class="dataset-tags">
+                            <span class="tag">Detection</span>
+                            <span class="tag">Segmentation</span>
+                            <span class="tag">4K</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Dataset Card 2 -->
+                <article class="dataset-card" onclick="location.href='dataset.html?id=ds-002'">
+                    <div class="dataset-thumbnail">
+                        <div class="thumbnail-placeholder">🎙️</div>
+                        <span class="dataset-type">Audio</span>
+                    </div>
+                    <div class="dataset-info">
+                        <h3>Conversational Speech</h3>
+                        <p>Natural conversations in 12 languages with word-level transcriptions and speaker diarization.
+                        </p>
+                        <div class="dataset-meta">
+                            <span class="meta-item">📦 89,000 items</span>
+                            <span class="meta-item">🏷️ 1.1M annotations</span>
+                        </div>
+                        <div class="dataset-tags">
+                            <span class="tag">Transcription</span>
+                            <span class="tag">Multi-language</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Dataset Card 3 -->
+                <article class="dataset-card" onclick="location.href='dataset.html?id=ds-003'">
+                    <div class="dataset-thumbnail">
+                        <div class="thumbnail-placeholder">🏠</div>
+                        <span class="dataset-type">Video</span>
+                    </div>
+                    <div class="dataset-info">
+                        <h3>Indoor Activities</h3>
+                        <p>People performing everyday activities in home and office environments.</p>
+                        <div class="dataset-meta">
+                            <span class="meta-item">📦 67,200 items</span>
+                            <span class="meta-item">🏷️ 890K annotations</span>
+                        </div>
+                        <div class="dataset-tags">
+                            <span class="tag">Detection</span>
+                            <span class="tag">Activities</span>
+                            <span class="tag">1080p</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Dataset Card 4 -->
+                <article class="dataset-card" onclick="location.href='dataset.html?id=ds-004'">
+                    <div class="dataset-thumbnail">
+                        <div class="thumbnail-placeholder">🌲</div>
+                        <span class="dataset-type">Video</span>
+                    </div>
+                    <div class="dataset-info">
+                        <h3>Nature & Wildlife</h3>
+                        <p>Landscapes, animals, and natural phenomena captured in various environments.</p>
+                        <div class="dataset-meta">
+                            <span class="meta-item">📦 45,800 items</span>
+                            <span class="meta-item">🏷️ 560K annotations</span>
+                        </div>
+                        <div class="dataset-tags">
+                            <span class="tag">Detection</span>
+                            <span class="tag">Scene Labels</span>
+                            <span class="tag">4K</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Dataset Card 5 -->
+                <article class="dataset-card" onclick="location.href='dataset.html?id=ds-005'">
+                    <div class="dataset-thumbnail">
+                        <div class="thumbnail-placeholder">🎭</div>
+                        <span class="dataset-type">Video</span>
+                    </div>
+                    <div class="dataset-info">
+                        <h3>Facial Expressions</h3>
+                        <p>Diverse faces expressing emotions with consent forms and demographic metadata.</p>
+                        <div class="dataset-meta">
+                            <span class="meta-item">📦 234,000 items</span>
+                            <span class="meta-item">🏷️ 4.2M annotations</span>
+                        </div>
+                        <div class="dataset-tags">
+                            <span class="tag">Segmentation</span>
+                            <span class="tag">Emotions</span>
+                            <span class="tag">Diverse</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Dataset Card 6 -->
+                <article class="dataset-card" onclick="location.href='dataset.html?id=ds-006'">
+                    <div class="dataset-thumbnail">
+                        <div class="thumbnail-placeholder">🚗</div>
+                        <span class="dataset-type">Video</span>
+                    </div>
+                    <div class="dataset-info">
+                        <h3>Driving Scenarios</h3>
+                        <p>Dashcam footage with road conditions, traffic signs, and vehicle tracking.</p>
+                        <div class="dataset-meta">
+                            <span class="meta-item">📦 178,000 items</span>
+                            <span class="meta-item">🏷️ 3.4M annotations</span>
+                        </div>
+                        <div class="dataset-tags">
+                            <span class="tag">Detection</span>
+                            <span class="tag">Tracking</span>
+                            <span class="tag">1080p</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <div class="pagination">
+                <button class="page-btn" disabled>← Previous</button>
+                <span class="page-info">Page 1 of 4</span>
+                <button class="page-btn">Next →</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2026 HARBOR. All datasets are licensed and rights-cleared.</p>
+    </footer>
+
+    <script src="js/portal.js"></script>
+</body>
+
+</html>

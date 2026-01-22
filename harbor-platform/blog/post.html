@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Blog Post - HARBOR</title>
+    <meta name="description" id="metaDescription" content="">
+    <link rel="stylesheet" href="css/blog.css">
+    <link rel="stylesheet" href="css/post.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <span class="logo-icon">⚓</span>
+                <span class="logo-text">HARBOR</span>
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/datasets">Datasets</a>
+                <a href="/blog" class="active">Blog</a>
+                <a href="/enterprise/demo" class="btn btn-primary">Book Demo</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="article">
+        <header class="article-header">
+            <div class="article-meta">
+                <span class="category" id="postCategory">Product</span>
+                <span class="date" id="postDate">Jan 20, 2026</span>
+                <span class="read-time" id="readTime">5 min read</span>
+            </div>
+            <h1 id="postTitle">Welcome to HARBOR: The Future of Media-Native AI Data</h1>
+            <p class="article-subtitle" id="postSubtitle">Introducing a new platform for sourcing, annotating, and
+                licensing premium media datasets for AI training.</p>
+            <div class="author">
+                <div class="author-avatar">AO</div>
+                <div class="author-info">
+                    <span class="author-name">HARBOR Team</span>
+                    <span class="author-role">Engineering</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="article-content" id="articleContent">
+            <p class="lead">The AI industry is facing a data crisis. As models grow more powerful, the need for
+                high-quality, ethically-sourced training data has never been greater. HARBOR is our answer to this
+                challenge.</p>
+
+            <h2>The Problem</h2>
+            <p>Today's AI companies face a difficult choice: scrape data without permission and risk legal action, or
+                spend months negotiating individual licensing deals. Neither approach scales.</p>
+            <p>Meanwhile, content creators—photographers, videographers, musicians—see their work used to train AI
+                models without compensation or consent.</p>
+
+            <h2>Our Solution</h2>
+            <p>HARBOR is a media-native data infrastructure platform that connects:</p>
+            <ul>
+                <li><strong>Contributors</strong> who earn money by licensing their content</li>
+                <li><strong>AI companies</strong> who access premium, licensed datasets via API</li>
+                <li><strong>Annotators</strong> who add value through expert labeling</li>
+            </ul>
+
+            <blockquote>
+                "We believe the future of AI training data is permissioned, tracked, and compensated."
+            </blockquote>
+
+            <h2>Key Features</h2>
+
+            <h3>Provenance from Day Zero</h3>
+            <p>Every piece of content in HARBOR is tracked from the moment of capture. We know who created it, when, and
+                under what terms it can be used.</p>
+
+            <h3>Frame-Addressable Storage</h3>
+            <p>Our Layer-1 video network allows you to access specific frames, time ranges, or scenes—not just entire
+                videos.</p>
+
+            <h3>Graph RAG for Media</h3>
+            <p>Using Cognee, we've built a knowledge graph that understands relationships between scenes, objects, and
+                actions across millions of hours of video.</p>
+
+            <h3>Rights-Respecting Licensing</h3>
+            <p>Enterprises can license datasets with confidence, knowing exactly what they can use the data for, in
+                which territories, and for how long.</p>
+
+            <h2>What's Next</h2>
+            <p>We're launching with video and audio datasets, with image and text support coming soon. <a
+                    href="/enterprise/demo">Book a demo</a> to see HARBOR in action.</p>
+
+            <div class="article-cta">
+                <h3>Ready to explore?</h3>
+                <p>Get started with HARBOR's datasets API or become a contributor.</p>
+                <div class="cta-buttons">
+                    <a href="/docs" class="btn btn-primary">View Documentation</a>
+                    <a href="/signup" class="btn btn-secondary">Become a Contributor</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Share -->
+        <div class="article-share">
+            <span>Share this article:</span>
+            <div class="share-buttons">
+                <a href="#" class="share-btn twitter">Twitter</a>
+                <a href="#" class="share-btn linkedin">LinkedIn</a>
+                <a href="#" class="share-btn copy">Copy Link</a>
+            </div>
+        </div>
+
+        <!-- Related -->
+        <section class="related">
+            <h2>Related Articles</h2>
+            <div class="related-grid">
+                <article class="post-card" data-category="research">
+                    <div class="post-image small"></div>
+                    <div class="post-content">
+                        <div class="post-meta">
+                            <span class="category">Research</span>
+                        </div>
+                        <h3>The Uncanny Valley of Synthetic Data</h3>
+                        <a href="post.html?slug=uncanny-valley" class="read-more">Read More →</a>
+                    </div>
+                </article>
+                <article class="post-card" data-category="tutorials">
+                    <div class="post-image small"></div>
+                    <div class="post-content">
+                        <div class="post-meta">
+                            <span class="category">Tutorials</span>
+                        </div>
+                        <h3>Getting Started with HARBOR API</h3>
+                        <a href="post.html?slug=api-getting-started" class="read-more">Read More →</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <span class="logo-icon">⚓</span>
+                    <span class="logo-text">HARBOR</span>
+                </div>
+                <p>The media-native data infrastructure for AI.</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <a href="/datasets">Datasets</a>
+                    <a href="/api">API</a>
+                    <a href="/enterprise">Enterprise</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <a href="/blog">Blog</a>
+                    <a href="/docs">Documentation</a>
+                    <a href="/research">Research</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Company</h4>
+                    <a href="/about">About</a>
+                    <a href="/careers">Careers</a>
+                    <a href="/contact">Contact</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 HARBOR. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/post.js"></script>
+</body>
+
+</html>

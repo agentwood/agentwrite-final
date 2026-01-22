@@ -1,0 +1,340 @@
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product — HARBOR</title>
+    <meta name="description"
+        content="HARBOR's annotation, curation, and API infrastructure explained. A technical system, not a feature list.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #fff;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="bg-black text-neutral-300 antialiased selection:bg-white/20 selection:text-white">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2 text-white font-medium tracking-tight">
+                <i data-lucide="anchor" class="w-5 h-5"></i>
+                <span>HARBOR</span>
+            </a>
+            <div class="hidden md:flex items-center gap-8 text-sm font-normal text-neutral-400">
+                <a href="/product.html" class="text-white">Product</a>
+                <a href="/datasets.html" class="hover:text-white transition-colors">Datasets</a>
+                <a href="/infrastructure.html" class="hover:text-white transition-colors">Infrastructure</a>
+                <a href="/ads.html" class="hover:text-white transition-colors">Ads</a>
+                <a href="/about.html" class="hover:text-white transition-colors">About</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/pricing.html"
+                    class="hidden sm:block text-sm text-neutral-400 hover:text-white transition-colors">Pricing</a>
+                <a href="/contact.html"
+                    class="text-xs font-medium bg-white text-black px-4 py-2 rounded-full hover:bg-neutral-200 transition-colors">Request
+                    Demo</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 px-4 sm:px-6">
+
+        <!-- Hero -->
+        <section class="max-w-7xl mx-auto mb-24">
+            <div class="flex items-center gap-2 text-blue-400 mb-6 font-mono text-xs">
+                <i data-lucide="layers" class="w-4 h-4"></i>
+                <span>Product</span>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-medium tracking-tighter text-white mb-6 max-w-3xl">
+                Annotation, Curation, and APIs
+            </h1>
+            <p class="text-xl text-neutral-400 font-light leading-relaxed max-w-2xl">
+                HARBOR is a technical system, not a feature list. Understand the depth of annotation, the rigor of
+                curation, and the power of our API surface.
+            </p>
+        </section>
+
+        <!-- Multimodal Annotation -->
+        <section class="max-w-7xl mx-auto mb-32">
+            <h2 class="text-2xl md:text-4xl font-medium tracking-tight text-white mb-12">
+                Multimodal <span class="text-neutral-500">Annotation</span>
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all">
+                    <div
+                        class="bg-purple-500/10 text-purple-400 px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide inline-block mb-4">
+                        Video</div>
+                    <h3 class="text-lg font-medium text-white mb-3">Object Detection</h3>
+                    <p class="text-sm text-neutral-500 leading-relaxed">Frame-accurate bounding boxes with temporal
+                        tracking. YOLOv11-based detection for 80+ object classes.</p>
+                </div>
+
+                <div class="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all">
+                    <div
+                        class="bg-purple-500/10 text-purple-400 px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide inline-block mb-4">
+                        Video</div>
+                    <h3 class="text-lg font-medium text-white mb-3">Segmentation</h3>
+                    <p class="text-sm text-neutral-500 leading-relaxed">Pixel-level masks for every detected object.
+                        SAM2-powered segmentation that tracks through occlusion.</p>
+                </div>
+
+                <div class="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all">
+                    <div
+                        class="bg-purple-500/10 text-purple-400 px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide inline-block mb-4">
+                        Video</div>
+                    <h3 class="text-lg font-medium text-white mb-3">Scene Classification</h3>
+                    <p class="text-sm text-neutral-500 leading-relaxed">CLIP-based scene understanding with hierarchical
+                        labeling. Indoor/outdoor, lighting, activity context.</p>
+                </div>
+
+                <div class="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all">
+                    <div
+                        class="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide inline-block mb-4">
+                        Audio</div>
+                    <h3 class="text-lg font-medium text-white mb-3">Transcription</h3>
+                    <p class="text-sm text-neutral-500 leading-relaxed">Whisper-powered transcription with word-level
+                        timestamps. Multi-language support for 50+ languages.</p>
+                </div>
+
+                <div class="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all">
+                    <div
+                        class="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide inline-block mb-4">
+                        Audio</div>
+                    <h3 class="text-lg font-medium text-white mb-3">Speaker Diarization</h3>
+                    <p class="text-sm text-neutral-500 leading-relaxed">Identify and separate multiple speakers. Track
+                        speaker identity across conversations.</p>
+                </div>
+
+                <div class="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all">
+                    <div
+                        class="bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide inline-block mb-4">
+                        Multimodal</div>
+                    <h3 class="text-lg font-medium text-white mb-3">Audio-Visual Alignment</h3>
+                    <p class="text-sm text-neutral-500 leading-relaxed">Sync audio and video with semantic correlation.
+                        Match spoken words to on-screen elements.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Continuous Curation -->
+        <section class="max-w-7xl mx-auto mb-32 border-t border-white/10 pt-24">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div
+                        class="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide inline-block mb-6">
+                        Core Differentiator</div>
+                    <h2 class="text-3xl md:text-4xl font-medium tracking-tight text-white mb-6">Continuous Curation</h2>
+                    <p class="text-lg text-neutral-400 font-light leading-relaxed mb-8">
+                        Annotation is never final. It evolves with dataset performance, model feedback, and changing
+                        requirements.
+                    </p>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 p-4 bg-neutral-900/30 border border-white/5 rounded-xl">
+                            <div
+                                class="w-8 h-8 rounded bg-white/5 flex items-center justify-center border border-white/10 text-sm text-white">
+                                1</div>
+                            <div>
+                                <span class="text-white text-sm font-medium">Quality Scoring</span>
+                                <span class="text-neutral-500 text-sm ml-2">— Every annotation has confidence
+                                    metrics</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 bg-neutral-900/30 border border-white/5 rounded-xl">
+                            <div
+                                class="w-8 h-8 rounded bg-white/5 flex items-center justify-center border border-white/10 text-sm text-white">
+                                2</div>
+                            <div>
+                                <span class="text-white text-sm font-medium">Feedback Loops</span>
+                                <span class="text-neutral-500 text-sm ml-2">— Model performance improves
+                                    annotations</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 bg-neutral-900/30 border border-white/5 rounded-xl">
+                            <div
+                                class="w-8 h-8 rounded bg-white/5 flex items-center justify-center border border-white/10 text-sm text-white">
+                                3</div>
+                            <div>
+                                <span class="text-white text-sm font-medium">Version Control</span>
+                                <span class="text-neutral-500 text-sm ml-2">— Full history of annotation
+                                    evolution</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#0D0D0D] border border-white/10 rounded-xl overflow-hidden">
+                    <div class="flex items-center px-4 py-3 border-b border-white/5 bg-white/5">
+                        <div class="flex gap-1.5">
+                            <div class="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-green-500/20 border border-green-500/50"></div>
+                        </div>
+                        <div class="ml-4 text-[10px] text-neutral-500 font-mono">quality_metrics.json</div>
+                    </div>
+                    <div class="p-6 overflow-x-auto">
+                        <pre class="font-mono text-xs leading-6 text-neutral-400">{
+  <span class="text-green-400">"annotation_id"</span>: <span class="text-green-400">"ann_7f3k2..."</span>,
+  <span class="text-green-400">"quality"</span>: {
+    <span class="text-green-400">"score"</span>: <span class="text-orange-300">0.94</span>,
+    <span class="text-green-400">"model_confidence"</span>: <span class="text-orange-300">0.91</span>,
+    <span class="text-green-400">"human_validated"</span>: <span class="text-purple-400">true</span>,
+    <span class="text-green-400">"last_reviewed"</span>: <span class="text-green-400">"2026-01-20"</span>
+  },
+  <span class="text-green-400">"version"</span>: <span class="text-orange-300">3</span>
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Surface -->
+        <section class="max-w-7xl mx-auto mb-32">
+            <h2 class="text-2xl md:text-4xl font-medium tracking-tight text-white mb-4">
+                API <span class="text-neutral-500">Surface</span>
+            </h2>
+            <p class="text-neutral-400 mb-12 max-w-2xl">APIs are the primary product surface. Usage-metered,
+                rights-aware, designed for automation.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-neutral-900/30 border border-white/10 rounded-2xl p-8">
+                    <h3 class="text-lg font-medium text-white mb-3">Dataset Access API</h3>
+                    <p class="text-sm text-neutral-500 mb-6">Fine-grained control over usage, scope, and licensing
+                        enforcement.</p>
+                    <div class="bg-black/40 rounded-lg p-4 font-mono text-xs text-neutral-400">
+                        <span class="text-purple-400">const</span> dataset = <span class="text-yellow-300">await</span>
+                        harbor.datasets.get({<br>
+                        <span class="pl-4">id: <span class="text-green-400">"audio-speech-v4"</span></span><br>
+                        });
+                    </div>
+                </div>
+
+                <div class="bg-neutral-900/30 border border-white/10 rounded-2xl p-8">
+                    <h3 class="text-lg font-medium text-white mb-3">RAG Query API</h3>
+                    <p class="text-sm text-neutral-500 mb-6">Query datasets contextually using multimodal retrieval
+                        pipelines.</p>
+                    <div class="bg-black/40 rounded-lg p-4 font-mono text-xs text-neutral-400">
+                        <span class="text-purple-400">const</span> ctx = <span class="text-yellow-300">await</span>
+                        harbor.rag.query({<br>
+                        <span class="pl-4">query: <span class="text-green-400">"person opening door"</span></span><br>
+                        });
+                    </div>
+                </div>
+
+                <div class="bg-neutral-900/30 border border-white/10 rounded-2xl p-8">
+                    <h3 class="text-lg font-medium text-white mb-3">Annotation API</h3>
+                    <p class="text-sm text-neutral-500 mb-6">Submit media for annotation or retrieve existing
+                        annotations.</p>
+                    <div class="bg-black/40 rounded-lg p-4 font-mono text-xs text-neutral-400">
+                        <span class="text-purple-400">const</span> job = <span class="text-yellow-300">await</span>
+                        harbor.annotate({<br>
+                        <span class="pl-4">media_url: <span class="text-green-400">"s3://..."</span></span><br>
+                        });
+                    </div>
+                </div>
+
+                <div class="bg-neutral-900/30 border border-white/10 rounded-2xl p-8">
+                    <h3 class="text-lg font-medium text-white mb-3">Streaming API</h3>
+                    <p class="text-sm text-neutral-500 mb-6">Real-time stream access for live media workflows.</p>
+                    <div class="bg-black/40 rounded-lg p-4 font-mono text-xs text-neutral-400">
+                        <span class="text-purple-400">const</span> stream = harbor.stream({<br>
+                        <span class="pl-4">source: <span class="text-green-400">"rtmp://..."</span></span><br>
+                        });
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Production Ready -->
+        <section class="max-w-7xl mx-auto mb-32 p-12 bg-neutral-900/30 border border-white/10 rounded-3xl">
+            <h2 class="text-2xl font-medium text-white mb-8 text-center">Production-Ready</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="text-4xl font-medium text-white mb-2">99.9%</div>
+                    <div class="text-sm text-neutral-500">API Uptime</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-medium text-white mb-2">&lt;50ms</div>
+                    <div class="text-sm text-neutral-500">p99 Latency</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-medium text-white mb-2">SOC2</div>
+                    <div class="text-sm text-neutral-500">Compliant</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-medium text-white mb-2">24/7</div>
+                    <div class="text-sm text-neutral-500">Support</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="max-w-xl mx-auto text-center">
+            <h2 class="text-3xl font-medium tracking-tight text-white mb-4">Explore the Platform</h2>
+            <p class="text-neutral-400 mb-8">See how Harbor's infrastructure can power your AI workflows.</p>
+            <div class="flex justify-center gap-4">
+                <a href="/contact.html"
+                    class="bg-white text-black font-medium px-6 py-3 rounded-lg hover:bg-neutral-200 transition-colors text-sm">Request
+                    Demo</a>
+                <a href="/infrastructure.html"
+                    class="border border-white/20 text-white font-medium px-6 py-3 rounded-lg hover:bg-white/5 transition-colors text-sm">View
+                    Infrastructure</a>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-white/5 bg-black py-12 px-6 mt-20">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+            <div class="space-y-4">
+                <a href="/" class="flex items-center gap-2 text-white font-medium tracking-tight">
+                    <i data-lucide="anchor" class="w-5 h-5"></i>
+                    <span>HARBOR</span>
+                </a>
+                <p class="text-xs text-neutral-500 max-w-xs">Media-native data infrastructure.</p>
+            </div>
+            <div class="flex flex-wrap gap-8 text-xs text-neutral-400">
+                <a href="/product.html" class="hover:text-white transition-colors">Product</a>
+                <a href="/datasets.html" class="hover:text-white transition-colors">Datasets</a>
+                <a href="/infrastructure.html" class="hover:text-white transition-colors">Infrastructure</a>
+                <a href="/pricing.html" class="hover:text-white transition-colors">Pricing</a>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/5 text-[10px] text-neutral-600">
+            <p>© 2026 HARBOR Inc. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>lucide.createIcons();</script>
+</body>
+
+</html>

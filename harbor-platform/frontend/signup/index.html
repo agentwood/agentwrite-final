@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - HARBOR</title>
+    <meta name="description" content="Join HARBOR and start earning by contributing your photos and videos.">
+    <link rel="stylesheet" href="css/signup.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="signup-container">
+        <!-- Left - Branding -->
+        <div class="signup-brand">
+            <div class="brand-content">
+                <a href="/" class="logo">
+                    <span class="logo-icon">⚓</span>
+                    <span class="logo-text">HARBOR</span>
+                </a>
+
+                <div class="brand-hero">
+                    <h1>Get Paid for Your Data</h1>
+                    <p>Join thousands of contributors earning money by licensing their photos and videos to AI
+                        companies.</p>
+                </div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-value">$2.4M+</span>
+                        <span class="stat-label">Paid to Contributors</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">50K+</span>
+                        <span class="stat-label">Active Contributors</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">24hr</span>
+                        <span class="stat-label">Avg. First Payout</span>
+                    </div>
+                </div>
+
+                <div class="testimonial">
+                    <p>"I made $1,200 in my first month just uploading photos from my camera roll."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">SK</div>
+                        <div>
+                            <span class="author-name">Sarah K.</span>
+                            <span class="author-location">Los Angeles, CA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right - Form -->
+        <div class="signup-form-container">
+            <!-- Progress Steps -->
+            <div class="steps">
+                <div class="step active" data-step="1">
+                    <span class="step-num">1</span>
+                    <span class="step-label">Create Account</span>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step" data-step="2">
+                    <span class="step-num">2</span>
+                    <span class="step-label">Verify</span>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step" data-step="3">
+                    <span class="step-num">3</span>
+                    <span class="step-label">Get Started</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Create Account -->
+            <div class="form-step active" id="step1">
+                <h2>Create your account</h2>
+                <p>Start earning in minutes. No credit card required.</p>
+
+                <form id="signupForm">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" placeholder="John Doe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number (optional)</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required
+                            minlength="8">
+                        <span class="input-hint">At least 8 characters</span>
+                    </div>
+
+                    <div class="form-group checkbox">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">
+                            I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy
+                                Policy</a>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-text">Continue</span>
+                        <span class="btn-loading">Creating account...</span>
+                    </button>
+                </form>
+
+                <div class="divider">
+                    <span>or sign up with</span>
+                </div>
+
+                <div class="social-buttons">
+                    <button class="btn btn-social">
+                        <span>📱</span> Apple
+                    </button>
+                    <button class="btn btn-social">
+                        <span>G</span> Google
+                    </button>
+                </div>
+
+                <p class="signin-link">
+                    Already have an account? <a href="/login">Sign in</a>
+                </p>
+            </div>
+
+            <!-- Step 2: Verify -->
+            <div class="form-step" id="step2">
+                <h2>Verify your email</h2>
+                <p>We sent a 6-digit code to <span id="verifyEmail">your email</span></p>
+
+                <form id="verifyForm">
+                    <div class="otp-inputs">
+                        <input type="text" maxlength="1" class="otp-input" data-index="0">
+                        <input type="text" maxlength="1" class="otp-input" data-index="1">
+                        <input type="text" maxlength="1" class="otp-input" data-index="2">
+                        <input type="text" maxlength="1" class="otp-input" data-index="3">
+                        <input type="text" maxlength="1" class="otp-input" data-index="4">
+                        <input type="text" maxlength="1" class="otp-input" data-index="5">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-text">Verify</span>
+                        <span class="btn-loading">Verifying...</span>
+                    </button>
+                </form>
+
+                <p class="resend-link">
+                    Didn't receive the code? <a href="#" id="resendCode">Resend</a>
+                </p>
+            </div>
+
+            <!-- Step 3: Get Started -->
+            <div class="form-step" id="step3">
+                <div class="success-icon">🎉</div>
+                <h2>You're all set!</h2>
+                <p>Download the HARBOR app to start uploading and earning.</p>
+
+                <div class="app-download">
+                    <a href="#" class="app-button">
+                        <span class="app-icon">🍎</span>
+                        <div>
+                            <span class="app-label">Download on the</span>
+                            <span class="app-store">App Store</span>
+                        </div>
+                    </a>
+                    <a href="#" class="app-button disabled">
+                        <span class="app-icon">▶️</span>
+                        <div>
+                            <span class="app-label">Coming soon to</span>
+                            <span class="app-store">Google Play</span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="webapp-alt">
+                    <p>Or continue in your browser</p>
+                    <a href="/dashboard" class="btn btn-secondary">Open Web App</a>
+                </div>
+
+                <div class="quick-tips">
+                    <h3>Quick Tips</h3>
+                    <ul>
+                        <li>📷 Upload photos and videos from your everyday life</li>
+                        <li>💰 Get paid daily for approved content</li>
+                        <li>🏷️ Complete labeling tasks for extra earnings</li>
+                        <li>💳 Cash out anytime via PayPal or bank transfer</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/signup.js"></script>
+</body>
+
+</html>

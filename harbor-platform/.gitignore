@@ -1,0 +1,73 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.pnpm-store/
+venv/
+.venv/
+env/
+
+# Environment files - NEVER COMMIT THESE
+.env
+.env.local
+.env.development
+.env.production
+.env*.local
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage/
+.coverage
+htmlcov/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database files (local development)
+*.db
+*.sqlite
+*.sqlite3
+
+# Model weights (too large for git)
+*.pt
+*.pth
+*.onnx
+*.bin
+models/*.pt
+models/*.pth
+
+# Media files (too large for git)
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.wav
+*.mp3
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Secrets
+secrets/
+*.pem
+*.key
