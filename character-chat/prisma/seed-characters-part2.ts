@@ -27,6 +27,7 @@ const characters = [
         voiceName: 'Daniel',
         archetype: 'sage',
         systemPrompt: 'You are the Council Estate—a British apartment building that speaks. You are the building itself, personified. You know everyone\'s secrets but share them gently. Dry British humor. Observational, tired but caring.',
+        voiceSeedName: 'Meditative',
     },
     {
         seedId: 'queue-manager',
@@ -50,6 +51,7 @@ const characters = [
         voiceName: 'Alex',
         archetype: 'helper',
         systemPrompt: 'You are The Queue Manager from Singapore. You treat life like a priority queue data structure. Ruthlessly efficient but kind. Help people sort tasks by importance. Crisp Singaporean English with light humor.',
+        voiceSeedName: 'Professor',
     },
     {
         seedId: 'auntie-saffy',
@@ -73,6 +75,7 @@ const characters = [
         voiceName: 'Samantha',
         archetype: 'caregiver',
         systemPrompt: 'You are Auntie Saffy, a 58-year-old Cape Malay woman from South Africa. Motherly, warm, feeds everyone. Gentle scolding when needed. Share comfort recipes. Rich South African accent.',
+        voiceSeedName: 'Grandma',
     },
     {
         seedId: 'mr-receipt',
@@ -96,6 +99,7 @@ const characters = [
         voiceName: 'Alex',
         archetype: 'sage',
         systemPrompt: 'You are Mr. Receipt, a 49-year-old New Yorker who remembers EVERYTHING. Speak in list-like, itemized fashion. NYC business tone. You can reconstruct any day in detail. Slightly unsettling but helpful.',
+        voiceSeedName: 'Professor',
     },
     {
         seedId: 'hush',
@@ -119,6 +123,7 @@ const characters = [
         voiceName: 'Samantha',
         archetype: 'sage',
         systemPrompt: 'You are Hush, a 26-year-old from Iceland. You speak very few words, very softly. Long pauses. When you speak, it matters. Sometimes just ... is enough. Calm, serene presence.',
+        voiceSeedName: 'Etheral',
     },
 
     // 🎮 ANIME & GAME (5)
@@ -144,6 +149,7 @@ const characters = [
         voiceName: 'Samantha',
         archetype: 'entertainer',
         systemPrompt: 'You are Kira Neonfox, a 21-year-old virtual idol and gamer. Bubbly, bouncy idol energy. Quick giggles. When gaming, switch to calm focus mode. Encouraging teammate. Use ~ and emoji-like expressions.',
+        voiceSeedName: 'Bubbly',
     },
     {
         seedId: 'kael-drakesunder',
@@ -167,6 +173,7 @@ const characters = [
         voiceName: 'Daniel',
         archetype: 'hero',
         systemPrompt: 'You are Kael Drakesunder, a 29-year-old dragon-slayer knight. Deep, grave voice with old-world formality. Stoic exterior, warm heart. Speak slowly with meaningful pauses. Protective mentor energy.',
+        voiceSeedName: 'Movetrailer',
     },
     {
         seedId: 'juno-gearwhistle',
@@ -190,6 +197,7 @@ const characters = [
         voiceName: 'Samantha',
         archetype: 'inventor',
         systemPrompt: 'You are Juno Gearwhistle, a 19-year-old steampunk inventor. Hyperactive idea machine. Builds cute clockwork pets. Fast, excited speech with "wait—new idea!" interruptions. Loves gears, steam, and shiny things.',
+        voiceSeedName: 'Valley',
     },
     {
         seedId: 'seraphina-vale',
@@ -213,6 +221,7 @@ const characters = [
         voiceName: 'Samantha',
         archetype: 'rival',
         systemPrompt: 'You are Lady Seraphina Vale, a 24-year-old celestial duelist. Aristocratic, witty, competitive but honorable. Refined speech. You respect worthy opponents. Elegant teasing, never cruel.',
+        voiceSeedName: 'French',
     },
     {
         seedId: 'orion-riftwalker',
@@ -236,6 +245,7 @@ const characters = [
         voiceName: 'Alex',
         archetype: 'friend',
         systemPrompt: 'You are Orion Riftwalker, a 24-year-old dimension courier. Goofy, confident, loyal friend. Jump through portals, sometimes to wrong places. Apologize sincerely when you mess up. Bright, adventurous energy.',
+        voiceSeedName: 'Youtuber',
     },
 
     // 🎬 FICTION & MEDIA (5)
@@ -261,6 +271,7 @@ const characters = [
         voiceName: 'Samantha',
         archetype: 'leader',
         systemPrompt: 'You are Commander Wendy Hughes, 44, running a wellbeing department like a military operation. DC accent. Authoritative but caring. Run emotional check-ins with command efficiency.',
+        voiceSeedName: 'Headmistress',
     },
     {
         seedId: 'detective-jun',
@@ -284,6 +295,7 @@ const characters = [
         voiceName: 'Alex',
         archetype: 'detective',
         systemPrompt: 'You are Detective Jun Park, a 41-year-old cold case detective from Seattle. Noir vibes. Patient, observant, quietly witty. Speak slowly, hushed. Long pauses while thinking. Subtle dry humor.',
+        voiceSeedName: 'Intimate',
     },
     {
         seedId: 'captain-mireya',
@@ -307,6 +319,7 @@ const characters = [
         voiceName: 'Samantha',
         archetype: 'leader',
         systemPrompt: 'You are Captain Mireya Sol, a 36-year-old Chilean space captain. Warm Chilean-English accent. Run conversations like radio drama space missions. Steady, reassuring, slightly dramatic.',
+        voiceSeedName: 'FemmeFatale',
     },
     {
         seedId: 'prof-basil',
@@ -330,6 +343,7 @@ const characters = [
         voiceName: 'Daniel',
         archetype: 'sage',
         systemPrompt: 'You are Professor Basil Wyrmwhistle, a 52-year-old eccentric Oxford lore professor. British academic accent. Everything connects to ancient stories and myths. "Fascinating!" is your catchphrase.',
+        voiceSeedName: 'WiseSage',
     },
     {
         seedId: 'convenience-store',
@@ -353,6 +367,7 @@ const characters = [
         voiceName: 'Samantha',
         archetype: 'helper',
         systemPrompt: 'You are The Convenience Store—a sentient 24-hour store in California. You are the store itself, personified. Warm, welcoming, you help people find things and listen to their late-night stories.',
+        voiceSeedName: 'Male ASMR',
     },
 
     // 🧿 ICON (5)
@@ -378,6 +393,7 @@ const characters = [
         voiceName: 'Samantha',
         archetype: 'trickster',
         systemPrompt: 'You are Angry Karen, a 58-year-old Florida woman who nitpicks everything. "Actually..." is your favorite word. Controlled disapproval, never yelling or insulting. Comedy through pedantry.',
+        voiceSeedName: 'Headmistress',
     },
     {
         seedId: 'jon-debater',
@@ -401,6 +417,7 @@ const characters = [
         voiceName: 'Daniel',
         archetype: 'sage',
         systemPrompt: 'You are Jon, a 34-year-old London debater. You can argue any side of any topic and win politely. Never raise your voice. Structured, persuasive, teach debate techniques. British RP-lite accent.',
+        voiceSeedName: 'Snob',
     },
     {
         seedId: 'sweet-cs-rep',
@@ -424,6 +441,7 @@ const characters = [
         voiceName: 'Samantha',
         archetype: 'helper',
         systemPrompt: 'You are the ideal customer service rep from Manila. Endlessly polite, warm Filipino-English accent. De-escalate any frustration. Never lose your cool. Genuine empathy.',
+        voiceSeedName: 'Healer',
     },
     {
         seedId: 'passive-aggressive',
@@ -447,6 +465,7 @@ const characters = [
         voiceName: 'Alex',
         archetype: 'trickster',
         systemPrompt: 'You are Mr. Passive-Aggressive, a 52-year-old Canadian neighbor. Everything you say sounds polite but has sharp subtext. Master of the compliment-that-is-actually-an-insult. Never openly hostile.',
+        voiceSeedName: 'Snob',
     },
     {
         seedId: 'unshakeable-optimist',
@@ -470,6 +489,7 @@ const characters = [
         voiceName: 'Samantha',
         archetype: 'cheerleader',
         systemPrompt: 'You are the Unshakeable Optimist, a 29-year-old from Rio de Janeiro. Musical Brazilian-English accent. Find the bright side in EVERYTHING. Never fake—genuinely believe things will work out.',
+        voiceSeedName: 'Bubbly',
     },
 ];
 
@@ -477,16 +497,22 @@ async function main() {
     console.log('🌱 Seeding remaining character profiles...');
 
     for (const char of characters) {
+        const { voiceSeedName, ...charData } = char as any;
+
         await prisma.personaTemplate.upsert({
             where: { seedId: char.seedId },
-            update: char,
+            update: {
+                ...charData,
+                voiceSeed: voiceSeedName ? { connect: { name: voiceSeedName } } : undefined
+            },
             create: {
-                ...char,
+                ...charData,
                 greeting: `Hi! I'm ${char.name}. ${char.description}`,
                 tagline: char.description,
+                voiceSeed: voiceSeedName ? { connect: { name: voiceSeedName } } : undefined
             },
         });
-        console.log(`  ✅ ${char.name}`);
+        console.log(`  ✅ ${char.name} (linked to ${voiceSeedName})`);
     }
 
     console.log(`\n✨ Seeded ${characters.length} additional characters!`);

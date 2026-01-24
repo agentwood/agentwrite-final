@@ -15,6 +15,7 @@ export interface UserMemory {
   preferences: Record<string, any>;
   patterns: Record<string, any>;
   emotionalState?: Record<string, any>;
+  confidenceScore?: number;
 }
 
 export interface ConversationPattern {
@@ -33,7 +34,7 @@ export async function getCharacterMemory(
 ): Promise<UserMemory> {
   // Use empty string for anonymous users (Prisma unique constraint doesn't support null)
   const normalizedUserId = userId || '';
-  
+
   const memory = await db.characterMemory.findUnique({
     where: {
       personaId_userId: {
@@ -49,6 +50,7 @@ export async function getCharacterMemory(
       preferences: JSON.parse(memory.preferences || '{}'),
       patterns: JSON.parse(memory.patterns || '{}'),
       emotionalState: memory.emotionalState ? JSON.parse(memory.emotionalState) : undefined,
+      confidenceScore: memory.confidenceScore,
     };
   }
 
@@ -68,6 +70,7 @@ export async function getCharacterMemory(
     facts: {},
     preferences: {},
     patterns: {},
+    confidenceScore: 0.5,
   };
 }
 
@@ -81,7 +84,7 @@ export async function updateCharacterMemory(
 ): Promise<void> {
   // Use empty string for anonymous users
   const normalizedUserId = userId || '';
-  
+
   const existing = await db.characterMemory.findUnique({
     where: {
       personaId_userId: {
@@ -93,16 +96,16 @@ export async function updateCharacterMemory(
 
   const currentMemory = existing
     ? {
-        facts: JSON.parse(existing.facts || '{}'),
-        preferences: JSON.parse(existing.preferences || '{}'),
-        patterns: JSON.parse(existing.patterns || '{}'),
-        emotionalState: existing.emotionalState ? JSON.parse(existing.emotionalState) : undefined,
-      }
+      facts: JSON.parse(existing.facts || '{}'),
+      preferences: JSON.parse(existing.preferences || '{}'),
+      patterns: JSON.parse(existing.patterns || '{}'),
+      emotionalState: existing.emotionalState ? JSON.parse(existing.emotionalState) : undefined,
+    }
     : {
-        facts: {},
-        preferences: {},
-        patterns: {},
-      };
+      facts: {},
+      preferences: {},
+      patterns: {},
+    };
 
   // Merge updates
   const merged = {
@@ -157,7 +160,7 @@ export async function extractPatterns(
   // Pattern 1: Response length preference
   const avgUserLength = userMessages.reduce((sum, m) => sum + m.text.length, 0) / userMessages.length;
   const avgAssistantLength = assistantMessages.reduce((sum, m) => sum + m.text.length, 0) / assistantMessages.length;
-  
+
   if (avgUserLength < 50 && avgAssistantLength > 200) {
     patterns.push({
       type: 'preference',
@@ -278,7 +281,7 @@ export async function buildEnhancedSystemPrompt(
   const isMale = /man|male|he|him|his/i.test(basePrompt) && !isFemale;
   const pronoun = isFemale ? 'she/her/hers' : isMale ? 'he/him/his' : 'they/them/theirs';
   const pronounExample = isFemale ? 'She' : isMale ? 'He' : 'They';
-  
+
   // Only add format instructions if not already in base prompt
   let enhancedPrompt = basePrompt;
   if (!basePrompt.includes('MESSAGE FORMAT')) {
@@ -306,10 +309,10 @@ ALWAYS:
 - Use *asterisks* for emphasis
 
 This helps users who don't want to listen to audio understand your full character, tone, voice, and attitude.`;
-    
+
     enhancedPrompt = basePrompt + formatInstructions;
   }
-  
+
   const userMemory = memory || await getCharacterMemory(personaId, userId);
   const patterns = await getLearnedPatterns(personaId);
 
@@ -383,7 +386,7 @@ export async function recordFeedback(
 
   if (message && message.conversation) {
     const personaId = message.conversation.personaId;
-    
+
     // Update evolution metrics
     const evolution = await db.characterEvolution.findFirst({
       where: { personaId },
@@ -393,11 +396,11 @@ export async function recordFeedback(
     if (evolution) {
       const currentAvg = evolution.averageRating;
       const newRating = feedback.rating || (feedback.thumbsUp ? 4 : feedback.thumbsDown ? 2 : null);
-      
+
       if (newRating) {
         const totalRatings = evolution.totalInteractions;
         const newAvg = (currentAvg * totalRatings + newRating) / (totalRatings + 1);
-        
+
         await db.characterEvolution.update({
           where: { id: evolution.id },
           data: {
@@ -416,7 +419,7 @@ export async function recordFeedback(
 function extractTopics(messages: Array<{ text: string }>): string[] {
   const topics: string[] = [];
   const text = messages.map(m => m.text.toLowerCase()).join(' ');
-  
+
   // Simple keyword-based topic extraction
   const topicKeywords: Record<string, string> = {
     science: 'science',

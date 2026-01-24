@@ -41,7 +41,7 @@ async def startup_event():
     global model, vocoder
     print(f"[SERVER] Loading F5-TTS model on {device}...")
     try:
-        model = load_checkpoint(target_dir=None, checkpoint_name="F5-TTS", device=device, show_progress=False)
+        model = load_checkpoint("F5-TTS", device=device)
         vocoder = load_vocoder(is_local=False)
         print("[SERVER] Model loaded successfully!")
         

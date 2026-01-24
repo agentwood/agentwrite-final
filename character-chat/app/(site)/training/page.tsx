@@ -10,11 +10,13 @@ import {
     CheckCircle2,
     AlertCircle,
     Database,
-    ChevronRight
+    ChevronRight,
+    Plus
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { SubscriptionModal } from '@/app/components/master/SubscriptionModal';
 
 interface Character {
     id: string;
@@ -31,6 +33,8 @@ export default function TrainingPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [isPro, setIsPro] = useState(false); // Gating state
+
+    const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
     // Synaptic Tuning State
     const [behavioral, setBehavioral] = useState({
@@ -57,7 +61,7 @@ export default function TrainingPage() {
             const res = await fetch('/api/user/subscription');
             if (res.ok) {
                 const data = await res.json();
-                setIsPro(data.status === 'pro');
+                setIsPro(data.status === 'active' || data.status === 'pro'); // Robust check
             } else {
                 setIsPro(false);
             }
@@ -93,12 +97,20 @@ export default function TrainingPage() {
     }, [status, router]);
 
     const handleSave = async () => {
-        if (!selectedChar) return;
+        if (!isPro) {
+            setShowSubscriptionModal(true);
+            return;
+        }
+
+        if (!selectedChar) {
+            toast.error('Please select a character first.');
+            return;
+        }
         setSaving(true);
 
         try {
             // 1. Strip existing tuning blocks from the prompt to prevent accumulation
-            const basePrompt = selectedChar.systemPrompt.split('[SYNAPTIC_TUNING]')[0].trim();
+            const basePrompt = selectedChar.systemPrompt ? selectedChar.systemPrompt.split('[SYNAPTIC_TUNING]')[0].trim() : '';
 
             // 2. Construct new tuning block
             const tuningBlock = `
@@ -142,36 +154,19 @@ Constraints_RejectFlirtation: ${constraints.rejectFlirtation}
 
     if (loading) return <div className="flex h-screen items-center justify-center bg-[#0f0f0f] text-white"><Loader2 className="animate-spin" /></div>;
 
-    if (!isPro) {
-        return (
-            <div className="flex h-screen items-center justify-center bg-[#0f0f0f] text-white p-6 md:ml-64 relative overflow-hidden">
-                {/* Visual Background Elements */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-[#0f0f0f] to-[#0f0f0f]" />
-
-                <div className="relative z-10 max-w-md text-center space-y-6 bg-[#1a1a1a] p-10 rounded-3xl border border-white/5 shadow-2xl backdrop-blur-xl">
-                    <div className="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto border border-purple-500/20 text-purple-400">
-                        <Lock size={32} />
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-serif italic mb-2">Pro Feature Locked</h2>
-                        <p className="text-white/40">
-                            Synaptic Tuning and advanced character analytics are available exclusively for <span className="text-white font-bold">Agentwood Pro</span> members.
-                        </p>
-                    </div>
-                    <button
-                        onClick={() => router.push('/pricing')}
-                        className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest rounded-xl hover:bg-white/90 transition-all shadow-lg hover:shadow-purple-500/20"
-                    >
-                        Upgrade to Agentwood Pro
-                    </button>
-                    <p className="text-xs text-white/20">Cancel anytime. 14-day money-back guarantee.</p>
-                </div>
-            </div>
-        );
-    }
+    // Removed the full-screen lock. Now we allow view/edit, but gate the save action.
 
     return (
         <div className="min-h-screen bg-[#0f0f0f] text-white p-6 md:p-12 md:pl-72 pt-24 font-sans selection:bg-purple-500/30">
+            {/* Pro Badge if not pro */}
+            {!isPro && (
+                <div className="fixed top-24 right-6 z-40">
+                    <button onClick={() => setShowSubscriptionModal(true)} className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg hover:scale-105 transition-transform flex items-center gap-2">
+                        <Lock size={12} /> Upgrade to Pro
+                    </button>
+                </div>
+            )}
+
             <div className="max-w-5xl mx-auto space-y-12">
 
                 {/* Header */}
@@ -201,8 +196,8 @@ Constraints_RejectFlirtation: ${constraints.rejectFlirtation}
                             <ChevronRight className="w-4 h-4 opacity-50 rotate-90" />
                         </button>
                         {/* Dropdown Content */}
-                        <div className="absolute right-0 top-full mt-2 w-56 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden hidden group-hover:block z-50 shadow-2xl">
-                            {characters.map(char => (
+                        <div className="absolute right-0 top-full mt-2 w-56 bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden hidden group-hover:block z-50 shadow-2xl max-h-64 overflow-y-auto">
+                            {characters.length > 0 ? characters.map(char => (
                                 <button
                                     key={char.id}
                                     onClick={() => setSelectedChar(char)}
@@ -211,16 +206,25 @@ Constraints_RejectFlirtation: ${constraints.rejectFlirtation}
                                     <img src={char.avatarUrl} className="w-6 h-6 rounded-full object-cover opacity-70" />
                                     <span className="text-sm text-white/70">{char.name}</span>
                                 </button>
-                            ))}
+                            )) : (
+                                <div className="px-4 py-3 text-sm text-white/30 text-center italic">No characters found</div>
+                            )}
+                            <button
+                                onClick={() => router.push('/create')}
+                                className="w-full text-left px-4 py-3 bg-white/5 hover:bg-white/10 text-white/50 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2"
+                            >
+                                <Plus size={12} /> Create New
+                            </button>
                         </div>
                     </div>
 
                     <button
                         onClick={handleSave}
                         disabled={saving || !selectedChar}
-                        className="bg-white text-black px-8 py-3 rounded-full font-bold text-xs uppercase tracking-widest hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                        className="bg-white text-black px-8 py-3 rounded-full font-bold text-xs uppercase tracking-widest hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center gap-2"
                     >
-                        {saving ? 'Initiating...' : 'Initiate Simulation'}
+                        {!isPro && <Lock size={12} className="text-purple-600" />}
+                        {saving ? 'Saving...' : 'Save Parameters'}
                     </button>
                 </header>
 
@@ -234,6 +238,7 @@ Constraints_RejectFlirtation: ${constraints.rejectFlirtation}
                         <div className="bg-[#151515] p-6 rounded-2xl border border-white/5 relative group hover:border-white/10 transition-colors">
                             <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/30 mb-4">
                                 <span>Empathy</span>
+                                <span className="text-white/60">{behavioral.empathyLogic}%</span>
                                 <span>Logic</span>
                             </div>
                             <input
@@ -250,6 +255,7 @@ Constraints_RejectFlirtation: ${constraints.rejectFlirtation}
                         <div className="bg-[#151515] p-6 rounded-2xl border border-white/5 relative group hover:border-white/10 transition-colors">
                             <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/30 mb-4">
                                 <span>Agreeable</span>
+                                <span className="text-white/60">{behavioral.agreeableChallenging}%</span>
                                 <span>Challenging</span>
                             </div>
                             <input
@@ -271,6 +277,7 @@ Constraints_RejectFlirtation: ${constraints.rejectFlirtation}
                         <div className="bg-[#151515] p-6 rounded-2xl border border-white/5 relative group hover:border-white/10 transition-colors">
                             <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/30 mb-4">
                                 <span>Concise</span>
+                                <span className="text-white/60">{stylistic.conciseVerbose}%</span>
                                 <span>Verbose</span>
                             </div>
                             <input
@@ -287,6 +294,7 @@ Constraints_RejectFlirtation: ${constraints.rejectFlirtation}
                         <div className="bg-[#151515] p-6 rounded-2xl border border-white/5 relative group hover:border-white/10 transition-colors">
                             <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-white/30 mb-4">
                                 <span>Casual</span>
+                                <span className="text-white/60">{stylistic.casualFormal}%</span>
                                 <span>Formal</span>
                             </div>
                             <input
@@ -349,6 +357,9 @@ Constraints_RejectFlirtation: ${constraints.rejectFlirtation}
                     </div>
                 </section>
             </div>
+
+            {/* Subscription Modal for gating save action */}
+            <SubscriptionModal isOpen={showSubscriptionModal} onClose={() => setShowSubscriptionModal(false)} />
         </div>
     );
 }

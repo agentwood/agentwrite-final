@@ -158,10 +158,12 @@ export default function VoiceSelector({ onSelect, selectedId, className = '' }: 
                 ))}
             </div>
 
-            {/* Custom Voice Upload Section */}
-            <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-white/10 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            {/* Custom Voice Upload Section - COMING SOON
+            <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-white/10 relative overflow-hidden group opacity-50 cursor-not-allowed">
+                 <div className="absolute inset-0 bg-black/40 z-20 flex items-center justify-center">
+                    <span className="bg-black/80 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest text-white border border-white/10">Coming Soon</span>
+                 </div>
+                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 blur-[2px]">
                     <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                             <span className="text-2xl">🎙️</span>
@@ -169,32 +171,17 @@ export default function VoiceSelector({ onSelect, selectedId, className = '' }: 
                         </div>
                         <p className="text-sm text-gray-400 leading-relaxed mb-4">
                             Upload a 30-60 second voice memo to train a custom AI voice model.
-                            We'll analyze your unique tone and accent.
                         </p>
-                        <div className="flex items-center gap-2 text-xs text-purple-300 font-bold uppercase tracking-wider">
-                            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
-                            AI Training Engine v2.0 Ready
-                        </div>
                     </div>
 
                     <div className="shrink-0 w-full md:w-auto">
-                        <label className="cursor-pointer group/btn block  text-center">
-                            <input type="file" accept="audio/*" className="hidden" onChange={(e) => {
-                                if (e.target.files && e.target.files[0]) {
-                                    const file = e.target.files[0];
-                                    alert(`Uploading ${file.name} for analysis... (Feature in Beta)`);
-                                    // Logic to handle file upload would go here
-                                }
-                            }} />
-                            <div className="px-6 py-3 bg-white text-black rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-gray-200 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                            <div className="px-6 py-3 bg-white text-black rounded-xl font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-2">
                                 <span>Upload Audio</span>
-                                <span className="text-xs opacity-50 ml-1">(.mp3, .wav)</span>
                             </div>
-                        </label>
-                        <p className="text-[10px] text-gray-500 text-center mt-2">Max file size: 10MB</p>
                     </div>
                 </div>
             </div>
+             */}
 
             {/* Gender Filter */}
             <div className="flex gap-2 mb-6">

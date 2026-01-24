@@ -703,7 +703,13 @@ model BlogLike {
 
   @@unique([slug, userId])
   @@unique([slug, sessionId])
+  blogPostId String?
+  blogPost   BlogPost? @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+
+  @@unique([slug, userId], map: "BlogLike_slug_userId_unique")
+  @@unique([slug, sessionId], map: "BlogLike_slug_sessionId_unique")
   @@index([slug])
+  @@index([blogPostId])
 }
 
 model BlogComment {
@@ -717,8 +723,12 @@ model BlogComment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  blogPostId String?
+  blogPost   BlogPost? @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+
   @@index([slug])
   @@index([createdAt])
+  @@index([blogPostId])
 }
 
 // =============================================
@@ -741,12 +751,37 @@ model VoiceJob {
   @@index([status])
 }
 
-model TtsWorker {
-  id            String   @id @default(cuid())
-  engine        String
-  status        String   // "initializing", "ready", "error"
-  gpuType       String?
-  lastHeartbeat DateTime @default(now())
+
+// =============================================
+// BLOG SYSTEM (Database Backed for Scale)
+// =============================================
+
+model BlogPost {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  content         String   @db.Text // Markdown or HTML
+  excerpt         String?
+  metaDescription String?
+  image           String?
+  author          String   @default("Agentwood Editorial")
+  tags            String[] @default([])
+  publishedAt     DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   
-  @@map("tts_workers")
+  viewCount       Int      @default(0)
+  
+  // Relations
+  likes           BlogLike[]
+  comments        BlogComment[]
+
+  @@index([publishedAt])
+  @@index([slug])
 }
+
+// Update relations in existing models if needed
+// BlogLike and BlogComment already exist but need relation updates if we want strict integrity
+// For now, keeping them loose or we can update them to point to BlogPost. 
+// The existing schema has BlogLike and BlogComment models, let's update them to link to BlogPost.
+

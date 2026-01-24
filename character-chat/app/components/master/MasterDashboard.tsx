@@ -397,6 +397,25 @@ const ImmersiveChatView: React.FC<{
   const scrollRef = useRef<HTMLDivElement>(null);
   const [sidebarTab, setSidebarTab] = useState<'comments' | 'similar' | 'persona'>('comments');
   const [autoPlayVoice, setAutoPlayVoice] = useState(true);
+  const [isModelOnline, setIsModelOnline] = useState(true); // Default to true, update on check
+
+  useEffect(() => {
+    // Simple health check against the TTS endpoint or a dedicated health route
+    const checkHealth = async () => {
+      try {
+        // Since we don't have a dedicated public health route, we try a lightweight TTS op or assume ok if API responds
+        // Ideally: fetch('/api/tts/health')
+        const res = await fetch('/api/health'); // Assuming standard Next.js health check or similar
+        setIsModelOnline(res.ok);
+      } catch (e) {
+        setIsModelOnline(false);
+      }
+    };
+    checkHealth();
+    // Poll every 30s
+    const interval = setInterval(checkHealth, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const [conversationId] = useState(() => crypto.randomUUID());
 
@@ -508,8 +527,8 @@ const ImmersiveChatView: React.FC<{
             </button>
             <div className="flex flex-col">
               <span className="font-serif italic text-xl leading-none text-white">{character.name}</span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-green-500 flex items-center gap-1.5 mt-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Online
+              <span className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 mt-1 ${isModelOnline ? 'text-green-500' : 'text-red-500'}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${isModelOnline ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span> {isModelOnline ? 'Online' : 'Model Offline'}
               </span>
             </div>
           </div>

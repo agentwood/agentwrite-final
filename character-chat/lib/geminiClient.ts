@@ -13,7 +13,7 @@ export const generateText = async (prompt: string): Promise<string> => {
 
   try {
     const response = await client.models.generateContent({
-      model: 'gemini-pro',
+      model: 'gemini-2.0-flash',
       contents: [{ parts: [{ text: prompt }] }]
     });
 

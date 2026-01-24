@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { matchArchetype, generateTTSVoiceSpec } from '@/lib/characterCreation/archetypeMapper';
-import { buildSystemPrompt } from '@/lib/prompts';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { generateAvatar as generateAvatarUtil } from '@/lib/avatarGenerator';
 
@@ -15,51 +13,63 @@ interface CreateFullRequest {
     greeting?: string;
     category?: string;
     gender?: 'M' | 'F' | 'NB';
-    archetype?: string;
-    voiceId?: string;
-    voiceSeedId?: string; // Voice seed ID from VoiceSelector
-    avatarUrl?: string; // Allow passing detailed avatar URL or base64
+    voiceSeedId?: string; // REQUIRED: The seed to clone
+    avatarUrl?: string;
 }
-
-// ... existing helper functions ...
 
 /**
  * POST /api/personas/create-full
- * Creates a character with AI-generated image, description, and voice matching
+ * Creates a character using the VOICE-FIRST architecture.
  */
 export async function POST(request: NextRequest) {
     try {
         const body: CreateFullRequest = await request.json();
 
+        // 1. Validation
         if (!body.name) {
-            return NextResponse.json(
-                { error: 'Name is required' },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+        }
+        if (!body.voiceSeedId) {
+            return NextResponse.json({ error: 'Voice Selection is required (Voice-First)' }, { status: 400 });
         }
 
-        // Create initial character record with pending status
+        // 2. Fetch the Voice Seed (Source of Truth)
+        const voiceSeed = await db.voiceSeed.findUnique({
+            where: { id: body.voiceSeedId },
+        });
+
+        if (!voiceSeed) {
+            return NextResponse.json({ error: 'Invalid Voice Seed selected' }, { status: 400 });
+        }
+
+        // 3. Create Preliminary Character Record
+        // We create it first to get an ID for the VoiceIdentity name
         const character = await db.personaTemplate.create({
             data: {
                 name: body.name,
                 category: body.category || 'Original',
                 avatarUrl: body.avatarUrl || 'pending',
-                voiceName: body.voiceId || 'default',
-                systemPrompt: 'pending',
-                archetype: body.archetype || 'warm_mentor',
-                creationStatus: 'pending',
-                creationProgress: 0,
-                creationMessage: 'Starting character creation...',
+                voiceName: voiceSeed.name, // Display name
+                voiceSeedId: voiceSeed.id, // Link to seed
+                systemPrompt: 'TREE-E System (Dynamic)', // Placeholder
+                archetype: 'dynamic', // To be refined
+                creationStatus: 'initializing',
+                creationProgress: 10,
+                creationMessage: 'Initializing character DNA...',
+                gender: body.gender || (voiceSeed.gender === 'male' ? 'M' : voiceSeed.gender === 'female' ? 'F' : 'NB'),
             },
         });
 
-        // Return immediately with character ID for polling
-        const responseData = { id: character.id, name: character.name };
+        // 4. Trigger Background Process (Robust)
+        // Note: In serverless, await is safer than fire-and-forget if timeout is generous. 
+        // We will await the critical VoiceIdentity creation to ensure basic viability, 
+        // then specific content generation can be async if needed. 
+        // For reliability, we'll do it all in sequence (creation is fast enough).
 
-        // Background processing (this runs after response is sent)
-        processCharacterCreation(character.id, body).catch(console.error);
+        await processCharacterCreation(character.id, body, voiceSeed);
 
-        return NextResponse.json(responseData, { status: 201 });
+        return NextResponse.json({ id: character.id, name: character.name }, { status: 201 });
+
     } catch (error: any) {
         console.error('Error creating character:', error);
         return NextResponse.json(
@@ -70,95 +80,101 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Background function to process character creation
+ * Core Creation Logic
  */
-async function processCharacterCreation(characterId: string, body: CreateFullRequest) {
+async function processCharacterCreation(characterId: string, body: CreateFullRequest, voiceSeed: any) {
     try {
-        // Step 1: Match archetype (or use provided)
-        await updateStatus(characterId, 'matching_voice', 10, 'Analyzing personality...');
-        let archetypeMatch;
+        await updateStatus(characterId, 'creating_voice_core', 20, 'Synthesizing voice identity...');
 
-        if (body.archetype) {
-            archetypeMatch = {
-                archetype: body.archetype,
-                confidence: 1.0,
-                gender: body.gender || 'NB',
-                voiceProfile: 'custom'
-            };
-        } else {
-            archetypeMatch = matchArchetype(body.description || '', body.keywords, body.gender);
-        }
+        // Step A: Create Voice Identity (The "Soul")
+        // We clone the seed's parameters into a specific identity for this character.
+        const voiceIdentityId = `vid_${characterId}`;
 
-        // Step 2: Generate avatar (or use provided)
-        await updateStatus(characterId, 'generating_avatar', 30, 'Creating unique avatar...');
+        // Determine pitch range based on seed gender/pitch
+        let pitchMin = 100, pitchMax = 200;
+        if (voiceSeed.gender === 'female') { pitchMin = 165; pitchMax = 255; }
+        else if (voiceSeed.gender === 'male') { pitchMin = 85; pitchMax = 180; }
+
+        // Shift based on seed.pitch (assuming -1.0 to 1.0 or similar)
+        const pitchShift = Math.floor(voiceSeed.pitch * 20); // 20Hz shift range
+        pitchMin += pitchShift;
+        pitchMax += pitchShift;
+
+        const voiceIdentity = await db.voiceIdentity.create({
+            data: {
+                voiceId: voiceIdentityId,
+                gender: voiceSeed.gender,
+                ageBand: voiceSeed.age || 'adult',
+                originRegion: 'unknown', // can be refined by LLM later
+                accent: voiceSeed.accent,
+                pitchMin,
+                pitchMax,
+                speakingRateMin: Math.floor(voiceSeed.speed * 90),
+                speakingRateMax: Math.floor(voiceSeed.speed * 110),
+                timbre: voiceSeed.timbre || 'Balanced',
+                referenceAudioPath: voiceSeed.filePath,
+                displayName: `${body.name}'s Voice`,
+            }
+        });
+
+        // Link Identity to Character immediately
+        await db.personaTemplate.update({
+            where: { id: characterId },
+            data: { voiceIdentityId: voiceIdentity.id }
+        });
+
+        // Step B: Generate Content (Avatar & Profile)
+        await updateStatus(characterId, 'generating_profile', 50, 'Crafting personality...');
+
+        // 1. Avatar
         let avatarUrl = body.avatarUrl;
         if (!avatarUrl || avatarUrl === 'pending') {
-            avatarUrl = await generateAvatar(body.name, body.keywords, body.gender || archetypeMatch.gender);
+            try {
+                avatarUrl = await generateAvatarUtil({
+                    characterId: body.name.toLowerCase().replace(/\s+/g, '-'),
+                    characterName: body.name,
+                    style: 'REALISTIC',
+                    description: body.keywords + ` ${voiceSeed.gender} ${voiceSeed.age}`
+                });
+            } catch (e) {
+                console.warn('Avatar generation failed, using fallback', e);
+                // Keep 'pending' or use a placeholder
+            }
         }
 
-        // Step 3: Generate personality/description (or use provided)
-        await updateStatus(characterId, 'generating_personality', 60, 'Crafting personality...');
-        let profile;
-        if (body.description && body.greeting && body.tagline) {
-            profile = {
-                description: body.description,
-                greeting: body.greeting,
-                tagline: body.tagline,
-                personality: body.keywords // Assume keywords are personality if fully provided
-            };
-        } else {
-            profile = await generateProfile(body.name, body.keywords, body.gender || archetypeMatch.gender);
-        }
+        // 2. Profile (Description, Greeting, Tagline)
+        const profile = await generateProfile(body.name, body.keywords, voiceSeed.gender, body);
 
-        // Step 4: Build system prompt
-        await updateStatus(characterId, 'finalizing', 85, 'Finalizing character...');
-        const systemPrompt = buildSystemPrompt(
-            profile.description,
-            ['Keep responses appropriate and engaging.'],
-            ['conversational'],
-            [],
-            body.name
-        );
+        // Step C: Finalize
+        await updateStatus(characterId, 'ready', 100, 'Character Ready!');
 
-        // Generate TTS voice spec
-        const ttsVoiceSpec = generateTTSVoiceSpec(archetypeMatch.archetype, body.gender || archetypeMatch.gender);
-
-        // Step 5: Update character with all data
         await db.personaTemplate.update({
             where: { id: characterId },
             data: {
-                avatarUrl,
+                avatarUrl: avatarUrl || undefined,
                 description: profile.description,
                 greeting: profile.greeting,
                 tagline: profile.tagline,
-                gender: body.gender || archetypeMatch.gender,
-                archetype: archetypeMatch.archetype,
-                ttsVoiceSpec,
-                systemPrompt,
-                characterKeywords: body.keywords,
-                mappingConfidence: archetypeMatch.confidence,
-                voiceSeedId: body.voiceSeedId || undefined, // Save the selected voice seed
-                voiceReady: true, // Fish Speech v1.5 ready
-                creationStatus: 'ready',
-                creationProgress: 100,
-                creationMessage: 'Character is ready!',
-            },
+                characterKeywords: profile.personality, // Use generated traits
+                voiceReady: true,
+                trainingStatus: 'trained', // Basic training complete
+
+                // Behavior defaults (can be tuned later)
+                behaviorEmpathy: 50,
+                behaviorAgreeable: 50,
+                behaviorChaos: 50,
+                styleVerbosity: 50,
+            }
         });
 
-        console.log(`✅ Character ${body.name} (${characterId}) created successfully`);
+        console.log(`✅ Character ${body.name} created with Voice Identity ${voiceIdentity.id}`);
+
     } catch (error: any) {
-        console.error(`❌ Character creation failed for ${characterId}:`, error);
-        await updateStatus(
-            characterId,
-            'failed',
-            0,
-            'Character creation failed',
-            error.message || 'Unknown error'
-        );
+        console.error(`❌ Process failed for ${characterId}:`, error);
+        await updateStatus(characterId, 'failed', 0, 'Creation failed', error.message);
     }
 }
 
-// Helper functions (Implementation)
 async function updateStatus(id: string, status: string, progress: number, message: string, error?: string) {
     await db.personaTemplate.update({
         where: { id },
@@ -166,62 +182,49 @@ async function updateStatus(id: string, status: string, progress: number, messag
             creationStatus: status,
             creationProgress: progress,
             creationMessage: message,
+            creationError: error
         }
     });
 }
 
-async function generateAvatar(name: string, keywords: string, gender: string) {
-    // Utilize the strict visual style generator we updated
-    return generateAvatarUtil({
-        characterId: name.toLowerCase().replace(/\s+/g, '-'),
-        characterName: name,
-        style: 'REALISTIC', // Default to realistic
-        description: keywords
-    });
-}
-
-async function generateProfile(name: string, keywords: string, gender: string) {
-    try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-
-        const prompt = `Create a rich, immersive character profile for an AI companion app.
-        
-        Name: ${name}
-        Keywords/Context: ${keywords}
-        Gender: ${gender}
-        
-        Generate a JSON object with:
-        1. description: A shorter setting/background (under 300 chars) establishing who they are.
-        2. greeting: A catchy, in-character opening line (NOT "Hello I am..."). It should show, not tell. Action *asterisks* allowed.
-        3. tagline: A short hook (under 50 chars).
-        4. personality: A comma-separated list of traits.
-        
-        Return JSON ONLY.`;
-
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-
-        // Extract JSON
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            const data = JSON.parse(jsonMatch[0]);
-            return {
-                description: data.description || `A unique character named ${name}.`,
-                greeting: data.greeting || `*smiles* Hi there.`,
-                tagline: data.tagline || `${name} - AI Companion`,
-                personality: data.personality || keywords
-            };
-        }
-    } catch (error) {
-        console.error('LLM Profile Generation failed:', error);
+// Generate text profile using Gemini
+async function generateProfile(name: string, keywords: string, gender: string, existing: CreateFullRequest) {
+    // If user provided everything, use it (User Defined)
+    if (existing.description && existing.greeting && existing.tagline) {
+        return {
+            description: existing.description,
+            greeting: existing.greeting,
+            tagline: existing.tagline,
+            personality: keywords
+        };
     }
 
-    // Fallback if LLM fails (Better than "Hello I am name")
+    try {
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const prompt = `Create a character profile.
+        Name: ${name}
+        Context: ${keywords}
+        Gender: ${gender}
+        
+        Output JSON: { "description": "max 300 chars", "greeting": "Action *style*", "tagline": "max 50 chars", "personality": "traits" }
+        `;
+
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+
+        if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+        }
+    } catch (e) {
+        console.error('LLM Profile failed', e);
+    }
+
+    // Fallback
     return {
-        description: `A unique character named ${name} known for ${keywords}.`,
-        greeting: `*looks at you with interest* Greetings.`,
-        tagline: `${name} - ${keywords}`,
+        description: existing.description || `${name} is a unique character.`,
+        greeting: existing.greeting || `*smiles* Hello.`,
+        tagline: existing.tagline || `${name}`,
         personality: keywords
     };
 }

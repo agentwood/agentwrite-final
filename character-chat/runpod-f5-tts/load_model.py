@@ -10,7 +10,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 try:
     # F5-TTS helper to load default checkpoint
-    model = load_checkpoint(target_dir=None, checkpoint_name="F5-TTS", device=device, show_progress=True)
+    model = load_checkpoint("F5-TTS", device=device, show_progress=True)
     vocoder = load_vocoder(is_local=False)
     
     # Force GPU allocation with a dummy tensor

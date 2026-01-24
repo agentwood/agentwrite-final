@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2, Sparkles, Check, AlertCircle, User } from 'lucide-react';
+import { Loader2, Sparkles, Check, AlertCircle, User, Volume2 } from 'lucide-react';
 
 interface CreatingCharacterModalProps {
     isOpen: boolean;
@@ -20,6 +20,7 @@ interface CreationStatus {
 
 const STATUS_MESSAGES: Record<string, { message: string; icon: React.ReactNode }> = {
     pending: { message: 'Initializing...', icon: <Loader2 className="animate-spin" size={24} /> },
+    creating_voice_core: { message: 'Synthesizing voice identity...', icon: <Volume2 className="animate-pulse" size={24} /> },
     generating_avatar: { message: 'Creating unique avatar...', icon: <Sparkles className="animate-pulse" size={24} /> },
     generating_personality: { message: 'Crafting personality...', icon: <User className="animate-bounce" size={24} /> },
     matching_voice: { message: 'Finding the perfect voice...', icon: <Sparkles className="animate-pulse" size={24} /> },
@@ -121,10 +122,10 @@ export default function CreatingCharacterModal({
                 <div className="relative h-2 bg-white/10 rounded-full overflow-hidden mb-4">
                     <div
                         className={`absolute inset-y-0 left-0 transition-all duration-500 rounded-full ${status.status === 'ready'
-                                ? 'bg-green-500'
-                                : status.status === 'failed'
-                                    ? 'bg-red-500'
-                                    : 'bg-gradient-to-r from-purple-500 to-pink-500'
+                            ? 'bg-green-500'
+                            : status.status === 'failed'
+                                ? 'bg-red-500'
+                                : 'bg-gradient-to-r from-purple-500 to-pink-500'
                             }`}
                         style={{ width: `${status.progress}%` }}
                     />

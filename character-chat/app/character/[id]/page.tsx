@@ -19,7 +19,7 @@ export async function generateMetadata(
 
     const character = await db.personaTemplate.findUnique({
         where: { id },
-        select: { name: true, tagline: true, avatarUrl: true, description: true }
+        select: { name: true, tagline: true, avatarUrl: true, description: true, archetype: true, category: true }
     });
 
     if (!character) {
@@ -28,25 +28,55 @@ export async function generateMetadata(
         };
     }
 
-    const title = `${character.name} | Agentwood AI Chat`;
-    const description = character.tagline || character.description?.substring(0, 150) || 'Chat with this AI character on Agentwood.';
+    // Aggressive SEO Title Template
+    const title = `Chat with ${character.name} (AI Persona) - Free & Unfiltered | Agentwood`;
+
+    // Rich Description
+    const baseDesc = character.tagline || character.description || '';
+    const cleanDesc = baseDesc.replace(/[\n\r]+/g, ' ').substring(0, 155);
+    const description = `Talk to ${character.name} online for free. ${cleanDesc}... The best Character.ai alternative with no filters. Start chatting now!`;
+
+    const imageUrl = character.avatarUrl && character.avatarUrl !== 'pending'
+        ? character.avatarUrl
+        : 'https://agentwood.xyz/TwitterCardValidator.png';
 
     return {
         title: title,
         description: description,
+        keywords: [
+            `chat with ${character.name}`,
+            `${character.name} ai`,
+            `${character.name} chatbot`,
+            character.category || 'ai character',
+            'character.ai alternative',
+            'no filter ai',
+            'nsfw ai chat',
+            'free ai chat'
+        ],
         openGraph: {
             title: title,
             description: description,
-            images: [character.avatarUrl || 'https://agentwood.xyz/TwitterCardValidator.png'],
+            images: [
+                {
+                    url: imageUrl,
+                    width: 1200,
+                    height: 630,
+                    alt: `Chat with ${character.name} AI`,
+                }
+            ],
             url: `https://agentwood.xyz/character/${id}`,
             type: 'profile',
+            siteName: 'Agentwood',
         },
         twitter: {
             card: 'summary_large_image',
             title: title,
             description: description,
-            images: [character.avatarUrl || 'https://agentwood.xyz/TwitterCardValidator.png'],
+            images: [imageUrl],
             creator: '@agentwood',
+        },
+        alternates: {
+            canonical: `https://agentwood.xyz/character/${id}`,
         }
     };
 }
@@ -116,11 +146,22 @@ export default async function CharacterPage({ params }: Props) {
             greeting: p.greeting || '',
 
             // Use prompts field (JSON string) not tags
-            chatStarters: p.prompts ? JSON.parse(p.prompts) : [
-                "Hello! How can I help you today?",
-                "Tell me more about yourself.",
-                "What are you thinking about?"
-            ]
+            chatStarters: (() => {
+                try {
+                    return p.prompts ? JSON.parse(p.prompts) : [
+                        "Hello! How can I help you today?",
+                        "Tell me more about yourself.",
+                        "What are you thinking about?"
+                    ];
+                } catch (e) {
+                    console.error("Failed to parse chat starters for character", p.id);
+                    return [
+                        "Hello! How can I help you today?",
+                        "Tell me more about yourself.",
+                        "What are you thinking about?"
+                    ];
+                }
+            })()
         };
     };
 

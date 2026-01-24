@@ -57,9 +57,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // Add blog posts
-  const blogSlugs = getAllPostSlugs();
-  const blogRoutes = blogSlugs.map((slug) => ({
-    url: `${SITE_URL}/blog/${slug}`,
+  const blogSlugs = await getAllPostSlugs();
+  const blogRoutes = blogSlugs.map(({ params }) => ({
+    url: `${SITE_URL}/blog/${params.slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.7,

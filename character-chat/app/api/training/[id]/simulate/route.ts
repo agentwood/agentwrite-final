@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiClient } from '@/lib/geminiClient';
+import {
+    buildTreeESystemPrompt,
+    EmotionalStateVector
+} from '@/lib/tree-e-prompts';
+import { evaluateResponse } from '@/lib/rag-testing';
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || '');
-
-// POST - Run a simulation chat with training parameters applied
+// POST - Run a simulation chat using the REAL TREE-E Engine
 export async function POST(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -17,20 +20,10 @@ export async function POST(
             return NextResponse.json({ success: false, error: 'Message is required' }, { status: 400 });
         }
 
-        // Fetch the character with training config
+        // Fetch the character with ALL TREE-E dependencies
         const persona = await db.personaTemplate.findUnique({
             where: { id },
-            select: {
-                name: true,
-                archetype: true,
-                systemPrompt: true,
-                description: true,
-                behaviorEmpathy: true,
-                behaviorAgreeable: true,
-                styleVerbosity: true,
-                styleFormality: true,
-                trainingConstraints: true,
-            },
+            include: { voiceIdentity: true },
         });
 
         if (!persona) {
@@ -41,83 +34,91 @@ export async function POST(
         let constraints: string[] = [];
         if (persona.trainingConstraints) {
             try {
-                constraints = JSON.parse(persona.trainingConstraints);
+                const parsed = typeof persona.trainingConstraints === 'string' ? JSON.parse(persona.trainingConstraints) : persona.trainingConstraints;
+                if (Array.isArray(parsed)) constraints = parsed;
             } catch {
                 constraints = [];
             }
         }
 
-        // Build training-aware system prompt
-        let trainingPrompt = `You are ${persona.name}, a ${persona.archetype}.\n\n`;
-        trainingPrompt += `${persona.description || ''}\n\n`;
+        // Use default training emotional state
+        const emotionalState: EmotionalStateVector = {
+            valence: 0.2,
+            arousal: 0.5,
+            dominance: 0.5,
+            stability: 0.9
+        };
 
-        // Apply behavioral sliders
-        const empathy = persona.behaviorEmpathy ?? 50;
-        const agreeable = persona.behaviorAgreeable ?? 50;
-        const verbosity = persona.styleVerbosity ?? 50;
-        const formality = persona.styleFormality ?? 50;
+        // Build the EXACT SAME prompt as production (Part I)
+        const systemInstruction = buildTreeESystemPrompt(
+            (persona as any).voiceIdentity,
+            emotionalState,
+            persona,
+            constraints,
+            0.5 // Default confidence for simulation
+        );
 
-        trainingPrompt += `BEHAVIORAL PARAMETERS:\n`;
-        if (empathy < 30) {
-            trainingPrompt += `- Lead with empathy and emotional understanding\n`;
-        } else if (empathy > 70) {
-            trainingPrompt += `- Prioritize logic and rational analysis over emotions\n`;
-        }
+        const geminiContents = [
+            {
+                role: 'user',
+                parts: [{
+                    text: `SYSTEM INSTRUCTION: You are simulated version of ${persona.name}. TEST MODE.`
+                }]
+            },
+            {
+                role: 'model',
+                parts: [{ text: `Understood. I am running in SIMULATION/TRAINING mode. I will strictly adhere to my persona.` }]
+            },
+            {
+                role: 'user',
+                parts: [{ text: message }]
+            }
+        ];
 
-        if (agreeable < 30) {
-            trainingPrompt += `- Be agreeable and supportive\n`;
-        } else if (agreeable > 70) {
-            trainingPrompt += `- Challenge assumptions and play devil's advocate\n`;
-        }
-
-        trainingPrompt += `\nSTYLISTIC PARAMETERS:\n`;
-        if (verbosity < 30) {
-            trainingPrompt += `- Keep responses very concise and brief\n`;
-        } else if (verbosity > 70) {
-            trainingPrompt += `- Provide detailed, thorough explanations\n`;
-        }
-
-        if (formality < 30) {
-            trainingPrompt += `- Use casual, conversational language\n`;
-        } else if (formality > 70) {
-            trainingPrompt += `- Maintain formal, professional tone\n`;
-        }
-
-        // Apply constraints
-        if (constraints.length > 0) {
-            trainingPrompt += `\nHARD CONSTRAINTS (you MUST follow these):\n`;
-            const constraintDescriptions: Record<string, string> = {
-                refuse_emotional: '- DO NOT provide emotional reassurance or comfort',
-                avoid_slang: '- DO NOT use modern slang or informal expressions',
-                no_speculation: '- DO NOT speculate without evidence; only state facts',
-                limit_length: '- Keep all responses under 100 words',
-                period_character: '- Stay in historical character; no modern references',
-                reject_flirtation: '- Politely reject any flirtatious advances',
-            };
-            constraints.forEach(c => {
-                if (constraintDescriptions[c]) {
-                    trainingPrompt += `${constraintDescriptions[c]}\n`;
-                }
-            });
-        }
-
-        trainingPrompt += `\nThis is a SIMULATION MODE for testing. Respond authentically while following all parameters and constraints.`;
-
-        // Generate response using Gemini
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-        const result = await model.generateContent({
-            contents: [
-                { role: 'user', parts: [{ text: trainingPrompt }] },
-                { role: 'model', parts: [{ text: 'Understood. I am ready to respond according to my configured parameters.' }] },
-                { role: 'user', parts: [{ text: message }] },
-            ],
+        // Generate response (Part V - logic only)
+        const ai = getGeminiClient();
+        const result = await ai.models.generateContent({
+            model: 'gemini-2.0-flash',
+            contents: geminiContents,
+            config: {
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+                maxOutputTokens: 1000,
+                temperature: 0.9,
+            },
         });
 
-        const response = result.response.text();
+        // Extract text
+        let responseText = '';
+        try {
+            const resAny = result as any;
+            if (typeof resAny.text === 'string') responseText = resAny.text;
+            else if (typeof resAny.text === 'function') responseText = resAny.text();
+            else if (resAny.response?.candidates?.[0]?.content?.parts?.[0]?.text) responseText = resAny.response.candidates[0].content.parts[0].text;
+            else if (resAny.candidates?.[0]?.content?.parts?.[0]?.text) responseText = resAny.candidates[0].content.parts[0].text;
+        } catch (e) {
+            console.error('Text extraction failed', e);
+        }
 
-        return NextResponse.json({ success: true, response });
+        if (!responseText) responseText = "Error: No response generated.";
+
+        // Clean up
+        responseText = responseText.trim()
+            .replace(/^["'](.+)["']$/g, '$1')
+            .replace(/\[([^\]]+)\]/g, '*$1*');
+
+        // Evaluate (Part II)
+        // We expose the evaluation result to the trainer!
+        const evalResult = await evaluateResponse(responseText, persona.name, constraints);
+
+        return NextResponse.json({
+            success: true,
+            response: responseText,
+            evaluation: evalResult // UI can show "Constraint Warning!"
+        });
+
     } catch (error) {
         console.error('Simulation error:', error);
         return NextResponse.json({ success: false, error: 'Simulation failed' }, { status: 500 });
     }
 }
+
