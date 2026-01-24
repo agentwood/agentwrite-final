@@ -404,6 +404,7 @@ model User {
   loginStreak        UserLoginStreak?
   rewardProgress     UserRewardProgress[]
   voiceFeedback      VoiceFeedback[]
+  voiceContributions VoiceContribution[]
 
   @@index([username])
   @@index([email])
@@ -785,3 +786,204 @@ model BlogPost {
 // For now, keeping them loose or we can update them to point to BlogPost. 
 // The existing schema has BlogLike and BlogComment models, let's update them to link to BlogPost.
 
+
+// =============================================
+// VOICE CONTRIBUTION ECONOMY
+// User-contributed voices with usage tracking and rewards
+// =============================================
+
+model VoiceContribution {
+  id                    String   @id @default(cuid())
+  contributorId         String
+  contributor           User     @relation(fields: [contributorId], references: [id], onDelete: Cascade)
+  
+  // Audio Asset
+  audioFilePath         String   // S3/Supabase path
+  audioDurationSeconds  Float
+  audioFormat           String   // "wav", "mp3"
+  
+  // Quality & Status
+  qualityScore          Int      @default(0)  // 0-100
+  noiseScore            Int      @default(0)  // 0-100 (lower is better)
+  status                String   @default("processing") // processing, pending_review, approved, rejected
+  rejectionReason       String?
+  
+  // Consent & Licensing
+  consentTimestamp      DateTime
+  allowEnterpriseResale Boolean  @default(true)
+  licensingType         String   @default("platform_standard") // platform_standard, cc_by_nc, exclusive
+  isPaused              Boolean  @default(false)
+  
+  // Tree-0 Acoustic Profile (Generated)
+  acousticEmbedding     String?  @db.Text // JSON: 512-dim vector
+  emotionalVectors      String?  // JSON: { valence, arousal, dominance }
+  cadenceProfile        String?  // JSON: { avgPauseDuration, speechRate, rhythmVariability }
+  prosodyMarkers        String?  // JSON: { pitchRange, intonationPattern }
+  
+  // Tagging (Tree-0)
+  emotionalClusters     String?  // JSON array: ["empathetic", "authoritative"]
+  conversationalTypes   String?  // JSON array: ["mentor", "companion", "narrator"]
+  personalityResonance  String?  // JSON array: ["warm", "calm", "energetic"]
+  
+  // Display
+  displayName           String?
+  description           String?
+  gender                String?
+  age                   String?
+  accent                String?
+  
+  // Usage Tracking (Aggregated - updated by cron)
+  totalMinutesUsed      Float    @default(0)
+  uniqueUsersServed     Int      @default(0)
+  activeCharacterCount  Int      @default(0)
+  
+  // Rewards (Accrued, not yet settled)
+  accruedAwsTokens      Float    @default(0)
+  accruedCashUsd        Float    @default(0)
+  lifetimeEarningsUsd   Float    @default(0)
+  
+  // Relations
+  usageEvents           VoiceUsageEvent[]
+  rewardLedger          VoiceRewardLedger[]
+  settlements           VoiceSettlement[]
+  characterLinks        VoiceCharacterLink[]
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  approvedAt            DateTime?
+  
+  @@index([contributorId])
+  @@index([status])
+  @@index([qualityScore])
+  @@index([totalMinutesUsed])
+  @@map("voice_contributions")
+}
+
+model VoiceUsageEvent {
+  id                  String   @id @default(cuid())
+  voiceContributionId String
+  voiceContribution   VoiceContribution @relation(fields: [voiceContributionId], references: [id], onDelete: Cascade)
+  
+  // Usage Context
+  characterId         String
+  userId              String?    // User who triggered TTS
+  sessionId           String?    // For anonymous tracking
+  
+  // Metrics
+  durationSeconds     Float
+  textLength          Int        @default(0)
+  
+  // Idempotency  
+  eventHash           String     @unique // SHA256(voiceId + characterId + timestamp + text)
+  
+  // Reward Attribution (Snapshot)
+  awsTokensEarned     Float      @default(0)
+  awsPriceAtEvent     Float?     // Market price snapshot
+  
+  createdAt           DateTime   @default(now())
+  
+  @@index([voiceContributionId])
+  @@index([characterId])
+  @@index([createdAt])
+  @@map("voice_usage_events")
+}
+
+model VoiceRewardLedger {
+  id                  String   @id @default(cuid())
+  voiceContributionId String
+  voiceContribution   VoiceContribution @relation(fields: [voiceContributionId], references: [id], onDelete: Cascade)
+  
+  // Period
+  periodStart         DateTime
+  periodEnd           DateTime
+  
+  // Aggregated Metrics
+  totalMinutes        Float
+  totalEvents         Int
+  
+  // Reward Calculation
+  awsTokensEarned     Float
+  cashEquivalentUsd   Float
+  awsPriceUsed        Float    // Average price during period
+  
+  // Status
+  status              String   @default("accruing") // accruing, pending_settlement, settled
+  settlementId        String?
+  
+  createdAt           DateTime @default(now())
+  
+  @@unique([voiceContributionId, periodStart])
+  @@index([status])
+  @@map("voice_reward_ledger")
+}
+
+model VoiceSettlement {
+  id                  String   @id @default(cuid())
+  contributorId       String
+  voiceContributionId String?
+  voiceContribution   VoiceContribution? @relation(fields: [voiceContributionId], references: [id], onDelete: SetNull)
+  
+  // Period
+  settlementPeriod    String   // "2026-Q1-P1" (Period 1 of Q1)
+  periodStart         DateTime
+  periodEnd           DateTime
+  
+  // Totals
+  totalAwsTokens      Float
+  totalCashUsd        Float
+  
+  // Payout Choice
+  payoutType          String   @default("pending_choice") // aws_tokens, cash, split, pending_choice
+  payoutSplitRatio    Float?   // If split, % in tokens (0.0-1.0)
+  
+  // Execution
+  status              String   @default("pending") // pending, processing, completed, failed
+  transactionHash     String?  // On-chain tx for tokens
+  paypalTransactionId String?  // For cash
+  failureReason       String?
+  
+  createdAt           DateTime @default(now())
+  completedAt         DateTime?
+  
+  @@index([contributorId])
+  @@index([status])
+  @@index([periodStart])
+  @@map("voice_settlements")
+}
+
+model VoiceCharacterLink {
+  id                  String   @id @default(cuid())
+  voiceContributionId String
+  voiceContribution   VoiceContribution @relation(fields: [voiceContributionId], references: [id], onDelete: Cascade)
+  characterId         String
+  
+  // Usage Stats (Cached for dashboard)
+  totalMinutes        Float    @default(0)
+  totalRevenue        Float    @default(0)
+  usageCount          Int      @default(0)
+  lastUsedAt          DateTime?
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@unique([voiceContributionId, characterId])
+  @@index([characterId])
+  @@map("voice_character_links")
+}
+
+model AdminAuditLog {
+  id          String   @id @default(cuid())
+  adminId     String
+  action      String   // "approve_voice", "reject_voice", "flag_abuse", "create_bundle"
+  targetType  String   // "voice_contribution", "settlement", "user"
+  targetId    String
+  metadata    String?  // JSON
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  
+  @@index([adminId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("admin_audit_log")
+}

@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
 
+dotenv.config({ path: '.env.local' });
 dotenv.config();
 
 const prisma = new PrismaClient();
@@ -68,7 +69,50 @@ async function main() {
             await new Promise(resolve => setTimeout(resolve, 1000));
 
         } catch (error) {
-            console.error(`  ❌ Failed to generate for ${char.name}:`, error);
+            console.error(`  ❌ Failed to generate for ${char.name} (using fallback):`, error);
+
+            // Intelligent Fallback System
+            let fallbackGreeting = '';
+            const name = char.name;
+            const tagline = char.tagline || '';
+            const archetype = char.archetype || 'helper';
+
+            const starters = [
+                `*looks up* Oh, ${name} here.`,
+                `*smiles* I am ${name}.`,
+                `*nods* ${name} at your service.`,
+                `*waves* Hi there! I'm ${name}.`,
+                `*clears throat* I'm ${name}.`,
+            ];
+
+            // Archetype specific actions
+            const archetypeActions: Record<string, string[]> = {
+                'mentor': ["*adjusts glasses*", "*smiles wisely*", "*nods slowly*"],
+                'villain': ["*smirks*", "*laughs darkly*", "*glares*"],
+                'hero': ["*stands tall*", "*salutes*", "*grins confidently*"],
+                'romantic': ["*blushes*", "*smiles softly*", "*winks*"],
+                'mystic': ["*gazes into distance*", "*hums softly*", "*bows slightly*"],
+            };
+
+            const actions = archetypeActions[archetype.toLowerCase()] || ["*smiles*", "*looks at you*"];
+            const randomAction = actions[Math.floor(Math.random() * actions.length)];
+
+            // Construct greeting from Tagline if available
+            if (tagline && tagline.length > 5 && tagline.length < 100) {
+                fallbackGreeting = `${randomAction} ${tagline} I am ${name}.`;
+            } else {
+                const randomStarter = starters[Math.floor(Math.random() * starters.length)];
+                fallbackGreeting = `${randomAction} ${randomStarter.replace(`I'm ${name}`, '').replace(`${name} here`, '').trim()} ${name} here. Ready to chat?`;
+                // Clean up potential double phrasing
+                if (fallbackGreeting.includes("  ")) fallbackGreeting = fallbackGreeting.replace(/\s+/g, ' ');
+            }
+
+            await prisma.personaTemplate.update({
+                where: { id: char.id },
+                data: { greeting: fallbackGreeting }
+            });
+            console.log(`  ⚠️ Fallback -> "${fallbackGreeting}"`);
+            updateCount++;
         }
     }
 

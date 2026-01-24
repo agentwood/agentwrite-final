@@ -54,7 +54,7 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   // Enable static page generation where possible
   // Enable static page generation where possible
-  output: 'standalone',
+  // Output standalone removed to debug InvariantError
   // Experimental features disabled to fix build InvariantError
   experimental: {},
   // Output file tracing excludes to reduce bundle size
