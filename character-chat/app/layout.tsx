@@ -8,24 +8,29 @@ import { generateMetadata as generateSEOMetadata } from "@/lib/seo/metadata";
 import { generateOrganizationSchema, generateWebSiteSchema } from "@/lib/seo/structured-data";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://agentwood.xyz"),
   title: {
     template: "%s | Agentwood",
-    default: "Agentwood - AI Character Chat",
+    default: "Agentwood - AI Character Chat Platform with Long-Term Memory",
   },
-  description: "Chat with thousands of AI characters, create your own, and discover unique personalities. Free AI character chat platform similar to Character.ai. Talk to AI waifus, fantasy characters, and real-world personas.",
+  description: "Chat with evolving AI characters that remember you. Create, train, and share autonomous AI agents for storytelling, roleplay, and companionship. Free alternative to Character.ai and Talkie.",
   keywords: [
     "AI characters",
     "character chat",
-    "character.ai alternative",
-    "AI waifu",
-    "fantasy characters",
-    "AI chatbot",
-    "virtual characters",
-    "AI companion",
-    "chat with AI",
-    "character creator",
+    "long-term memory AI",
+    "AI agent platform",
+    "agent swarm",
+    "interactive storytelling",
     "AI roleplay",
+    "virtual companions",
+    "custom AI characters",
+    "waifu chat",
+    "character.ai alternative",
+    "talkie.ai alternative",
   ],
+  alternates: {
+    canonical: './',
+  },
   openGraph: {
     type: "website",
     locale: "en_US",

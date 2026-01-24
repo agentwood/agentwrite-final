@@ -3,10 +3,16 @@ import Footer from '@/app/components/Footer';
 import Link from 'next/link';
 import { generateBlogMetadata } from '@/lib/seo/metadata';
 import BlogEngagement from '@/app/components/BlogEngagement';
+import { notFound } from 'next/navigation';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const resolvedParams = await params;
     const post = await getPostData(resolvedParams.slug);
+
+    if (!post) {
+        return {};
+    }
+
     return generateBlogMetadata(post);
 }
 
@@ -18,6 +24,10 @@ export async function generateStaticParams() {
 export default async function Post({ params }: { params: Promise<{ slug: string }> }) {
     const resolvedParams = await params;
     const postData = await getPostData(resolvedParams.slug);
+
+    if (!postData) {
+        notFound();
+    }
 
     return (
         <div className="min-h-screen flex flex-col bg-[#0c0f16] text-white">

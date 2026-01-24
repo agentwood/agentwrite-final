@@ -57,7 +57,7 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   // Enable experimental features for better performance
   experimental: {
-    optimizePackageImports: ['lucide-react', '@prisma/client'],
+    // optimizePackageImports removed to avoid InvariantError
   },
   // Output file tracing excludes to reduce bundle size
   outputFileTracingExcludes: {

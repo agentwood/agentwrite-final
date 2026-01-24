@@ -1,17 +1,15 @@
 /**
- * Pocket TTS Client
+ * F5-TTS Client (formerly Pocket TTS)
  * 
- * Lightweight, CPU-based TTS with zero-shot voice cloning.
- * Connects to a Pocket TTS server running `pocket-tts serve`.
- * 
- * @see https://github.com/kyutai-labs/pocket-tts
+ * Connects to the local F5-TTS server running on port 8000.
+ * Matches `server.py` API contract: POST /run
  */
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
-interface PocketTtsResponse {
-    audio: Buffer;
+interface F5TtsResponse {
+    audio: Buffer; // WAV buffer
     sampleRate: number;
     format: string;
 }
@@ -21,154 +19,145 @@ interface SynthesizeOptions {
     voicePath?: string;
     /** Speed multiplier (default 1.0) */
     speed?: number;
+    /** Reference text (optional transcript of ref audio) */
+    refText?: string;
 }
 
-class PocketTtsClient {
+class F5TtsClient {
     private baseUrl: string;
     private configured: boolean;
 
     constructor() {
-        this.baseUrl = process.env.POCKET_TTS_URL || 'http://localhost:8000';
-        this.configured = !!process.env.POCKET_TTS_URL;
+        this.baseUrl = process.env.F5_TTS_URL || 'http://localhost:8000';
+        // Assume configured if running locally, or check env
+        this.configured = true;
     }
 
     /**
-     * Check if Pocket TTS server is configured
-     */
-    checkConfigured(): boolean {
-        return this.configured;
-    }
-
-    /**
-     * Check if the Pocket TTS server is healthy
+     * Check if the F5 TTS server is healthy
      */
     async checkHealth(): Promise<boolean> {
         try {
             const response = await fetch(`${this.baseUrl}/health`, {
                 method: 'GET',
-                signal: AbortSignal.timeout(5000),
+                signal: AbortSignal.timeout(2000),
             });
             return response.ok;
         } catch (error) {
-            console.error('[Pocket TTS] Health check failed:', error);
+            console.error('[F5 TTS] Health check failed:', error);
             return false;
         }
     }
 
     /**
-     * Load reference audio file as a Blob for multipart upload
+     * Load reference audio file as Base64
      */
-    private async loadReferenceAudio(voicePath: string): Promise<Blob | null> {
-        // 1. Try Local File System (Works in Dev / when bundled)
+    private async loadReferenceAudioBase64(voicePath: string): Promise<string | null> {
         try {
-            // Handle both absolute and relative paths
-            let fullPath: string;
+            // 1. Try Local File System
+            let fullPath = voicePath;
             if (voicePath.startsWith('/')) {
-                // Relative to public directory
                 fullPath = path.join(process.cwd(), 'public', voicePath);
-            } else {
-                fullPath = voicePath;
             }
 
-            console.log(`[Pocket TTS] Loading reference audio (FS): ${fullPath}`);
+            // Verify file exists
+            try {
+                await fs.access(fullPath);
+            } catch {
+                // Try fetching if file not found locally (serverless fallback)
+                return this.fetchAudioBase64(voicePath);
+            }
+
+            console.log(`[F5 TTS] Loading ref audio (FS): ${fullPath}`);
             const buffer = await fs.readFile(fullPath);
+            return buffer.toString('base64');
 
-            // Determine MIME type from extension
-            const ext = path.extname(fullPath).toLowerCase();
-            const mimeType = ext === '.wav' ? 'audio/wav' : 'audio/mpeg';
-
-            return new Blob([buffer], { type: mimeType });
         } catch (error) {
-            console.warn(`[Pocket TTS] FS load failed, trying HTTP fetch: ${voicePath}`);
+            console.warn(`[F5 TTS] FS load failed, failing over to fetch: ${voicePath}`);
+            return this.fetchAudioBase64(voicePath);
         }
+    }
 
-        // 2. Fallback: Fetch via HTTP (Works in Serverless / Netlify)
+    private async fetchAudioBase64(urlPath: string): Promise<string | null> {
         try {
-            // Netlify exposes 'URL' env var. Vercel exposes 'VERCEL_URL'.
-            // Or use NEXT_PUBLIC_SUPABASE_URL as a hint? No.
-            // fallback to relative if we are on same origin? Node fetch needs absolute.
-
-            const baseUrl = process.env.NEXT_PUBLIC_APP_URL ||
-                process.env.URL ||
-                (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
-
-            const fetchUrl = `${baseUrl}${voicePath}`;
-            console.log(`[Pocket TTS] Fetching reference audio (HTTP): ${fetchUrl}`);
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+            const fetchUrl = urlPath.startsWith('http') ? urlPath : `${baseUrl}${urlPath}`;
 
             const response = await fetch(fetchUrl);
-            if (!response.ok) {
-                console.error(`[Pocket TTS] HTTP fetch failed: ${response.statusText}`);
-                return null;
-            }
+            if (!response.ok) return null;
 
             const buffer = await response.arrayBuffer();
-            // Determine MIME type from extension
-            const ext = path.extname(voicePath).toLowerCase();
-            const mimeType = ext === '.wav' ? 'audio/wav' : 'audio/mpeg';
-            return new Blob([buffer], { type: mimeType });
-
-        } catch (fetchError) {
-            console.error(`[Pocket TTS] HTTP fetch failed details:`, fetchError);
+            return Buffer.from(buffer).toString('base64');
+        } catch (e) {
+            console.error('[F5 TTS] Fetch failed:', e);
             return null;
         }
     }
 
     /**
-     * Synthesize speech using Pocket TTS
-     * 
-     * Uses POST /tts with multipart/form-data:
-     * - text: The text to synthesize
-     * - voice_wav: The reference audio file for voice cloning
+     * Synthesize speech using F5-TTS Server
      */
-    async synthesize(text: string, options: SynthesizeOptions = {}): Promise<PocketTtsResponse | null> {
+    async synthesize(text: string, options: SynthesizeOptions = {}): Promise<F5TtsResponse | null> {
         try {
-            const formData = new FormData();
-            formData.append('text', text);
-
-            // Load and attach voice reference for cloning
-            if (options.voicePath) {
-                const voiceBlob = await this.loadReferenceAudio(options.voicePath);
-                if (!voiceBlob) {
-                    throw new Error(`Could not load voice reference: ${options.voicePath}`);
-                }
-
-                // Get filename for the form field
-                const filename = path.basename(options.voicePath);
-                formData.append('voice_wav', voiceBlob, filename);
-
-                console.log(`[Pocket TTS] Synthesizing with cloned voice: ${filename}`);
-            } else {
-                console.log('[Pocket TTS] Synthesizing with default voice (no cloning)');
+            if (!options.voicePath) {
+                console.error('[F5 TTS] Reference audio path is required for F5-TTS');
+                return null;
             }
 
-            const response = await fetch(`${this.baseUrl}/tts`, {
+            const refAudioBase64 = await this.loadReferenceAudioBase64(options.voicePath);
+            if (!refAudioBase64) {
+                throw new Error(`Could not load reference audio: ${options.voicePath}`);
+            }
+
+            console.log(`[F5 TTS] Generating: "${text.substring(0, 20)}..." using ${path.basename(options.voicePath)}`);
+
+            // F5-TTS Server /run payload
+            const payload = {
+                input: {
+                    text: text,
+                    ref_audio: refAudioBase64,
+                    ref_text: options.refText || "",
+                    speed: options.speed || 1.0,
+                    steps: 32 // Default steps
+                }
+            };
+
+            const response = await fetch(`${this.baseUrl}/run`, {
                 method: 'POST',
-                body: formData,
-                signal: AbortSignal.timeout(60000), // 60s timeout for long texts
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                signal: AbortSignal.timeout(60000)
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`[Pocket TTS] API Error (${response.status}):`, errorText);
-                throw new Error(`Pocket TTS API error: ${response.status} - ${errorText}`);
+                const err = await response.text();
+                throw new Error(`F5 API Error ${response.status}: ${err}`);
             }
 
-            // Response is audio bytes (WAV format)
-            const audioBuffer = Buffer.from(await response.arrayBuffer());
+            const data = await response.json();
 
-            console.log(`[Pocket TTS] Generated ${audioBuffer.length} bytes of audio`);
+            if (data.status === "COMPLETED" && data.output && data.output.audio) {
+                return {
+                    audio: Buffer.from(data.output.audio, 'base64'),
+                    sampleRate: data.output.sample_rate || 24000,
+                    format: 'wav'
+                };
+            } else {
+                console.error('[F5 TTS] Invalid response format:', data);
+                return null;
+            }
 
-            return {
-                audio: audioBuffer,
-                sampleRate: 24000, // Pocket TTS default
-                format: 'wav',
-            };
         } catch (error: any) {
-            console.error('[Pocket TTS] Synthesis error:', error.message);
+            console.error('[F5 TTS] Synthesis error:', error.message);
             throw error;
         }
     }
+
+    checkConfigured(): boolean {
+        return this.configured;
+    }
 }
 
-// Export singleton instance
-export const pocketTtsClient = new PocketTtsClient();
+// Export singleton instance (renaming to match existing import to avoid refactoring everything)
+export const pocketTtsClient = new F5TtsClient();
+
