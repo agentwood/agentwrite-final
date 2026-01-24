@@ -52,12 +52,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Character not found' }, { status: 404 });
     }
 
-    if (!character.voiceSeed) {
-      console.error(`[TTS] ❌ No VoiceSeed for: ${character.name}`);
-      return NextResponse.json({ error: 'No voice configured for this character' }, { status: 500 });
+    let voiceSeed = character.voiceSeed;
+
+    // FALLBACK: If relation is missing, try to find VoiceSeed by string name
+    if (!voiceSeed && character.voiceName) {
+      console.log(`[TTS] ⚠️ Relation missing. Looking up VoiceSeed by name: "${character.voiceName}"`);
+      const seedByName = await db.voiceSeed.findUnique({
+        where: { name: character.voiceName }
+      });
+      if (seedByName) {
+        voiceSeed = seedByName;
+      }
     }
 
-    const voiceSeed = character.voiceSeed;
+    if (!voiceSeed) {
+      console.error(`[TTS] ❌ No VoiceSeed found for: ${character.name} (voiceName: ${character.voiceName})`);
+      return NextResponse.json({ error: 'No voice configured for this character' }, { status: 500 });
+    }
     console.log(`[TTS] Request for "${character.name}" using voice: ${voiceSeed.name}`);
 
     // 2. Sanitize text

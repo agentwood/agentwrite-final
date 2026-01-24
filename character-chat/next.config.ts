@@ -55,10 +55,8 @@ const nextConfig: NextConfig = {
   // Enable static page generation where possible
   // Enable static page generation where possible
   output: 'standalone',
-  // Enable experimental features for better performance
-  experimental: {
-    // optimizePackageImports removed to avoid InvariantError
-  },
+  // Experimental features disabled to fix build InvariantError
+  experimental: {},
   // Output file tracing excludes to reduce bundle size
   outputFileTracingExcludes: {
     '*': [
