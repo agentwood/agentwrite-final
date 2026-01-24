@@ -127,21 +127,19 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-    ];
+  webpack: (config) => {
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: [
+        '**/runpod-f5-tts/**',
+        '**/runpod-fishspeech/**',
+        '**/venv/**',
+        '**/node_modules/**',
+        '**/.git/**',
+      ],
+    };
+    return config;
   },
-webpack: (config) => {
-  config.watchOptions = {
-    ...config.watchOptions,
-    ignored: [
-      '**/runpod-f5-tts/**',
-      '**/runpod-fishspeech/**',
-      '**/venv/**',
-      '**/node_modules/**',
-      '**/.git/**',
-    ],
-  };
-  return config;
-},
 };
 
 export default nextConfig;
