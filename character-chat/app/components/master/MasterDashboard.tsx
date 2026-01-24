@@ -25,6 +25,7 @@ import { OnboardingModal } from './OnboardingModal';
 import { SubscriptionModal } from './SubscriptionModal';
 import { audioManager } from '@/lib/audio/audioManager';
 import { SkeletonCard, SkeletonRow } from './SkeletonLoaders';
+import { CogneeStatus } from './CogneeStatus';
 import { getShowcaseCharacters, FALLBACK_CHARACTERS } from '@/lib/master/geminiService';
 import { CharacterProfile, Category, View } from '@/lib/master/types';
 import { LandingPage } from './LandingPage';
@@ -328,8 +329,16 @@ const CharacterProfileView: React.FC<{
           <div>
             <div className="flex items-center gap-3 mb-4">
               <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-dipsea-accent">{character.category}</span>
-              <div className="flex items-center gap-1 text-white/40 text-xs font-bold uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-white/40 text-xs font-bold uppercase tracking-wider">
                 <Eye size={12} /> {character.viewCount >= 1000 ? `${(character.viewCount / 1000).toFixed(1).replace(/\.0$/, '')}k` : character.viewCount}
+                {/* AW Official Badge - Logo */}
+                {(character as any).isOfficial && (
+                  <img
+                    src="/logo.png"
+                    alt="AW Official"
+                    className="h-4 w-auto ml-1 opacity-90"
+                  />
+                )}
               </div>
             </div>
             <h1 className="text-6xl md:text-8xl font-serif italic text-white mb-2">{character.name}</h1>
@@ -821,15 +830,18 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     }
   };
 
-  // Available voices
-  const availableVoices = [
-    { id: 'alloy', name: 'Alloy', gender: 'Neutral', preview: 'Modern and balanced' },
-    { id: 'echo', name: 'Echo', gender: 'Male', preview: 'Deep and resonant' },
-    { id: 'fable', name: 'Fable', gender: 'Female', preview: 'Warm and expressive' },
-    { id: 'onyx', name: 'Onyx', gender: 'Male', preview: 'Rich and authoritative' },
-    { id: 'nova', name: 'Nova', gender: 'Female', preview: 'Bright and energetic' },
-    { id: 'shimmer', name: 'Shimmer', gender: 'Female', preview: 'Soft and soothing' },
-  ];
+  // Available voices - DYNAMICALLY LOADED from voice_pool.json
+  // When new voices are added to voice_pool.json, they auto-appear here
+  const availableVoices = React.useMemo(() => {
+    const voicePool = require('@/lib/voices/voice_pool.json');
+    return Object.entries(voicePool).map(([id, voice]: [string, any]) => ({
+      id,
+      name: id.replace(/([A-Z])/g, ' $1').trim(), // Convert camelCase to readable
+      gender: voice.gender.charAt(0).toUpperCase() + voice.gender.slice(1),
+      preview: voice.description?.slice(0, 35) + '...' || voice.tone,
+      category: voice.category,
+    }));
+  }, []);
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -2837,7 +2849,7 @@ export default function MasterDashboard({
   };
 
   return (
-    <div className="flex min-h-screen font-sans bg-dipsea-bg text-dipsea-cream">
+    <div className="flex min-h-screen max-w-[100vw] overflow-x-hidden font-sans bg-dipsea-bg text-dipsea-cream">
 
       <aside className="fixed left-0 top-0 hidden h-full w-[260px] flex-col border-r border-white/5 lg:flex z-50 bg-[#0c0c0c] p-5">
         <div
@@ -2948,6 +2960,9 @@ export default function MasterDashboard({
         </div>
 
         <div className="mt-auto pt-4 border-t border-white/5 space-y-4">
+          {/* Cognee Memory Status */}
+          <CogneeStatus />
+
           {/* Auth Status Indicator */}
           {currentUser?.email ? (
             <div className="flex items-center gap-3 px-4 py-2 text-green-400">
@@ -3104,6 +3119,60 @@ export default function MasterDashboard({
         onClose={() => setOnboardingChar(null)}
         onComplete={handleOnboardingComplete}
       />
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-[#0c0c0c]/95 backdrop-blur-lg border-t border-white/10 px-2 py-2 safe-area-pb">
+        <div className="flex items-center justify-around max-w-md mx-auto">
+          <button
+            onClick={() => changeView('discover')}
+            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${currentView === 'discover' ? 'text-white bg-white/10' : 'text-white/40'}`}
+          >
+            <Compass size={20} />
+            <span className="text-[10px] font-medium">Discover</span>
+          </button>
+          <button
+            onClick={() => changeView('search')}
+            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${currentView === 'search' ? 'text-white bg-white/10' : 'text-white/40'}`}
+          >
+            <Search size={20} />
+            <span className="text-[10px] font-medium">Search</span>
+          </button>
+          <button
+            onClick={() => {
+              if (!currentUser) {
+                setIsAuthOpen(true);
+                return;
+              }
+              setSelectedCharacter(null);
+              setCurrentView('create');
+            }}
+            className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-white text-black"
+          >
+            <Plus size={20} />
+            <span className="text-[10px] font-bold">Create</span>
+          </button>
+          <button
+            onClick={() => changeView('favorites')}
+            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${currentView === 'favorites' ? 'text-white bg-white/10' : 'text-white/40'}`}
+          >
+            <Heart size={20} />
+            <span className="text-[10px] font-medium">Favorites</span>
+          </button>
+          <button
+            onClick={() => {
+              if (!currentUser) {
+                setIsAuthOpen(true);
+                return;
+              }
+              changeView('settings');
+            }}
+            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${currentView === 'settings' ? 'text-white bg-white/10' : 'text-white/40'}`}
+          >
+            <Settings size={20} />
+            <span className="text-[10px] font-medium">Settings</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

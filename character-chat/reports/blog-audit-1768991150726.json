@@ -1,0 +1,173 @@
+{
+  "timestamp": "2026-01-21T10:25:50.726Z",
+  "summary": {
+    "total": 8,
+    "passed": 4,
+    "avgWordCount": 416,
+    "variance": 181
+  },
+  "results": [
+    {
+      "file": "ai-girlfriend-chat-guide.md",
+      "title": "AI Girlfriend Chat: The Complete Guide to Virtual Companions in 2026",
+      "passed": true,
+      "issues": [],
+      "warnings": [
+        "Short content (571 words, aim for 1000+)",
+        "Low readability (36, aim for 60+)",
+        "AI-like phrase detected: \"in this guide\""
+      ],
+      "stats": {
+        "wordCount": 571,
+        "sentenceCount": 36,
+        "avgSentenceLength": 16,
+        "headingCount": 24,
+        "internalLinks": 3,
+        "externalLinks": 0,
+        "readabilityScore": 36
+      }
+    },
+    {
+      "file": "character-ai-alternatives-2026.md",
+      "title": "Best Character AI Alternatives in 2026: Top 10 AI Chat Platforms",
+      "passed": true,
+      "issues": [],
+      "warnings": [
+        "Short content (552 words, aim for 1000+)"
+      ],
+      "stats": {
+        "wordCount": 552,
+        "sentenceCount": 38,
+        "avgSentenceLength": 15,
+        "headingCount": 16,
+        "internalLinks": 2,
+        "externalLinks": 0,
+        "readabilityScore": 49
+      }
+    },
+    {
+      "file": "dere-types-explained.md",
+      "title": "Tsundere vs Yandere vs Kuudere: Every Dere Type Explained",
+      "passed": true,
+      "issues": [],
+      "warnings": [
+        "Short content (626 words, aim for 1000+)"
+      ],
+      "stats": {
+        "wordCount": 626,
+        "sentenceCount": 46,
+        "avgSentenceLength": 14,
+        "headingCount": 17,
+        "internalLinks": 8,
+        "externalLinks": 0,
+        "readabilityScore": 51
+      }
+    },
+    {
+      "file": "designing-digital-souls.md",
+      "title": "Designing Digital Souls: The Art of Character Creation",
+      "passed": false,
+      "issues": [
+        "Content too thin (339 words, minimum 500)",
+        "No internal links to Agentwood"
+      ],
+      "warnings": [
+        "Excerpt too short (89 chars, aim for 150-160)",
+        "Repetitive sentence starter: \"a\" used 5 times"
+      ],
+      "stats": {
+        "wordCount": 339,
+        "sentenceCount": 31,
+        "avgSentenceLength": 11,
+        "headingCount": 5,
+        "internalLinks": 0,
+        "externalLinks": 0,
+        "readabilityScore": 62
+      }
+    },
+    {
+      "file": "future-of-ai-companionship.md",
+      "title": "The Future of AI Companionship: Beyond the Chatbot",
+      "passed": false,
+      "issues": [
+        "Content too thin (332 words, minimum 500)",
+        "No internal links to Agentwood"
+      ],
+      "warnings": [
+        "Repetitive sentence starter: \"the\" used 6 times"
+      ],
+      "stats": {
+        "wordCount": 332,
+        "sentenceCount": 20,
+        "avgSentenceLength": 17,
+        "headingCount": 5,
+        "internalLinks": 0,
+        "externalLinks": 0,
+        "readabilityScore": 44
+      }
+    },
+    {
+      "file": "top-5-fantasy-archetypes.md",
+      "title": "5 Fantasy Archetypes You Need in Your Life",
+      "passed": false,
+      "issues": [
+        "Content too thin (277 words, minimum 500)",
+        "No internal links to Agentwood"
+      ],
+      "warnings": [
+        "Repetitive sentence starter: \"the\" used 5 times",
+        "Repetitive sentence starter: \"chat\" used 5 times"
+      ],
+      "stats": {
+        "wordCount": 277,
+        "sentenceCount": 24,
+        "avgSentenceLength": 12,
+        "headingCount": 6,
+        "internalLinks": 0,
+        "externalLinks": 0,
+        "readabilityScore": 61
+      }
+    },
+    {
+      "file": "welcome.md",
+      "title": "Welcome to Agentwood",
+      "passed": false,
+      "issues": [
+        "Content too thin (67 words, minimum 500)",
+        "No internal links to Agentwood"
+      ],
+      "warnings": [
+        "Title too short (20 chars, aim for 50-60)",
+        "Few headings - add more structure"
+      ],
+      "stats": {
+        "wordCount": 67,
+        "sentenceCount": 6,
+        "avgSentenceLength": 11,
+        "headingCount": 0,
+        "internalLinks": 0,
+        "externalLinks": 0,
+        "readabilityScore": 53
+      }
+    },
+    {
+      "file": "what-is-yandere-guide.md",
+      "title": "What is a Yandere? The Complete Guide to Yandere Characters",
+      "passed": true,
+      "issues": [],
+      "warnings": [
+        "Short content (567 words, aim for 1000+)",
+        "Low readability (31, aim for 60+)"
+      ],
+      "stats": {
+        "wordCount": 567,
+        "sentenceCount": 29,
+        "avgSentenceLength": 20,
+        "headingCount": 20,
+        "internalLinks": 2,
+        "externalLinks": 0,
+        "readabilityScore": 31
+      }
+    }
+  ]
+}

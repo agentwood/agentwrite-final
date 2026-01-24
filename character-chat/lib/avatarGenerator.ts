@@ -1,58 +1,102 @@
-/**
- * Avatar Generator Utility
- * 
- * Enforces strict visual styles:
- * 1. Photorealistic (Default for human/helpful characters)
- * 2. Detailed Comic / Realistic Anime (For fantasy/creative characters)
- * 
- * BANNED STYLES: 
- * - Cartoons
- * - Flat illustrations
- * - "Homework helper" style vectors
- */
+import { ARCHETYPE_PROFILES, getArchetypeAvatarPrompt } from '@/lib/character/archetype-profiles';
+import { AVATAR_STYLE_GUIDE } from '@/lib/avatars/style-guide';
 
 export interface AvatarOptions {
   characterId: string;
   characterName: string;
-  style: 'REALISTIC' | 'COMIC'; // Strict typing
+  style: 'REALISTIC' | 'COMIC' | 'ANIME';
   description?: string;
+  archetype?: string;
+  gender?: string;
 }
 
+// Core style templates derived from strict Style Guide
+const STYLE_TEMPLATES = {
+  REALISTIC: 'photorealistic, 8k uhd, cinematic lighting, shot on 35mm lens, highly detailed texture, realistic skin tones, masterpiece, unreal engine 5 render, ray tracing',
+  COMIC: 'highly detailed comic book style, graphic novel aesthetic, sharp lines, dramatic lighting, 8k resolution, masterpiece, trending on artstation',
+  ANIME: AVATAR_STYLE_GUIDE.generationParams.style, // Enforce the "Original 30" style
+};
+
+// Negative prompts to avoid bad generation
+const NEGATIVE_PROMPT = AVATAR_STYLE_GUIDE.generationParams.negativePrompt;
+
 /**
- * Generate a strict prompt for image generation models (Gemini/DALL-E)
- * This does not generate the image itself but constructs the mandatory prompt structure.
+ * Generate a strict prompt for image generation models
+ * Uses archetype-specific styling when available and enforces Style Guide
  */
 export function constructAvatarPrompt(options: AvatarOptions): string {
-  const { characterName, style, description } = options;
+  const { characterName, style, description, archetype, gender } = options;
 
+  // 1. Start with the Style Guide Template structure if ANIME style (default)
+  if (style === 'ANIME') {
+    // Extract personality hints from description (simple logic)
+    const personality = description ? description.slice(0, 100) : 'engaging';
+
+    // Use the official template
+    let prompt = AVATAR_STYLE_GUIDE.promptTemplate
+      .replace('{name}', characterName)
+      .replace('{gender}', gender || 'character')
+      .replace('{personality}', personality)
+      .replace('{category}', archetype ? archetype.replace(/_/g, ' ') : 'fantasy');
+
+    return prompt;
+  }
+
+  // 2. Fallback for Explicit REALISTIC / COMIC requests (though likely unused given requirements)
   const basePrompt = description
     ? `Portrait of ${characterName}, ${description}`
     : `Portrait of ${characterName}`;
 
-  if (style === 'COMIC') {
-    return `${basePrompt}, highly detailed comic book style, graphic novel aesthetic, sharp lines, dramatic lighting, 8k resolution, masterpiece, trending on artstation`;
-  }
+  const styleTemplate = STYLE_TEMPLATES[style] || STYLE_TEMPLATES.ANIME;
 
-  // Default to REALISTIC
-  return `${basePrompt}, photorealistic, 8k uhd, cinematic lighting, shot on 35mm lens, highly detailed texture, realistic skin tones, masterpiece`;
+  return `${basePrompt}, ${styleTemplate}`;
+}
+
+/**
+ * Get full generation parameters including negative prompt
+ */
+export function getGenerationParams(options: AvatarOptions): {
+  prompt: string;
+  negativePrompt: string;
+  width: number;
+  height: number;
+} {
+  return {
+    prompt: constructAvatarPrompt(options),
+    negativePrompt: NEGATIVE_PROMPT,
+    width: AVATAR_STYLE_GUIDE.dimensions.width,
+    height: AVATAR_STYLE_GUIDE.dimensions.height,
+  };
 }
 
 /**
  * Placeholder for actual generation API integration.
- * For now, returns high-quality static placeholders matching the style,
- * or redirects to a generation route if we had one connected here.
+ * Returns the constructed prompt to be used by generation scripts.
  */
 export function generateAvatar(options: AvatarOptions): string {
-  // In a real generation flow, this would call the image gen API.
-  // For immediate visual fix without burning credits on millions of regenerations:
-  // We map to specific high-quality Collections or use a consistent seed with style params.
-
-  // Using Dicebear as a fallback is BANNED by user constraints (it looks too cartoonish).
-  // so we return a placeholder that indicates "Generation Pending" or a high-quality stock.
-
-  // Ideally, this function is called by `scripts/generate-avatars.ts` which ACTUALLY interacts with Gemini/DALL-E.
-  // So here we just return the constructed prompt to be used by that script.
-  return constructAvatarPrompt(options);
+  const prompt = constructAvatarPrompt(options);
+  // Returns a placeholder URL that would handle the generation in a real app
+  // or simply returns the prompt if the caller expects a prompt string (current usage ambiguous)
+  // For consistency with route.ts which expects a URL:
+  return `https://avatar.agentwood.com/v1/${options.characterId}.png?prompt=${encodeURIComponent(prompt)}`;
 }
 
+/**
+ * Get avatar style recommendation based on character type
+ */
+export function recommendStyle(category?: string, archetype?: string): 'REALISTIC' | 'COMIC' | 'ANIME' {
+  // STRICT ENFORCEMENT: Default to ANIME (The "Original 30" style) for almost everything
+  // unless explicitly tailored for hyper-realism.
 
+  const c = category?.toLowerCase() || '';
+  const a = archetype?.toLowerCase() || '';
+
+  // Explicitly realistic archetypes
+  const realisticArchetypes = ['mafia_boss', 'ceo_cold'];
+  if (archetype && realisticArchetypes.includes(archetype)) {
+    return 'REALISTIC';
+  }
+
+  // Everything else follows the "Original 30" Agentwood style
+  return 'ANIME';
+}

@@ -1,6 +1,6 @@
 {
     "Movetrailer": {
-        "file": "/voices/seeds/Movetrailer.mp3",
+        "file": "/voices/seeds/Movetrailer.wav",
         "gender": "male",
         "age": "adult",
         "tone": "deep",
@@ -24,7 +24,7 @@
         "description": "Deep, resonant male voice with cinematic gravitas. Perfect for epic narration and powerful characters."
     },
     "VeterenSoldier": {
-        "file": "/voices/seeds/VeterenSoldier.mp3",
+        "file": "/voices/seeds/VeterenSoldier.wav",
         "gender": "male",
         "age": "middle_aged",
         "tone": "gravelly",
@@ -48,7 +48,7 @@
         "description": "Rough, battle-worn voice with authority. Ideal for military and tough guy characters."
     },
     "FemmeFatale": {
-        "file": "/voices/seeds/FemmeFatale.mp3",
+        "file": "/voices/seeds/FemmeFatale.wav",
         "gender": "female",
         "age": "adult",
         "tone": "smoky",
@@ -72,7 +72,7 @@
         "description": "Smoky, mysterious female voice with dangerous allure. Perfect for femme fatale archetypes."
     },
     "Headmistress": {
-        "file": "/voices/seeds/Headmistress.mp3",
+        "file": "/voices/seeds/Headmistress.wav",
         "gender": "female",
         "age": "middle_aged",
         "tone": "sharp",
@@ -96,7 +96,7 @@
         "description": "Sharp, commanding British female voice. Ideal for authority figures and strict mentors."
     },
     "Snob": {
-        "file": "/voices/seeds/Snob.mp3",
+        "file": "/voices/seeds/Snob.wav",
         "gender": "male",
         "age": "adult",
         "tone": "refined",
@@ -120,7 +120,7 @@
         "description": "Refined, aristocratic British male voice with subtle condescension. Perfect for elite characters."
     },
     "Villain": {
-        "file": "/voices/seeds/Villain.mp3",
+        "file": "/voices/seeds/Villain.wav",
         "gender": "male",
         "age": "adult",
         "tone": "cold",
@@ -144,7 +144,7 @@
         "description": "Cold, calculating male voice with underlying menace. Ideal for villain archetypes."
     },
     "WiseSage": {
-        "file": "/voices/seeds/WiseSage.mp3",
+        "file": "/voices/seeds/WiseSage.wav",
         "gender": "male",
         "age": "elderly",
         "tone": "warm",
@@ -168,7 +168,7 @@
         "description": "Warm, grandfatherly voice with wisdom and patience. Perfect for mentor figures."
     },
     "Healer": {
-        "file": "/voices/seeds/Healer.mp3",
+        "file": "/voices/seeds/Healer.wav",
         "gender": "female",
         "age": "adult",
         "tone": "soft",
@@ -192,7 +192,7 @@
         "description": "Soft, nurturing female voice with maternal warmth. Ideal for caring characters."
     },
     "Professor": {
-        "file": "/voices/seeds/Professor.mp3",
+        "file": "/voices/seeds/Professor.wav",
         "gender": "male",
         "age": "middle_aged",
         "tone": "precise",
@@ -216,7 +216,7 @@
         "description": "Precise, academic male voice with clear articulation. Perfect for intellectual characters."
     },
     "Meditative": {
-        "file": "/voices/seeds/Meditative.mp3",
+        "file": "/voices/seeds/Meditative.wav",
         "gender": "male",
         "age": "adult",
         "tone": "breathy",
@@ -240,7 +240,7 @@
         "description": "Calm, breathy male voice with spiritual serenity. Ideal for zen masters and meditation guides."
     },
     "Grandma": {
-        "file": "/voices/seeds/Grandma.mp3",
+        "file": "/voices/seeds/Grandma.wav",
         "gender": "female",
         "age": "elderly",
         "tone": "warm",
@@ -264,7 +264,7 @@
         "description": "Warm, grandmotherly voice with gentle wisdom. Perfect for elder female characters."
     },
     "Youtuber": {
-        "file": "/voices/seeds/Youtuber.mp3",
+        "file": "/voices/seeds/Youtuber.wav",
         "gender": "male",
         "age": "young",
         "tone": "bright",
@@ -288,7 +288,7 @@
         "description": "High-energy, fast-paced male voice with infectious enthusiasm. Ideal for content creators."
     },
     "Bubbly": {
-        "file": "/voices/seeds/Bubbly.mp3",
+        "file": "/voices/seeds/Bubbly.wav",
         "gender": "female",
         "age": "young",
         "tone": "bright",
@@ -312,7 +312,7 @@
         "description": "Bright, bubbly female voice full of positivity. Perfect for upbeat characters."
     },
     "Cockney": {
-        "file": "/voices/seeds/Cockney.mp3",
+        "file": "/voices/seeds/Cockney.wav",
         "gender": "male",
         "age": "adult",
         "tone": "rough",
@@ -336,7 +336,7 @@
         "description": "Rough Cockney accent with street smarts. Ideal for rogue and rebel characters."
     },
     "Raspy": {
-        "file": "/voices/seeds/Raspy.mp3",
+        "file": "/voices/seeds/Raspy.wav",
         "gender": "female",
         "age": "adult",
         "tone": "raspy",
@@ -360,7 +360,7 @@
         "description": "Raspy, punk-adjacent female voice with edge. Perfect for rebel girl archetypes."
     },
     "Coach": {
-        "file": "/voices/seeds/Coach.mp3",
+        "file": "/voices/seeds/Coach.wav",
         "gender": "male",
         "age": "adult",
         "tone": "boisterous",
@@ -384,7 +384,7 @@
         "description": "Loud, boisterous male voice with athletic energy. Ideal for coaches and trainers."
     },
     "Intimate": {
-        "file": "/voices/seeds/Intimate.mp3",
+        "file": "/voices/seeds/Intimate.wav",
         "gender": "male",
         "age": "adult",
         "tone": "whisper",
@@ -408,7 +408,7 @@
         "description": "Intimate, whispery male voice for close moments. Perfect for ASMR or romantic characters."
     },
     "Male ASMR": {
-        "file": "/voices/seeds/Male ASMR.mp3",
+        "file": "/voices/seeds/Male ASMR.wav",
         "gender": "male",
         "age": "adult",
         "tone": "soft",
@@ -433,7 +433,7 @@
         "ref_text": "Close your eyes. Breathe. Everything is going to be okay."
     },
     "Etheral": {
-        "file": "/voices/seeds/Etheral.mp3",
+        "file": "/voices/seeds/Etheral.wav",
         "gender": "female",
         "age": "ageless",
         "tone": "breathy",
@@ -457,7 +457,7 @@
         "description": "Ethereal, otherworldly female voice with mystical quality. Perfect for supernatural beings."
     },
     "Coward": {
-        "file": "/voices/seeds/Coward.mp3",
+        "file": "/voices/seeds/Coward.wav",
         "gender": "male",
         "age": "adult",
         "tone": "shaky",
@@ -481,7 +481,7 @@
         "description": "Shaky, nervous male voice with anxious energy. Ideal for comedic sidekicks."
     },
     "Nasal": {
-        "file": "/voices/seeds/Nasal.mp3",
+        "file": "/voices/seeds/Nasal.wav",
         "gender": "male",
         "age": "adult",
         "tone": "nasal",
@@ -505,7 +505,7 @@
         "description": "Distinctly nasal male voice with geeky energy. Perfect for nerd archetypes."
     },
     "Valley": {
-        "file": "/voices/seeds/Valley.mp3",
+        "file": "/voices/seeds/Valley.wav",
         "gender": "female",
         "age": "young",
         "tone": "vocal fry",
@@ -529,7 +529,7 @@
         "description": "Valley girl vocal fry with casual energy. Ideal for modern teen characters."
     },
     "Australian": {
-        "file": "/voices/seeds/Australian.mp3",
+        "file": "/voices/seeds/Australian.wav",
         "gender": "male",
         "age": "adult",
         "tone": "relaxed",
@@ -553,7 +553,7 @@
         "description": "Relaxed Australian male accent with laid-back energy. Perfect for Aussie characters."
     },
     "French": {
-        "file": "/voices/seeds/French.mp3",
+        "file": "/voices/seeds/French.wav",
         "gender": "female",
         "age": "adult",
         "tone": "elegant",
@@ -577,7 +577,7 @@
         "description": "Elegant French female accent with Parisian sophistication. Ideal for cultured characters."
     },
     "Indian": {
-        "file": "/voices/seeds/Indian.mp3",
+        "file": "/voices/seeds/Indian.wav",
         "gender": "male",
         "age": "adult",
         "tone": "clear",
@@ -601,7 +601,7 @@
         "description": "Clear Indian male accent with professional energy. Perfect for tech and business characters."
     },
     "Scandanavian": {
-        "file": "/voices/seeds/Scandanavian.mp3",
+        "file": "/voices/seeds/Scandanavian.wav",
         "gender": "female",
         "age": "adult",
         "tone": "cool",
@@ -625,7 +625,7 @@
         "description": "Cool Scandinavian female accent with composed demeanor. Ideal for Nordic characters."
     },
     "WestAfrican": {
-        "file": "/voices/seeds/WestAfrican.mp3",
+        "file": "/voices/seeds/WestAfrican.wav",
         "gender": "male",
         "age": "adult",
         "tone": "warm",
@@ -649,7 +649,7 @@
         "description": "Warm West African male accent with motivational energy. Perfect for wise mentors and coaches."
     },
     "SouthAfrican": {
-        "file": "/voices/seeds/SouthAfrican.mp3",
+        "file": "/voices/seeds/SouthAfrican.wav",
         "gender": "male",
         "age": "adult",
         "tone": "distinctive",
@@ -674,7 +674,7 @@
         ]
     },
     "AfricanAmerican": {
-        "file": "/voices/seeds/AfricanAmerican.mp3",
+        "file": "/voices/seeds/AfricanAmerican.wav",
         "gender": "male",
         "age": "adult",
         "tone": "smooth",

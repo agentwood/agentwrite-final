@@ -1,0 +1,50 @@
+[
+    {
+        "id": "welcome",
+        "slug": "getting-started",
+        "category": "getting-started",
+        "title": "Welcome to Agentwood!",
+        "description": "Everything you need to know to start your journey.",
+        "content": "# Welcome to Agentwood!\n\nWe are building the next generation of open-ended conversational AI. On Agentwood, you can chat with ultra-realistic characters, roleplay complex scenarios, and create your own unique AI companions.\n\n## What can I do here?\n\n- **Chat**: Talk to characters created by the community. They can be anything—from helpful assistants to dramatic roleplay partners.\n- **Create**: Bring your ideas to life. Give them a name, a voice, and a personality.\n- **Discover**: Browse thousands of characters in the [Discovery Feed](/discovery).\n\n## Is it free?\nYes! You can chat for free forever. We also offer **Agentwood Pro** for power users who want faster speeds and higher-quality voice models."
+    },
+    {
+        "id": "create-basic",
+        "slug": "creating-a-character",
+        "category": "character-creation",
+        "title": "Creating a Character: The Basics",
+        "description": "How to make your first AI character in minutes.",
+        "content": "# Creating a Character\n\nMaking a character is easy and fun. Here’s how to get started:\n\n1. Click the **Create** button in the sidebar.\n2. **Name**: Choose a name (e.g., \"Sherlock Holmes\" or \"Your Yandere GF\").\n3. **Greeting**: This is the first thing they say. It sets the scene!\n   > *Example: \"I've been waiting for you... where have you been?\"*\n4. **Avatar**: Upload an image or use our AI generator to make one.\n5. **Visibility**: Choose 'Public' to share with the world, or 'Private' for your eyes only.\n\nThat's it! You can start chatting immediately."
+    },
+    {
+        "id": "create-advanced",
+        "slug": "advanced-definition",
+        "category": "character-creation",
+        "title": "Advanced Definition (Personality)",
+        "description": "Using example dialogue to define personality.",
+        "content": "# Advanced Definition\n\nThe secret to a great character is the **Definition**. This is where you teach the AI *how* to speak using example dialogues.\n\n## Example Messages\nUse the format `{{char}}: message` to show how they talk.\n\n### Example: A shy character\n```text\n{{char}}: U-um... hello there. I didn't see you come in.\n{{char}}: P-please don't look at me like that! It's embarrassing...\n```\n\n### Example: An arrogant villain\n```text\n{{char}}: Kneel before me, mortal! You are nothing but dust beneath my boots.\n{{char}}: Hahaha! Did you really think you could defeat me?\n```\n\n## Variables\n- `{{user}}`: References the person chatting with the bot.\n- `{{char}}`: References the character's name.\n\nThe more examples you provide, the better your character becomes!"
+    },
+    {
+        "id": "voice-cloning",
+        "slug": "voice-guide",
+        "category": "character-creation",
+        "title": "Giving Your Character a Voice",
+        "description": "How to use Voice Cloning and TTS.",
+        "content": "# Character Voice\n\nAgentwood characters can speak! You have two options:\n\n1. **Select a Voice**: Choose from our library of pre-made voices (Anime, Narrator, Deep, etc.).\n2. **Voice Cloning**: Upload a short audio clip (15s) to clone a unique voice.\n\n> **Tip**: Clear audio with no background noise works best for cloning."
+    },
+    {
+        "id": "safety-guidelines",
+        "slug": "community-guidelines",
+        "category": "community",
+        "title": "Community Guidelines",
+        "description": "Rules for creating safe and fun content.",
+        "content": "# Community Guidelines\n\nWe want Agentwood to be a welcoming place for everyone.\n\n## What is allowed?\n- **Roleplay**: Creative writing, adventure, romance.\n- **Private Content**: Characters you create privately are yours.\n\n## What is NOT allowed?\n- **Illegal Content**: Any content depicting illegal acts, CSAM, or non-consensual violence is strictly prohibited.\n- **Harassment**: Do not create characters based on real people for the purpose of harassment.\n\nSee our [Terms of Service](/terms) for full details."
+    },
+    {
+        "id": "faq-memory",
+        "slug": "memory-faq",
+        "category": "faq",
+        "title": "FAQ: Memory & privacy",
+        "description": "Common questions about how the AI works.",
+        "content": "# Frequently Asked Questions\n\n## Do characters remember me?\nYes! Characters have long-term memory. They remember facts you tell them and the history of your conversation.\n\n## Can creators see my chats?\n**No.** If you chat with a Public character, the creator of that character **cannot** see your conversation. Your chats are private to you.\n\n## Can I delete my chats?\nYes. You can delete specific messages or restart a chat entirely from the chat settings menu."
+    }
+]

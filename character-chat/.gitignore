@@ -57,3 +57,4 @@ scripts/audit-voices.ts
 scripts/fix-voices.ts
 scripts/voice-audit-system.ts
 
+public/voices/elevenlabs/*.mp3

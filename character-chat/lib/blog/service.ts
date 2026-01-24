@@ -1,6 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
+import { remark } from 'remark';
+import html from 'remark-html';
 
-const prisma = new PrismaClient();
+const postsDirectory = path.join(process.cwd(), 'content/blog');
 
 export interface BlogPost {
     slug: string;
@@ -11,73 +15,91 @@ export interface BlogPost {
     author: string;
     tags: string[];
     contentHtml?: string;
-    viewCount?: number;
 }
 
 export async function getSortedPostsData(): Promise<BlogPost[]> {
-    const posts = await prisma.blogPost.findMany({
-        orderBy: {
-            publishedAt: 'desc',
-        },
-        select: {
-            slug: true,
-            title: true,
-            publishedAt: true,
-            excerpt: true,
-            image: true,
-            author: true,
-            tags: true,
-        },
-    });
+    // Get file names under /content/blog
+    const fileNames = fs.readdirSync(postsDirectory);
+    const allPostsData = fileNames
+        .filter((fileName) => fileName.endsWith('.md'))
+        .map((fileName) => {
+            // Remove ".md" from file name to get slug
+            const slug = fileName.replace(/\.md$/, '');
 
-    return posts.map(post => ({
-        slug: post.slug,
-        title: post.title,
-        date: post.publishedAt.toISOString().split('T')[0],
-        excerpt: post.excerpt || '',
-        image: post.image || '',
-        author: post.author,
-        tags: post.tags,
-    }));
+            // Read markdown file as string
+            const fullPath = path.join(postsDirectory, fileName);
+            const fileContents = fs.readFileSync(fullPath, 'utf8');
+
+            // Use gray-matter to parse the post metadata section
+            const matterResult = matter(fileContents);
+
+            // Combine the data with the slug
+            return {
+                slug,
+                title: matterResult.data.title,
+                date: matterResult.data.date,
+                excerpt: matterResult.data.excerpt,
+                image: matterResult.data.image,
+                author: matterResult.data.author,
+                tags: matterResult.data.tags || [],
+            };
+        });
+
+    // Sort posts by date
+    return allPostsData.sort((a, b) => {
+        if (a.date < b.date) {
+            return 1;
+        } else {
+            return -1;
+        }
+    });
 }
 
-export async function getPostData(slug: string): Promise<BlogPost | null> {
-    const post = await prisma.blogPost.findUnique({
-        where: { slug },
-    });
+export async function getPostData(slug: string): Promise<BlogPost> {
+    const fullPath = path.join(postsDirectory, `${slug}.md`);
+    const fileContents = fs.readFileSync(fullPath, 'utf8');
 
-    if (!post) {
-        return null;
-    }
+    // Use gray-matter to parse the post metadata section
+    const matterResult = matter(fileContents);
 
-    // Increment view count asynchronously
-    // We don't await this to keep the response fast
-    prisma.blogPost.update({
-        where: { slug },
-        data: { viewCount: { increment: 1 } },
-    }).catch(console.error);
+    // Use remark to convert markdown into HTML string
+    const processedContent = await remark()
+        .use(html)
+        .process(matterResult.content);
+    const contentHtml = processedContent.toString();
 
+    // Combine the data with the slug and contentHtml
     return {
-        slug: post.slug,
-        title: post.title,
-        date: post.publishedAt.toISOString().split('T')[0],
-        excerpt: post.excerpt || '',
-        image: post.image || '',
-        author: post.author,
-        tags: post.tags,
-        contentHtml: post.content, // Assuming content is already HTML or Markdown that the frontend handles
-        viewCount: post.viewCount,
+        slug,
+        contentHtml,
+        title: matterResult.data.title,
+        date: matterResult.data.date,
+        excerpt: matterResult.data.excerpt,
+        image: matterResult.data.image,
+        author: matterResult.data.author,
+        tags: matterResult.data.tags || [],
     };
 }
 
-export async function getAllPostSlugs() {
-    const posts = await prisma.blogPost.findMany({
-        select: { slug: true },
-    });
+export function getAllPostSlugs(): string[] {
+    const fileNames = fs.readdirSync(postsDirectory);
+    return fileNames
+        .filter((fileName) => fileName.endsWith('.md'))
+        .map((fileName) => fileName.replace(/\.md$/, ''));
+}
 
-    return posts.map(post => ({
-        params: {
-            slug: post.slug,
-        },
-    }));
+export async function getAllPostsWithDates(): Promise<{ slug: string; date: string }[]> {
+    const fileNames = fs.readdirSync(postsDirectory);
+    return fileNames
+        .filter((fileName) => fileName.endsWith('.md'))
+        .map((fileName) => {
+            const slug = fileName.replace(/\.md$/, '');
+            const fullPath = path.join(postsDirectory, fileName);
+            const fileContents = fs.readFileSync(fullPath, 'utf8');
+            const matterResult = matter(fileContents);
+            return {
+                slug,
+                date: matterResult.data.date || new Date().toISOString(),
+            };
+        });
 }

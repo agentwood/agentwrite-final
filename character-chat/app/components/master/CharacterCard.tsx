@@ -41,13 +41,6 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, classNa
         </button>
       )}
 
-      {/* Official 'AW' Badge */}
-      {character.isOfficial && (
-        <div className="absolute top-4 left-4 z-30 px-2 py-1 rounded-md bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[9px] font-bold tracking-wider shadow-lg border border-white/20">
-          AW
-        </div>
-      )}
-
       {/* Elegant Gradient Overlays */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-700"></div>
 
@@ -63,6 +56,12 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, classNa
               ? `${(character.viewCount / 1000).toFixed(1).replace(/\.0$/, '')}k`
               : character.viewCount}
           </span>
+          {/* AW Official Badge - Next to view count */}
+          {character.isOfficial && (
+            <span className="px-1.5 py-0.5 rounded bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[8px] font-bold tracking-wider">
+              AW
+            </span>
+          )}
         </div>
         <p className="text-[10px] text-white/40 font-sans tracking-wide">
           {character.handle}

@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://agentwood.xyz';
 const SITE_NAME = 'Agentwood';
-const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
+const DEFAULT_IMAGE = `${SITE_URL}/TwitterCardValidator.png`;
 
 export interface SEOParams {
   title?: string;

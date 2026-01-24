@@ -26,7 +26,12 @@
     "enhance-profiles": "tsx scripts/enhance-character-profiles.ts",
     "generate-avatars": "tsx scripts/generate-avatars.ts",
     "update-avatar-urls": "tsx scripts/update-avatar-urls.ts",
-    "generate-blog": "tsx scripts/generate-blog.ts"
+    "generate-blog": "tsx scripts/generate-blog.ts",
+    "cognee:install": "cd cognee-service && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt",
+    "cognee:start": "pm2 start ecosystem.config.js",
+    "cognee:stop": "pm2 stop cognee-service",
+    "cognee:restart": "pm2 restart cognee-service",
+    "cognee:logs": "pm2 logs cognee-service"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -40,7 +45,6 @@
     "@supabase/supabase-js": "^2.89.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.25.0",
-    "gray-matter": "^4.0.3",
     "lucide-react": "^0.561.0",
     "next": "^15.1.0",
     "next-auth": "^4.24.13",
@@ -66,7 +70,9 @@
     "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
+    "gray-matter": "^4.0.3",
     "playwright": "^1.57.0",
+    "pm2": "^6.0.14",
     "prisma": "^6.19.1",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",

@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { db } from '@/lib/db';
-import { getAllPostSlugs } from '@/lib/blog/service';
+import { getAllPostsWithDates } from '@/lib/blog/service';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://agentwood.xyz';
 
@@ -56,11 +56,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Add blog posts
-  const blogSlugs = await getAllPostSlugs();
-  const blogRoutes = blogSlugs.map(({ params }) => ({
-    url: `${SITE_URL}/blog/${params.slug}`,
-    lastModified: new Date(),
+  // Add blog posts with actual dates
+  const blogPosts = await getAllPostsWithDates();
+  const blogRoutes = blogPosts.map((post) => ({
+    url: `${SITE_URL}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
     changeFrequency: 'weekly' as const,
     priority: 0.7,
   }));
@@ -109,13 +109,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           changeFrequency: 'daily' as const,
           priority: 0.8,
         });
-        // Add paginated category pages (first 200 pages for 500k scale)
-        for (let page = 2; page <= 200; page++) {
+        // Add paginated category pages (first 10 pages to preserve crawl budget)
+        for (let page = 2; page <= 10; page++) {
           routes.push({
             url: `${SITE_URL}/category/${categoryUrl}?page=${page}`,
             lastModified: new Date(),
             changeFrequency: 'daily' as const,
-            priority: 0.6,
+            priority: 0.4,
           });
         }
       });
@@ -137,13 +137,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           changeFrequency: 'daily' as const,
           priority: 0.7,
         });
-        // Paginated archetype pages (first 200 pages)
-        for (let page = 2; page <= 200; page++) {
+        // Paginated archetype pages (first 10 pages to preserve crawl budget)
+        for (let page = 2; page <= 10; page++) {
           routes.push({
             url: `${SITE_URL}/archetype/${archetypeUrl}?page=${page}`,
             lastModified: new Date(),
             changeFrequency: 'daily' as const,
-            priority: 0.5,
+            priority: 0.3,
           });
         }
       });
@@ -176,13 +176,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'hourly' as const,
         priority: 0.9,
       });
-      // Paginated top pages (50 pages each)
-      for (let page = 2; page <= 50; page++) {
+      // Paginated top pages (10 pages each to preserve crawl budget)
+      for (let page = 2; page <= 10; page++) {
         routes.push({
           url: `${SITE_URL}/top/${type}?page=${page}`,
           lastModified: new Date(),
           changeFrequency: 'hourly' as const,
-          priority: 0.7,
+          priority: 0.5,
         });
       }
     });
@@ -196,16 +196,119 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'daily' as const,
         priority: 0.7,
       });
-      // Paginated A-Z pages (first 100 pages per letter)
-      for (let page = 2; page <= 100; page++) {
+      // Paginated A-Z pages (first 20 pages per letter to preserve crawl budget)
+      for (let page = 2; page <= 20; page++) {
         routes.push({
           url: `${SITE_URL}/characters/${letter}?page=${page}`,
           lastModified: new Date(),
           changeFrequency: 'daily' as const,
-          priority: 0.5,
+          priority: 0.3,
         });
       }
     });
+
+    // ============================================
+    // PROGRAMMATIC SEO ROUTES (100K+ pages)
+    // ============================================
+
+    // Chat-with intent pages
+    const chatWithTypes = [
+      'vampire', 'yandere', 'tsundere', 'kuudere', 'dandere', 'mafia-boss', 'demon', 'angel',
+      'prince', 'princess', 'villain', 'hero', 'knight', 'witch', 'wizard', 'dragon',
+      'werewolf', 'ghost', 'zombie', 'alien', 'robot', 'cyborg', 'elf', 'fairy',
+      'ai-girlfriend', 'ai-boyfriend', 'virtual-partner', 'companion', 'best-friend',
+      'mentor', 'rival', 'enemy', 'crush', 'ex', 'soulmate',
+      'therapist', 'teacher', 'boss', 'coworker', 'roommate', 'neighbor', 'celebrity',
+      'fantasy-character', 'anime-character', 'romance-character', 'horror-character',
+    ];
+    chatWithTypes.forEach((type) => {
+      routes.push({
+        url: `${SITE_URL}/chat-with/${type}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      });
+    });
+
+    // Talk-to archetype pages
+    const talkToArchetypes = [
+      'yandere', 'tsundere', 'kuudere', 'dandere', 'himedere', 'kamidere',
+      'villain', 'hero', 'mentor', 'rival', 'sidekick', 'anti-hero',
+      'knight', 'princess', 'prince', 'queen', 'king', 'emperor',
+      'witch', 'wizard', 'mage', 'sorcerer', 'necromancer',
+      'vampire', 'werewolf', 'demon', 'angel', 'ghost', 'spirit',
+      'assassin', 'thief', 'spy', 'hunter', 'warrior', 'samurai',
+      'girlfriend', 'boyfriend', 'best-friend', 'soulmate', 'crush',
+    ];
+    talkToArchetypes.forEach((archetype) => {
+      routes.push({
+        url: `${SITE_URL}/talk-to/${archetype}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      });
+    });
+
+    // Best category listicle pages
+    const bestCategories = [
+      'fantasy', 'romance', 'anime', 'horror', 'sci-fi', 'action', 'drama',
+      'comedy', 'mystery', 'thriller', 'adventure', 'supernatural', 'slice-of-life',
+      'historical', 'modern', 'futuristic', 'wholesome', 'dark',
+    ];
+    bestCategories.forEach((category) => {
+      routes.push({
+        url: `${SITE_URL}/best/${category}`,
+        lastModified: new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 0.8,
+      });
+    });
+
+    // ============================================
+    // MASS PROGRAMMATIC SEO (Character.AI style)
+    // ============================================
+
+    // [character]-ai-chat pages (500+ pages)
+    const characterSlugs = [
+      // Top anime
+      'miku-hatsune', 'rem', 'zero-two', 'makima', 'gojo-satoru', 'tanjiro', 'nezuko',
+      'naruto', 'sasuke', 'kakashi', 'goku', 'vegeta', 'luffy', 'zoro',
+      // Top games
+      'link', 'zelda', 'cloud-strife', 'tifa-lockhart', 'sephiroth', 'geralt-of-rivia',
+      'master-chief', 'kratos', '2b', 'jinx', 'ahri',
+      // Top movies
+      'darth-vader', 'harry-potter', 'hermione-granger', 'iron-man', 'spider-man',
+      'batman', 'joker-dc', 'deadpool', 'wednesday-addams',
+      // VTubers  
+      'gawr-gura', 'mori-calliope', 'ironmouse', 'vox-akuma',
+      // Archetypes (most searched)
+      'yandere-girlfriend', 'tsundere-girlfriend', 'mafia-boss', 'vampire-prince',
+      'demon-lord', 'ceo-boyfriend', 'childhood-friend', 'royal-prince',
+      'cute-girlfriend', 'hot-boyfriend', 'possessive-boyfriend', 'romantic-girlfriend',
+    ];
+    characterSlugs.forEach((char) => {
+      routes.push({
+        url: `${SITE_URL}/${char}-ai-chat`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      });
+    });
+
+    // Roleplay scenario combinations (1000+ pages)
+    const roleplayChars = ['vampire', 'yandere', 'tsundere', 'demon', 'mafia-boss', 'ceo', 'prince', 'knight'];
+    const scenarios = ['coffee-shop', 'school', 'workplace', 'apocalypse', 'medieval', 'modern', 'mafia', 'royal-court'];
+    roleplayChars.forEach((char) => {
+      scenarios.forEach((scenario) => {
+        routes.push({
+          url: `${SITE_URL}/roleplay/${char}/${scenario}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.6,
+        });
+      });
+    });
+
   } catch (error) {
     console.error('Error generating sitemap:', error);
   }

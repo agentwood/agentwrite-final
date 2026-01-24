@@ -13,7 +13,7 @@ function sanitizeText(text: string): string {
 /**
  * TTS API - Pocket TTS Primary
  * 
- * Primary: Pocket TTS (CPU-based, zero-shot voice cloning)
+ * Primary: Pocket TTS (CPU-based, zero-shot voice cloning on DigitalOcean)
  * Fallback: Fish Audio (when Pocket TTS unavailable)
  */
 export async function POST(request: NextRequest) {
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     let audioResult = null;
 
     // ============================================
-    // PRIMARY: Pocket TTS (CPU-based, fast)
+    // PRIMARY: Pocket TTS (CPU-based, DigitalOcean)
     // ============================================
     const pocketHealthy = await pocketTtsClient.checkHealth();
 

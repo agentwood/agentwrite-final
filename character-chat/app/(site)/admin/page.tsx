@@ -47,10 +47,34 @@ export default function AdminPage() {
 
   const loadStats = async () => {
     try {
-      const response = await fetch(`/api/admin/stats?range=${dateRange}`);
+      // Use the analytics endpoint
+      const response = await fetch(`/api/admin/analytics`);
       if (response.ok) {
         const data = await response.json();
-        setStats(data);
+        // Map from analytics response to stats format
+        setStats({
+          totalUsers: data.overview?.totalUsers || 0,
+          totalConversations: data.overview?.totalConversations || 0,
+          totalMessages: data.engagement?.totalInteractions || 0,
+          activeUsersToday: 0, // Not tracked yet
+          activeUsersThisWeek: 0, // Not tracked yet
+          totalCharacterViews: data.engagement?.totalViews || 0,
+          totalCharacterSaves: data.engagement?.totalLikes || 0,
+          averageSessionDuration: 0, // Not tracked yet
+          topCharacters: (data.topCharacters?.byViews || []).map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            viewCount: c.viewCount || 0,
+            chatCount: c.chatCount || 0,
+            interactionCount: 0,
+            retentionScore: 0
+          })),
+          userGrowth: [],
+          categoryDistribution: (data.categoryBreakdown || []).map((c: any) => ({
+            category: c.category || 'Unknown',
+            count: c.count || 0
+          }))
+        });
       }
     } catch (error) {
       console.error('Error loading stats:', error);
@@ -61,10 +85,10 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#0c0c0c] flex items-center justify-center">
         <div className="text-center">
-          <Activity className="w-12 h-12 text-gray-400 animate-spin mx-auto mb-4" />
-          <p className="text-gray-500">Loading analytics...</p>
+          <Activity className="w-12 h-12 text-purple-500 animate-spin mx-auto mb-4" />
+          <p className="text-white/60">Loading analytics...</p>
         </div>
       </div>
     );
@@ -72,27 +96,27 @@ export default function AdminPage() {
 
   if (!stats) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <p className="text-gray-500">No data available</p>
+      <div className="min-h-screen bg-[#0c0c0c] flex items-center justify-center">
+        <p className="text-white/60">No data available</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0c0c0c] text-white">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <header className="bg-[#0c0c0c]/95 backdrop-blur-lg border-b border-white/10 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-sm text-gray-500 mt-1">User analytics and platform insights</p>
+              <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+              <p className="text-sm text-white/40 mt-1">User analytics and platform insights</p>
             </div>
             <div className="flex items-center gap-3">
               <select
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value as any)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="px-4 py-2 border border-white/10 rounded-lg text-sm font-medium text-white bg-white/5 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
                 <option value="7d">Last 7 days</option>
                 <option value="30d">Last 30 days</option>

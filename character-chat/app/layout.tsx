@@ -1,9 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#0f0f0f",
+};
 import AgeGate from "./components/AgeGate";
 import StructuredData from "./components/StructuredData";
 import AuthWrapper from "./components/AuthWrapper";
 import CookieConsent from "./components/CookieConsent";
+import { SessionProvider } from "@/lib/analytics/SessionProvider";
 import { generateMetadata as generateSEOMetadata } from "@/lib/seo/metadata";
 import { generateOrganizationSchema, generateWebSiteSchema } from "@/lib/seo/structured-data";
 
@@ -77,7 +85,9 @@ export default function RootLayout({
         <StructuredData data={websiteSchema} />
         <AgeGate>
           <AuthWrapper>
-            {children}
+            <SessionProvider>
+              {children}
+            </SessionProvider>
           </AuthWrapper>
         </AgeGate>
         <CookieConsent />
