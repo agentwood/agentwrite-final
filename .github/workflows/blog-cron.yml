@@ -2,8 +2,8 @@ name: Post Daily Blog
 
 on:
   schedule:
-    # Run daily at 9:00 AM UTC
-    - cron: '0 9 * * *'
+    # Run twice daily at 9:00 AM and 9:00 PM UTC
+    - cron: '0 9,21 * * *'
   workflow_dispatch:
 
 jobs:
@@ -30,19 +30,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-      # No Database generation needed as we removed the dependency
-        
       - name: Generate Blog Post
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: npx tsx scripts/generate-daily-blog.ts
         
       - name: Commit and Push
-        working-directory: ./ # Run git commands from root to avoid confusion, or handle paths carefully
+        working-directory: ./ # Run git commands from root
         run: |
           git config --global user.name "Agentwood Bot"
           git config --global user.email "bot@agentwood.ai"
           git pull
           git add character-chat/content/blog/*.md
+          git add character-chat/data/content-engine-state.json
           # Only commit if there are changes
-          git diff --quiet && git diff --staged --quiet || (git commit -m "content: daily blog auto-generation" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "content: autonomous engine run (blog + state update)" && git push)
