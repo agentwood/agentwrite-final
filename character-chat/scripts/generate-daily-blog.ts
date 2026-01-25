@@ -1,117 +1,143 @@
 
-import * as dotenv from 'dotenv';
-import path from 'path';
-dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
-dotenv.config();
-
-import { PrismaClient } from '@prisma/client';
+import 'dotenv/config';
 import { generateText } from '../lib/geminiClient';
-import slugify from 'slugify';
+import fs from 'fs';
+import path from 'path';
+import {
+    KEYWORD_PILLARS,
+    CONTENT_TEMPLATES,
+    INTERNAL_LINK_RULES,
+    EXECUTION_PROMPT
+} from '../lib/seo/content-strategy';
 
-// Initialize Prisma
-const prisma = new PrismaClient();
+// Ensure GEMINI_API_KEY is set
+if (!process.env.GEMINI_API_KEY) {
+    console.error('❌ GEMINI_API_KEY is missing!');
+    process.exit(1);
+}
 
-const BLOG_TOPICS = [
-    "AI Companionship",
-    "The Future of Digital Intimacy",
-    "Voice AI Technology",
-    "Virtual Reality & Social Connection",
-    "The Psychology of Chatbots",
-    "AI in Creative Writing",
-    "Character Development in the Digital Age",
-    "Roleplay and Mental Health",
-    "Privacy in AI Interactions",
-    "The Ethics of Sentient AI"
-];
+// Utility to get random item from array
+const random = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
 
-const TARGET_AUDIENCE = "Tech-savvy users, writers, and people seeking virtual connection.";
-const TONE = "Insightful, empathetic, and slightly futuristic.";
+// Helper to determine template based on keyword intent
+function determineTemplate(keyword: string, pillarName: string) {
+    const k = keyword.toLowerCase();
 
-async function generateBlogPost() {
-    console.log("Starting Daily Blog Generation...");
+    if (k.includes('vs') || k.includes('alternative') || k.includes('comparison') || k.includes('better than')) {
+        return CONTENT_TEMPLATES.TEMPLATE_B_COMPARISON;
+    }
 
+    if (k.includes('architecture') || k.includes('system') || k.includes('model') || k.includes('infrastructure')) {
+        return CONTENT_TEMPLATES.TEMPLATE_C_DEEP_DIVE;
+    }
+
+    // Default to Explainer for most "what is" or concept keywords
+    return CONTENT_TEMPLATES.TEMPLATE_A_EXPLAINER;
+}
+
+async function main() {
+    console.log('🚀 Starting Daily Blog Generation with Advanced Strategy...');
+
+    // 1. Select Pillar and Keyword
+    const pillars = Object.keys(KEYWORD_PILLARS) as Array<keyof typeof KEYWORD_PILLARS>;
+    const selectedPillarKey = random(pillars);
+    const selectedPillar = KEYWORD_PILLARS[selectedPillarKey];
+
+    // Weighted random selection: 70% chance of 'Easy', 30% 'Medium'
+    const difficulty = Math.random() < 0.7 ? 'easy' : 'medium';
+    const selectedKeyword = random(selectedPillar[difficulty]);
+
+    console.log(`🎯 Target: [${selectedPillarKey}] -> "${selectedKeyword}" (${difficulty})`);
+
+    // 2. Select Template
+    const template = determineTemplate(selectedKeyword, selectedPillarKey);
+    console.log(`📝 Template: ${template.name}`);
+
+    // 3. Construct Prompt
+    const fullPrompt = `
+${EXECUTION_PROMPT}
+
+CONTEXT:
+Topical Pillar: ${selectedPillarKey}
+Primary Keyword: "${selectedKeyword}"
+Template Structure:
+${template.structure}
+
+Template Rules:
+${template.rules.map((r: string) => `- ${r}`).join('\n')}
+
+Internal Linking Rules:
+${INTERNAL_LINK_RULES.global.map((r: string) => `- ${r}`).join('\n')}
+${INTERNAL_LINK_RULES.citation.rule} (e.g. ${INTERNAL_LINK_RULES.citation.example})
+
+Generate a JSON object with the following fields:
+{
+  "title": "A compelling, human-sounding title (no 'Unleashing', 'Revolutionizing')",
+  "slug": "url-friendly-slug-targeted-keyword",
+  "excerpt": "A short, punchy summary for SEO meta description",
+  "content": "The full blog post content in Markdown format. Use H2/H3 headers. Include the internal links naturally.",
+  "imagePrompt": "A detailed prompt for an Unsplash-style header image (tech/abstract/high-quality)"
+}
+`;
+
+    // 4. Generate Content via Gemini
     try {
-        // 1. Pick a topic
-        const topic = BLOG_TOPICS[Math.floor(Math.random() * BLOG_TOPICS.length)];
+        console.log('🤖 Generating content...');
+        const response = await generateText(fullPrompt);
 
-        // 2. Generate Title
-        const titlePrompt = `Generate a catchy, SEO-friendly blog post title about "${topic}" for an audience interested in AI characters and roleplay. Return ONLY the title, no quotes.`;
-        const title = (await generateText(titlePrompt)).trim();
-        const slug = slugify(title, { lower: true, strict: true });
+        // Clean response to ensure valid JSON
+        const jsonString = response.replace(/```json\n?|\n?```/g, '').trim();
 
-        // Check for duplicates
-        const existing = await prisma.blogPost.findUnique({ where: { slug } });
-        if (existing) {
-            console.log(`Skipping duplicate: ${slug}`);
-            return;
-        }
-
-        // 3. Generate Content
-        const contentPrompt = `
-        Write a high-quality, 1500-word blog post in Markdown format about "${title}".
-        Target Audience: ${TARGET_AUDIENCE}
-        Tone: ${TONE}
-        
-        Structure:
-        - Engaging Introduction
-        - 3-4 Deep Dive Subheadings (H2)
-        - Key Takeaways or Future Outlook
-        - Conclusion
-        
-        Include relevant keywords for SEO: AI companions, virtual girlfriend, chatbot roleplay, Agentwood.
-        Do NOT include frontmatter. Just the markdown content.
-        `;
-
-        const content = await generateText(contentPrompt);
-
-        // 4. Generate Excerpt
-        const excerptPrompt = `Write a compelling 150-character meta description/excerpt for this blog post: "${title}".`;
-        const excerpt = (await generateText(excerptPrompt)).trim();
-
-        // 5. Generate Tags
-        const tagsPrompt = `Generate 5 relevant JSON tags for this post about "${title}". Return ONLY a JSON array of strings e.g. ["AI", "Tech"].`;
-        const tagsRaw = await generateText(tagsPrompt);
-        let tags: string[] = ["AI", "Blog"];
+        let blogData;
         try {
-            // extraction attempt
-            const jsonMatch = tagsRaw.match(/\[.*\]/s);
-            if (jsonMatch) {
-                tags = JSON.parse(jsonMatch[0]);
-            }
+            blogData = JSON.parse(jsonString);
         } catch (e) {
-            console.warn("Failed to parse tags", e);
+            console.error("Failed to parse JSON response:", jsonString);
+            throw e;
         }
 
-        // 6. Save to DB
-        const post = await prisma.blogPost.create({
-            data: {
-                slug,
-                title,
-                content, // Markdown
-                excerpt,
-                metaDescription: excerpt,
-                tags,
-                author: "Agentwood AI",
-                image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1200", // Placeholder or dynamic
-                publishedAt: new Date(),
-            }
-        });
+        if (!blogData.title || !blogData.content) {
+            throw new Error('Invalid JSON structure from Gemini');
+        }
 
-        console.log(`[SUCCESS] Generated blog: ${title} (${post.id})`);
+        console.log(`✅ Generated: "${blogData.title}"`);
+
+        // 5. Save to Database (or File System as Backup)
+        // For now, we'll simulate saving to DB and write to file for inspection
+
+        // Ensure content directory exists
+        const date = new Date().toISOString().split('T')[0];
+        const outputDir = path.join(process.cwd(), 'content', 'blog');
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+
+        const filename = `${date}-${blogData.slug}.md`;
+        const filePath = path.join(outputDir, filename);
+
+        const fileContent = `---
+title: "${blogData.title}"
+date: "${new Date().toISOString()}"
+excerpt: "${blogData.excerpt}"
+imagePrompt: "${blogData.imagePrompt}"
+pillar: "${selectedPillarKey}"
+keyword: "${selectedKeyword}"
+template: "${template.name}"
+---
+
+${blogData.content}
+`;
+
+        fs.writeFileSync(filePath, fileContent);
+        console.log(`💾 Saved to file: ${filePath}`);
+
+        // TODO: DB Insert Implementation
+        // await db.post.create({ ... })
 
     } catch (error) {
-        console.error("Error generating blog post:", error);
-    } finally {
-        await prisma.$disconnect();
+        console.error('❌ Error generating blog:', error);
+        process.exit(1);
     }
 }
 
-// Run the script
-if (require.main === module) {
-    generateBlogPost()
-        .then(() => process.exit(0))
-        .catch((e) => {
-            console.error(e);
-            process.exit(1);
-        });
-}
+main();

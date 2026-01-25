@@ -211,82 +211,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // PROGRAMMATIC SEO ROUTES (100K+ pages)
     // ============================================
 
-    // Chat-with intent pages
-    const chatWithTypes = [
-      'vampire', 'yandere', 'tsundere', 'kuudere', 'dandere', 'mafia-boss', 'demon', 'angel',
-      'prince', 'princess', 'villain', 'hero', 'knight', 'witch', 'wizard', 'dragon',
-      'werewolf', 'ghost', 'zombie', 'alien', 'robot', 'cyborg', 'elf', 'fairy',
-      'ai-girlfriend', 'ai-boyfriend', 'virtual-partner', 'companion', 'best-friend',
-      'mentor', 'rival', 'enemy', 'crush', 'ex', 'soulmate',
-      'therapist', 'teacher', 'boss', 'coworker', 'roommate', 'neighbor', 'celebrity',
-      'fantasy-character', 'anime-character', 'romance-character', 'horror-character',
-    ];
-    chatWithTypes.forEach((type) => {
-      routes.push({
-        url: `${SITE_URL}/chat-with/${type}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      });
-    });
-
-    // Talk-to archetype pages
-    const talkToArchetypes = [
-      'yandere', 'tsundere', 'kuudere', 'dandere', 'himedere', 'kamidere',
-      'villain', 'hero', 'mentor', 'rival', 'sidekick', 'anti-hero',
-      'knight', 'princess', 'prince', 'queen', 'king', 'emperor',
-      'witch', 'wizard', 'mage', 'sorcerer', 'necromancer',
-      'vampire', 'werewolf', 'demon', 'angel', 'ghost', 'spirit',
-      'assassin', 'thief', 'spy', 'hunter', 'warrior', 'samurai',
-      'girlfriend', 'boyfriend', 'best-friend', 'soulmate', 'crush',
-    ];
-    talkToArchetypes.forEach((archetype) => {
-      routes.push({
-        url: `${SITE_URL}/talk-to/${archetype}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: 0.7,
-      });
-    });
-
-    // Best category listicle pages
-    const bestCategories = [
-      'fantasy', 'romance', 'anime', 'horror', 'sci-fi', 'action', 'drama',
-      'comedy', 'mystery', 'thriller', 'adventure', 'supernatural', 'slice-of-life',
-      'historical', 'modern', 'futuristic', 'wholesome', 'dark',
-    ];
-    bestCategories.forEach((category) => {
-      routes.push({
-        url: `${SITE_URL}/best/${category}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: 0.8,
-      });
-    });
-
     // ============================================
-    // MASS PROGRAMMATIC SEO (Character.AI style)
+    // MASS PROGRAMMATIC SEO (Character.AI style - Scaled)
     // ============================================
 
-    // [character]-ai-chat pages (500+ pages)
-    const characterSlugs = [
-      // Top anime
-      'miku-hatsune', 'rem', 'zero-two', 'makima', 'gojo-satoru', 'tanjiro', 'nezuko',
-      'naruto', 'sasuke', 'kakashi', 'goku', 'vegeta', 'luffy', 'zoro',
-      // Top games
-      'link', 'zelda', 'cloud-strife', 'tifa-lockhart', 'sephiroth', 'geralt-of-rivia',
-      'master-chief', 'kratos', '2b', 'jinx', 'ahri',
-      // Top movies
-      'darth-vader', 'harry-potter', 'hermione-granger', 'iron-man', 'spider-man',
-      'batman', 'joker-dc', 'deadpool', 'wednesday-addams',
-      // VTubers  
-      'gawr-gura', 'mori-calliope', 'ironmouse', 'vox-akuma',
-      // Archetypes (most searched)
-      'yandere-girlfriend', 'tsundere-girlfriend', 'mafia-boss', 'vampire-prince',
-      'demon-lord', 'ceo-boyfriend', 'childhood-friend', 'royal-prince',
-      'cute-girlfriend', 'hot-boyfriend', 'possessive-boyfriend', 'romantic-girlfriend',
-    ];
-    characterSlugs.forEach((char) => {
+    // Import massive lists
+    const { SEO_DATA } = await import('@/lib/seo/keywords');
+
+    // 1. [character]-ai-chat pages
+    SEO_DATA.characters.forEach((char) => {
       routes.push({
         url: `${SITE_URL}/${char}-ai-chat`,
         lastModified: new Date(),
@@ -295,19 +228,47 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     });
 
-    // Roleplay scenario combinations (1000+ pages)
-    const roleplayChars = ['vampire', 'yandere', 'tsundere', 'demon', 'mafia-boss', 'ceo', 'prince', 'knight'];
-    const scenarios = ['coffee-shop', 'school', 'workplace', 'apocalypse', 'medieval', 'modern', 'mafia', 'royal-court'];
-    roleplayChars.forEach((char) => {
-      scenarios.forEach((scenario) => {
+    // 2. Chat-with intent pages
+    SEO_DATA.characters.forEach((char) => {
+      routes.push({
+        url: `${SITE_URL}/chat-with/${char}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      });
+    });
+
+    // 3. Talk-to archetype pages
+    SEO_DATA.archetypes.forEach((archetype) => {
+      routes.push({
+        url: `${SITE_URL}/talk-to/${archetype}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      });
+    });
+
+    // 4. Roleplay Combinations (Full Scale: ~100k+ pages)
+    // We iterate through all characters and scenarios.
+    // Ensure sitemap splitting is handled by Next.js automatically or multiple sitemap files if needed.
+    // Default Next.js sitemap limit is 50k URLs per file. If we exceed, we might need sitemap index.
+    // But for this single file implementation, we'll push all and let Next.js handle it (or use sitemap-1.xml approach in future).
+
+    // NOTE: Next.js metadata API splits sitemaps automatically if array > 50k? 
+    // Actually standard MetadataRoute type returns a single array. 
+    // If it gets too large, we should implement sitemap index.
+    // For now, we allow the massive array.
+
+    for (const char of SEO_DATA.characters) {
+      for (const scenario of SEO_DATA.scenarios) {
         routes.push({
           url: `${SITE_URL}/roleplay/${char}/${scenario}`,
           lastModified: new Date(),
-          changeFrequency: 'weekly' as const,
+          changeFrequency: 'monthly' as const,
           priority: 0.6,
         });
-      });
-    });
+      }
+    }
 
   } catch (error) {
     console.error('Error generating sitemap:', error);

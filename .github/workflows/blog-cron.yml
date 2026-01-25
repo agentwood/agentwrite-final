@@ -1,9 +1,9 @@
-name: Automate Blog Content
+name: Post Daily Blog
 
 on:
   schedule:
-    # Run every 3 days at 09:00 UTC
-    - cron: '0 9 */3 * *'
+    # Run daily at 9:00 AM UTC
+    - cron: '0 9 * * *'
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      
+    
+    defaults:
+      run:
+        working-directory: ./character-chat
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,17 +24,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: character-chat/package-lock.json
           
       - name: Install dependencies
         run: npm ci
         
-      - name: Generate Content
-        run: npm run generate-blog
+      # No Database generation needed as we removed the dependency
+        
+      - name: Generate Blog Post
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: npx tsx scripts/generate-daily-blog.ts
         
       - name: Commit and Push
+        working-directory: ./ # Run git commands from root to avoid confusion, or handle paths carefully
         run: |
           git config --global user.name "Agentwood Bot"
           git config --global user.email "bot@agentwood.ai"
-          git add content/blog/*.md
+          git pull
+          git add character-chat/content/blog/*.md
           # Only commit if there are changes
-          git diff --quiet && git diff --staged --quiet || (git commit -m "content: automated blog post generation" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "content: daily blog auto-generation" && git push)
