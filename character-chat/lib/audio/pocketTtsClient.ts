@@ -33,11 +33,19 @@ interface SynthesizeOptions {
 }
 
 class PocketTtsClient {
-    private baseUrl: string;
+    private servers: string[];
     private configured: boolean;
 
     constructor() {
-        this.baseUrl = process.env.POCKET_TTS_URL || 'http://localhost:8000';
+        const primary = process.env.POCKET_TTS_URL || 'http://137.184.82.132:8000'; // LOCKED IN: Permanent Fallback
+
+        const backup = process.env.POCKET_TTS_BACKUP_URL;
+
+        this.servers = [primary];
+        if (backup) {
+            this.servers.push(backup);
+        }
+
         this.configured = !!process.env.POCKET_TTS_URL;
     }
 
@@ -49,19 +57,22 @@ class PocketTtsClient {
     }
 
     /**
-     * Check if the Pocket TTS server is healthy
+     * Check if ANY Pocket TTS server is healthy
      */
     async checkHealth(): Promise<boolean> {
-        try {
-            const response = await fetch(`${this.baseUrl}/health`, {
-                method: 'GET',
-                signal: AbortSignal.timeout(5000),
-            });
-            return response.ok;
-        } catch (error) {
-            console.error('[Pocket TTS] Health check failed:', error);
-            return false;
+        for (const server of this.servers) {
+            try {
+                const response = await fetch(`${server}/health`, {
+                    method: 'GET',
+                    signal: AbortSignal.timeout(2000), // Fast check
+                });
+                if (response.ok) return true;
+            } catch (error) {
+                // Try next server
+                continue;
+            }
         }
+        return false;
     }
 
     /**
@@ -123,73 +134,99 @@ class PocketTtsClient {
     }
 
     /**
-     * Synthesize speech using Pocket TTS
-     * 
-     * Uses POST /tts with multipart/form-data:
-     * - text: The text to synthesize
-     * - voice_wav: The reference audio file for voice cloning
+     * Synthesize speech using Pocket TTS with Failover
      */
-    async synthesize(text: string, options: SynthesizeOptions = {}): Promise<PocketTtsResponse | null> {
-        try {
-            const formData = new FormData();
+    async synthesize(text: string, options: SynthesizeOptions = {}, retries = 3): Promise<PocketTtsResponse | null> {
+        let lastError: any;
 
-            // Apply tone modifiers to adjust speed
-            let effectiveSpeed = options.speed || 1.0;
-            if (options.toneModifiers) {
-                const { aggression = 0, energy = 0.5 } = options.toneModifiers;
-                // Aggressive personas speak faster
-                if (aggression > 0.5) effectiveSpeed *= 1.0 + (aggression * 0.2);
-                // High energy = faster, low energy = slower
-                effectiveSpeed *= 0.9 + (energy * 0.2);
-                console.log(`[Pocket TTS] Tone modifiers applied: speed=${effectiveSpeed.toFixed(2)}`);
-            }
+        // Try each server in order (Primary -> Backup)
+        for (const serverUrl of this.servers) {
+            console.log(`[Pocket TTS] Attempting generation on server: ${serverUrl}`);
 
-            formData.append('text', text);
-            // Note: speed parameter would be passed if Pocket TTS server supports it
-            // formData.append('speed', effectiveSpeed.toString());
+            // Per-server Retry Loop
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    if (attempt > 1) {
+                        console.log(`[Pocket TTS] Retry attempt ${attempt}/${retries} on ${serverUrl}...`);
+                        // Linear backoff: 500ms, 1000ms, 1500ms
+                        await new Promise(resolve => setTimeout(resolve, 500 * (attempt - 1)));
+                    }
 
-            // Load and attach voice reference for cloning
-            if (options.voicePath) {
-                const voiceBlob = await this.loadReferenceAudio(options.voicePath);
-                if (!voiceBlob) {
-                    throw new Error(`Could not load voice reference: ${options.voicePath}`);
+                    const formData = new FormData();
+
+                    // Apply tone modifiers to adjust speed
+                    let effectiveSpeed = options.speed || 1.0;
+                    if (options.toneModifiers) {
+                        const { aggression = 0, energy = 0.5 } = options.toneModifiers;
+                        // Aggressive personas speak faster
+                        if (aggression > 0.5) effectiveSpeed *= 1.0 + (aggression * 0.2);
+                        // High energy = faster, low energy = slower
+                        effectiveSpeed *= 0.9 + (energy * 0.2);
+                        console.log(`[Pocket TTS] Tone modifiers applied: speed=${effectiveSpeed.toFixed(2)}`);
+                    }
+
+                    formData.append('text', text);
+                    // Note: speed parameter would be passed if Pocket TTS server supports it
+                    // formData.append('speed', effectiveSpeed.toString());
+
+                    // Load and attach voice reference for cloning
+                    if (options.voicePath) {
+                        const voiceBlob = await this.loadReferenceAudio(options.voicePath);
+                        if (!voiceBlob) {
+                            throw new Error(`Could not load voice reference: ${options.voicePath}`);
+                        }
+
+                        // Get filename for the form field
+                        const filename = path.basename(options.voicePath);
+                        formData.append('voice_wav', voiceBlob, filename);
+
+                        console.log(`[Pocket TTS] Synthesizing with cloned voice: ${filename}`);
+                    } else {
+                        console.log('[Pocket TTS] Synthesizing with default voice (no cloning)');
+                    }
+
+                    const response = await fetch(`${serverUrl}/tts`, {
+                        method: 'POST',
+                        body: formData,
+                        signal: AbortSignal.timeout(60000), // 60s timeout for long texts
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error(`[Pocket TTS] API Error (${response.status}):`, errorText);
+                        // If it's a 500 error from the python server, it might be the model crashing.
+                        // We SHOULD failover to the next server in this case.
+                        throw new Error(`API error: ${response.status} - ${errorText}`);
+                    }
+
+                    // Response is audio bytes (WAV format)
+                    const audioBuffer = Buffer.from(await response.arrayBuffer());
+
+                    console.log(`[Pocket TTS] Success on ${serverUrl} (${audioBuffer.length} bytes)`);
+
+                    return {
+                        audio: audioBuffer,
+                        sampleRate: 24000,
+                        format: 'wav',
+                    };
+
+                } catch (error: any) {
+                    console.error(`[Pocket TTS] Error on ${serverUrl} (attempt ${attempt}):`, error.message);
+                    lastError = error;
+
+                    // If connection refused, break retry loop and go to next server immediately
+                    if (error.cause?.code === 'ECONNREFUSED' || error.message.includes('fetch failed')) {
+                        break;
+                    }
                 }
-
-                // Get filename for the form field
-                const filename = path.basename(options.voicePath);
-                formData.append('voice_wav', voiceBlob, filename);
-
-                console.log(`[Pocket TTS] Synthesizing with cloned voice: ${filename}`);
-            } else {
-                console.log('[Pocket TTS] Synthesizing with default voice (no cloning)');
             }
 
-            const response = await fetch(`${this.baseUrl}/tts`, {
-                method: 'POST',
-                body: formData,
-                signal: AbortSignal.timeout(60000), // 60s timeout for long texts
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`[Pocket TTS] API Error (${response.status}):`, errorText);
-                throw new Error(`Pocket TTS API error: ${response.status} - ${errorText}`);
-            }
-
-            // Response is audio bytes (WAV format)
-            const audioBuffer = Buffer.from(await response.arrayBuffer());
-
-            console.log(`[Pocket TTS] Generated ${audioBuffer.length} bytes of audio`);
-
-            return {
-                audio: audioBuffer,
-                sampleRate: 24000, // Pocket TTS default
-                format: 'wav',
-            };
-        } catch (error: any) {
-            console.error('[Pocket TTS] Synthesis error:', error.message);
-            throw error;
+            console.log(`[Pocket TTS] Server ${serverUrl} failed. Checking next backup...`);
         }
+
+        // If we get here, all servers failed
+        console.error('[Pocket TTS] All backup servers failed.');
+        throw lastError; // Throw the last error encountered
     }
 }
 
