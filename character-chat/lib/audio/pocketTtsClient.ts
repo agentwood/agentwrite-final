@@ -9,6 +9,7 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { execSync } from 'child_process';
 
 interface PocketTtsResponse {
     audio: Buffer;
@@ -32,7 +33,7 @@ interface SynthesizeOptions {
     };
 }
 
-class PocketTtsClient {
+export class PocketTtsClient {
     private servers: string[];
     private configured: boolean;
 
@@ -124,6 +125,34 @@ class PocketTtsClient {
             const buffer = await response.arrayBuffer();
             // Determine MIME type from extension
             const ext = path.extname(voicePath).toLowerCase();
+
+            // If it's not WAV, convert it to WAV
+            if (ext !== '.wav') {
+                console.log(`[Pocket TTS] Auto-converting ${ext} to WAV for server compatibility...`);
+                const tempInput = path.join('/tmp', `input_${Date.now()}${ext}`);
+                const tempOutput = path.join('/tmp', `output_${Date.now()}.wav`);
+
+                try {
+                    await fs.writeFile(tempInput, Buffer.from(buffer));
+                    // Convert to 24kHz mono WAV
+                    execSync(`ffmpeg -y -i "${tempInput}" -ar 24000 -ac 1 -c:a pcm_s16le "${tempOutput}"`, { stdio: 'ignore' });
+
+                    const wavBuffer = await fs.readFile(tempOutput);
+
+                    // Cleanup
+                    try { await fs.unlink(tempInput); } catch (e) { }
+                    try { await fs.unlink(tempOutput); } catch (e) { }
+
+                    return new Blob([wavBuffer], { type: 'audio/wav' });
+                } catch (convError) {
+                    console.error("[Pocket TTS] Conversion failed, fallback to original:", convError);
+                    // Cleanup even on error
+                    try { await fs.unlink(tempInput); } catch (e) { }
+                    try { await fs.unlink(tempOutput); } catch (e) { }
+                    return new Blob([buffer], { type: 'audio/mpeg' });
+                }
+            }
+
             const mimeType = ext === '.wav' ? 'audio/wav' : 'audio/mpeg';
             return new Blob([buffer], { type: mimeType });
 
@@ -140,8 +169,10 @@ class PocketTtsClient {
         let lastError: any;
 
         // Try each server in order (Primary -> Backup)
-        for (const serverUrl of this.servers) {
-            console.log(`[Pocket TTS] Attempting generation on server: ${serverUrl}`);
+        for (let i = 0; i < this.servers.length; i++) {
+            const serverUrl = this.servers[i];
+            const isBackup = i > 0;
+            console.log(`[Pocket TTS] Attempting generation on ${isBackup ? 'BACKUP' : 'PRIMARY'} server: ${serverUrl}`);
 
             // Per-server Retry Loop
             for (let attempt = 1; attempt <= retries; attempt++) {

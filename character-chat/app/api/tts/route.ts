@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { pocketTtsClient } from '@/lib/audio/pocketTtsClient';
-import { fishAudioClient } from '@/lib/audio/fishAudioClient';
+// import { fishAudioClient } from '@/lib/audio/fishAudioClient'; // Disabled
 
 // Helper to sanitize text
 function sanitizeText(text: string): string {
@@ -83,73 +83,65 @@ export async function POST(request: NextRequest) {
     // ============================================
     // PRIMARY: Pocket TTS (CPU-based, DigitalOcean)
     // ============================================
-    const pocketHealthy = await pocketTtsClient.checkHealth();
+    // ============================================
+    // PRIMARY: Pocket TTS (CPU-based, DigitalOcean)
+    // ============================================
+    // Note: We skip checkHealth() to avoid double-latency. 
+    // The synthesize() method handles failover to backup servers internally.
 
-    if (pocketHealthy) {
-      console.log(`[TTS] 🎯 Routing: Pocket TTS - Voice: ${voiceSeed.name}`);
+    console.log(`[TTS] 🎯 Routing: Pocket TTS - Voice: ${voiceSeed.name}`);
 
-      try {
-        const result = await pocketTtsClient.synthesize(cleanedText, {
-          voicePath: voiceSeed.filePath,
-          speed: 1.0,
-        });
+    try {
+      const result = await pocketTtsClient.synthesize(cleanedText, {
+        voicePath: voiceSeed.filePath,
+        speed: 1.0,
+      });
 
-        if (result) {
-          audioResult = {
-            audio: result.audio.toString('base64'),
-            format: result.format,
-            sampleRate: result.sampleRate,
-            engine: 'pocket-tts',
-            voiceUsed: voiceSeed.name,
-          };
-        }
-      } catch (pocketError: any) {
-        console.error(`[TTS] ❌ Pocket TTS Failed:`, pocketError.message);
-        lastError = `Pocket TTS: ${pocketError.message}`;
+      if (result) {
+        audioResult = {
+          audio: result.audio.toString('base64'),
+          format: result.format,
+          sampleRate: result.sampleRate,
+          engine: 'pocket-tts',
+          voiceUsed: voiceSeed.name,
+        };
+      } else {
+        // Should happen if synthesize returns null (which it shouldn't really, it throws)
+        lastError = 'Pocket TTS returned no audio.';
       }
-    } else {
-      console.log('[TTS] 🔴 Pocket TTS unavailable, trying fallback...');
-      lastError = 'Pocket TTS server not available';
+    } catch (pocketError: any) {
+      console.error(`[TTS] ❌ Pocket TTS Failed (All Servers):`, pocketError.message);
+      lastError = `Pocket TTS: ${pocketError.message}`;
     }
 
     // ============================================
-    // FALLBACK: Fish Audio
+    // FALLBACK: Fish Audio (REMOVED)
     // ============================================
-    if (!audioResult && fishAudioClient.isConfigured()) {
-      const { getFallbackVoice } = await import('@/lib/voice/voiceRegistry');
-      const fallbackId = getFallbackVoice(voiceSeed.name);
+    // User requested to remove Fish Audio dependency.
+    // Pocket TTS is now the single source of truth with internal retries.
 
-      if (fallbackId) {
-        console.log(`[TTS] 🐟 Fallback: Fish Audio - ID: ${fallbackId}`);
-
-        try {
-          const fishResult = await fishAudioClient.synthesize(cleanedText, {
-            voiceId: fallbackId,
-            speed: 1.0,
-            format: 'wav',
-            sampleRate: 24000,
-          });
-
-          if (fishResult) {
-            audioResult = {
-              audio: fishResult.audio.toString('base64'),
-              format: fishResult.format,
-              sampleRate: 24000,
-              engine: 'fish-audio-fallback',
-              voiceUsed: fallbackId,
-            };
-          }
-        } catch (fishError: any) {
-          console.error(`[TTS] ❌ Fish Audio Failed:`, fishError.message);
-          if (!lastError) lastError = `Fish Audio: ${fishError.message}`;
-        }
-      }
-    }
 
     // ============================================
     // SUCCESS
     // ============================================
     if (audioResult) {
+      // LOG USAGE FOR REWARDS (Fire and forget)
+      // Check if this character is using a contributed voice
+      const { logVoiceUsageEvent, getContributedVoiceForCharacter } = await import('@/lib/voice/usageLogger');
+      // const { getUserIdFromRequest } = await import('@/lib/auth'); // Removed: Invalid and unused
+
+      const contributedVoiceId = await getContributedVoiceForCharacter(character.id);
+
+      if (contributedVoiceId) {
+        logVoiceUsageEvent({
+          voiceContributionId: contributedVoiceId,
+          characterId: character.id,
+          userId: request.headers.get('x-user-id') || 'anonymous',
+          durationSeconds: audioResult.audio.length / 1000, // Roughly estimate or use actual duration if available
+          textLength: text.length,
+        });
+      }
+
       return NextResponse.json(audioResult);
     }
 
@@ -163,7 +155,7 @@ export async function POST(request: NextRequest) {
         character: character.name,
         voiceSeed: voiceSeed.name,
         pocketTtsConfigured: pocketTtsClient.checkConfigured(),
-        fishConfigured: fishAudioClient.isConfigured(),
+        // fishConfigured: fishAudioClient.isConfigured(), // Disabled
       }
     }, { status: 503 });
 

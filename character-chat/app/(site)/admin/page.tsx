@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   Users, MessageSquare, TrendingUp, Clock,
   BarChart3, Activity, Eye, Heart,
-  ArrowUp, ArrowDown, Calendar, Filter
+  ArrowUp, ArrowDown, Calendar, Filter, Globe
 } from 'lucide-react';
 
 interface AdminStats {
@@ -39,28 +39,29 @@ export default function AdminPage() {
   const router = useRouter();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | 'all'>('30d');
+  const [dateRange, setDateRange] = useState<'1h' | '24h' | '7d' | '30d' | '90d'>('7d');
 
   useEffect(() => {
     loadStats();
   }, [dateRange]);
 
   const loadStats = async () => {
+    setLoading(true);
     try {
-      // Use the analytics endpoint
-      const response = await fetch(`/api/admin/analytics`);
+      // Use the analytics endpoint with period param
+      const response = await fetch(`/api/admin/analytics?period=${dateRange}`);
       if (response.ok) {
         const data = await response.json();
         // Map from analytics response to stats format
         setStats({
-          totalUsers: data.overview?.totalUsers || 0,
+          totalUsers: data.overview?.totalUsers || 0, // This will now be total (anon + reg)
           totalConversations: data.overview?.totalConversations || 0,
           totalMessages: data.engagement?.totalInteractions || 0,
-          activeUsersToday: 0, // Not tracked yet
-          activeUsersThisWeek: 0, // Not tracked yet
+          activeUsersToday: data.overview?.registeredUsers || 0, // Repurposing this card for Registered count
+          activeUsersThisWeek: 0,
           totalCharacterViews: data.engagement?.totalViews || 0,
           totalCharacterSaves: data.engagement?.totalLikes || 0,
-          averageSessionDuration: 0, // Not tracked yet
+          averageSessionDuration: 0,
           topCharacters: (data.topCharacters?.byViews || []).map((c: any) => ({
             id: c.id,
             name: c.name,
@@ -118,10 +119,11 @@ export default function AdminPage() {
                 onChange={(e) => setDateRange(e.target.value as any)}
                 className="px-4 py-2 border border-white/10 rounded-lg text-sm font-medium text-white bg-white/5 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
+                <option value="1h">Last 1 hour</option>
+                <option value="24h">Last 1 day</option>
                 <option value="7d">Last 7 days</option>
                 <option value="30d">Last 30 days</option>
-                <option value="90d">Last 90 days</option>
-                <option value="all">All time</option>
+                <option value="90d">Last 3 months</option>
               </select>
             </div>
           </div>
@@ -132,54 +134,46 @@ export default function AdminPage() {
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricCard
-            title="Total Users"
+            title="Total Users (Inc. Anon)"
             value={stats.totalUsers.toLocaleString()}
             icon={Users}
-            trend={stats.userGrowth.length > 1 ?
-              ((stats.userGrowth[stats.userGrowth.length - 1].count - stats.userGrowth[0].count) / stats.userGrowth[0].count * 100).toFixed(1) : '0'
-            }
+          // Trend requires historical data snapshots, removing hardcoded value
           />
           <MetricCard
             title="Total Conversations"
             value={stats.totalConversations.toLocaleString()}
             icon={MessageSquare}
-            trend="+12.5%"
           />
           <MetricCard
             title="Total Messages"
             value={stats.totalMessages.toLocaleString()}
             icon={MessageSquare}
-            trend="+8.3%"
           />
           <MetricCard
-            title="Active Users (Today)"
+            title="Registered Users"
             value={stats.activeUsersToday.toLocaleString()}
             icon={Activity}
-            trend="+5.2%"
           />
         </div>
 
         {/* Secondary Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <MetricCard
-            title="Character Views"
-            value={stats.totalCharacterViews.toLocaleString()}
-            icon={Eye}
-            trend="+15.7%"
+            title="Character Conversations"
+            value={stats.topCharacters.reduce((acc, curr) => acc + curr.chatCount, 0).toLocaleString()}
+            icon={MessageSquare}
             variant="secondary"
           />
           <MetricCard
-            title="Character Saves"
+            title="Total Followers"
             value={stats.totalCharacterSaves.toLocaleString()}
-            icon={Heart}
-            trend="+9.1%"
+            icon={Users}
             variant="secondary"
           />
           <MetricCard
             title="Avg Session Duration"
             value={`${Math.round(stats.averageSessionDuration / 60)}m`}
             icon={Clock}
-            trend="+2.4%"
             variant="secondary"
           />
         </div>
@@ -204,8 +198,8 @@ export default function AdminPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-gray-900">{char.retentionScore.toFixed(1)}</p>
-                    <p className="text-xs text-gray-500">score</p>
+                    <p className="text-sm font-bold text-gray-900">{char.chatCount.toLocaleString()}</p>
+                    <p className="text-xs text-gray-500">chats</p>
                   </div>
                 </div>
               ))}
@@ -238,30 +232,13 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* User Growth Chart */}
+        {/* Geography (Replaces User Growth) */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">User Growth</h2>
-          <div className="h-64 flex items-end justify-between gap-2">
-            {stats.userGrowth.map((point, index) => {
-              const maxCount = Math.max(...stats.userGrowth.map(p => p.count));
-              const height = (point.count / maxCount) * 100;
-              return (
-                <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-full bg-indigo-100 rounded-t-lg hover:bg-indigo-200 transition-colors relative group">
-                    <div
-                      className="bg-indigo-600 rounded-t-lg transition-all duration-500"
-                      style={{ height: `${height}%` }}
-                    />
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                      {point.count.toLocaleString()}
-                    </div>
-                  </div>
-                  <span className="text-xs text-gray-500 text-center">
-                    {new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </span>
-                </div>
-              );
-            })}
+          <h2 className="text-lg font-bold text-gray-900 mb-4">User Geography</h2>
+          <div className="h-64 flex flex-col justify-center items-center text-gray-400">
+            <Globe className="w-12 h-12 mb-2 opacity-50" />
+            <p className="text-sm">Location data collecting...</p>
+            <p className="text-xs mt-1">(Requires IP tracking implementation)</p>
           </div>
         </div>
       </main>

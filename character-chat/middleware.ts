@@ -7,7 +7,6 @@ export function middleware(request: NextRequest) {
     // Public routes that DON'T require authentication
     const publicPaths = [
         '/',           // Landing page only
-        '/home',       // Allow dashboard landing (auth guards handled in component)
         '/login',
         '/signup',
         '/auth',       // Allow auth paths (callbacks)
@@ -34,6 +33,14 @@ export function middleware(request: NextRequest) {
     // Also allow static files
     const isStatic = pathname.includes('.') && !pathname.includes('/api/');
     const authToken = request.cookies.get('agentwood_token');
+
+    // Explicitly protect /admin routes
+    if (pathname.startsWith('/admin')) {
+        if (!authToken) {
+            return NextResponse.redirect(new URL('/login?callbackUrl=' + pathname, request.url));
+        }
+        // In the future: Add Admin Role check here if we have a way to decode the token/session on edge
+    }
 
     const response = !isPublic && !isStatic && !authToken
         ? NextResponse.redirect(new URL('/login?callbackUrl=' + pathname, request.url))

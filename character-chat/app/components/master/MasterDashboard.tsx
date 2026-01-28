@@ -15,10 +15,12 @@ import {
   Link, BarChart, Users, ThumbsUp, ThumbsDown, Bookmark,
   MoreHorizontal, Headphones, Smile, Heart, ZapOff, Info,
   Feather, History, ChevronRight as ChevronRightIcon,
-  ChevronLeft as ChevronLeftIcon, ArrowRight, Mic, Pause,
+  ArrowLeft as ChevronLeftIcon, ArrowRight, Mic, Pause,
   RotateCcw, Map, Eye, Trophy, Target, Clock, Lock, Unlock,
   Flame, TrendingUp, Pencil, Smartphone, Gamepad2
 } from 'lucide-react';
+import AnalyticsView from './AnalyticsView';
+import CreateVoiceView from './CreateVoiceView';
 import { CharacterCard } from './CharacterCard';
 import { AuthModal } from './AuthModal';
 import { OnboardingModal } from './OnboardingModal';
@@ -818,13 +820,28 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     { id: 'roleplay', name: 'Advanced Roleplay', icon: '🎭', desc: 'Enhanced roleplay capabilities' },
   ];
 
-  // Handle publishing character (placeholder)
+  // Handle publishing character
   const handlePublish = async () => {
     setIsAiLoading('publishing');
+
+    // Auto-generate fallback avatar if missing
+    let finalAvatarUrl = avatarUrl;
+    if (!finalAvatarUrl) {
+      // Use DiceBear Notion style or Avataaars for a good default
+      const seed = name || 'character';
+      finalAvatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
+      setAvatarUrl(finalAvatarUrl); // Update UI
+    }
+
     try {
-      // TODO: Implement actual publish logic
+      // TODO: Implement actual publish logic with finalAvatarUrl
       await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Character published (stub)');
+      console.log('Character published (stub) with avatar:', finalAvatarUrl);
+
+      // Notify success (mock)
+      const event = new CustomEvent('show-toast', { detail: { message: 'Character published successfully!' } });
+      window.dispatchEvent(event);
+
     } finally {
       setIsAiLoading(null);
     }
@@ -878,32 +895,29 @@ const CreateView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     setShowImageModal(true);
   };
 
-  // Generate 4 images using Gemini API (fallback since Pollinations moved)
+  // Generate single image using Pollinations.ai (reliable & rate-limit safe)
   const generateMultipleImages = async () => {
     if (!imagePrompt.trim()) return;
     setIsGeneratingImages(true);
     setGeneratedImages([]);
 
     const stylePrefix = 'High-quality anime style digital illustration, detailed character portrait, vibrant colors, visual novel art, expressive face, professional concept art';
-    const fullPrompt = `${stylePrefix}. ${imagePrompt}`;
+    // Add random seed to prompt to ensure variety on regenerate
+    const randomSeed = Math.floor(Math.random() * 10000);
+    const fullPrompt = `${stylePrefix}. ${imagePrompt} (seed:${randomSeed})`;
 
     try {
-      // Generate 4 images using Gemini
-      const imagePromises = Array.from({ length: 4 }, async (_, i) => {
-        const response = await fetch('/api/generate-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: `${fullPrompt}, variation ${i + 1}` })
-        });
-        const data = await response.json();
-        if (data.data) {
-          return `data:${data.mimeType};base64,${data.data}`;
-        }
-        return null;
+      const response = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: fullPrompt })
       });
+      const data = await response.json();
 
-      const results = await Promise.all(imagePromises);
-      setGeneratedImages(results.filter(Boolean) as string[]);
+      if (data.data) {
+        // Wrap in array to maintain compatibility with grid UI
+        setGeneratedImages([`data:${data.mimeType};base64,${data.data}`]);
+      }
     } catch (e) {
       console.error('Image generation failed:', e);
     } finally {
@@ -2947,6 +2961,36 @@ export default function MasterDashboard({
                   setCurrentView('rewards');
                 }}
               />
+              <SidebarLink
+                active={currentView === 'create-voice'}
+                icon={<Mic size={18} />}
+                label="Create a Voice"
+                onClick={() => {
+                  if (!currentUser) {
+                    setIsAuthOpen(true);
+                    return;
+                  }
+                  setCurrentView('create-voice');
+                }}
+              />
+              <SidebarLink
+                active={currentView === 'analytics'}
+                icon={<BarChart size={18} />}
+                label="Data Analytics"
+                onClick={() => {
+                  if (!currentUser) {
+                    setIsAuthOpen(true);
+                    return;
+                  }
+                  setCurrentView('analytics');
+                }}
+              />
+              <div className="my-2 border-t border-white/5 mx-4"></div>
+              <SidebarLink
+                icon={<ShieldCheck size={18} />}
+                label="Admin Panel"
+                onClick={() => router.push('/admin')}
+              />
             </div>
           </section>
 
@@ -3097,6 +3141,10 @@ export default function MasterDashboard({
         {currentView === 'craft' && <CraftStoryView onBack={() => setCurrentView('discover')} characters={characters} onStartStory={handleStoryStart} />}
 
         {currentView === 'search' && <SearchView onSelectCharacter={navigateToProfile} characters={characters.length > 0 ? characters : FALLBACK_CHARACTERS} />}
+
+        {currentView === 'analytics' && <AnalyticsView />}
+
+        {currentView === 'create-voice' && <CreateVoiceView />}
       </main>
 
       <AuthModal

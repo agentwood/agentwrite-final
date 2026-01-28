@@ -1,0 +1,36 @@
+name: Daily Blog Generator
+
+on:
+  schedule:
+    # Run at 9:00 AM UTC every day
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  generate-blog:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      - name: Generate Blog Post
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx tsx scripts/generate-daily-blog.ts
+        
+      - name: Commit and Push
+        run: |
+          git config --global user.name 'Agentwood Bot'
+          git config --global user.email 'bot@agentwood.xyz'
+          git add content/blog/*.md
+          git commit -m "📝 Daily Blog Auto-Generation" || echo "No changes to commit"
+          git push

@@ -294,39 +294,28 @@ export default function CharacterProfile({ persona, similarCharacters = [], inte
                   Chat
                 </button>
 
-                {/* Action Buttons */}
+                {/* Action Buttons - Share Only */}
                 <div className="flex items-center justify-center gap-3 mb-6">
                   <button
-                    onClick={handleLike}
-                    className={`p-3 rounded-xl transition-all ${isLiked
-                      ? 'bg-purple-600/20 text-purple-400'
-                      : 'bg-white/5 hover:bg-white/10 text-white/60'
-                      }`}
-                  >
-                    <ThumbsUp className="w-5 h-5" fill={isLiked ? 'currentColor' : 'none'} />
-                  </button>
-                  <button
-                    onClick={handleDislike}
-                    className={`p-3 rounded-xl transition-all ${isDisliked
-                      ? 'bg-red-600/20 text-red-400'
-                      : 'bg-white/5 hover:bg-white/10 text-white/60'
-                      }`}
-                  >
-                    <ThumbsDown className="w-5 h-5" fill={isDisliked ? 'currentColor' : 'none'} />
-                  </button>
-                  <button
                     onClick={handleShare}
-                    className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all text-white/60"
+                    className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all text-white/60 flex items-center justify-center gap-2"
                   >
                     <Upload className="w-5 h-5" />
+                    <span className="text-sm font-bold">Share</span>
                   </button>
                 </div>
 
-                {/* Stats - Only show view count (200-9K range) */}
+                {/* Stats */}
                 <div className="w-full space-y-3 mb-6">
-                  <div className="flex items-center gap-3 text-sm">
-                    <Eye className="w-4 h-4 text-blue-400" />
-                    <span className="text-white/70">{persona.viewCount.toLocaleString()} Views</span>
+                  <div className="flex items-center justify-between text-sm px-2">
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-blue-400" />
+                      <span className="text-white/70">{persona.viewCount.toLocaleString()} Views</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-purple-400" />
+                      <span className="text-white/70">{followerCount.toLocaleString()} Followers</span>
+                    </div>
                   </div>
                 </div>
 
@@ -354,25 +343,16 @@ export default function CharacterProfile({ persona, similarCharacters = [], inte
                   )}
                 </div>
 
-                {/* Follow/Save Buttons */}
-                <div className="flex gap-3 w-full">
+                {/* Follow Button (Full Width) */}
+                <div className="w-full">
                   <button
                     onClick={handleFollow}
-                    className={`flex-1 py-3 rounded-xl font-bold transition-all ${isFollowing
+                    className={`w-full py-3 rounded-xl font-bold transition-all ${isFollowing
                       ? 'bg-white text-black'
                       : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'
                       }`}
                   >
                     {isFollowing ? 'Following' : 'Follow'}
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    className={`p-3 rounded-xl transition-all ${isSaved
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'
-                      }`}
-                  >
-                    <Bookmark className="w-5 h-5" fill={isSaved ? 'currentColor' : 'none'} />
                   </button>
                 </div>
               </div>

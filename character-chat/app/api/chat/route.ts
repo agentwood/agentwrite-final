@@ -179,15 +179,19 @@ export async function POST(request: NextRequest) {
 
     // [COGNEE] Retrieve Long-Term Memories via Knowledge Graph (Graph RAG)
     // This replaces Vector RAG with deterministic graph-based retrieval
-    const { augmentPromptWithCogneeMemories, saveCogneeMemory } = await import('@/lib/cogneeClient');
     let longTermMemoryContext = '';
+    try {
+      const { augmentPromptWithCogneeMemories } = await import('@/lib/cogneeClient');
 
-    // Extract user information from messages for memory
-    const userMessages = messages.filter((m: any) => m.role === 'user');
-    const latestUserMessage = userMessages[userMessages.length - 1];
+      // Extract user information from messages for memory
+      const userMessages = messages.filter((m: any) => m.role === 'user');
+      const latestUserMessage = userMessages[userMessages.length - 1];
 
-    if (latestUserMessage && userId) {
-      longTermMemoryContext = await augmentPromptWithCogneeMemories(userId, characterId, latestUserMessage.text);
+      if (latestUserMessage && userId) {
+        longTermMemoryContext = await augmentPromptWithCogneeMemories(userId, characterId, latestUserMessage.text);
+      }
+    } catch (e) {
+      console.warn('[Chat] Cognee memory system unavailable or failed, continuing without long-term memory:', e);
     }
 
     // Extract patterns from conversation (Learning System)
@@ -383,10 +387,15 @@ export async function POST(request: NextRequest) {
 
     // [COGNEE] Save interaction to Knowledge Graph (Async, don't block response)
     if (userId && latestUserMessage) {
-      // Save User Message to Cognee Graph
-      saveCogneeMemory(userId, characterId, latestUserMessage.text, 'user').catch(e => console.error('[Cognee] Failed to save user memory:', e));
-      // Save Assistant Response to Cognee Graph
-      saveCogneeMemory(userId, characterId, responseText, 'assistant').catch(e => console.error('[Cognee] Failed to save assistant memory:', e));
+      try {
+        const { saveCogneeMemory } = await import('@/lib/cogneeClient');
+        // Save User Message to Cognee Graph
+        saveCogneeMemory(userId, characterId, latestUserMessage.text, 'user').catch(e => console.error('[Cognee] Failed to save user memory:', e));
+        // Save Assistant Response to Cognee Graph
+        saveCogneeMemory(userId, characterId, responseText, 'assistant').catch(e => console.error('[Cognee] Failed to save assistant memory:', e));
+      } catch (e) {
+        console.warn('[Chat] Cognee save failed (module load or execution):', e);
+      }
     }
 
     return NextResponse.json({

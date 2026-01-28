@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { CharacterProfile } from '@/lib/master/types';
-import { Eye, Heart } from 'lucide-react';
+import { Eye, Heart, Users } from 'lucide-react';
 import SafeImage from '../SafeImage';
 
 interface CharacterCardProps {
@@ -14,6 +14,7 @@ interface CharacterCardProps {
 }
 
 export const CharacterCard: React.FC<CharacterCardProps> = ({ character, className = '', onClick, isFavorite, onToggleFavorite }) => {
+  if (!character) return null;
   return (
     <div
       onClick={onClick}
@@ -49,14 +50,23 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, classNa
         <h3 className="text-lg font-bold font-sans leading-tight mb-1">
           {character.name}
         </h3>
-        <div className="flex items-center gap-2 text-white/80 mb-1">
-          <Eye size={12} className="opacity-60" />
-          <span className="text-[11px] font-sans font-medium">
-            {character.viewCount >= 1000
-              ? `${(character.viewCount / 1000).toFixed(1).replace(/\.0$/, '')}k`
-              : character.viewCount}
-          </span>
-          {/* AW Official Badge - Next to view count */}
+        <div className="flex items-center gap-3 text-white/80 mb-1">
+          <div className="flex items-center gap-1">
+            <Eye size={12} className="opacity-60" />
+            <span className="text-[11px] font-sans font-medium">
+              {character.viewCount >= 1000
+                ? `${(character.viewCount / 1000).toFixed(1).replace(/\.0$/, '')}k`
+                : character.viewCount}
+            </span>
+          </div>
+          {/* Followers Metric */}
+          <div className="flex items-center gap-1">
+            <Users size={12} className="opacity-60" />
+            <span className="text-[11px] font-sans font-medium">
+              {(character as any)?.followerCount || (character as any)?.saveCount || 0}
+            </span>
+          </div>
+          {/* AW Official Badge */}
           {character.isOfficial && (
             <span className="px-1.5 py-0.5 rounded bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[8px] font-bold tracking-wider">
               AW

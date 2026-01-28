@@ -446,7 +446,23 @@ export const FALLBACK_CHARACTERS: CharacterProfile[] = [
 
 export const getShowcaseCharacters = async (category: Category = "All"): Promise<CharacterProfile[]> => {
   try {
+    // Determine the base URL for server-side fetches
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
+    // Fetch live characters from the API
+    // We use a no-store cache policy to ensure fresh data (view counts)
+    const response = await fetch(`${baseUrl}/api/character/list?category=${category === "All" ? "" : category}`, {
+      next: { revalidate: 0 }
+    });
+
+    if (response.ok) {
+      const liveCharacters = await response.json();
+      if (liveCharacters && liveCharacters.length > 0) {
+        return liveCharacters;
+      }
+    }
+
+    console.warn("API returned no characters, falling back to static list");
     let filtered = category === "All" ? FALLBACK_CHARACTERS : FALLBACK_CHARACTERS.filter(c => c.category === category);
     return filtered;
 

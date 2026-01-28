@@ -1,10 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
+import { db } from '@/lib/db';
 import { remark } from 'remark';
 import html from 'remark-html';
-
-const postsDirectory = path.join(process.cwd(), 'content/blog');
 
 export interface BlogPost {
     slug: string;
@@ -15,91 +11,80 @@ export interface BlogPost {
     author: string;
     tags: string[];
     contentHtml?: string;
+    category?: string;
 }
 
 export async function getSortedPostsData(): Promise<BlogPost[]> {
-    // Get file names under /content/blog
-    const fileNames = fs.readdirSync(postsDirectory);
-    const allPostsData = fileNames
-        .filter((fileName) => fileName.endsWith('.md'))
-        .map((fileName) => {
-            // Remove ".md" from file name to get slug
-            const slug = fileName.replace(/\.md$/, '');
-
-            // Read markdown file as string
-            const fullPath = path.join(postsDirectory, fileName);
-            const fileContents = fs.readFileSync(fullPath, 'utf8');
-
-            // Use gray-matter to parse the post metadata section
-            const matterResult = matter(fileContents);
-
-            // Combine the data with the slug
-            return {
-                slug,
-                title: matterResult.data.title,
-                date: matterResult.data.date,
-                excerpt: matterResult.data.excerpt,
-                image: matterResult.data.image,
-                author: matterResult.data.author,
-                tags: matterResult.data.tags || [],
-            };
+    try {
+        const posts = await db.blogPost.findMany({
+            where: { publishedAt: { not: null } },
+            orderBy: { publishedAt: 'desc' },
         });
 
-    // Sort posts by date
-    return allPostsData.sort((a, b) => {
-        if (a.date < b.date) {
-            return 1;
-        } else {
-            return -1;
-        }
+        return posts.map(post => ({
+            slug: post.slug,
+            title: post.title,
+            date: post.publishedAt ? post.publishedAt.toISOString().split('T')[0] : new Date().toISOString(),
+            excerpt: post.excerpt || '',
+            image: post.image || '/images/blog-placeholder.jpg',
+            author: post.author || 'Agentwood Team',
+            tags: post.tags || [],
+            category: post.tags?.[0] || 'GENERAL', // Use first tag as category
+        }));
+    } catch (error) {
+        console.error("Error fetching blog posts from DB:", error);
+        return [];
+    }
+}
+
+export async function getPostData(slug: string): Promise<BlogPost | null> {
+    try {
+        const post = await db.blogPost.findUnique({
+            where: { slug },
+        });
+
+        if (!post) return null;
+
+        // Convert Markdown to HTML
+        const processedContent = await remark()
+            .use(html)
+            .process(post.content || '');
+        const contentHtml = processedContent.toString();
+
+        return {
+            slug: post.slug,
+            title: post.title,
+            date: post.publishedAt ? post.publishedAt.toISOString().split('T')[0] : new Date().toISOString(),
+            excerpt: post.excerpt || '',
+            image: post.image || '/images/blog-placeholder.jpg',
+            author: post.author || 'Agentwood Team',
+            tags: post.tags || [],
+            contentHtml,
+            category: post.tags?.[0] || 'GENERAL',
+        };
+    } catch (error) {
+        console.error(`Error fetching blog post ${slug}:`, error);
+        return null;
+    }
+}
+
+export async function getAllPostSlugs(): Promise<{ params: { slug: string } }[]> {
+    const posts = await db.blogPost.findMany({
+        select: { slug: true },
     });
-}
-
-export async function getPostData(slug: string): Promise<BlogPost> {
-    const fullPath = path.join(postsDirectory, `${slug}.md`);
-    const fileContents = fs.readFileSync(fullPath, 'utf8');
-
-    // Use gray-matter to parse the post metadata section
-    const matterResult = matter(fileContents);
-
-    // Use remark to convert markdown into HTML string
-    const processedContent = await remark()
-        .use(html)
-        .process(matterResult.content);
-    const contentHtml = processedContent.toString();
-
-    // Combine the data with the slug and contentHtml
-    return {
-        slug,
-        contentHtml,
-        title: matterResult.data.title,
-        date: matterResult.data.date,
-        excerpt: matterResult.data.excerpt,
-        image: matterResult.data.image,
-        author: matterResult.data.author,
-        tags: matterResult.data.tags || [],
-    };
-}
-
-export function getAllPostSlugs(): string[] {
-    const fileNames = fs.readdirSync(postsDirectory);
-    return fileNames
-        .filter((fileName) => fileName.endsWith('.md'))
-        .map((fileName) => fileName.replace(/\.md$/, ''));
+    return posts.map((post) => ({
+        params: {
+            slug: post.slug,
+        },
+    }));
 }
 
 export async function getAllPostsWithDates(): Promise<{ slug: string; date: string }[]> {
-    const fileNames = fs.readdirSync(postsDirectory);
-    return fileNames
-        .filter((fileName) => fileName.endsWith('.md'))
-        .map((fileName) => {
-            const slug = fileName.replace(/\.md$/, '');
-            const fullPath = path.join(postsDirectory, fileName);
-            const fileContents = fs.readFileSync(fullPath, 'utf8');
-            const matterResult = matter(fileContents);
-            return {
-                slug,
-                date: matterResult.data.date || new Date().toISOString(),
-            };
-        });
+    const posts = await db.blogPost.findMany({
+        select: { slug: true, publishedAt: true },
+    });
+    return posts.map((post) => ({
+        slug: post.slug,
+        date: post.publishedAt ? post.publishedAt.toISOString() : new Date().toISOString(),
+    }));
 }

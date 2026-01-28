@@ -207,11 +207,9 @@ export default function VoiceButton({
 
     } catch (error: any) {
       console.error('Error playing audio:', error);
-      setIsLoading(false);
-      // Alerts handled by UI mostly, but we can verify
-      if (error.name !== 'AbortError') {
-        // Optional alert
-      }
+      setIsLoading(false); // Ensure loading state is cleared
+
+      // Alert handled by UI mostly
     }
   };
 

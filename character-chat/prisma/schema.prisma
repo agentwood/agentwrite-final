@@ -405,6 +405,7 @@ model User {
   rewardProgress     UserRewardProgress[]
   voiceFeedback      VoiceFeedback[]
   voiceContributions VoiceContribution[]
+  consentLogs        ConsentLog[]
 
   @@index([username])
   @@index([email])
@@ -796,34 +797,37 @@ model VoiceContribution {
   id                    String   @id @default(cuid())
   contributorId         String
   contributor           User     @relation(fields: [contributorId], references: [id], onDelete: Cascade)
-  
+
   // Audio Asset
   audioFilePath         String   // S3/Supabase path
   audioDurationSeconds  Float
   audioFormat           String   // "wav", "mp3"
   
+  // Voice Identity & Security
+  pocketTtsSeed         String?  @db.Text // Base64 encoded seed or storage path
+  fingerprintHash       String?  // Audio fingerprint for fraud detection
+  
   // Quality & Status
+  version               Int      @default(1)
+  parentVoiceId         String?  // For versioning
   qualityScore          Int      @default(0)  // 0-100
   noiseScore            Int      @default(0)  // 0-100 (lower is better)
   status                String   @default("processing") // processing, pending_review, approved, rejected
   rejectionReason       String?
   
-  // Consent & Licensing
-  consentTimestamp      DateTime
-  allowEnterpriseResale Boolean  @default(true)
+  // Consent & Licensing (Defensible)
+  consentLogId          String?  @unique
+  consentLog            ConsentLog? @relation(fields: [consentLogId], references: [id])
+  allowEnterpriseResale Boolean  @default(false)
   licensingType         String   @default("platform_standard") // platform_standard, cc_by_nc, exclusive
   isPaused              Boolean  @default(false)
   
   // Tree-0 Acoustic Profile (Generated)
   acousticEmbedding     String?  @db.Text // JSON: 512-dim vector
-  emotionalVectors      String?  // JSON: { valence, arousal, dominance }
-  cadenceProfile        String?  // JSON: { avgPauseDuration, speechRate, rhythmVariability }
-  prosodyMarkers        String?  // JSON: { pitchRange, intonationPattern }
   
-  // Tagging (Tree-0)
-  emotionalClusters     String?  // JSON array: ["empathetic", "authoritative"]
-  conversationalTypes   String?  // JSON array: ["mentor", "companion", "narrator"]
-  personalityResonance  String?  // JSON array: ["warm", "calm", "energetic"]
+  // Tree-0 Tagging Taxonomy (Normalized)
+  // Structure: { acoustic: { pitch: "medium", tempo: "fast" }, emotion: { baseline: "neutral" }, useCase: { companion: true } }
+  tree0Tags             String?  @db.Text 
   
   // Display
   displayName           String?
@@ -857,6 +861,33 @@ model VoiceContribution {
   @@index([qualityScore])
   @@index([totalMinutesUsed])
   @@map("voice_contributions")
+}
+
+model ConsentLog {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Terms Agreed To
+  termsVersion     String   // e.g., "v1.0-2026-01"
+  termsTextHash    String   // SHA256 of the text displayed
+  
+  // Flags
+  allowSynthesized Boolean  @default(true)
+  allowEnterprise  Boolean  @default(false)
+  allowTraining    Boolean  @default(false)
+  
+  // Context
+  ipAddress        String?
+  userAgent        String?
+  timestamp        DateTime @default(now())
+  
+  // Relation
+  voiceContribution VoiceContribution?
+  
+  @@index([userId])
+  @@index([timestamp])
+  @@map("consent_logs")
 }
 
 model VoiceUsageEvent {

@@ -4,6 +4,13 @@ import { db } from '@/lib/db';
 import MasterDashboard from '../../components/master/MasterDashboard';
 import { getShowcaseCharacters } from '@/lib/master/geminiService';
 import { redirect } from 'next/navigation';
+import StructuredData from '@/app/components/StructuredData';
+import {
+    generateCharacterSchema,
+    generateBreadcrumbs,
+    generateFAQSchema,
+    generateCharacterFAQs
+} from '@/lib/seo/structured-data';
 
 
 type Props = {
@@ -141,11 +148,31 @@ export default async function CharacterPage({ params }: Props) {
     // Put selected character FIRST so it's easily found
     const allCharacters = [selectedCharProfile, ...otherProfiles];
 
+    const characterSchema = generateCharacterSchema({
+        id: character.id,
+        name: character.name,
+        description: character.description,
+        avatarUrl: character.avatarUrl,
+    });
+
+    const breadcrumbsSchema = generateBreadcrumbs([
+        { name: 'Home', url: '/' },
+        { name: 'Characters', url: '/discover' },
+        { name: character.name, url: `/character/${character.id}` },
+    ]);
+
+    const faqSchema = generateFAQSchema(generateCharacterFAQs(character));
+
     return (
-        <MasterDashboard
-            initialCharacters={allCharacters}
-            initialView="character"
-            initialCharacterId={id}
-        />
+        <>
+            <StructuredData data={characterSchema} />
+            <StructuredData data={breadcrumbsSchema} />
+            <StructuredData data={faqSchema} />
+            <MasterDashboard
+                initialCharacters={allCharacters}
+                initialView="character"
+                initialCharacterId={id}
+            />
+        </>
     );
 }

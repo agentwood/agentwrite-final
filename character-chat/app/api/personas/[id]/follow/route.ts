@@ -84,7 +84,15 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({ following: !!follow });
+    const persona = await db.personaTemplate.findUnique({
+      where: { id: personaId },
+      select: { followerCount: true }
+    });
+
+    return NextResponse.json({
+      following: !!follow,
+      followerCount: persona?.followerCount || 0
+    });
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to check follow status' },

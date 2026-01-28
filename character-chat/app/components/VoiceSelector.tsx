@@ -32,6 +32,8 @@ const CATEGORY_ICONS: Record<string, string> = {
     'Energetic': '⚡',
     'Texture': '🎭',
     'Global': '🌍',
+    'Gemini': '✨',
+    'Cartoon': '🎨',
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -40,6 +42,8 @@ const CATEGORY_COLORS: Record<string, string> = {
     'Energetic': 'from-orange-500 to-red-500',
     'Texture': 'from-blue-500 to-indigo-500',
     'Global': 'from-cyan-500 to-blue-500',
+    'Gemini': 'from-yellow-400 to-orange-500',
+    'Cartoon': 'from-pink-400 to-purple-400',
 };
 
 export default function VoiceSelector({ onSelect, selectedId, className = '', isModal, onClose }: VoiceSelectorProps) {
@@ -132,7 +136,7 @@ export default function VoiceSelector({ onSelect, selectedId, className = '', is
                 <div className="flex items-center justify-between">
                     <div>
                         <h3 className="text-lg font-semibold text-white mb-1">Select a Voice</h3>
-                        <p className="text-sm text-gray-400">Choose from 29 premium voice personalities</p>
+                        <p className="text-sm text-gray-400">Choose from {voices.length} premium voice personalities</p>
                     </div>
                     {isModal && onClose && (
                         <button onClick={onClose} className="p-2 text-white/50 hover:text-white transition-colors">

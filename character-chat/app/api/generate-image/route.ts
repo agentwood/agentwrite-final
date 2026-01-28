@@ -9,30 +9,24 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
         }
 
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || process.env.API_KEY || '' });
+        // Use Pollinations.ai for reliable, free, keyless generation
+        // This is much more stable for a demo/template environment than relying on specific Google Cloud permissions for Imagen
+        const encodedPrompt = encodeURIComponent(prompt + " high quality, detailed, 8k");
+        const pollinationUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true&width=1024&height=1024&model=flux`;
 
-        // Use Imagen 4 for image generation
-        const response = await ai.models.generateImages({
-            model: 'imagen-4.0-generate-001',
-            prompt: prompt,
-            config: {
-                numberOfImages: 1,
-                aspectRatio: '1:1',
-                outputMimeType: 'image/png',
-            }
-        });
-
-        if (response.generatedImages && response.generatedImages.length > 0) {
-            const imageBytes = response.generatedImages[0].image?.imageBytes;
-            if (imageBytes) {
-                return NextResponse.json({
-                    mimeType: 'image/png',
-                    data: imageBytes
-                });
-            }
+        const imageRes = await fetch(pollinationUrl);
+        if (!imageRes.ok) {
+            throw new Error(`Pollinations API error: ${imageRes.statusText}`);
         }
 
-        return NextResponse.json({ error: 'No image data generated' }, { status: 500 });
+        const arrayBuffer = await imageRes.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64 = buffer.toString('base64');
+
+        return NextResponse.json({
+            mimeType: 'image/png',
+            data: base64
+        });
 
     } catch (error: any) {
         console.error('Image generation error:', error);

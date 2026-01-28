@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { getAuthHeaders, getUserIdFromRequest } from '@/lib/auth';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { analyzeNoiseLevel, shouldAutoApprove, AUDIO_CONSTRAINTS } from '@/lib/voice/audioValidator';
 import { createHash } from 'crypto';
 
@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
         const formData = await request.formData();
         const audioFile = formData.get('audio') as File | null;
         const consentAccepted = formData.get('consent') === 'true';
+        // ... (rest of form data extraction) ...
         const displayName = formData.get('displayName') as string | null;
         const description = formData.get('description') as string | null;
         const gender = formData.get('gender') as string | null;
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
         const accent = formData.get('accent') as string | null;
 
         // 1. Auth check
-        const userId = getUserIdFromRequest(request);
+        const userId = request.headers.get('x-user-id');
         if (!userId) {
             return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
         }
@@ -48,16 +49,31 @@ export async function POST(request: NextRequest) {
             }, { status: 400 });
         }
 
-        // 5. Upload to storage (placeholder - integrate Supabase/S3)
-        const fileHash = createHash('sha256').update(audioFile.name + Date.now()).digest('hex').slice(0, 16);
-        const storagePath = `/voices/contributions/${userId}/${fileHash}.${audioFile.name.split('.').pop()}`;
+        // 5. Upload to storage (Real implementation)
+        const fileHash = createHash('sha256').update(audioFile.name + Date.now().toString()).digest('hex').slice(0, 16);
+        const fileExt = audioFile.name.split('.').pop() || 'wav';
+        const storagePath = `contributions/${userId}/${fileHash}.${fileExt}`;
 
-        // TODO: Actual upload to Supabase storage
-        // const { data: uploadData, error: uploadError } = await supabase.storage
-        //   .from('voices')
-        //   .upload(storagePath, audioFile);
+        if (!supabaseAdmin) {
+            throw new Error("Server storage configuration missing");
+        }
 
-        console.log(`[VoiceUpload] Would upload to: ${storagePath}`);
+        const arrayBuffer = await audioFile.arrayBuffer();
+        const fileBuffer = Buffer.from(arrayBuffer);
+
+        const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+            .from('voices')
+            .upload(storagePath, fileBuffer, {
+                contentType: audioFile.type,
+                upsert: false
+            });
+
+        if (uploadError) {
+            console.error('[VoiceUpload] Storage error:', uploadError);
+            throw new Error(`Storage upload failed: ${uploadError.message}`);
+        }
+
+        console.log(`[VoiceUpload] Uploaded to: ${storagePath}`);
 
         // 6. Quality analysis (mock for now)
         const qualityScore = Math.floor(Math.random() * 30) + 70; // 70-100

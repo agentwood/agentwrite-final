@@ -279,6 +279,9 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
         if (response.ok) {
           const data = await response.json();
           setIsFollowing(data.following);
+          if (typeof data.followerCount === 'number') {
+            setFollowerCount(data.followerCount);
+          }
         }
       } catch (error) {
         console.error('Error checking follow status:', error);
@@ -638,6 +641,9 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
           const desc = persona.description || '';
 
           // Create immersive greeting based on character type
+          // PRIORITY: Use DB greeting if available (handled above by checking persona.greeting)
+          // This fallback is only for when persona.greeting is NULL/Empty.
+
           if (desc.toLowerCase().includes('cook') || desc.toLowerCase().includes('chef')) {
             greetingText = `*wipes hands on apron* Ah, welcome to my kitchen! I'm ${name}. What culinary adventure shall we embark on today?`;
           } else if (desc.toLowerCase().includes('coach') || desc.toLowerCase().includes('fitness')) {
@@ -646,17 +652,13 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
             greetingText = `*adjusts glasses* Welcome, welcome! I'm ${name}. Ready to learn something new today? Let's begin!`;
           } else if (desc.toLowerCase().includes('therapist') || desc.toLowerCase().includes('counselor') || desc.toLowerCase().includes('mindfulness')) {
             greetingText = `*settles into chair with a warm smile* Hello there. I'm ${name}. This is a safe space. What's on your mind?`;
-          } else if (name.toLowerCase().includes('spongebob')) {
-            greetingText = `I'M READY! I'M READY! I'M READY! *jumps excitedly* Hi there! I'm SpongeBob SquarePants! Wanna go jellyfishing?!`;
-          } else if (tagline.toLowerCase().includes('villain') || desc.toLowerCase().includes('villain')) {
-            greetingText = `*emerges from shadows* Ah, a visitor... I am ${name}. What brings you to my domain?`;
-          } else if (tagline.toLowerCase().includes('romance') || desc.toLowerCase().includes('romance')) {
-            greetingText = `*looks up with a gentle smile* Oh, hi there... I'm ${name}. ${tagline ? tagline : 'Nice to meet you.'}`;
+          } else if (tagline.toLowerCase().includes('villain') || desc.toLowerCase().includes('villain') || desc.toLowerCase().includes('evil')) {
+            greetingText = `*emerges from the shadows, eyes gleaming* Ah... a visitor. I am ${name}. You are brave—or foolish—to come here.`;
+          } else if (tagline.toLowerCase().includes('romance') || desc.toLowerCase().includes('romance') || desc.toLowerCase().includes('love')) {
+            greetingText = `*looks up with a gentle, lingering smile* Oh... hi. I'm ${name}. I was just hoping someone interesting would stop by.`;
           } else {
-            // Default immersive fallback using tagline
-            greetingText = tagline
-              ? `*${name} appears* ${tagline}`
-              : `*${name} greets you warmly* Hey there! Ready for an adventure?`;
+            // Better Generic Fallback
+            greetingText = `*${name} notices you and smiles* Hello! I'm ${name}.${tagline ? ` ${tagline}` : ''} What's on your mind?`;
           }
         }
 
@@ -1059,8 +1061,8 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
                 <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">VIEWS</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-bold text-white leading-none">{(persona.saveCount || 0) >= 1000 ? ((persona.saveCount || 0) / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : (persona.saveCount || 0).toLocaleString()}</span>
-                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">LIKES</span>
+                <span className="text-lg font-bold text-white leading-none">{(persona.followerCount || persona.saveCount || 0) >= 1000 ? ((persona.followerCount || persona.saveCount || 0) / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : (persona.followerCount || persona.saveCount || 0).toLocaleString()}</span>
+                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">FOLLOWERS</span>
               </div>
             </div>
 
