@@ -1,66 +1,90 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+/**
+ * Authentication Middleware
+ * 
+ * IMPORTANT: This middleware uses an ALLOWLIST for protected routes.
+ * By default, routes are PUBLIC unless explicitly listed as protected.
+ * This prevents accidental blocking of critical APIs.
+ * 
+ * To protect a new route, add it to PROTECTED_PATHS below.
+ * 
+ * @see scripts/verify-api-health.sh - Run this to test API accessibility
+ */
+
+// ============================================
+// PROTECTED ROUTES - Require authentication
+// All other routes are PUBLIC by default
+// ============================================
+const PROTECTED_PATHS = [
+    '/app',            // User dashboard
+    '/admin',          // Admin panel
+    '/settings',       // User settings
+    '/profile',        // User profile
+    '/chat/',          // Active chat sessions (not /chat-with which is pSEO)
+    '/conversations',  // Conversation history
+    '/my-characters',  // User's characters
+    '/api/user',       // User-specific APIs
+    '/api/admin',      // Admin APIs
+    '/api/conversations', // Conversation data
+    '/api/chat/send',  // Sending messages (requires auth)
+];
+
+// ============================================
+// ALWAYS PUBLIC - Never require auth
+// (redundant with default-public, but explicit for clarity)
+// ============================================
+const ALWAYS_PUBLIC = [
+    '/api/tts',        // Voice generation
+    '/api/stripe',     // Stripe webhooks must be accessible
+    '/api/health',     // Health checks
+    '/api/auth',       // Auth flows
+    '/api/pricing',    // Pricing info
+    '/api/personas',   // Character data
+    '/api/characters', // Character data
+    '/api/blog',       // Blog content
+    '/sitemap',        // SEO sitemaps
+    '/login',
+    '/signup',
+    '/auth',
+];
+
 export function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
-    // Public routes that DON'T require authentication
-    const publicPaths = [
-        '/',           // Landing page only
-        '/login',
-        '/signup',
-        '/auth',       // Allow auth paths (callbacks)
-        '/forgot-password',
-        '/reset-password',
-        '/privacy',
-        '/terms',
-        '/about',
-        '/blog',
-        '/discover',   // Public discovery page
-        '/pricing',    // Public pricing page
-        '/character',  // Public character pages
-        '/chat-with',  // Public pSEO pages
-        '/talk-to',    // Public pSEO pages
-        '/roleplay',   // Public pSEO pages
-        '/api/auth',   // Auth endpoints
-        '/api/blog',   // Public blog API
-        '/api/tts',    // TTS must be accessible for voice generation
-        '/api/pricing', // Public pricing API
-        '/api/stripe', // Stripe webhooks and checkout
-        '/api/health', // Health checks
-        '/api/personas', // Character/persona APIs
-        '/api/characters', // Character APIs
-        '/_next',      // Next.js internals
-        '/favicon',
-        '/images',
-        '/videos',
-        '/avatars',
-        '/og-image',
-        '/sitemap',    // Sitemaps for SEO
-    ];
-
-    // Check if current path is public
-    const isPublic = publicPaths.includes(pathname) ||
-        publicPaths.some(path => path !== '/' && pathname.startsWith(path + '/'));
-
-    // Also allow static files
-    const isStatic = pathname.includes('.') && !pathname.includes('/api/');
-    const authToken = request.cookies.get('agentwood_token');
-
-    // Explicitly protect /admin routes
-    if (pathname.startsWith('/admin')) {
-        if (!authToken) {
-            return NextResponse.redirect(new URL('/login?callbackUrl=' + pathname, request.url));
-        }
-        // In the future: Add Admin Role check here if we have a way to decode the token/session on edge
+    // Skip static files entirely
+    if (
+        pathname.startsWith('/_next') ||
+        pathname.startsWith('/favicon') ||
+        pathname.includes('.') // Static files have extensions
+    ) {
+        return NextResponse.next();
     }
 
-    const response = !isPublic && !isStatic && !authToken
-        ? NextResponse.redirect(new URL('/login?callbackUrl=' + pathname, request.url))
-        : NextResponse.next();
+    // Check if route is explicitly protected
+    const isProtected = PROTECTED_PATHS.some(path =>
+        pathname === path || pathname.startsWith(path + '/')
+    );
 
-    response.headers.set('X-Middleware-Public', isPublic ? 'true' : 'false');
-    if (authToken) response.headers.set('X-Middleware-HasAuth', 'true');
+    // Check if route is explicitly public (for logging/debugging)
+    const isExplicitlyPublic = ALWAYS_PUBLIC.some(path =>
+        pathname === path || pathname.startsWith(path + '/')
+    );
+
+    const authToken = request.cookies.get('agentwood_token');
+    const response = NextResponse.next();
+
+    // Only redirect to login if route is PROTECTED and user is not authenticated
+    if (isProtected && !authToken) {
+        console.log(`[Middleware] Protected route blocked: ${pathname}`);
+        return NextResponse.redirect(new URL('/login?callbackUrl=' + pathname, request.url));
+    }
+
+    // Debug headers (remove in production if needed)
+    response.headers.set('X-Route-Protected', isProtected ? 'true' : 'false');
+    response.headers.set('X-Route-Explicit-Public', isExplicitlyPublic ? 'true' : 'false');
+    if (authToken) response.headers.set('X-Has-Auth', 'true');
 
     return response;
 }
@@ -72,7 +96,8 @@ export const config = {
          * - _next/static (static files)
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
+         * - public files with extensions
          */
-        '/((?!_next/static|_next/image|favicon.ico).*)',
+        '/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)',
     ],
 };
