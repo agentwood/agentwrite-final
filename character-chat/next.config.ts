@@ -60,7 +60,13 @@ const nextConfig: NextConfig = {
   // Enable static page generation where possible
   // Output standalone removed to debug InvariantError
   // Experimental features disabled to fix build InvariantError
-  experimental: {},
+  experimental: {
+    // @ts-ignore - turbopack might not be in the type definition yet or is experimental
+    turbopackRules: {},
+  },
+  // Explicitly configure Turbopack as empty to acknowledge the migration
+  // @ts-ignore - The types might not update immediately for this property
+  turbopack: {},
   // Output file tracing excludes to reduce bundle size
   outputFileTracingExcludes: {
     '*': [
