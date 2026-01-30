@@ -131,3 +131,30 @@ export function getAuthHeaders(): Record<string, string> {
   };
 }
 
+/**
+ * Get user ID from a server-side request
+ * Extracts user ID from request headers or cookies
+ */
+export function getUserIdFromRequest(request: Request): string | null {
+  // Try x-user-id header first
+  const headerUserId = request.headers.get('x-user-id');
+  if (headerUserId && headerUserId !== '') {
+    return headerUserId;
+  }
+
+  // Try to get from cookie
+  const cookieHeader = request.headers.get('cookie');
+  if (cookieHeader) {
+    const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+      const [key, value] = cookie.trim().split('=');
+      acc[key] = value;
+      return acc;
+    }, {} as Record<string, string>);
+
+    if (cookies['agentwood_token']) {
+      return cookies['agentwood_token'];
+    }
+  }
+
+  return null;
+}
