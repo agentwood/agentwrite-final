@@ -29,7 +29,9 @@ const SCENARIOS = characterData.scenarios;
 export async function generateStaticParams() {
     const params: { character: string; scenario: string }[] = [];
 
-    TOP_CHARACTERS.forEach(character => {
+    // Limit to just the first character for build time to avoid DB connection limits
+    // The rest will be generated on demand via ISR (dynamicParams = true)
+    TOP_CHARACTERS.slice(0, 1).forEach(character => {
         SCENARIOS.forEach(scenario => {
             params.push({ character, scenario });
         });
