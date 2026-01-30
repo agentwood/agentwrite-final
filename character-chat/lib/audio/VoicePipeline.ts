@@ -10,7 +10,7 @@
  * 5. Storage (Prisma)
  */
 
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db';
 import { pocketTtsClient } from './pocketTtsClient';
 // import { AnalysisService } from './AnalysisService'; // To be implemented
 // import { Tree0Normalizer } from './Tree0Normalizer'; // To be implemented

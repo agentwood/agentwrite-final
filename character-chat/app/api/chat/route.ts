@@ -177,15 +177,15 @@ export async function POST(request: NextRequest) {
     // Get character memory (Short-term) and learned patterns
     const memory = await getCharacterMemory(persona.id, userId);
 
+    // Extract user messages once for use later (including Cognee memory save)
+    const userMessages = messages.filter((m: any) => m.role === 'user');
+    const latestUserMessage = userMessages[userMessages.length - 1];
+
     // [COGNEE] Retrieve Long-Term Memories via Knowledge Graph (Graph RAG)
     // This replaces Vector RAG with deterministic graph-based retrieval
     let longTermMemoryContext = '';
     try {
       const { augmentPromptWithCogneeMemories } = await import('@/lib/cogneeClient');
-
-      // Extract user information from messages for memory
-      const userMessages = messages.filter((m: any) => m.role === 'user');
-      const latestUserMessage = userMessages[userMessages.length - 1];
 
       if (latestUserMessage && userId) {
         longTermMemoryContext = await augmentPromptWithCogneeMemories(userId, characterId, latestUserMessage.text);

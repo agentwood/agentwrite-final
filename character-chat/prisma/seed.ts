@@ -55,7 +55,6 @@ async function main() {
         tonePack: templateData.tonePack || null,
         scenarioSkin: templateData.scenarioSkin || null,
         systemPrompt: systemPrompt,
-        isOfficial: (templateData as any).isOfficial || false,
         voiceSeed: {
           connect: { name: voiceName }
         }
@@ -74,7 +73,6 @@ async function main() {
         tonePack: templateData.tonePack || null,
         scenarioSkin: templateData.scenarioSkin || null,
         systemPrompt: systemPrompt,
-        isOfficial: (templateData as any).isOfficial || false,
         voiceSeed: {
           connect: { name: voiceName }
         }

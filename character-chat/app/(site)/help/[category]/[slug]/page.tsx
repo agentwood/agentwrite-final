@@ -14,10 +14,10 @@ async function getArticleContent(content: string) {
 }
 
 interface PageProps {
-    params: {
+    params: Promise<{
         category: string;
         slug: string;
-    }
+    }>
 }
 
 // Generate static params for SSG

@@ -169,7 +169,6 @@ export default function ChatWindow({ persona, conversationId, initialMessages = 
 
       // We only care if we are NOT muted by choice
       if (!isMuted && persona.voiceName) {
-        // @ts-ignore - Accessing private property in a hacky way for checking state without creating new token
         const ctx = (audioManager as any).globalAudioContext;
         if (ctx && ctx.state === 'suspended') {
           console.log('[ChatWindow] Audio context suspended, showing unmute overlay');

@@ -17,7 +17,7 @@ export interface BlogPost {
 export async function getSortedPostsData(): Promise<BlogPost[]> {
     try {
         const posts = await db.blogPost.findMany({
-            where: { publishedAt: { not: null } },
+            where: { publishedAt: { gt: new Date(0) } },
             orderBy: { publishedAt: 'desc' },
         });
 

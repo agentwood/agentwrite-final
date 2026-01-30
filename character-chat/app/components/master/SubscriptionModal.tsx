@@ -11,9 +11,16 @@ interface SubscriptionModalProps {
 }
 
 export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose, user, onAuthRequired }) => {
-  if (!isOpen) return null;
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
+  const [realPlans, setRealPlans] = useState<any[]>([]);
+
+  // Fetch real plans on mount to get price IDs
+  React.useEffect(() => {
+    if (isOpen) {
+      fetch('/api/pricing').then(r => r.json()).then(d => setRealPlans(d.plans || [])).catch(() => { });
+    }
+  }, [isOpen]);
 
   const handleSubscribe = async (plan: any) => {
     // 1. Auth Check
@@ -47,6 +54,9 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, on
       console.error(e);
     }
   };
+
+  // Return null early if not open - AFTER all hooks are declared
+  if (!isOpen) return null;
 
   const plans = [
     {
@@ -103,14 +113,6 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, on
       variant: "pro"
     }
   ];
-
-  // Fetch real plans on mount to get price IDs
-  const [realPlans, setRealPlans] = useState<any[]>([]);
-  React.useEffect(() => {
-    if (isOpen) {
-      fetch('/api/pricing').then(r => r.json()).then(d => setRealPlans(d.plans));
-    }
-  }, [isOpen]);
 
   const handlePlanClick = async (staticPlan: any) => {
     // Check auth first

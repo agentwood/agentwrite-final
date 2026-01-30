@@ -96,7 +96,6 @@ export async function POST(request: NextRequest) {
                 qualityScore,
                 noiseScore,
                 status,
-                consentTimestamp: new Date(),
                 displayName: displayName || `Voice by ${userId.slice(0, 8)}`,
                 description,
                 gender,

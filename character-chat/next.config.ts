@@ -94,7 +94,16 @@ const nextConfig: NextConfig = {
   // ISR (Incremental Static Regeneration) for programmatic pages
   // This allows us to generate pages at build time and regenerate on-demand
   // Configure revalidation times per route as needed
-  // Headers for better caching and security
+  // Header for better caching and security
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/home',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
