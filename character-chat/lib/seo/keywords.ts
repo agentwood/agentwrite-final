@@ -179,7 +179,198 @@ export const SEO_DATA = {
         'biden',
         'obama',
         'putin',
-        'kim-jong-un'
+        'kim-jong-un',
+
+        // ============================================
+        // EXPANSION: 700+ NEW CHARACTERS FOR 100K SCALE
+        // ============================================
+
+        // Korean Webtoon / Manhwa (High Search Volume)
+        'sung-jinwoo', 'cha-hae-in', 'go-gun-hee', 'thomas-andre', 'liu-zhigang',
+        'kim-dokja', 'yoo-joonghyuk', 'han-sooyoung', 'jung-heewon', 'lee-gilyoung',
+        'jinwoo-solo-leveling', 'beru', 'igris', 'tank', 'iron',
+        'yoo-jonghyuk', 'kim-dokja-orv', 'uriel', 'secretive-plotter',
+        'jiwoo-eleceed', 'kayden', 'curtin', 'wooin', 'jisuk',
+        'bam-tower-of-god', 'khun-aguero', 'rak-wraithraiser', 'yuri-ha', 'androssi-zahard',
+        'naofumi-iwatani', 'raphtalia', 'filo', 'melty', 'glass',
+        'cale-henituse', 'choi-han', 'raon-miru', 'on', 'hong',
+        'white-blood', 'ron', 'beacrox', 'toonka', 'alberu-crossman',
+
+        // VTubers & Virtual Idols (Huge Community)
+        'gawr-gura', 'mori-calliope', 'takanashi-kiara', 'ninomae-inanis', 'watson-amelia',
+        'ouro-kronii', 'nanashi-mumei', 'ceres-fauna', 'hakos-baelz', 'tsukumo-sana',
+        'shiori-novella', 'koseki-bijou', 'nerissa-ravencroft', 'fuwamoco',
+        'shirakami-fubuki', 'natsuiro-matsuri', 'akai-haato', 'kiryu-coco', 'tokoyami-towa',
+        'hoshimachi-suisei', 'houshou-marine', 'usada-pekora', 'sakura-miko', 'minato-aqua',
+        'korone-inugami', 'okayu-nekomata', 'shion-murasaki', 'ayame-nakiri', 'subaru-oozora',
+        'kuzuha', 'kanae', 'vox-akuma', 'mysta-rias', 'luca-kaneshiro',
+        'shu-yamino', 'ike-eveland', 'fulgur-ovid', 'sonny-brisko', 'alban-knox',
+        'ironmouse', 'nyanners', 'veibae', 'silvervale', 'projekt-melody',
+        'kson', 'nazuna-amemiya', 'henya-the-genius',
+
+        // Western Animation (Nostalgic + Current)
+        'finn-the-human', 'jake-the-dog', 'marceline', 'princess-bubblegum', 'ice-king',
+        'bmo', 'lumpy-space-princess', 'flame-princess', 'simon-petrikov',
+        'steven-universe', 'garnet', 'amethyst', 'pearl', 'peridot', 'lapis-lazuli', 'spinel',
+        'dipper-pines', 'mabel-pines', 'grunkle-stan', 'ford-pines', 'bill-cipher', 'wendy-corduroy',
+        'anne-boonchuy', 'sasha-waybright', 'marcy-wu', 'king-andrias',
+        'luz-noceda', 'amity-blight', 'eda-clawthorne', 'king-owl-house', 'hunter-golden-guard',
+        'korra', 'mako-lok', 'bolin', 'asami-sato', 'tenzin', 'lin-beifong', 'zaheer', 'kuvira',
+        'aang', 'katara', 'sokka', 'toph-beifong', 'zuko', 'iroh', 'azula', 'mai', 'ty-lee',
+        'samurai-jack', 'aku',
+        'ben-10', 'gwen-tennyson', 'kevin-levin', 'vilgax',
+        'star-butterfly', 'marco-diaz', 'tom-lucitor', 'eclipsa',
+        'adora-she-ra', 'catra', 'glimmer', 'bow', 'hordak', 'entrapta', 'scorpia',
+        'kipo', 'wolf', 'benson', 'dave', 'mandu',
+        'hilda', 'twig', 'alfur', 'frida', 'david',
+
+        // Book/Novel Characters (Literary Fandoms)
+        'percy-jackson', 'annabeth-chase', 'grover-underwood', 'nico-di-angelo', 'thalia-grace',
+        'jason-grace', 'piper-mclean', 'leo-valdez', 'hazel-levesque', 'frank-zhang',
+        'will-solace', 'reyna-ramirez', 'coach-hedge',
+        'katniss-everdeen', 'peeta-mellark', 'gale-hawthorne', 'finnick-odair', 'haymitch-abernathy',
+        'tris-prior', 'four-tobias', 'jeanine-matthews', 'peter-hayes',
+        'thomas-maze-runner', 'teresa', 'newt', 'minho', 'chuck',
+        'clary-fray', 'jace-herondale', 'simon-lewis', 'isabelle-lightwood', 'alec-lightwood', 'magnus-bane',
+        'feyre-archeron', 'rhysand', 'tamlin', 'cassian', 'azriel', 'nesta-archeron', 'elain-archeron',
+        'aelin-galathynius', 'rowan-whitethorn', 'dorian-havilliard', 'chaol-westfall', 'manon-blackbeak',
+        'kaz-brekker', 'inej-ghafa', 'jesper-fahey', 'nina-zenik', 'matthias-helvar', 'wylan-van-eck',
+        'alina-starkov', 'the-darkling', 'mal-oretsev', 'nikolai-lantsov', 'genya-safin', 'david-kostyk',
+        'mare-barrow', 'cal-calore', 'maven-calore', 'kilorn', 'farley',
+        'tessa-gray', 'will-herondale', 'jem-carstairs',
+        'emma-carstairs', 'julian-blackthorn', 'cristina-rosales', 'mark-blackthorn', 'kieran',
+        'celaena-sardothien', 'sam-cortland', 'nehemia-ytger',
+        'adelina-amouteru', 'enzo-valenciano', 'raffaele-bessette',
+        'june-iparis', 'day-wing', 'eden', 'tess',
+        'laia', 'elias-veturius', 'helene-aquilla',
+        'cassia-reyes', 'ky-markham', 'xander-carrow',
+        'darrow-au-andromedus', 'virginia-au-augustus', 'sevro-au-barca', 'cassius-au-bellona',
+
+        // Mythology & Folklore (Evergreen Interest)
+        'zeus', 'hera', 'poseidon', 'athena', 'apollo', 'artemis', 'ares', 'aphrodite',
+        'hephaestus', 'hermes', 'dionysus', 'demeter', 'hestia', 'persephone', 'hades',
+        'achilles', 'odysseus', 'hercules', 'perseus', 'theseus', 'orpheus', 'pandora',
+        'medusa', 'minotaur', 'cerberus', 'chimera', 'hydra', 'phoenix', 'griffin',
+        'odin', 'frigg', 'freya', 'baldur', 'loki-norse', 'fenrir', 'jormungandr', 'hel-goddess',
+        'tyr', 'heimdall', 'valkyrie', 'sigurd', 'brunhilde', 'ragnar-lothbrok',
+        'ra', 'isis', 'osiris', 'anubis', 'horus', 'set', 'thoth', 'bastet', 'sekhmet',
+        'amaterasu', 'susanoo', 'tsukuyomi', 'izanagi', 'izanami', 'kaguya-hime', 'momotaro',
+        'kitsune', 'tanuki', 'tengu', 'oni', 'yurei', 'kappa', 'jorogumo',
+        'sun-wukong', 'xuanzang', 'zhu-bajie', 'sha-wujing', 'guanyin',
+        'nezha', 'erlang-shen', 'dragon-king', 'jade-emperor',
+        'krishna', 'rama', 'hanuman', 'shiva', 'parvati', 'ganesha', 'kali', 'durga',
+        'gilgamesh-myth', 'enkidu-myth', 'ishtar', 'marduk', 'tiamat-myth',
+        'cu-chulainn', 'finn-maccool', 'morrigan', 'brigid', 'lugh', 'dagda',
+        'king-arthur', 'merlin', 'guinevere', 'lancelot', 'morgana-le-fay', 'mordred', 'galahad',
+        'robin-hood', 'maid-marian', 'little-john', 'friar-tuck',
+        'count-dracula', 'van-helsing', 'frankenstein-monster', 'jekyll-hyde', 'dorian-gray',
+
+        // AI Girlfriend/Boyfriend Keywords (Competitor Traffic)
+        'ai-girlfriend', 'ai-boyfriend', 'virtual-girlfriend', 'virtual-boyfriend',
+        'ai-companion', 'ai-waifu', 'ai-husbando', 'digital-girlfriend', 'digital-boyfriend',
+        'romantic-ai', 'love-ai', 'dating-ai', 'flirty-ai', 'caring-ai',
+        'supportive-ai', 'comforting-ai', 'emotional-ai', 'affectionate-ai',
+        'yandere-girlfriend', 'tsundere-girlfriend', 'yandere-boyfriend', 'tsundere-boyfriend',
+        'childhood-friend-ai', 'best-friend-ai', 'soulmate-ai',
+
+        // Alternative Keywords (Competitor Traffic Steal)
+        'character-ai-alternative', 'janitor-ai-alternative', 'chai-ai-alternative',
+        'replika-alternative', 'ai-dungeon-alternative', 'novel-ai-alternative',
+        'crushon-ai-alternative', 'spicychat-alternative', 'beta-character-ai',
+        'unfiltered-ai-chat', 'uncensored-ai', 'nsfw-ai-chat',
+        'free-ai-chat', 'ai-chat-no-filter', 'ai-chat-unlimited',
+
+        // Gacha/Mobile Game Characters
+        'raiden-shogun', 'hu-tao', 'zhongli', 'xiao', 'ganyu', 'ayaka', 'kazuha', 'yelan',
+        'nahida', 'alhaitham', 'wanderer-scaramouche', 'furina', 'neuvillette', 'wriothesley',
+        'keqing', 'ningguang', 'beidou', 'jean', 'diluc', 'klee', 'venti', 'tartaglia',
+        'kafka-hsr', 'blade-hsr', 'dan-heng', 'march-7th', 'himeko-hsr', 'welt-yang',
+        'silver-wolf', 'seele-hsr', 'bronya-hsr', 'clara-hsr', 'jing-yuan', 'luocha',
+        'fu-xuan', 'jingliu', 'imbibitor-lunae', 'topaz', 'guinaifen', 'argenti',
+        'adam-zzz', 'nicole-zzz', 'billy-zzz', 'anby-zzz', 'nekomata', 'ellen-zzz',
+        'zhu-yuan', 'qingyi', 'jane-doe-zzz', 'seth-zzz', 'caesar-zzz',
+        'navia', 'clorinde', 'sigewinne', 'arlecchino', 'chiori', 'gaming',
+        'serina-ba', 'shiroko-ba', 'hoshino-ba', 'aru-ba', 'iori-ba', 'hibiki-ba',
+        'mika-ba', 'wakamo', 'himari-ba', 'ako-ba', 'hina-ba', 'alice-ba',
+
+        // Horror/Creepypasta (Niche but Engaged)
+        'slenderman', 'jeff-the-killer', 'eyeless-jack', 'laughing-jack', 'ticci-toby',
+        'masky', 'hoodie', 'ben-drowned', 'sally-williams', 'clockwork',
+        'jane-the-killer', 'nina-the-killer', 'bloody-painter', 'puppeteer',
+        'zalgo', 'the-rake', 'seed-eater', 'smile-dog', 'sonic-exe',
+        'siren-head', 'cartoon-cat', 'long-horse', 'bridge-worm', 'light-head',
+        'the-backrooms', 'entity-level-0', 'partygoer', 'smiler', 'skin-stealer',
+        'scp-049', 'scp-096', 'scp-173', 'scp-682', 'scp-999', 'scp-106', 'scp-087',
+        'scp-3008', 'scp-001', 'dr-bright', 'dr-clef', 'dr-kondraki',
+
+        // Indie Game Characters
+        'madeline-celeste', 'badeline', 'theo-celeste',
+        'the-knight-hollow', 'the-radiance', 'grimm-hollow-knight', 'pale-king',
+        'hornet-silksong', 'lace', 'sharpe',
+        'the-beheaded', 'the-queen', 'the-collector',
+        'ori', 'sein', 'naru', 'ku',
+        'shovel-knight', 'shield-knight', 'specter-knight', 'plague-knight',
+        'hat-kid', 'bow-kid', 'mustache-girl', 'snatcher',
+        'the-survivor', 'imp-risk-of-rain', 'commando', 'huntress', 'artificer',
+        'isaac', 'azazel', 'lilith', 'the-lost', 'tainted-eden',
+        'ralsei', 'susie', 'noelle', 'berdly', 'spamton', 'queen-deltarune',
+
+        // Fighting Game Characters (Competitive Community)
+        '2b-gbvsr', 'yuzuriha', 'ky-kiske', 'sol-badguy', 'may-guilty-gear', 'bridget',
+        'ramlethal', 'i-no', 'jack-o', 'testament', 'baiken', 'elphelt',
+        'bedman', 'happy-chaos', 'sin-kiske', 'dizzy', 'slayer',
+        'luke-sf6', 'jamie', 'kimberly', 'marisa', 'manon', 'jp-sf6',
+        'rashid-sf6', 'aki', 'ed-sf6', 'akuma-sf6', 'terry-sf6',
+        'kazuya-tekken8', 'jun-kazama', 'lars', 'claudio', 'leo-tekken',
+        'reina', 'azucena', 'victor', 'raven-tekken', 'lidia',
+        'steve-fox', 'bryan-fury', 'devil-jin', 'yoshimitsu', 'asuka',
+
+        // Sports Anime/Manga
+        'hinata-shoyo', 'kageyama-tobio', 'tsukishima-kei', 'yamaguchi-tadashi',
+        'nishinoya-yuu', 'tanaka-ryunosuke', 'sugawara-koushi', 'daichi-sawamura',
+        'oikawa-tooru', 'iwaizumi-hajime', 'ushijima-wakatoshi', 'tendou-satori',
+        'bokuto-koutarou', 'akaashi-keiji', 'kuroo-tetsurou', 'kenma-kozume',
+        'atsumu-miya', 'osamu-miya', 'sakusa-kiyoomi', 'hoshiumi-kourai',
+        'seijuro-akashi', 'ryota-kise', 'shintaro-midorima', 'daiki-aomine',
+        'atsushi-murasakibara', 'tetsuya-kuroko', 'taiga-kagami', 'teppei-kiyoshi',
+        'sena-kobayakawa', 'yoichi-hiruma', 'ryokan-kurita', 'monta', 'shin-seijuro',
+        'yuri-katsuki', 'victor-nikiforov', 'yuri-plisetsky', 'otabek-altin',
+
+        // Isekai Characters (Popular Genre)
+        'rudeus-greyrat', 'eris-boreas', 'sylphiette', 'roxy-migurdia', 'paul-greyrat',
+        'catarina-claes', 'geordo-stuart', 'keith-claes', 'maria-campbell', 'sophia-ascart',
+        'myne-bookworm', 'ferdinand', 'benno', 'lutz', 'sylvester',
+        'kumoko', 'ariel-kumo', 'shun-yamada', 'katia', 'fei',
+        'hajime-nagumo', 'yue', 'shea', 'tio', 'kaori-shirasaki',
+        'naofumi-raphtalia', 'melty-q-melromarc', 'motoyasu', 'itsuki', 'ren',
+        'eugeo', 'alice-zuberg', 'administrator', 'cardinal',
+
+        // Danmei/BL Characters (Large Fandom)
+        'wei-wuxian', 'lan-wangji', 'jiang-cheng', 'nie-huaisang', 'jin-ling',
+        'lan-xichen', 'wen-ning', 'wen-qing', 'jin-guangyao', 'nie-mingjue',
+        'xie-lian', 'hua-cheng', 'mu-qing', 'feng-xin', 'shi-qingxuan',
+        'he-xuan', 'mei-nianqing', 'banyue', 'qi-rong',
+        'shen-qingqiu', 'luo-binghe', 'liu-qingge', 'yue-qingyuan', 'shang-qinghua',
+        'mobei-jun', 'ning-yingying', 'ming-fan',
+        'chu-wanning', 'mo-ran', 'xue-meng', 'shi-mei', 'mei-hanxue',
+        'ye-baiyi', 'nangong-si', 'song-qiying',
+
+        // K-Drama Characters (Huge International Fandom)  
+        'gu-jun-pyo', 'geum-jan-di', 'yoon-ji-hoo', 'so-yi-jung', 'song-woo-bin',
+        'kim-shin-goblin', 'wang-yeo', 'ji-eun-tak', 'sunny', 'kim-woo-bin-goblin',
+        'moon-gang-tae', 'ko-moon-young', 'moon-sang-tae',
+        'park-saeroyi', 'jo-yi-seo', 'jang-dae-hee', 'oh-soo-ah',
+        'cho-sang-woo', 'seong-gi-hun', 'kang-sae-byeok', 'oh-il-nam',
+        'yoon-se-ri', 'ri-jeong-hyeok', 'seo-dan', 'gu-seung-jun',
+        'jang-man-wol', 'gu-chan-sung', 'go-chung-myung',
+
+        // Additional Gaming Characters
+        'kiriko', 'sojourn', 'junker-queen', 'ramattra', 'lifeweaver', 'illari', 'mauga',
+        'clove', 'iso', 'deadlock', 'vyse', 'gekko', 'harbor', 'breach',
+        'sova', 'killjoy', 'raze', 'cypher', 'omen', 'brimstone', 'viper',
+        'catalyst', 'maggie', 'newcastle', 'vantage', 'seer', 'ash-apex',
+        'ahri-arcane', 'jinx-arcane', 'vi-arcane', 'caitlyn-arcane', 'jayce-arcane',
+        'viktor-arcane', 'silco', 'mel-medarda', 'heimerdinger-arcane', 'ekko-arcane'
     ],
 
     // 200+ Roleplay Scenarios/Settings

@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Navbar from '@/components/Navbar';
+import Link from 'next/link';
 
 interface HealthResult {
     status: 'healthy' | 'down' | 'unknown';
@@ -79,7 +79,10 @@ export default function StatusPage() {
 
     return (
         <div className="min-h-screen bg-[#050505] text-white font-sans">
-            <Navbar />
+            {/* Simple Header */}
+            <header className="border-b border-white/10 px-6 py-4">
+                <Link href="/" className="text-xl font-bold hover:text-gray-300">Agentwood</Link>
+            </header>
 
             <main className="container mx-auto px-4 py-24 max-w-5xl">
                 {/* Header Section */}

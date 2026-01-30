@@ -15,6 +15,10 @@ import {
 import Link from 'next/link';
 import characterData from '@/data/seo/character-names.json';
 
+// ISR Configuration for 100k+ page scale
+export const revalidate = 86400; // Regenerate every 24 hours
+export const dynamicParams = true; // Generate pages on-demand
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://agentwood.xyz';
 
 // Flatten all character names for static generation

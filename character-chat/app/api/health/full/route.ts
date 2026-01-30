@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db';
 import { getGeminiClient } from '@/lib/geminiClient';
 import { pocketTtsClient } from '@/lib/audio/pocketTtsClient';
 
@@ -18,7 +18,7 @@ export async function GET() {
     // 1. Database Check
     const dbStart = Date.now();
     try {
-        await prisma.$queryRaw`SELECT 1`;
+        await db.$queryRaw`SELECT 1`;
         results.database = { status: 'healthy', latency: Date.now() - dbStart, message: 'Connected' };
     } catch (e: any) {
         results.database = { status: 'down', latency: Date.now() - dbStart, message: e.message };

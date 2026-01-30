@@ -15,6 +15,10 @@ import {
 } from '@/lib/seo/structured-data';
 import Link from 'next/link';
 
+// ISR Configuration for 100k+ page scale
+export const revalidate = 86400; // Regenerate every 24 hours
+export const dynamicParams = true; // Generate pages on-demand
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://agentwood.xyz';
 
 // Pre-defined archetypes for SEO
