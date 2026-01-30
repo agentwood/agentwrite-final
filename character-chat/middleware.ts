@@ -16,14 +16,27 @@ export function middleware(request: NextRequest) {
         '/terms',
         '/about',
         '/blog',
+        '/discover',   // Public discovery page
+        '/pricing',    // Public pricing page
+        '/character',  // Public character pages
+        '/chat-with',  // Public pSEO pages
+        '/talk-to',    // Public pSEO pages
+        '/roleplay',   // Public pSEO pages
         '/api/auth',   // Auth endpoints
         '/api/blog',   // Public blog API
+        '/api/tts',    // TTS must be accessible for voice generation
+        '/api/pricing', // Public pricing API
+        '/api/stripe', // Stripe webhooks and checkout
+        '/api/health', // Health checks
+        '/api/personas', // Character/persona APIs
+        '/api/characters', // Character APIs
         '/_next',      // Next.js internals
         '/favicon',
         '/images',
         '/videos',
         '/avatars',
         '/og-image',
+        '/sitemap',    // Sitemaps for SEO
     ];
 
     // Check if current path is public

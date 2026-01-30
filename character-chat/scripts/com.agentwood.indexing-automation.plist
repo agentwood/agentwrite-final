@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Unique identifier for this job -->
+    <key>Label</key>
+    <string>com.agentwood.indexing-automation</string>
+    
+    <!-- Description -->
+    <key>ServiceDescription</key>
+    <string>Submits Agentwood URLs to search engines for indexing</string>
+    
+    <!-- Path to the script -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/akeemojuko/Downloads/agentwrite-final/character-chat/scripts/submit-urls-for-indexing.sh</string>
+    </array>
+    
+    <!-- Run daily at 3:00 AM -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>3</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+    
+    <!-- Also run at 3:00 PM for twice-daily indexing -->
+    <!-- Uncomment below for twice-daily runs -->
+    <!--
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key>
+            <integer>3</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+        <dict>
+            <key>Hour</key>
+            <integer>15</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+    </array>
+    -->
+    
+    <!-- Run immediately if we missed a scheduled time -->
+    <key>RunAtLoad</key>
+    <false/>
+    
+    <!-- Logging -->
+    <key>StandardOutPath</key>
+    <string>/Users/akeemojuko/Library/Logs/agentwood-indexing-stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/akeemojuko/Library/Logs/agentwood-indexing-stderr.log</string>
+    
+    <!-- Environment -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+</dict>
+</plist>
